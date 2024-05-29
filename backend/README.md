@@ -11,12 +11,15 @@
 
 - Add the Client ID and secret as an environment variable
   
-  Sample .env format:
+- Sample .env format:
+  
+  ```bash
   CLIENT_ID=""
   CLIENT_SEC=""
   FRONTEND_ORIGIN_DEV=""
   REDIRECT_URL_DEV=""
   SESSION_KEY=""
+  ```
 
 - Run the application:
   
