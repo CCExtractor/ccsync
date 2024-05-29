@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/gob"
+	"encoding/hex"
 	"encoding/json"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
@@ -92,7 +95,21 @@ func (a *App) oAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Store the user info in a session
+	// Generate a UUID based on email and id
+	email, okEmail := userInfo["email"].(string)
+	id, okId := userInfo["id"].(string)
+	if !okEmail || !okId {
+		http.Error(w, "Unable to retrieve user info", http.StatusInternalServerError)
+		return
+	}
+	uuidStr := generateUUID(email, id)
+
+	// Generate an encryption secret based on the UUID, email, and id
+	encryptionSecret := generateEncryptionSecret(uuidStr, email, id)
+
+	// Store the data in a session
+	userInfo["uuid"] = uuidStr
+	userInfo["encryption_secret"] = encryptionSecret
 	session, _ := a.sessionStore.Get(r, "session-name")
 	session.Values["user"] = userInfo
 	if err := session.Save(r, w); err != nil {
@@ -105,6 +122,19 @@ func (a *App) oAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	frontendOriginDev := os.Getenv("FRONTEND_ORIGIN_DEV")
 	http.Redirect(w, r, frontendOriginDev+"/home", http.StatusSeeOther)
+}
+
+// generate a UUID based on email and id
+func generateUUID(email, id string) string {
+	namespace := uuid.NewMD5(uuid.NameSpaceOID, []byte(email+id))
+	return namespace.String()
+}
+
+// generate a secret based on UUID, email, and id
+func generateEncryptionSecret(uuidStr, email, id string) string {
+	hash := sha256.New()
+	hash.Write([]byte(uuidStr + email + id))
+	return hex.EncodeToString(hash.Sum(nil))
 }
 
 // returns the authenticated user's info
