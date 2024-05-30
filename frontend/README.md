@@ -9,5 +9,7 @@
     ```
 
 -  Set environment variables in .env as:
+    ```bash
     VITE_BACKEND_URL="http://localhost:8000/"
     VITE_FRONTEND_URL="http://localhost:5173/"
+    ```
