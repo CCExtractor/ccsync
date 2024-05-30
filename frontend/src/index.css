@@ -1,0 +1,65 @@
+html {
+  scroll-behavior: smooth;
+}
+
+/* HeroCards background shadow */
+.shadow {
+  position: absolute;
+  background: hsla(330, 100%, 50%, 0%);
+  border-radius: 24px;
+  rotate: 35deg;
+
+  width: 260px;
+  top: 200px;
+  height: 400px;
+  filter: blur(150px);
+  animation: shadow-slide infinite 4s linear alternate;
+}
+
+@keyframes shadow-slide {
+  from {
+    background: hsla(330, 100%, 50%, 20%); /* Pink shadow color */
+    right: 460px;
+  }
+  to {
+    background: hsla(240, 100%, 50%, 80%); /* Blue shadow color */
+    right: 160px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .shadow {
+    top: 70px;
+  }
+
+  @keyframes shadow-slide {
+    from {
+      background: hsla(330, 100%, 50%, 20%); /* Pink shadow color */
+      right: 460px;
+    }
+    to {
+      background: hsla(240, 100%, 50%, 50%); /* Blue shadow color */
+      right: 160px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .shadow {
+    top: 70px;
+    width: 100px;
+    height: 350px;
+    filter: blur(60px);
+  }
+
+  @keyframes shadow-slide {
+    from {
+      background: hsla(330, 100%, 50%, 20%); /* Pink shadow color */
+      right: 280px;
+    }
+    to {
+      background: hsla(240, 100%, 50%, 30%); /* Blue shadow color */
+      right: 100px;
+    }
+  }
+}
