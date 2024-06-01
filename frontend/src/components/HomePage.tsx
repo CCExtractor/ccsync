@@ -3,6 +3,7 @@ import { Navbar } from "./HomeComponents/Navbar_HP";
 import { Hero } from "./HomeComponents/Hero_HP";
 import { Footer } from "./HomeComponents/Footer_HP";
 import { SetupGuide } from "./HomeComponents/SetupGuide_HP";
+import { FAQ } from "./HomeComponents/FAQ_HP";
 
 export const HomePage: React.FC = () => {
     const [userInfo, setUserInfo] = useState<any>(null);
@@ -38,6 +39,7 @@ export const HomePage: React.FC = () => {
                     <Navbar imgurl={userInfo.picture} email={userInfo.email} />
                     <Hero name={userInfo.name} uuid={userInfo.uuid} encryption_secret={userInfo.encryption_secret} />
                     <SetupGuide name={userInfo.name} uuid={userInfo.uuid} encryption_secret={userInfo.encryption_secret} />
+                    <FAQ />
                     <Footer />
                 </div>
             ) : (<div>
