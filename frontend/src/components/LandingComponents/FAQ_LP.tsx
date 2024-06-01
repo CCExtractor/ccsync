@@ -33,7 +33,7 @@ const FAQList: FAQProps[] = [
   },
   {
     question: "How do I initialize sync between my clients?",
-    answer: "The connection process is straightforward. Refer to our detailed documentation (link to documentation) for step-by-step instructions on configuring Taskchampion to connect to our server.",
+    answer: "The connection process is straightforward. Refer to our detailed documentation (link to documentation) for step-by-step instructions on configuring Taskwarrior to connect to our server.",
     value: "item-4",
   },
   {
