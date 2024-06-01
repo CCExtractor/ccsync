@@ -27,14 +27,42 @@ export const SetupGuide = (props: Props) => {
                 <div className="px-6 flex flex-col-reverse md:flex-row gap-8 md:gap-12">
                     <div className="bg-green-0 flex flex-col justify-between">
                         <div className="pb-6">
-                            <h2 className="text-3xl md:text-4xl font-bold">
+                            <h2 className="text-3xl md:text-4xl font-bold text-center">
                                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                                     Setup{" "}
                                 </span>
                                 Guide
                             </h2>
+
+
+                            <h3 className="text-2xl mt-10 md:text-2xl font-bold">
+                                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                    1.{" "}
+                                </span>
+                                PREREQUISITES
+                            </h3>
                             <p className="text-xl text-muted-foreground mt-10 mb-5">
-                                1. You will need an encryption secret used to encrypt and decrypt your tasks. This
+                                Ensure that Taskwarrior 3.0 or greater is installed on your system
+                                <div className="mt-4 flex items-center">
+                                    <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
+                                        <code className="whitespace-nowrap">{"task --version"}</code>
+                                    </div>
+                                    <CopyToClipboard text={"task --version"} onCopy={() => handleCopy('Text')}>
+                                        <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-4 px-2 rounded ml-2">
+                                            <CopyIcon />
+                                        </button>
+                                    </CopyToClipboard>
+                                </div>
+                            </p>
+
+                            <h3 className="text-2xl mt-10 md:text-2xl font-bold">
+                                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                    2.{" "}
+                                </span>
+                                CONFIGURATION
+                            </h3>
+                            <p className="text-xl text-muted-foreground mt-10 mb-5">
+                                You will need an encryption secret used to encrypt and decrypt your tasks. This
                                 can be any secret string, and must match for all replicas sharing tasks.
                                 For  most  of these, you will need an encryption secret used to encrypt and decrypt your tasks.
 
@@ -49,7 +77,7 @@ export const SetupGuide = (props: Props) => {
                                     </CopyToClipboard>
                                 </div>
                                 <br></br>
-                                2. Configure Taskwarrior with these details:
+                                Configure Taskwarrior with these commands, run these commands one block at a time
 
                                 {/*Link to container*/}
                                 <div className="mt-4 flex items-center">
@@ -75,7 +103,28 @@ export const SetupGuide = (props: Props) => {
                                     </CopyToClipboard>
                                 </div>
                                 <br></br>
-                                3. For more information about how this works, refer to the <b>task-sync(5)</b> manpage for details on how to configure the new sync implementation.
+                                For more information about how this works, refer to the <b>task-sync(5)</b> manpage for details on how to configure the new sync implementation.
+                            </p>
+
+
+                            <h3 className="text-2xl mt-10 md:text-2xl font-bold">
+                                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                    3.{" "}
+                                </span>
+                                SYNC
+                            </h3>
+                            <p className="text-xl text-muted-foreground mt-10 mb-5">
+                               Finally, setup the sync for your Taskwarrior client!
+                                <div className="mt-5 flex items-center">
+                                    <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
+                                        <code className="whitespace-nowrap">{"task sync init"}</code>
+                                    </div>
+                                    <CopyToClipboard text={"task sync init"} onCopy={() => handleCopy('Text')}>
+                                        <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-4 px-2 rounded ml-2">
+                                            <CopyIcon />
+                                        </button>
+                                    </CopyToClipboard>
+                                </div>
                             </p>
                         </div>
                     </div>
