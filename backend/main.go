@@ -56,6 +56,11 @@ func main() {
 	mux.HandleFunc("/auth/callback", app.OAuthCallbackHandler)
 	mux.HandleFunc("/api/user", app.UserInfoHandler)
 	mux.HandleFunc("/auth/logout", app.LogoutHandler)
+	mux.HandleFunc("/tasks", tasksHandler)
+	mux.HandleFunc("/add-task", addTaskHandler)
+	mux.HandleFunc("/edit-task", editTaskHandler)
+	mux.HandleFunc("/complete-task", completeTaskHandler)
+	mux.HandleFunc("/sync-tasks", syncTasksHandler)
 
 	log.Println("Server started at :8000")
 	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
