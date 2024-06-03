@@ -19,23 +19,18 @@ export const SetupGuide = (props: Props) => {
     };
 
     return (
-        <section
-            id="setup-guide"
-            className="container py-24 sm:py-32"
-        >
-            <div className="bg-muted/50 border rounded-lg py-12">
+        <section id="setup-guide" className="container py-24 sm:py-32">
+            <h2 className="text-3xl md:text-4xl font-bold text-center">
+                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                    Setup{" "}
+                </span>
+                Guide
+            </h2>
+            <div className="bg-muted/50 border mt-10 rounded-lg py-12">
                 <div className="px-6 flex flex-col-reverse md:flex-row gap-8 md:gap-12">
                     <div className="bg-green-0 flex flex-col justify-between">
                         <div className="pb-6">
-                            <h2 className="text-3xl md:text-4xl font-bold text-center">
-                                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                    Setup{" "}
-                                </span>
-                                Guide
-                            </h2>
-
-
-                            <h3 className="text-2xl mt-10 md:text-2xl font-bold">
+                            <h3 className="text-2xl mt-0 md:text-2xl font-bold">
                                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                                     1.{" "}
                                 </span>
@@ -114,7 +109,7 @@ export const SetupGuide = (props: Props) => {
                                 SYNC
                             </h3>
                             <p className="text-xl text-muted-foreground mt-10 mb-5">
-                               Finally, setup the sync for your Taskwarrior client!
+                                Finally, setup the sync for your Taskwarrior client!
                                 <div className="mt-5 flex items-center">
                                     <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
                                         <code className="whitespace-nowrap">{"task sync init"}</code>
