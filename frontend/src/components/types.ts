@@ -9,4 +9,20 @@ export interface Props {
   name: string;
   uuid: string;
   encryption_secret: string;
-};
+}
+
+export interface Task {
+  id: number;
+  description: string;
+  project: string;
+  tag: string;
+  status: string;
+  uuid: string;
+  urgency: number;
+  priority: string;
+  due: string;
+  end: string;
+  entry: string;
+  modified: string;
+  email: string;
+}
