@@ -77,8 +77,9 @@ export const Footer = () => {
           <div>
             <a
               rel="noreferrer noopener"
-              href="#"
+              href="https://taskwarrior.org/docs/"
               className="opacity-60 hover:opacity-100"
+              target="_blank"
             >
               Taskwarrior
             </a>
@@ -87,8 +88,9 @@ export const Footer = () => {
           <div>
             <a
               rel="noreferrer noopener"
-              href="#"
+              href="https://github.com/GothenburgBitFactory/taskchampion-sync-server/tree/main"
               className="opacity-60 hover:opacity-100"
+              target="_blank"
             >
               Taskchampion-sync-server
             </a>
