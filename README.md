@@ -137,6 +137,7 @@ Sync server for Taskwarrior
   // Initialize Firebase
   export const app = initializeApp(firebaseConfig);
   ```
+-  Download it, and store it at frontend/src/lib/ by the name *firestore.js*
 
 ### Run the Containers:
 
