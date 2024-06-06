@@ -11,8 +11,8 @@ export const HomePage: React.FC = () => {
     const backendURL = import.meta.env.VITE_BACKEND_URL;
     const frontendURL = import.meta.env.VITE_FRONTEND_URL;
     const containerOrigin = import.meta.env.VITE_CONATINER_ORIGIN;
-
     console.log(backendURL)
+
     useEffect(() => {
         fetchUserInfo();
     }, []);
