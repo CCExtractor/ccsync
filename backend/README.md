@@ -15,9 +15,14 @@
   ```bash
   CLIENT_ID="client_ID"
   CLIENT_SEC="client_SECRET"
-  FRONTEND_ORIGIN_DEV="http://localhost"
   REDIRECT_URL_DEV="http://localhost:8000/auth/callback"
   SESSION_KEY=""
+  # If using Docker
+  FRONTEND_ORIGIN_DEV="http://localhost"
+  CONTAINER_ORIGIN="http://172.19.0.2:8080/"
+  # Else if using npm
+  FRONTEND_ORIGIN_DEV="http://localhost:5173"
+  CONTAINER_ORIGIN="http://localhost:8080/"
   ```
 
   Common pitfall: use the value

@@ -29,6 +29,9 @@ import { Menu } from "lucide-react";
 import { ModeToggle } from "../theme-mode-toggle";
 import logo from "../../assets/logo.png";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { toast } from "react-toastify";
+import { tasksCollection } from "@/lib/controller";
+import { doc, getDocs, setDoc, updateDoc } from "firebase/firestore";
 
 interface RouteProps {
     href: string;
@@ -38,6 +41,9 @@ interface RouteProps {
 type Props = {
     imgurl: string;
     email: string;
+    encryptionSecret: string;
+    origin: string;
+    UUID: string;
 };
 
 
@@ -60,11 +66,18 @@ const handleLogout = async () => {
     }
 };
 
+
+
 const routeList: RouteProps[] = [
     {
         href: "#",
         label: "Home",
-    }, {
+    },
+    {
+        href: "#tasks",
+        label: "Tasks",
+    },
+    {
         href: "#setup-guide",
         label: "Setup Guide",
     },
@@ -77,6 +90,74 @@ const routeList: RouteProps[] = [
 export const Navbar = (props: Props) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
+    async function syncTasksWithTwAndDb() {
+        try {
+            const backendURL = import.meta.env.VITE_BACKEND_URL;
+            const user_email = props.email;
+
+            const email = props.email;
+            const encryptionSecret = props.encryptionSecret;
+            const UUID = props.UUID; 
+
+            const url = backendURL + `/tasks?email=${encodeURIComponent(email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
+
+            // Fetch tasks from Firebase Firestore
+            const snapshot = await getDocs(tasksCollection);
+            const firebaseTasks = snapshot.docs.map(doc => ({ uuid: doc.id, ...doc.data() }));
+
+            // Fetch tasks from Taskwarrior
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.ok) {
+                console.log('Synced Tasks succesfully!')
+                toast.success(`Tasks synced succesfully!`, {
+                    position: "bottom-left",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            } else {
+                console.log('Server is down. Failed to sync tasks')
+                toast.error(`Server is down. Failed to sync tasks`, {
+                    position: "bottom-left",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            }
+            if (!response.ok) {
+                throw new Error('Failed to fetch tasks');
+            }
+            const taskwarriorTasks = await response.json();
+
+            const firebaseTaskUuids = new Set(firebaseTasks.map(task => task.uuid));
+
+            await Promise.all(taskwarriorTasks.map(async (task: any) => {
+                task.email = user_email;
+                if (!firebaseTaskUuids.has(task.uuid)) {
+                    const newTaskRef = doc(tasksCollection, task.uuid);
+                    await setDoc(newTaskRef, task);
+                    console.log("tasks synced with db!")
+                } else {
+                    const existingTaskRef = doc(tasksCollection, task.uuid);
+                    await updateDoc(existingTaskRef, task);
+                    console.log("no changes made to the tasks, so tasks not synced with db!")
+                }
+            }));
+        } catch (error) {
+            console.log('Error syncing tasks on frontend: ', error);
+        }
+    }
     return (
         <header className="sticky border-b-[1px] top-0 z-40 w-full bg-white dark:border-b-slate-700 dark:bg-background">
             <NavigationMenu className="mx-auto">
@@ -136,10 +217,19 @@ export const Navbar = (props: Props) => {
                                         Github
                                     </a>
                                     <div
+                                        onClick={syncTasksWithTwAndDb}
+                                        className={`w-[110px] border ${buttonVariants({
+                                            variant: "ghost",
+                                        })}`}>
+                                        Sync Tasks
+                                    </div>
+                                    <div
                                         onClick={handleLogout}
                                         className={`w-[110px] border ${buttonVariants({
                                             variant: "destructive",
-                                        })}`}> Log out</div>
+                                        })}`}>
+                                        Log out
+                                    </div>
                                 </nav>
 
                             </SheetContent>
@@ -163,6 +253,14 @@ export const Navbar = (props: Props) => {
                     </nav>
 
                     <div className="hidden md:flex gap-2">
+                        <div
+                            onClick={syncTasksWithTwAndDb}
+                            className={`w-[110px] border ${buttonVariants({
+                                variant: "ghost",
+                            })}`}>
+                            Sync Tasks
+                        </div>
+                        <DropdownMenuShortcut></DropdownMenuShortcut>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Avatar>
@@ -179,7 +277,6 @@ export const Navbar = (props: Props) => {
                                 <DropdownMenuItem onClick={handleLogout}>
                                     <LogOut className="mr-2 h-4 w-4" />
                                     <div onClick={handleLogout}>Log out</div>
-                                    <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
