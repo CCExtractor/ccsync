@@ -10,6 +10,9 @@ export const HomePage: React.FC = () => {
     const [userInfo, setUserInfo] = useState<any>(null);
     const backendURL = import.meta.env.VITE_BACKEND_URL;
     const frontendURL = import.meta.env.VITE_FRONTEND_URL;
+    const containerOrigin = import.meta.env.VITE_CONATINER_ORIGIN;
+    console.log(backendURL)
+
     useEffect(() => {
         fetchUserInfo();
     }, []);
@@ -36,10 +39,29 @@ export const HomePage: React.FC = () => {
         <div>
             {userInfo ? (
                 <div>
-                    <Navbar imgurl={userInfo.picture} email={userInfo.email} />
-                    <Hero name={userInfo.name} uuid={userInfo.uuid} encryption_secret={userInfo.encryption_secret} />
-                    <Tasks email={userInfo.email}/>
-                    <SetupGuide name={userInfo.name} uuid={userInfo.uuid} encryption_secret={userInfo.encryption_secret} />
+                    <Navbar
+                        imgurl={userInfo.picture}
+                        email={userInfo.email}
+                        encryptionSecret={userInfo.encryption_secret}
+                        origin={containerOrigin}
+                        UUID={userInfo.uuid}
+                    />
+                    <Hero
+                        name={userInfo.name}
+                        uuid={userInfo.uuid}
+                        encryption_secret={userInfo.encryption_secret}
+                    />
+                    <Tasks
+                        email={userInfo.email}
+                        encryptionSecret={userInfo.encryption_secret}
+                        origin={containerOrigin}
+                        UUID={userInfo.uuid}
+                    />
+                    <SetupGuide
+                        name={userInfo.name}
+                        uuid={userInfo.uuid}
+                        encryption_secret={userInfo.encryption_secret}
+                    />
                     <FAQ />
                     <Footer />
                 </div>
