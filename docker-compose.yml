@@ -1,0 +1,32 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - tasknetwork
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - tasknetwork
+    depends_on:
+      - syncserver
+
+  syncserver:
+    # THIS IMAGE SHOULD BE PULLED FROM THE OFFICIAL TASKCHAMPION-SYNC-SERVER REPOSITORY
+    image: taskchampion-sync-server:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - tasknetwork
+
+networks:
+  tasknetwork:
+    driver: bridge
