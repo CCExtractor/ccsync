@@ -31,7 +31,7 @@ export const HeroCards = () => {
             Have any issues or queries?
           </p>
           <p>
-            Contact us {/*to do*/}
+            <a href="#contact" className="text-sky-400">Contact us</a> {/*to do*/}
           </p>
         </CardContent>
       </Card>
