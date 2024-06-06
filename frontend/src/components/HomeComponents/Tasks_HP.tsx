@@ -11,10 +11,18 @@ import {
 import { Button } from "../ui/button";
 import { firestore, tasksCollection } from "@/lib/controller";
 import { collection, doc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { toast } from "react-toastify";
+import { Badge } from "@/components/ui/badge"
+import { Info } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 
 type Props = {
     email: string;
+    encryptionSecret: string;
+    origin: string;
+    UUID: string;
 }
+
 
 export const Tasks = (props: Props) => {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -87,20 +95,56 @@ export const Tasks = (props: Props) => {
 
     async function syncTasksWithTwAndDb() {
         try {
+            const backendURL = import.meta.env.VITE_BACKEND_URL;
             const user_email = props.email;
+
+            const email = props.email;
+            const encryptionSecret = props.encryptionSecret;
+            const UUID = props.UUID; 
+
+            const url = backendURL + `/tasks?email=${encodeURIComponent(email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
 
             // Fetch tasks from Firebase Firestore
             const snapshot = await getDocs(tasksCollection);
             const firebaseTasks = snapshot.docs.map(doc => ({ uuid: doc.id, ...doc.data() }));
 
             // Fetch tasks from Taskwarrior
-            const backendURL = import.meta.env.VITE_BACKEND_URL;
-            const response = await fetch(backendURL + "/tasks");
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (response.ok) {
+                console.log('Synced Tasks succesfully!')
+                toast.success(`Tasks synced succesfully!`, {
+                    position: "bottom-left",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            } else {
+                console.log('Server is down. Failed to sync tasks')
+                toast.error(`Server is down. Failed to sync tasks`, {
+                    position: "bottom-left",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            }
+            if (!response.ok) {
+                throw new Error('Failed to fetch tasks');
+            }
             const taskwarriorTasks = await response.json();
 
             const firebaseTaskUuids = new Set(firebaseTasks.map(task => task.uuid));
 
-            // Sync tasks with Taskwarrior using your backend API
             await Promise.all(taskwarriorTasks.map(async (task: any) => {
                 task.email = user_email;
                 if (!firebaseTaskUuids.has(task.uuid)) {
@@ -114,19 +158,16 @@ export const Tasks = (props: Props) => {
                 }
             }));
         } catch (error) {
-            console.log('Error syncing tasks: ', error);
+            console.log('Error syncing tasks on frontend: ', error);
         }
     }
 
-    // Calculate the index of the first and last task on the current page
     const indexOfLastTask = currentPage * tasksPerPage;
     const indexOfFirstTask = indexOfLastTask - tasksPerPage;
     const currentTasks = tasks.slice(indexOfFirstTask, indexOfLastTask);
 
-    // Calculate the number of empty rows needed
     const emptyRows = tasksPerPage - currentTasks.length;
 
-    // Change page
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
     const totalPages = Math.ceil(tasks.length / tasksPerPage);
@@ -150,7 +191,7 @@ export const Tasks = (props: Props) => {
     };
 
     return (
-        <div id="tasks" className="max-w-10xl mx-auto h-full overflow-y-auto p-4">
+        <section id="tasks" className="container py-24 sm:py-32">
             <h2 className="text-3xl md:text-4xl font-bold text-center">
                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                     Tasks
@@ -173,7 +214,7 @@ export const Tasks = (props: Props) => {
                     <Table className="w-full text-white">
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="py-2 w-3/6">Description</TableHead>
+                                <TableHead className="py-2 w-5/6">Description</TableHead>
                                 <TableHead className="py-2 w-1/6">Project</TableHead>
                                 <TableHead className="py-2 w-1/6">Tag</TableHead>
                                 <TableHead className="py-2 w-1/6">Status</TableHead>
@@ -182,16 +223,85 @@ export const Tasks = (props: Props) => {
                         <TableBody>
                             {/* Display tasks */}
                             {currentTasks.map((task: Task, index: number) => (
+
                                 <TableRow key={index} className="border-b">
                                     {/* Display task details */}
                                     <TableCell className="py-2">{task.description}</TableCell>
-                                    <TableCell className="py-2">{task.project}</TableCell>
-                                    <TableCell className="py-2">{task.tag}</TableCell>
                                     <TableCell className="py-2">
-                                        {task.status === 'completed' ? 'C' : 'P'}
+                                        <Badge variant={"secondary"}>
+                                            {task.project === '' ? 'none' : task.project}
+                                        </Badge>
                                     </TableCell>
-                                    {/* Add more task details as needed */}
+                                    <TableCell className="py-2">
+                                        <Badge variant={"secondary"}>
+                                            {task.tag === '' ? 'none' : task.tag}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="py-2">
+                                        <Badge
+                                            variant={task.status === 'pending' ? 'secondary' : task.status === 'deleted' ? 'destructive' : 'default'}
+                                        >
+                                            {task.status === 'completed' ? 'C' : task.status === 'deleted' ? 'D' : 'P'}
+                                        </Badge>
+                                    </TableCell>
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <TableCell className="py-2">
+                                                <Info/>
+                                            </TableCell>
+                                        </DialogTrigger>
+                                        <DialogContent className="sm:max-w-5">
+                                            <DialogHeader>
+                                                <DialogTitle>
+                                                    <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                                        <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                                            Task{" "}
+                                                        </span>
+                                                        Details
+                                                    </h3>
+                                                </DialogTitle>
+                                                <DialogDescription>
+                                                    <Table>
+                                                        <TableBody>
+                                                            <TableRow>
+                                                                <TableCell>ID:</TableCell>
+                                                                <TableCell>{task.id}</TableCell>
+                                                            </TableRow><TableRow>
+                                                                <TableCell>Description:</TableCell>
+                                                                <TableCell>{task.description}</TableCell>
+                                                            </TableRow><TableRow>
+                                                                <TableCell>Due:</TableCell>
+                                                                <TableCell>{task.due}</TableCell>
+                                                            </TableRow><TableRow>
+                                                                <TableCell>End:</TableCell>
+                                                                <TableCell>{task.end}</TableCell>
+                                                            </TableRow><TableRow>
+                                                                <TableCell>Priority:</TableCell>
+                                                                <TableCell>{task.priority}</TableCell>
+                                                            </TableRow><TableRow>
+                                                                <TableCell>Project:</TableCell>
+                                                                <TableCell>{task.project}</TableCell>
+                                                            </TableRow><TableRow>
+                                                                <TableCell>Status:</TableCell>
+                                                                <TableCell>{task.status}</TableCell>
+                                                            </TableRow><TableRow>
+                                                                <TableCell>Tag:</TableCell>
+                                                                <TableCell>{task.tag}</TableCell>
+                                                            </TableRow><TableRow>
+                                                                <TableCell>Urgency:</TableCell>
+                                                                <TableCell>{task.urgency}</TableCell>
+                                                            </TableRow><TableRow>
+                                                                <TableCell>UUID:</TableCell>
+                                                                <TableCell>{task.uuid}</TableCell>
+                                                            </TableRow>
+                                                        </TableBody>
+                                                    </Table>
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                        </DialogContent>
+                                    </Dialog>
                                 </TableRow>
+
                             ))}
                             {/* Display empty rows */}
                             {Array.from({ length: emptyRows }).map((_, index) => (
@@ -240,6 +350,6 @@ export const Tasks = (props: Props) => {
                     </Button>
                 </div>
             </div>
-        </div>
+        </section >
     );
 };
