@@ -33,14 +33,14 @@ const FAQList: FAQProps[] = [
   },
   {
     question: "How do I initialize sync between my clients?",
-    answer: "The connection process is straightforward. Refer to our detailed documentation (link to documentation) for step-by-step instructions on configuring Taskwarrior to connect to our server.",
+    answer: "The connection process is straightforward. Refer to the setup guide above for step-by-step instructions on configuring Taskwarrior to connect to our server.",
     value: "item-4",
   },
   {
     question:
       "Do you have access to my task content?",
     answer:
-      "No. CCSync only facilitates the synchronization process using a deployed container. We do not access or store the content of your tasks.",
+      "The tasks are stored securely in a Firestore database. It helps in making the tasks available on interfaces other than the PC, directly on the web!",
     value: "item-5",
   },
 ];

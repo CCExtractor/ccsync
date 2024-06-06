@@ -40,7 +40,8 @@ export const Hero = (props: Props) => {
                 <div>
                     <h3 className="text-3xl text-foreground font-semibold mb-3">Here are your credentials</h3>
                     <p className="text-lg text-muted-foreground md:w-10/12 mx-auto lg:mx-0">
-                        (You may use your own as well, but make sure to use the same credentials on each client)
+                        You may use your own as well, but make sure to use the same credentials on each client.
+                        <br></br> Also, the tasks won't be stored on our database if you do so.
                     </p>
                     <br></br>
 
