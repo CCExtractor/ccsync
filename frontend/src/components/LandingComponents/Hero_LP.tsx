@@ -32,7 +32,7 @@ export const Hero = () => {
 
         <div className="space-y-4 md:space-y-0 md:space-x-4">
           <a href={backendURL + "auth/oauth"}>
-            <Button className="w-full md:w-1/3 bg-blue-200 hover:bg-white">Sign in to get started</Button>
+            <Button className="w-full md:w-1/3 bg-blue-400 hover:bg-blue-500">Sign in to get started</Button>
           </a>
           <a
             href="/////todo/////"
