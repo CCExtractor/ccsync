@@ -76,7 +76,7 @@ Sync server for Taskwarrior
 
   use
   ```
-  FRONTEND_ORIGIN_DEV="http://localhost"
+  FRONTEND_ORIGIN_DEV="http://localhost:5173"
   CONTAINER_ORIGIN="http://localhost:8080/"
   ```
   if you want to run by `npm run dev`
