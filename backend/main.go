@@ -18,8 +18,11 @@ import (
 )
 
 type App struct {
-	Config       *oauth2.Config
-	SessionStore *sessions.CookieStore
+	Config           *oauth2.Config
+	SessionStore     *sessions.CookieStore
+	UserEmail        string
+	EncryptionSecret string
+	UUID             string
 }
 
 func main() {
@@ -56,7 +59,7 @@ func main() {
 	mux.HandleFunc("/auth/callback", app.OAuthCallbackHandler)
 	mux.HandleFunc("/api/user", app.UserInfoHandler)
 	mux.HandleFunc("/auth/logout", app.LogoutHandler)
-	mux.HandleFunc("/tasks", tasksHandler)
+	mux.HandleFunc("/tasks", app.tasksHandler)
 	mux.HandleFunc("/add-task", addTaskHandler)
 	mux.HandleFunc("/edit-task", editTaskHandler)
 	mux.HandleFunc("/complete-task", completeTaskHandler)
@@ -173,6 +176,29 @@ func (a *App) EnableCORS(handler http.Handler) http.Handler {
 		}
 		handler.ServeHTTP(w, r)
 	})
+}
+func (a *App) tasksHandler(w http.ResponseWriter, r *http.Request) {
+	email := r.URL.Query().Get("email")
+	encryptionSecret := r.URL.Query().Get("encryptionSecret")
+	UUID := r.URL.Query().Get("UUID")
+	origin := os.Getenv("CONTAINER_ORIGIN")
+	if email == "" || encryptionSecret == "" || UUID == "" {
+		http.Error(w, "Missing required parameters", http.StatusBadRequest)
+		return
+	}
+
+	if r.Method == http.MethodGet {
+		tasks := fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
+		if tasks == nil {
+			http.Error(w, "Failed to fetch tasks", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(tasks)
+		return
+	}
+
+	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
 // Logout handler clears user session data
