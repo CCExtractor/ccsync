@@ -149,4 +149,3 @@ Sync server for Taskwarrior
 ```
 
 Either the sync between TW-SyncServer works or SyncServer-BackendContainer would work if using docker, as containers interact with each other using IP, while a person outside the container cannot, and vice versa. So the config must set the origin to an address that is accessible to both client and server.
-t and server.
