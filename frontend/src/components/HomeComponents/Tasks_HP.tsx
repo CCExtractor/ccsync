@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import { Badge } from "@/components/ui/badge"
 import { FaInfo } from "react-icons/fa6";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown } from "lucide-react"
 
 type Props = {
     email: string;
@@ -29,6 +29,8 @@ export const Tasks = (props: Props) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+    const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
+
     const tasksPerPage = 10;
 
     // Fetch tasks from Taskwarrior API, might be useful
@@ -83,7 +85,7 @@ export const Tasks = (props: Props) => {
                         email: data.email,
                     };
                 });
-                setTasks(tasksFromDB);
+                setTasks(sortTasksById(tasksFromDB, 'desc'));
                 console.log(tasksFromDB);
             } catch (error) {
                 console.error("Error fetching tasks:", error);
@@ -170,6 +172,24 @@ export const Tasks = (props: Props) => {
         });
     };
 
+    const sortTasksById = (tasks: Task[], order: 'asc' | 'desc') => {
+        return tasks.sort((a, b) => {
+            if (order === 'asc') {
+                return a.id < b.id ? -1 : 1;
+            } else {
+                return b.id < a.id ? -1 : 1;
+            }
+        });
+    };
+
+    const handleIdSort = () => {
+        const newOrder = idSortOrder === 'asc' ? 'desc' : 'asc';
+        setIdSortOrder(newOrder);
+        setTasks(sortTasksById([...tasks], newOrder));
+    };
+
+
+
     const handleSort = () => {
         const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
         setSortOrder(newOrder);
@@ -227,13 +247,15 @@ export const Tasks = (props: Props) => {
                     <Table className="w-full text-white">
                         <TableHeader>
                             <TableRow>
+                                <TableHead className="py-2 w-0.5/6" onClick={handleIdSort} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                    ID {idSortOrder === 'asc' ? <ArrowUpDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4 transform rotate-180" />}
+                                </TableHead>
                                 <TableHead className="py-2 w-5/6">Description</TableHead>
                                 <TableHead className="py-2 w-1.5/6">Project</TableHead>
                                 <TableHead className="py-2 w-1.5/6">Tag</TableHead>
                                 <TableHead className="py-2 w-2.25/6" onClick={handleSort} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                                     Status <ArrowUpDown className="ml-2 h-4 w-4" />
                                 </TableHead>
-
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -241,6 +263,7 @@ export const Tasks = (props: Props) => {
                             {currentTasks.map((task: Task, index: number) => (
                                 <TableRow key={index} className="border-b">
                                     {/* Display task details */}
+                                    <TableCell className="py-2">{task.id}</TableCell>
                                     <TableCell className="py-2">{task.description}</TableCell>
                                     <TableCell className="py-2">
                                         <Badge variant={"secondary"}>
@@ -261,7 +284,7 @@ export const Tasks = (props: Props) => {
                                     </TableCell>
                                     <Dialog>
                                         <DialogTrigger asChild>
-                                            <TableCell className="py-2 pb-5 max-h-2">
+                                            <TableCell className="py-2 max-h-2">
                                                 <Button variant="ghost" className="py-2 max-h-2"><FaInfo /></Button>
                                             </TableCell>
                                         </DialogTrigger>
