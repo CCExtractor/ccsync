@@ -13,8 +13,9 @@ import { firestore, tasksCollection } from "@/lib/controller";
 import { collection, doc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { Badge } from "@/components/ui/badge"
-import { Info } from "lucide-react";
+import { FaInfo } from "react-icons/fa6";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 
 type Props = {
     email: string;
@@ -27,6 +28,7 @@ type Props = {
 export const Tasks = (props: Props) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [currentPage, setCurrentPage] = useState<number>(1);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const tasksPerPage = 10;
 
     // Fetch tasks from Taskwarrior API, might be useful
@@ -81,8 +83,7 @@ export const Tasks = (props: Props) => {
                         email: data.email,
                     };
                 });
-                const sortedTasks = tasksFromDB.sort((a, b) => (a.id < b.id ? 1 : -1));
-                setTasks(sortedTasks);
+                setTasks(tasksFromDB);
                 console.log(tasksFromDB);
             } catch (error) {
                 console.error("Error fetching tasks:", error);
@@ -92,7 +93,6 @@ export const Tasks = (props: Props) => {
         fetchTasksForEmail();
     }, [props.email]);
 
-
     async function syncTasksWithTwAndDb() {
         try {
             const backendURL = import.meta.env.VITE_BACKEND_URL;
@@ -100,7 +100,7 @@ export const Tasks = (props: Props) => {
 
             const email = props.email;
             const encryptionSecret = props.encryptionSecret;
-            const UUID = props.UUID; 
+            const UUID = props.UUID;
 
             const url = backendURL + `/tasks?email=${encodeURIComponent(email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
 
@@ -116,8 +116,8 @@ export const Tasks = (props: Props) => {
                 },
             });
             if (response.ok) {
-                console.log('Synced Tasks succesfully!')
-                toast.success(`Tasks synced succesfully!`, {
+                console.log('Synced Tasks successfully!')
+                toast.success(`Tasks synced successfully!`, {
                     position: "bottom-left",
                     autoClose: 3000,
                     hideProgressBar: false,
@@ -161,6 +161,20 @@ export const Tasks = (props: Props) => {
             console.log('Error syncing tasks on frontend: ', error);
         }
     }
+
+    const sortTasks = (tasks: Task[], order: 'asc' | 'desc') => {
+        return tasks.sort((a, b) => {
+            if (a.status < b.status) return order === 'asc' ? -1 : 1;
+            if (a.status > b.status) return order === 'asc' ? 1 : -1;
+            return 0;
+        });
+    };
+
+    const handleSort = () => {
+        const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+        setSortOrder(newOrder);
+        setTasks(sortTasks([...tasks], newOrder));
+    };
 
     const indexOfLastTask = currentPage * tasksPerPage;
     const indexOfFirstTask = indexOfLastTask - tasksPerPage;
@@ -209,21 +223,22 @@ export const Tasks = (props: Props) => {
                     <Button variant="outline" onClick={syncTasksWithTwAndDb}>Sync</Button>
                 </div>
 
-
                 <div className="overflow-x-auto">
                     <Table className="w-full text-white">
                         <TableHeader>
                             <TableRow>
                                 <TableHead className="py-2 w-5/6">Description</TableHead>
-                                <TableHead className="py-2 w-1/6">Project</TableHead>
-                                <TableHead className="py-2 w-1/6">Tag</TableHead>
-                                <TableHead className="py-2 w-1/6">Status</TableHead>
+                                <TableHead className="py-2 w-1.5/6">Project</TableHead>
+                                <TableHead className="py-2 w-1.5/6">Tag</TableHead>
+                                <TableHead className="py-2 w-2.25/6" onClick={handleSort} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                    Status <ArrowUpDown className="ml-2 h-4 w-4" />
+                                </TableHead>
+
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {/* Display tasks */}
                             {currentTasks.map((task: Task, index: number) => (
-
                                 <TableRow key={index} className="border-b">
                                     {/* Display task details */}
                                     <TableCell className="py-2">{task.description}</TableCell>
@@ -246,11 +261,11 @@ export const Tasks = (props: Props) => {
                                     </TableCell>
                                     <Dialog>
                                         <DialogTrigger asChild>
-                                            <TableCell className="py-2">
-                                                <Info/>
+                                            <TableCell className="py-2 pb-5 max-h-2">
+                                                <Button variant="ghost" className="py-2 max-h-2"><FaInfo /></Button>
                                             </TableCell>
                                         </DialogTrigger>
-                                        <DialogContent className="sm:max-w-5">
+                                        <DialogContent className="sm:max-w-[425px]">
                                             <DialogHeader>
                                                 <DialogTitle>
                                                     <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
@@ -304,18 +319,14 @@ export const Tasks = (props: Props) => {
 
                             ))}
                             {/* Display empty rows */}
-                            {Array.from({ length: emptyRows }).map((_, index) => (
-                                <TableRow key={`empty-${index}`} className="border-b">
-                                    <TableCell className="py-2">&nbsp;</TableCell>
-                                    <TableCell className="py-2">&nbsp;</TableCell>
-                                    <TableCell className="py-2">&nbsp;</TableCell>
-                                    <TableCell className="py-2">&nbsp;</TableCell>
+                            {emptyRows > 0 && (
+                                <TableRow style={{ height: 52 * emptyRows }}>
+                                    <TableCell colSpan={6} />
                                 </TableRow>
-                            ))}
+                            )}
                         </TableBody>
                     </Table>
                 </div>
-
                 {/* Pagination */}
                 <div className="flex justify-center mt-4 space-x-2">
                     <Button
