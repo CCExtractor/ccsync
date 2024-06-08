@@ -30,38 +30,7 @@ export const Tasks = (props: Props) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
-
     const tasksPerPage = 10;
-
-    // Fetch tasks from Taskwarrior API, might be useful
-    // useEffect(() => {
-    //     const fetchTasksFromTW = async () => {
-    //         const backendURL = import.meta.env.VITE_BACKEND_URL;
-    //         try {
-    //             const response = await fetch(backendURL + "/tasks");
-    //             if (!response.ok) {
-    //                 throw new Error("Failed to fetch tasks");
-    //             }
-    //             const data = await response.json();
-    //             setTasks(data.reverse()); // Reverse the order of all tasks
-    //         } catch (error) {
-    //             console.error("Error fetching tasks:", error);
-    //         }
-    //     };
-
-    //     fetchTasksFromTW();
-    // }, []);
-
-    // get tasks from db snapshot easily
-    // useEffect(() => onSnapshot(tasksCollection, (snapshot) => {
-    //     const tasksFromDB = snapshot.docs.map((doc) => {
-    //         return {
-    //             uuid: doc.id,
-    //             ...doc.data(),
-    //         };
-    //     });
-    //     setTasks(tasksFromDB);
-    // }), []);
 
     useEffect(() => {
         const fetchTasksForEmail = async () => {
