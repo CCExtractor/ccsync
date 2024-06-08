@@ -159,6 +159,30 @@ export const Tasks = (props: Props) => {
                     console.log("no changes made to the tasks, so tasks not synced with db!")
                 }
             }));
+            // After successful synchronization, fetch the updated tasks
+            const newsnapshot = await getDocs(query(collection(firestore, 'tasks'), where('email', '==', props.email)));
+            const tasksFromDB: Task[] = newsnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: data.id,
+                    description: data.description,
+                    project: data.project,
+                    tag: data.tag,
+                    status: data.status,
+                    uuid: data.uuid,
+                    urgency: data.urgency,
+                    priority: data.priority,
+                    due: data.due,
+                    end: data.end,
+                    entry: data.entry,
+                    modified: data.modified,
+                    email: data.email,
+                };
+            });
+            // Update the tasks state with the new data
+            setTasks(sortTasksById(tasksFromDB, 'desc'));
+            console.log(tasksFromDB);
+
         } catch (error) {
             console.log('Error syncing tasks on frontend: ', error);
         }
