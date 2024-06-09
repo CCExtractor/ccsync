@@ -4,7 +4,6 @@ import { HeroCards } from "./HeroCards_LP";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 
 const backendURL = import.meta.env.VITE_BACKEND_URL;
-console.log(backendURL)
 
 export const Hero = () => {
   return (

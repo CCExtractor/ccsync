@@ -14,7 +14,7 @@ import { collection, doc, getDocs, query, setDoc, updateDoc, where } from "fireb
 import { toast } from "react-toastify";
 import { Badge } from "@/components/ui/badge"
 import { FaInfo } from "react-icons/fa6";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { ArrowUpDown } from "lucide-react"
 
 type Props = {
@@ -30,6 +30,7 @@ export const Tasks = (props: Props) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
+    
     const tasksPerPage = 10;
 
     useEffect(() => {
@@ -154,6 +155,53 @@ export const Tasks = (props: Props) => {
 
         } catch (error) {
             console.log('Error syncing tasks on frontend: ', error);
+        }
+    }
+
+    async function markTaskAsCompleted(taskuuid: string) {
+        try {
+            console.log(taskuuid);
+            console.log(taskuuid);
+            const backendURL = import.meta.env.VITE_BACKEND_URL;
+            const url = backendURL + `complete-task`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: props.email,
+                    encryptionSecret: props.encryptionSecret,
+                    UUID: props.UUID,
+                    taskuuid: taskuuid,
+                }),
+            });
+
+            if (response) {
+                console.log('Task marked as completed successfully!');
+                toast.success('Task marked as completed successfully!', {
+                    position: 'bottom-left',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+    
+                syncTasksWithTwAndDb();
+            } else {
+                toast.error('Error in marked the task as completed. Please try again.', {
+                    position: 'bottom-left',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+                console.error('Failed to mark task as completed');
+            }
+        } catch (error) {
+            console.error('Error marking task as completed:', error);
         }
     }
 
@@ -329,6 +377,34 @@ export const Tasks = (props: Props) => {
                                                     </Table>
                                                 </DialogDescription>
                                             </DialogHeader>
+                                            <DialogFooter className="flex flex-row justify-end">
+                                                <Dialog>
+                                                    <DialogTrigger>
+                                                        <Button className="mr-5">Mark As Completed</Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent>
+                                                        <DialogTitle>
+                                                            <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                                                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                                                    Are you{" "}
+                                                                </span>
+                                                                sure?
+                                                            </h3>
+                                                        </DialogTitle>
+                                                        <DialogFooter className="flex flex-row justify-center">
+                                                            <Button className="mr-5" onClick={() => markTaskAsCompleted(task.uuid)}>
+                                                                Yes
+                                                            </Button>
+                                                            <DialogClose>
+                                                                <Button variant={"destructive"}>No</Button>
+                                                            </DialogClose>
+                                                        </DialogFooter>
+                                                    </DialogContent>
+                                                </Dialog>
+                                                <DialogClose>
+                                                    <Button variant={"destructive"}>Close</Button>
+                                                </DialogClose>
+                                            </DialogFooter>
                                         </DialogContent>
                                     </Dialog>
                                 </TableRow>
