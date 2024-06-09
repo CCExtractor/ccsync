@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -61,23 +62,6 @@ func editTaskHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
-func completeTaskHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		uuid := r.FormValue("uuid")
-		if strings.TrimSpace(uuid) == "" {
-			http.Error(w, "UUID is required", http.StatusBadRequest)
-			return
-		}
-		if err := completeTaskInTaskwarrior(uuid); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
-		return
-	}
-	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-}
-
 func syncTasksHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		if err := syncTasksWithTaskwarrior(); err != nil {
@@ -90,17 +74,34 @@ func syncTasksHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
+func fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]Task, error) {
+	// temporary directory for each user
+	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create temporary directory: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
 
-func fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) []Task {
-	// Delete .taskrc file before parsing tasks
-	cmd := exec.Command("rm", "/root/.taskrc")
-	if err := cmd.Run(); err != nil {
-		fmt.Printf("\nerror in deleting .taskrc - it doesnot exist %v\n", err)
-	} else {
-		fmt.Printf("\nDeleted .taskrc \n")
+	if err := setTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID); err != nil {
+		return nil, err
 	}
 
-	// Set Taskwarrior configuration for the user
+	if err := syncTaskwarrior(tempDir); err != nil {
+		return nil, err
+	}
+
+	tasks, err := exportTasks(tempDir)
+	if err != nil {
+		return nil, err
+	} else {
+		fmt.Fprintln(os.Stdout, []any{"Synced tasks for ", email}...)
+	}
+
+	return tasks, nil
+}
+
+func setTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID string) error {
+
 	configCmds := [][]string{
 		{"task", "config", "sync.encryption_secret", encryptionSecret, "rc.confirmation=off"},
 		{"task", "config", "sync.server.origin", origin, "rc.confirmation=off"},
@@ -109,58 +110,39 @@ func fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) []T
 
 	for _, args := range configCmds {
 		cmd := exec.Command(args[0], args[1:]...)
+		cmd.Dir = tempDir
 		if err := cmd.Run(); err != nil {
-			fmt.Printf("\nError setting Taskwarrior config (%v): %v\n", args, err)
-			return nil
-		} else {
-			fmt.Printf("\nSyncing %v doing: %v\n", email, args)
+			return fmt.Errorf("error setting Taskwarrior config (%v): %v", args, err)
 		}
 	}
 
-	fmt.Print("\nConfig set successfully\n")
+	return nil
+}
 
-	// Initialize and sync Taskwarrior
-	syncCmds := [][]string{
-		{"task", "sync"},
+func syncTaskwarrior(tempDir string) error {
+	cmd := exec.Command("task", "sync")
+	cmd.Dir = tempDir
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("error syncing Taskwarrior: %v", err)
 	}
+	return nil
+}
 
-	for _, args := range syncCmds {
-		cmd := exec.Command(args[0], args[1:]...)
-		if err := cmd.Run(); err != nil {
-			fmt.Printf("Error syncing Taskwarrior (%v): %v\n", args, err)
-			return nil
-		} else {
-			fmt.Printf("\nSyncing %v doing: %v\n", email, args)
-		}
-	}
-
-	// Export tasks from Taskwarrior
-	cmd = exec.Command("task", "export")
+func exportTasks(tempDir string) ([]Task, error) {
+	cmd := exec.Command("task", "export")
+	cmd.Dir = tempDir
 	output, err := cmd.Output()
 	if err != nil {
-		fmt.Println("Error executing Taskwarrior export command:", err)
-		return nil
-	} else {
-		fmt.Printf("\nSyncing %v doing: %v\n", email, "task export")
+		return nil, fmt.Errorf("error executing Taskwarrior export command: %v", err)
 	}
 
 	// Parse the exported tasks
 	var tasks []Task
 	if err := json.Unmarshal(output, &tasks); err != nil {
-		fmt.Println("Error parsing tasks:", err)
-		return nil
+		return nil, fmt.Errorf("error parsing tasks: %v", err)
 	}
 
-	// Delete .taskrc file after parsing tasks
-	cmd = exec.Command("rm", "/root/.taskrc")
-	if err := cmd.Run(); err != nil {
-		fmt.Printf("\nerror in deleting .taskrc %v\n", err)
-		return nil
-	} else {
-		fmt.Printf("\nDeleted .taskrc \n")
-	}
-
-	return tasks
+	return tasks, nil
 }
 
 func addTaskToTaskwarrior(description string) error {
@@ -179,11 +161,34 @@ func editTaskInTaskwarrior(uuid, description string) error {
 	return nil
 }
 
-func completeTaskInTaskwarrior(uuid string) error {
-	cmd := exec.Command("task", uuid, "done")
+func completeTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) error {
+	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	if err != nil {
+		return fmt.Errorf("failed to create temporary directory: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	origin := os.Getenv("CONTAINER_ORIGIN")
+	if err := setTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
+		return err
+	}
+
+	if err := syncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+
+	// Mark the task as done
+	cmd := exec.Command("task", taskuuid, "done", "rc.confirmation=off")
+	cmd.Dir = tempDir
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to mark task as done: %v", err)
 	}
+
+	// Sync Taskwarrior again
+	if err := syncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+
 	return nil
 }
 
