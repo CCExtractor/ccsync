@@ -6,6 +6,8 @@ import (
 	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -177,6 +179,7 @@ func (a *App) EnableCORS(handler http.Handler) http.Handler {
 		handler.ServeHTTP(w, r)
 	})
 }
+
 func (a *App) tasksHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.URL.Query().Get("email")
 	encryptionSecret := r.URL.Query().Get("encryptionSecret")
@@ -188,7 +191,7 @@ func (a *App) tasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodGet {
-		tasks := fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
+		tasks, _ := fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
 		if tasks == nil {
 			http.Error(w, "Failed to fetch tasks", http.StatusInternalServerError)
 			return
@@ -198,6 +201,51 @@ func (a *App) tasksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+}
+
+func completeTaskHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("error reading request body: %v", err), http.StatusBadRequest)
+			return
+		}
+		defer r.Body.Close()
+
+		fmt.Printf("Raw request body: %s\n", string(body))
+
+		var requestBody struct {
+			Email            string `json:"email"`
+			EncryptionSecret string `json:"encryptionSecret"`
+			UUID             string `json:"UUID"`
+			TaskUUID         string `json:"taskuuid"`
+		}
+
+		err = json.Unmarshal(body, &requestBody)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("error decoding request body: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		email := requestBody.Email
+		encryptionSecret := requestBody.EncryptionSecret
+		uuid := requestBody.UUID
+		taskuuid := requestBody.TaskUUID
+
+		if taskuuid == "" {
+			http.Error(w, "taskuuid is required", http.StatusBadRequest)
+			return
+		}
+
+		if err := completeTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
+		return
+	}
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
