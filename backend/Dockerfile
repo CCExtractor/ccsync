@@ -20,6 +20,8 @@ RUN apk update
 RUN apk add util-linux
 RUN apk add libgcc
 RUN apk add libstdc++
+RUN apk add libgc++
+RUN apk add libuuid
 
 # Copy Taskwarrior source code and build it
 COPY task-3.0.2.tar.gz /tmp/task-3.0.2.tar.gz
