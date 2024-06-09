@@ -36,7 +36,7 @@ export const SetupGuide = (props: Props) => {
                                 </span>
                                 PREREQUISITES
                             </h3>
-                            <p className="text-xl text-muted-foreground mt-10 mb-5">
+                            <div className="text-xl ml-5 text-muted-foreground mt-10 mb-5">
                                 Ensure that Taskwarrior 3.0 or greater is installed on your system
                                 <div className="mt-4 flex items-center">
                                     <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
@@ -48,7 +48,7 @@ export const SetupGuide = (props: Props) => {
                                         </button>
                                     </CopyToClipboard>
                                 </div>
-                            </p>
+                            </div>
 
                             <h3 className="text-2xl mt-10 md:text-2xl font-bold">
                                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
@@ -56,7 +56,7 @@ export const SetupGuide = (props: Props) => {
                                 </span>
                                 CONFIGURATION
                             </h3>
-                            <p className="text-xl text-muted-foreground mt-10 mb-5">
+                            <div className="text-xl ml-5 text-muted-foreground mt-10 mb-5">
                                 You will need an encryption secret used to encrypt and decrypt your tasks. This
                                 can be any secret string, and must match for all replicas sharing tasks.
                                 For  most  of these, you will need an encryption secret used to encrypt and decrypt your tasks.
@@ -99,7 +99,7 @@ export const SetupGuide = (props: Props) => {
                                 </div>
                                 <br></br>
                                 For more information about how this works, refer to the <b>task-sync(5)</b> manpage for details on how to configure the new sync implementation.
-                            </p>
+                            </div>
 
 
                             <h3 className="text-2xl mt-10 md:text-2xl font-bold">
@@ -108,7 +108,7 @@ export const SetupGuide = (props: Props) => {
                                 </span>
                                 SYNC
                             </h3>
-                            <p className="text-xl text-muted-foreground mt-10 mb-5">
+                            <div className="text-xl ml-5 text-muted-foreground mt-10 mb-5">
                                 Finally, setup the sync for your Taskwarrior client!
                                 <div className="mt-5 flex items-center">
                                     <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
@@ -120,7 +120,7 @@ export const SetupGuide = (props: Props) => {
                                         </button>
                                     </CopyToClipboard>
                                 </div>
-                            </p>
+                            </div>
                         </div>
                     </div>
                 </div>
