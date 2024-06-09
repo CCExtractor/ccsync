@@ -370,11 +370,14 @@
     "yocto-queue": "^0.1.0"
   },
   "devDependencies": {
+    "@types/react-copy-to-clipboard": "^5.0.7",
+    "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.0"
   },
   "scripts": {
     "dev": "vite",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && vite build"
   },
   "keywords": [],
   "author": "",
