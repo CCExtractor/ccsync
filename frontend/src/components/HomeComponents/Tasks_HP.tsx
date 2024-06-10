@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/badge"
 import { FaInfo } from "react-icons/fa6";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { ArrowUpDown } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 type Props = {
     email: string;
@@ -30,7 +32,9 @@ export const Tasks = (props: Props) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
-    
+    const [newTask, setNewTask] = useState({ description: "", priority: "", project: "" });
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
     const tasksPerPage = 10;
 
     useEffect(() => {
@@ -160,8 +164,6 @@ export const Tasks = (props: Props) => {
 
     async function markTaskAsCompleted(taskuuid: string) {
         try {
-            console.log(taskuuid);
-            console.log(taskuuid);
             const backendURL = import.meta.env.VITE_BACKEND_URL;
             const url = backendURL + `complete-task`;
 
@@ -186,8 +188,6 @@ export const Tasks = (props: Props) => {
                     draggable: true,
                     progress: undefined,
                 });
-    
-                syncTasksWithTwAndDb();
             } else {
                 toast.error('Error in marked the task as completed. Please try again.', {
                     position: 'bottom-left',
@@ -205,6 +205,49 @@ export const Tasks = (props: Props) => {
         }
     }
 
+    async function handleAddTask(email: string, encryptionSecret: string, UUID: string, description: string, project: string, priority: string) {
+        try {
+            const backendURL = import.meta.env.VITE_BACKEND_URL;
+            const url = backendURL + `add-task`;
+            const response = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: email,
+                    encryptionSecret: encryptionSecret,
+                    UUID: UUID,
+                    description: description,
+                    project: project,
+                    priority: priority
+                }),
+            });
+            if (response) {
+                console.log('Task added successfully!');
+                toast.success('Task added successfully!', {
+                    position: 'bottom-left',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            } else {
+                toast.error('Error in marked the task as completed. Please try again.', {
+                    position: 'bottom-left',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+                console.error('Failed to mark task as completed');
+            }
+        } catch (error) {
+            console.error('Failed to add task: ', error);
+        }
+    }
+    
     const sortTasks = (tasks: Task[], order: 'asc' | 'desc') => {
         return tasks.sort((a, b) => {
             if (a.status < b.status) return order === 'asc' ? -1 : 1;
@@ -228,8 +271,6 @@ export const Tasks = (props: Props) => {
         setIdSortOrder(newOrder);
         setTasks(sortTasksById([...tasks], newOrder));
     };
-
-
 
     const handleSort = () => {
         const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
@@ -281,7 +322,89 @@ export const Tasks = (props: Props) => {
                         </span>
                         your tasks
                     </h3>
-                    <Button variant="outline" onClick={syncTasksWithTwAndDb}>Sync</Button>
+                    <div className="flex items-center justify-left">
+                        <div className="pr-2">
+                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" onClick={() => setIsDialogOpen(true)}>Add Task</Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                                    Add a{" "}
+                                                </span>
+                                                new task
+                                            </h3>
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            Fill in the details below to add a new task.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="description" className="text-right">
+                                                Description
+                                            </Label>
+                                            <Input
+                                                id="description"
+                                                name="description"
+                                                type="text"
+                                                value={newTask.description}
+                                                onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                                                className="col-span-3"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="priority" className="text-right">
+                                                Priority
+                                            </Label>
+                                            <div className="col-span-1 flex items-center">
+                                                <select
+                                                    id="priority"
+                                                    name="priority"
+                                                    value={newTask.priority}
+                                                    onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
+                                                    className="border rounded-md px-2 py-1 w-full bg-black text-white"
+                                                    >
+                                                    <option value="H">H</option>
+                                                    <option value="M">M</option>
+                                                    <option value="L">L</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="description" className="text-right">
+                                                Project
+                                            </Label>
+                                            <Input
+                                                id="project"
+                                                name="project"
+                                                type=""
+                                                value={newTask.project}
+                                                onChange={(e) => setNewTask({ ...newTask, project: e.target.value })}
+                                                className="col-span-3"
+                                            />
+                                        </div>
+                                    </div>
+                                    <DialogFooter>
+                                        <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                                        <Button variant="default" onClick={() => handleAddTask(
+                                            props.email,
+                                            props.encryptionSecret,
+                                            props.UUID,
+                                            newTask.description,
+                                            newTask.project,
+                                            newTask.priority)}>Add Task</Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
+                        <Button variant="outline" onClick={syncTasksWithTwAndDb}>Sync</Button>
+
+                    </div>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -379,8 +502,8 @@ export const Tasks = (props: Props) => {
                                             </DialogHeader>
                                             <DialogFooter className="flex flex-row justify-end">
                                                 <Dialog>
-                                                    <DialogTrigger>
-                                                        <Button className="mr-5">Mark As Completed</Button>
+                                                    <DialogTrigger className="mr-5">
+                                                        <Button >Mark As Completed</Button>
                                                     </DialogTrigger>
                                                     <DialogContent>
                                                         <DialogTitle>
