@@ -379,8 +379,8 @@ export const Tasks = (props: Props) => {
                                             </DialogHeader>
                                             <DialogFooter className="flex flex-row justify-end">
                                                 <Dialog>
-                                                    <DialogTrigger>
-                                                        <Button className="mr-5">Mark As Completed</Button>
+                                                    <DialogTrigger className="mr-5">
+                                                        <Button >Mark As Completed</Button>
                                                     </DialogTrigger>
                                                     <DialogContent>
                                                         <DialogTitle>
