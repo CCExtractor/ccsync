@@ -247,33 +247,7 @@ export const Tasks = (props: Props) => {
             console.error('Failed to add task: ', error);
         }
     }
-    // const handleAddTask = async () => {
-    //     try {
-    //         await addTaskToTaskwarrior(
-    //             props.email,
-    //             props.encryptionSecret,
-    //             props.UUID,
-    //             newTask.description,
-    //             newTask.project,
-    //             newTask.priority
-    //         );
-    //         setIsDialogOpen(false);
-    //         setNewTask({ description: "", priority: "", project: "" });
-    //         syncTasksWithTwAndDb();
-    //     } catch (error) {
-    //         console.error("Error adding task:", error);
-    //         toast.error("Error adding task. Please try again.", {
-    //             position: "bottom-left",
-    //             autoClose: 3000,
-    //             hideProgressBar: false,
-    //             closeOnClick: true,
-    //             pauseOnHover: true,
-    //             draggable: true,
-    //             progress: undefined,
-    //         });
-    //     }
-    // };
-
+    
     const sortTasks = (tasks: Task[], order: 'asc' | 'desc') => {
         return tasks.sort((a, b) => {
             if (a.status < b.status) return order === 'asc' ? -1 : 1;
