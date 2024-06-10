@@ -25,24 +25,6 @@ type Task struct {
 	Modified    string  `json:"modified"`
 }
 
-func addTaskHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		description := r.FormValue("description")
-		if strings.TrimSpace(description) == "" {
-			http.Error(w, "Description is required", http.StatusBadRequest)
-			return
-		}
-		if err := addTaskToTaskwarrior(description); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
-		return
-	}
-
-	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-}
-
 func editTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		uuid := r.FormValue("uuid")
@@ -145,11 +127,41 @@ func exportTasks(tempDir string) ([]Task, error) {
 	return tasks, nil
 }
 
-func addTaskToTaskwarrior(description string) error {
-	cmd := exec.Command("task", "add", description)
+func addTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority string) error {
+	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	if err != nil {
+		return fmt.Errorf("failed to create temporary directory: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	origin := os.Getenv("CONTAINER_ORIGIN")
+	if err := setTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
+		return err
+	}
+
+	if err := syncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+
+	cmdArgs := []string{"add", description}
+	if project != "" {
+		cmdArgs = append(cmdArgs, "project:"+project)
+	}
+	if priority != "" {
+		cmdArgs = append(cmdArgs, "priority:"+priority)
+	}
+
+	cmd := exec.Command("task", cmdArgs...)
+	cmd.Dir = tempDir
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to add task: %v", err)
 	}
+
+	// Sync Taskwarrior again
+	if err := syncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+
 	return nil
 }
 
