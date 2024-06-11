@@ -99,7 +99,7 @@ export const Navbar = (props: Props) => {
             const encryptionSecret = props.encryptionSecret;
             const UUID = props.UUID; 
 
-            const url = backendURL + `/tasks?email=${encodeURIComponent(email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
+            const url = backendURL + `tasks?email=${encodeURIComponent(email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
 
             // Fetch tasks from Firebase Firestore
             const snapshot = await getDocs(tasksCollection);

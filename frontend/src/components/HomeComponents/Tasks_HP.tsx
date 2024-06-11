@@ -18,6 +18,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { ArrowUpDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { parseISO, format } from 'date-fns';
 
 type Props = {
     email: string;
@@ -231,8 +232,10 @@ export const Tasks = (props: Props) => {
                     draggable: true,
                     progress: undefined,
                 });
+                setNewTask({ description: "", priority: "", project: "" });
+                setIsDialogOpen(false);
             } else {
-                toast.error('Error in marked the task as completed. Please try again.', {
+                toast.error('Error in adding task. Please try again.', {
                     position: 'bottom-left',
                     autoClose: 3000,
                     hideProgressBar: false,
@@ -247,7 +250,7 @@ export const Tasks = (props: Props) => {
             console.error('Failed to add task: ', error);
         }
     }
-    
+
     const sortTasks = (tasks: Task[], order: 'asc' | 'desc') => {
         return tasks.sort((a, b) => {
             if (a.status < b.status) return order === 'asc' ? -1 : 1;
@@ -304,6 +307,14 @@ export const Tasks = (props: Props) => {
             }
         }
         return pages;
+    };
+
+    const formattedDate = (dateString: string) => {
+        try {
+            return format(parseISO(dateString), 'PPpp'); // Format: Month day, year at hour:minute AM/PM
+        } catch (error) {
+            return dateString;
+        }
     };
 
     return (
@@ -367,7 +378,7 @@ export const Tasks = (props: Props) => {
                                                     value={newTask.priority}
                                                     onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
                                                     className="border rounded-md px-2 py-1 w-full bg-black text-white"
-                                                    >
+                                                >
                                                     <option value="H">H</option>
                                                     <option value="M">M</option>
                                                     <option value="L">L</option>
@@ -473,10 +484,10 @@ export const Tasks = (props: Props) => {
                                                                 <TableCell>{task.description}</TableCell>
                                                             </TableRow><TableRow>
                                                                 <TableCell>Due:</TableCell>
-                                                                <TableCell>{task.due}</TableCell>
+                                                                <TableCell>{formattedDate(task.due)}</TableCell>
                                                             </TableRow><TableRow>
                                                                 <TableCell>End:</TableCell>
-                                                                <TableCell>{task.end}</TableCell>
+                                                                <TableCell>{formattedDate(task.end)}</TableCell>
                                                             </TableRow><TableRow>
                                                                 <TableCell>Priority:</TableCell>
                                                                 <TableCell>{task.priority}</TableCell>
