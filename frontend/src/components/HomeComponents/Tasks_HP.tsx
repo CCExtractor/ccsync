@@ -232,8 +232,10 @@ export const Tasks = (props: Props) => {
                     draggable: true,
                     progress: undefined,
                 });
+                setNewTask({ description: "", priority: "", project: "" });
+                setIsDialogOpen(false);
             } else {
-                toast.error('Error in marked the task as completed. Please try again.', {
+                toast.error('Error in adding task. Please try again.', {
                     position: 'bottom-left',
                     autoClose: 3000,
                     hideProgressBar: false,
@@ -248,7 +250,7 @@ export const Tasks = (props: Props) => {
             console.error('Failed to add task: ', error);
         }
     }
-    
+
     const sortTasks = (tasks: Task[], order: 'asc' | 'desc') => {
         return tasks.sort((a, b) => {
             if (a.status < b.status) return order === 'asc' ? -1 : 1;
@@ -376,7 +378,7 @@ export const Tasks = (props: Props) => {
                                                     value={newTask.priority}
                                                     onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
                                                     className="border rounded-md px-2 py-1 w-full bg-black text-white"
-                                                    >
+                                                >
                                                     <option value="H">H</option>
                                                     <option value="M">M</option>
                                                     <option value="L">L</option>
