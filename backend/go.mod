@@ -2,7 +2,6 @@ module ccsync_backend
 
 go 1.19
 
-
 require (
 	github.com/gorilla/sessions v1.2.2
 	golang.org/x/oauth2 v0.20.0
