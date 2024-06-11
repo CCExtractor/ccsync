@@ -18,6 +18,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { ArrowUpDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { parseISO, format } from 'date-fns';
 
 type Props = {
     email: string;
@@ -306,6 +307,14 @@ export const Tasks = (props: Props) => {
         return pages;
     };
 
+    const formattedDate = (dateString: string) => {
+        try {
+            return format(parseISO(dateString), 'PPpp'); // Format: Month day, year at hour:minute AM/PM
+        } catch (error) {
+            return dateString;
+        }
+    };
+
     return (
         <section id="tasks" className="container py-24 sm:py-32">
             <h2 className="text-3xl md:text-4xl font-bold text-center">
@@ -473,10 +482,10 @@ export const Tasks = (props: Props) => {
                                                                 <TableCell>{task.description}</TableCell>
                                                             </TableRow><TableRow>
                                                                 <TableCell>Due:</TableCell>
-                                                                <TableCell>{task.due}</TableCell>
+                                                                <TableCell>{formattedDate(task.due)}</TableCell>
                                                             </TableRow><TableRow>
                                                                 <TableCell>End:</TableCell>
-                                                                <TableCell>{task.end}</TableCell>
+                                                                <TableCell>{formattedDate(task.end)}</TableCell>
                                                             </TableRow><TableRow>
                                                                 <TableCell>Priority:</TableCell>
                                                                 <TableCell>{task.priority}</TableCell>
