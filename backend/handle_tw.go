@@ -33,7 +33,7 @@ func editTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "UUID and description are required", http.StatusBadRequest)
 			return
 		}
-		if err := editTaskInTaskwarrior(uuid, description); err != nil {
+		if err := EditTaskInTaskwarrior(uuid, description); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -46,7 +46,7 @@ func editTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 func syncTasksHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		if err := syncTasksWithTaskwarrior(); err != nil {
+		if err := SyncTasksWithTaskwarrior(); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -56,6 +56,7 @@ func syncTasksHandler(w http.ResponseWriter, r *http.Request) {
 
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
+
 func fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]Task, error) {
 	// temporary directory for each user
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
@@ -64,15 +65,15 @@ func fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]
 	}
 	defer os.RemoveAll(tempDir)
 
-	if err := setTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID); err != nil {
+	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID); err != nil {
 		return nil, err
 	}
 
-	if err := syncTaskwarrior(tempDir); err != nil {
+	if err := SyncTaskwarrior(tempDir); err != nil {
 		return nil, err
 	}
 
-	tasks, err := exportTasks(tempDir)
+	tasks, err := ExportTasks(tempDir)
 	if err != nil {
 		return nil, err
 	} else {
@@ -82,14 +83,12 @@ func fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]
 	return tasks, nil
 }
 
-func setTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID string) error {
-
+func SetTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID string) error {
 	configCmds := [][]string{
 		{"task", "config", "sync.encryption_secret", encryptionSecret, "rc.confirmation=off"},
 		{"task", "config", "sync.server.origin", origin, "rc.confirmation=off"},
 		{"task", "config", "sync.server.client_id", UUID, "rc.confirmation=off"},
 	}
-
 	for _, args := range configCmds {
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Dir = tempDir
@@ -97,11 +96,10 @@ func setTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID string) error 
 			return fmt.Errorf("error setting Taskwarrior config (%v): %v", args, err)
 		}
 	}
-
 	return nil
 }
 
-func syncTaskwarrior(tempDir string) error {
+func SyncTaskwarrior(tempDir string) error {
 	cmd := exec.Command("task", "sync")
 	cmd.Dir = tempDir
 	if err := cmd.Run(); err != nil {
@@ -110,7 +108,7 @@ func syncTaskwarrior(tempDir string) error {
 	return nil
 }
 
-func exportTasks(tempDir string) ([]Task, error) {
+func ExportTasks(tempDir string) ([]Task, error) {
 	cmd := exec.Command("task", "export")
 	cmd.Dir = tempDir
 	output, err := cmd.Output()
@@ -127,7 +125,7 @@ func exportTasks(tempDir string) ([]Task, error) {
 	return tasks, nil
 }
 
-func addTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority string) error {
+func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority string) error {
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
@@ -135,11 +133,11 @@ func addTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 	defer os.RemoveAll(tempDir)
 
 	origin := os.Getenv("CONTAINER_ORIGIN")
-	if err := setTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
+	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
 		return err
 	}
 
-	if err := syncTaskwarrior(tempDir); err != nil {
+	if err := SyncTaskwarrior(tempDir); err != nil {
 		return err
 	}
 
@@ -158,14 +156,14 @@ func addTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 	}
 
 	// Sync Taskwarrior again
-	if err := syncTaskwarrior(tempDir); err != nil {
+	if err := SyncTaskwarrior(tempDir); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func editTaskInTaskwarrior(uuid, description string) error {
+func EditTaskInTaskwarrior(uuid, description string) error {
 	cmd := exec.Command("task", uuid, "modify", description)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to edit task: %v", err)
@@ -173,7 +171,7 @@ func editTaskInTaskwarrior(uuid, description string) error {
 	return nil
 }
 
-func completeTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) error {
+func CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) error {
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
@@ -181,11 +179,11 @@ func completeTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) e
 	defer os.RemoveAll(tempDir)
 
 	origin := os.Getenv("CONTAINER_ORIGIN")
-	if err := setTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
+	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
 		return err
 	}
 
-	if err := syncTaskwarrior(tempDir); err != nil {
+	if err := SyncTaskwarrior(tempDir); err != nil {
 		return err
 	}
 
@@ -197,14 +195,14 @@ func completeTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) e
 	}
 
 	// Sync Taskwarrior again
-	if err := syncTaskwarrior(tempDir); err != nil {
+	if err := SyncTaskwarrior(tempDir); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func syncTasksWithTaskwarrior() error {
+func SyncTasksWithTaskwarrior() error {
 	cmd := exec.Command("task", "sync")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
