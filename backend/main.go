@@ -238,7 +238,7 @@ func completeTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := completeTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
+		if err := CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -285,7 +285,7 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := addTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority); err != nil {
+		if err := AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
