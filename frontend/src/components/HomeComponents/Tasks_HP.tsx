@@ -512,7 +512,7 @@ export const Tasks = (props: Props) => {
                                                 </DialogDescription>
                                             </DialogHeader>
                                             <DialogFooter className="flex flex-row justify-end">
-                                                <Dialog>
+                                                {task.status == "pending" ? <Dialog>
                                                     <DialogTrigger className="mr-5">
                                                         <Button >Mark As Completed</Button>
                                                     </DialogTrigger>
@@ -534,7 +534,7 @@ export const Tasks = (props: Props) => {
                                                             </DialogClose>
                                                         </DialogFooter>
                                                     </DialogContent>
-                                                </Dialog>
+                                                </Dialog> : null}
                                                 <DialogClose>
                                                     <Button variant={"destructive"}>Close</Button>
                                                 </DialogClose>
