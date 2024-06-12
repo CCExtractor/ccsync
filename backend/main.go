@@ -65,6 +65,7 @@ func main() {
 	mux.HandleFunc("/add-task", addTaskHandler)
 	mux.HandleFunc("/edit-task", editTaskHandler)
 	mux.HandleFunc("/complete-task", completeTaskHandler)
+	mux.HandleFunc("/delete-task", deleteTaskHandler)
 	mux.HandleFunc("/sync-tasks", syncTasksHandler)
 
 	log.Println("Server started at :8000")
@@ -201,6 +202,48 @@ func (a *App) tasksHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+}
+
+func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("error reading request body: %v", err), http.StatusBadRequest)
+			return
+		}
+		defer r.Body.Close()
+
+		var requestBody struct {
+			Email            string `json:"email"`
+			EncryptionSecret string `json:"encryptionSecret"`
+			UUID             string `json:"UUID"`
+			TaskUUID         string `json:"taskuuid"`
+		}
+
+		err = json.Unmarshal(body, &requestBody)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("error decoding request body: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		email := requestBody.Email
+		encryptionSecret := requestBody.EncryptionSecret
+		uuid := requestBody.UUID
+		taskuuid := requestBody.TaskUUID
+
+		if taskuuid == "" {
+			http.Error(w, "taskuuid is required", http.StatusBadRequest)
+			return
+		}
+
+		if err := DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
+		return
+	}
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
