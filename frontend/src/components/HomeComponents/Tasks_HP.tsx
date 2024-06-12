@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import { Badge } from "@/components/ui/badge"
 import { FaInfo } from "react-icons/fa6";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown, Trash2Icon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { parseISO, format } from 'date-fns';
@@ -203,6 +203,49 @@ export const Tasks = (props: Props) => {
             }
         } catch (error) {
             console.error('Error marking task as completed:', error);
+        }
+    }
+
+    async function markTaskAsDeleted(taskuuid: string) {
+        try {
+            const backendURL = import.meta.env.VITE_BACKEND_URL;
+            const url = backendURL + `delete-task`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: props.email,
+                    encryptionSecret: props.encryptionSecret,
+                    UUID: props.UUID,
+                    taskuuid: taskuuid,
+                }),
+            });
+
+            if (response) {
+                console.log('Task marked as deleted successfully!');
+                toast.success('Task marked as deleted successfully!', {
+                    position: 'bottom-left',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+            } else {
+                toast.error('Error in marked the task as deleted. Please try again.', {
+                    position: 'bottom-left',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+                console.error('Failed to mark task as deleted');
+            }
+        } catch (error) {
+            console.error('Error marking task as deleted:', error);
         }
     }
 
@@ -511,6 +554,8 @@ export const Tasks = (props: Props) => {
                                                     </Table>
                                                 </DialogDescription>
                                             </DialogHeader>
+
+                                            {/*Mark task as completed*/}
                                             <DialogFooter className="flex flex-row justify-end">
                                                 {task.status == "pending" ? <Dialog>
                                                     <DialogTrigger className="mr-5">
@@ -535,6 +580,33 @@ export const Tasks = (props: Props) => {
                                                         </DialogFooter>
                                                     </DialogContent>
                                                 </Dialog> : null}
+
+                                            {/*Mark task as deleted*/}
+                                                {task.status != "deleted" ? <Dialog>
+                                                    <DialogTrigger>
+                                                        <Button variant={"destructive"}>
+                                                            <Trash2Icon />
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent>
+                                                        <DialogTitle>
+                                                            <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                                                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                                                    Are you{" "}
+                                                                </span>
+                                                                sure?
+                                                            </h3>
+                                                        </DialogTitle>
+                                                        <DialogFooter className="flex flex-row justify-center">
+                                                            <Button className="mr-5" onClick={() => markTaskAsDeleted(task.uuid)}>
+                                                                Yes
+                                                            </Button>
+                                                            <DialogClose>
+                                                                <Button variant={"destructive"}>No</Button>
+                                                            </DialogClose>
+                                                        </DialogFooter>
+                                                    </DialogContent>
+                                                </Dialog> : null}
                                                 <DialogClose>
                                                     <Button variant={"destructive"}>Close</Button>
                                                 </DialogClose>
@@ -544,6 +616,7 @@ export const Tasks = (props: Props) => {
                                 </TableRow>
 
                             ))}
+                            
                             {/* Display empty rows */}
                             {emptyRows > 0 && (
                                 <TableRow style={{ height: 52 * emptyRows }}>
