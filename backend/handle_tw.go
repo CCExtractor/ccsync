@@ -171,6 +171,37 @@ func EditTaskInTaskwarrior(uuid, description string) error {
 	return nil
 }
 
+func DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) error {
+	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	if err != nil {
+		return fmt.Errorf("failed to create temporary directory: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	origin := os.Getenv("CONTAINER_ORIGIN")
+	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
+		return err
+	}
+
+	if err := SyncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+
+	// Mark the task as deleted
+	cmd := exec.Command("task", taskuuid, "delete", "rc.confirmation=off")
+	cmd.Dir = tempDir
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to mark task as deleted: %v", err)
+	}
+
+	// Sync Taskwarrior again
+	if err := SyncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) error {
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
