@@ -174,7 +174,7 @@ func EditTaskInTaskwarrior(uuid, description string) error {
 func DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) error {
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
-		return fmt.Errorf("failed to create temporaray directory: %v", err)
+		return fmt.Errorf("failed to create temporary directory: %v", err)
 	}
 	defer os.RemoveAll(tempDir)
 
