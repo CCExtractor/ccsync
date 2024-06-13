@@ -510,8 +510,23 @@ export const Tasks = (props: Props) => {
                                     <DialogTrigger asChild>
                                         <TableRow key={index} className="border-b">
                                             {/* Display task details */}
-                                            <TableCell className="py-2">{task.id}</TableCell>
+                                            <TableCell className="py-2">
+                                                {task.id}
+                                            </TableCell>
                                             <TableCell className="flex items-center space-x-2 py-2">
+                                                {task.priority === "H" && (
+                                                    <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3">
+                                                    </div>
+                                                )}
+                                                {task.priority === "M" && (
+                                                    <div className="flex items-center justify-center w-3 h-3 bg-yellow-500 rounded-full border-0 min-w-3">
+                                                    </div>
+                                                )}
+                                                {task.priority != "H" && task.priority != "M" && (
+                                                    <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3">
+                                                    </div>
+                                                )}
+
                                                 <span>{task.description}</span>
                                                 {task.project != '' && <Badge variant={"secondary"}>
                                                     <Folder className="pr-2" />
