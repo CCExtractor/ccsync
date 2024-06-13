@@ -67,7 +67,7 @@ export const HomePage: React.FC = () => {
             ) : (<div>
                 <p>Session has been expired.</p>
                 <p>Please to go back to the
-                    <a href={frontendURL}> home page </a>
+                    <a color="red" href={frontendURL}> home page </a>
                     and sign in again</p>
             </div>
             )
