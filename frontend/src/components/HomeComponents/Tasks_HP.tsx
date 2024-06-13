@@ -33,7 +33,7 @@ export const Tasks = (props: Props) => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
-    const [newTask, setNewTask] = useState({ description: "", priority: "", project: "" });
+    const [newTask, setNewTask] = useState({ description: "", priority: "", project: "", due: "" });
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const tasksPerPage = 10;
@@ -248,7 +248,7 @@ export const Tasks = (props: Props) => {
         }
     }
 
-    async function handleAddTask(email: string, encryptionSecret: string, UUID: string, description: string, project: string, priority: string) {
+    async function handleAddTask(email: string, encryptionSecret: string, UUID: string, description: string, project: string, priority: string, due: string,) {
         try {
             const backendURL = import.meta.env.VITE_BACKEND_URL;
             const url = backendURL + `add-task`;
@@ -260,7 +260,8 @@ export const Tasks = (props: Props) => {
                     UUID: UUID,
                     description: description,
                     project: project,
-                    priority: priority
+                    priority: priority,
+                    due: due,
                 }),
             });
             if (response) {
@@ -274,7 +275,7 @@ export const Tasks = (props: Props) => {
                     draggable: true,
                     progress: undefined,
                 });
-                setNewTask({ description: "", priority: "", project: "" });
+                setNewTask({ description: "", priority: "", project: "", due: "" });
                 setIsDialogOpen(false);
             } else {
                 toast.error('Error in adding task. Please try again.', {
@@ -453,16 +454,31 @@ export const Tasks = (props: Props) => {
                                                 className="col-span-3"
                                             />
                                         </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="description" className="text-right">
+                                                Due
+                                            </Label>
+                                            <Input
+                                                id="due"
+                                                name="due"
+                                                type=""
+                                                placeholder="YYYY-MM-DD"
+                                                value={newTask.due}
+                                                onChange={(e) => setNewTask({ ...newTask, due: e.target.value })}
+                                                className="col-span-3"
+                                            />
+                                        </div>
                                     </div>
                                     <DialogFooter>
                                         <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                                        <Button variant="default" onClick={() => handleAddTask(
+                                        <Button className="mb-1" variant="default" onClick={() => handleAddTask(
                                             props.email,
                                             props.encryptionSecret,
                                             props.UUID,
                                             newTask.description,
                                             newTask.project,
-                                            newTask.priority)}>Add Task</Button>
+                                            newTask.priority,
+                                            newTask.due,)}>Add Task</Button>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
@@ -479,7 +495,9 @@ export const Tasks = (props: Props) => {
                                 <TableHead className="py-2 w-0.20/6" onClick={handleIdSort} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                                     ID {idSortOrder === 'asc' ? <ArrowUpDown className="ml-0.5 h-4 w-4" /> : <ArrowUpDown className="ml-0.5 h-4 w-4 transform rotate-180" />}
                                 </TableHead>
-                                <TableHead className="py-2 w-5/6">Description</TableHead>
+                                <TableHead className="py-2 w-5/6">
+                                    Description
+                                </TableHead>
                                 <TableHead className="py-2 w-0.20/6" onClick={handleSort} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                                     Status <ArrowUpDown className="ml-0.5 h-4 w-4" />
                                 </TableHead>
@@ -488,7 +506,7 @@ export const Tasks = (props: Props) => {
                         <TableBody>
                             {/* Display tasks */}
                             {currentTasks.map((task: Task, index: number) => (
-                                <Dialog>
+                                <Dialog key={index}>
                                     <DialogTrigger asChild>
                                         <TableRow key={index} className="border-b">
                                             {/* Display task details */}
@@ -504,17 +522,6 @@ export const Tasks = (props: Props) => {
                                                     {task.tag === '' ? 'none' : task.tag}
                                                 </Badge>}
                                             </TableCell>
-
-                                            {/* <TableCell className="py-2">
-                                        <Badge variant={"secondary"}>
-                                            {task.project === '' ? 'none' : task.project}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="py-2">
-                                        <Badge variant={"secondary"}>
-                                            {task.tag === '' ? 'none' : task.tag}
-                                        </Badge>
-                                    </TableCell> */}
                                             <TableCell className="py-2">
                                                 <Badge
                                                     variant={task.status === 'pending' ? 'secondary' : task.status === 'deleted' ? 'destructive' : 'default'}
@@ -522,12 +529,8 @@ export const Tasks = (props: Props) => {
                                                     {task.status === 'completed' ? 'C' : task.status === 'deleted' ? 'D' : 'P'}
                                                 </Badge>
                                             </TableCell>
-
-
                                         </TableRow>
                                     </DialogTrigger>
-
-
                                     <DialogContent className="sm:max-w-[425px]">
                                         <DialogHeader>
                                             <DialogTitle>
