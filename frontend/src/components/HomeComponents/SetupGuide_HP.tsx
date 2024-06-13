@@ -19,7 +19,7 @@ export const SetupGuide = (props: Props) => {
     };
 
     return (
-        <section id="setup-guide" className="container py-24 sm:py-32">
+        <section id="setup-guide" className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32">
             <h2 className="text-3xl md:text-4xl font-bold text-center">
                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                     Setup{" "}

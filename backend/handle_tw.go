@@ -125,7 +125,7 @@ func ExportTasks(tempDir string) ([]Task, error) {
 	return tasks, nil
 }
 
-func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority string) error {
+func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate string) error {
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
@@ -147,6 +147,9 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 	}
 	if priority != "" {
 		cmdArgs = append(cmdArgs, "priority:"+priority)
+	}
+	if dueDate != "" {
+		cmdArgs = append(cmdArgs, "due:"+dueDate)
 	}
 
 	cmd := exec.Command("task", cmdArgs...)

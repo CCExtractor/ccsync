@@ -51,7 +51,7 @@ func TestExportTasks(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarrior(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H")
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03")
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior failed: %v", err)
 	} else {

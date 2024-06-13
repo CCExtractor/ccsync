@@ -49,14 +49,12 @@ type Props = {
 
 const handleLogout = async () => {
     const backendURL = import.meta.env.VITE_BACKEND_URL;
-    console.log(backendURL)
     try {
         const response = await fetch(backendURL + "auth/logout", {
             method: "POST",
             credentials: "include",
         });
         if (response.ok) {
-            // Redirect to the landing page after logout
             window.location.href = "/";
         } else {
             console.error("Failed to logout");
@@ -147,11 +145,11 @@ export const Navbar = (props: Props) => {
                 if (!firebaseTaskUuids.has(task.uuid)) {
                     const newTaskRef = doc(tasksCollection, task.uuid);
                     await setDoc(newTaskRef, task);
-                    console.log("tasks synced with db!")
+                    console.log('Tasks synced with db!')
                 } else {
                     const existingTaskRef = doc(tasksCollection, task.uuid);
                     await updateDoc(existingTaskRef, task);
-                    console.log("no changes made to the tasks, so tasks not synced with db!")
+                    console.log('No changes made to the tasks, so tasks not synced with db'!)
                 }
             }));
         } catch (error) {
