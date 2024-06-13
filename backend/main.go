@@ -309,6 +309,7 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Description      string `json:"description"`
 			Project          string `json:"project"`
 			Priority         string `json:"priority"`
+			DueDate          string `json:"due"`
 		}
 
 		err = json.Unmarshal(body, &requestBody)
@@ -322,13 +323,14 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 		description := requestBody.Description
 		project := requestBody.Project
 		priority := requestBody.Priority
+		dueDate := requestBody.DueDate
 
 		if description == "" {
 			http.Error(w, "description is required", http.StatusBadRequest)
 			return
 		}
 
-		if err := AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority); err != nil {
+		if err := AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
