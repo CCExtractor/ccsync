@@ -15,10 +15,11 @@ import { toast } from "react-toastify";
 import { Badge } from "@/components/ui/badge"
 import { FaInfo } from "react-icons/fa6";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { ArrowUpDown, Trash2Icon } from "lucide-react"
+import { ArrowUpDown, CopyIcon, Trash2Icon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { parseISO, format } from 'date-fns';
+import CopyToClipboard from "react-copy-to-clipboard";
 
 type Props = {
     email: string;
@@ -360,6 +361,18 @@ export const Tasks = (props: Props) => {
         }
     };
 
+    const handleCopy = (text: string) => {
+        toast.success(`${text} copied to clipboard!`, {
+            position: "bottom-left",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        });
+    };
+
     return (
         <section id="tasks" className="container py-24 sm:py-32">
             <h2 className="text-3xl md:text-4xl font-bold text-center">
@@ -548,7 +561,15 @@ export const Tasks = (props: Props) => {
                                                                 <TableCell>{task.urgency}</TableCell>
                                                             </TableRow><TableRow>
                                                                 <TableCell>UUID:</TableCell>
-                                                                <TableCell>{task.uuid}</TableCell>
+                                                                <TableCell className="flex items-center">
+                                                                    <span>{task.uuid}</span>
+                                                                    <CopyToClipboard text={task.uuid} onCopy={() => handleCopy('Task UUID')}>
+                                                                        <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-2 px-2 rounded ml-2">
+                                                                            <CopyIcon />
+                                                                        </button>
+                                                                    </CopyToClipboard>
+                                                                </TableCell>
+
                                                             </TableRow>
                                                         </TableBody>
                                                     </Table>
@@ -581,7 +602,7 @@ export const Tasks = (props: Props) => {
                                                     </DialogContent>
                                                 </Dialog> : null}
 
-                                            {/*Mark task as deleted*/}
+                                                {/*Mark task as deleted*/}
                                                 {task.status != "deleted" ? <Dialog>
                                                     <DialogTrigger>
                                                         <Button variant={"destructive"}>
@@ -616,7 +637,7 @@ export const Tasks = (props: Props) => {
                                 </TableRow>
 
                             ))}
-                            
+
                             {/* Display empty rows */}
                             {emptyRows > 0 && (
                                 <TableRow style={{ height: 52 * emptyRows }}>
