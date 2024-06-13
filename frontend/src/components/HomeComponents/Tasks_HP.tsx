@@ -15,7 +15,7 @@ import { toast } from "react-toastify";
 import { Badge } from "@/components/ui/badge"
 import { FaInfo } from "react-icons/fa6";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { ArrowUpDown, CopyIcon, Trash2Icon } from "lucide-react"
+import { ArrowUpDown, CopyIcon, Folder, Tag, Trash2Icon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { parseISO, format } from 'date-fns';
@@ -62,7 +62,7 @@ export const Tasks = (props: Props) => {
                     };
                 });
                 setTasks(sortTasksById(tasksFromDB, 'desc'));
-                console.log(tasksFromDB);
+                console.log('Tasks fetched successfully for email: ' + props.email);
             } catch (error) {
                 console.error("Error fetching tasks:", error);
             }
@@ -105,8 +105,8 @@ export const Tasks = (props: Props) => {
                     progress: undefined,
                 });
             } else {
-                console.log('Server is down. Failed to sync tasks')
-                toast.error(`Server is down. Failed to sync tasks`, {
+                console.log('Failed to sync tasks. Please try again.')
+                toast.error(`Failed to sync tasks. Please try again.`, {
                     position: "bottom-left",
                     autoClose: 3000,
                     hideProgressBar: false,
@@ -128,11 +128,11 @@ export const Tasks = (props: Props) => {
                 if (!firebaseTaskUuids.has(task.uuid)) {
                     const newTaskRef = doc(tasksCollection, task.uuid);
                     await setDoc(newTaskRef, task);
-                    console.log("tasks synced with db!")
+                    console.log('tasks synced with db!')
                 } else {
                     const existingTaskRef = doc(tasksCollection, task.uuid);
                     await updateDoc(existingTaskRef, task);
-                    console.log("no changes made to the tasks, so tasks not synced with db!")
+                    console.log('no changes made to the tasks, so tasks not synced with db!')
                 }
             }));
             // After successful synchronization, fetch the updated tasks
@@ -157,8 +157,7 @@ export const Tasks = (props: Props) => {
             });
             // Update the tasks state with the new data
             setTasks(sortTasksById(tasksFromDB, 'desc'));
-            console.log(tasksFromDB);
-
+            console.log('Tasks synced successfully');
         } catch (error) {
             console.log('Error syncing tasks on frontend: ', error);
         }
@@ -355,7 +354,7 @@ export const Tasks = (props: Props) => {
 
     const formattedDate = (dateString: string) => {
         try {
-            return format(parseISO(dateString), 'PPpp'); // Format: Month day, year at hour:minute AM/PM
+            return format(parseISO(dateString), 'PPpp');
         } catch (error) {
             return dateString;
         }
@@ -374,13 +373,13 @@ export const Tasks = (props: Props) => {
     };
 
     return (
-        <section id="tasks" className="container py-24 sm:py-32">
+        <section id="tasks" className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32">
             <h2 className="text-3xl md:text-4xl font-bold text-center">
                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                     Tasks
                 </span>
             </h2>
-            <div className="mt-10 bg-muted/50 border shadow-md rounded-lg p-4 h-full py-12">
+            <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full py-12">
                 {/* Table for displaying tasks */}
                 <div className="flex items-center justify-between">
                     <h3 className="ml-4 mb-4 mr-4 text-2xl mt-0 md:text-2xl font-bold">
@@ -478,14 +477,12 @@ export const Tasks = (props: Props) => {
                     <Table className="w-full text-white">
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="py-2 w-0.5/6" onClick={handleIdSort} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                                    ID {idSortOrder === 'asc' ? <ArrowUpDown className="ml-2 h-4 w-4" /> : <ArrowUpDown className="ml-2 h-4 w-4 transform rotate-180" />}
+                                <TableHead className="py-2 w-0.20/6" onClick={handleIdSort} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                    ID {idSortOrder === 'asc' ? <ArrowUpDown className="ml-0.5 h-4 w-4" /> : <ArrowUpDown className="ml-0.5 h-4 w-4 transform rotate-180" />}
                                 </TableHead>
                                 <TableHead className="py-2 w-5/6">Description</TableHead>
-                                <TableHead className="py-2 w-1.5/6">Project</TableHead>
-                                <TableHead className="py-2 w-1.5/6">Tag</TableHead>
-                                <TableHead className="py-2 w-2.25/6" onClick={handleSort} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                                    Status <ArrowUpDown className="ml-2 h-4 w-4" />
+                                <TableHead className="py-2 w-0.20/6" onClick={handleSort} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                    Status <ArrowUpDown className="ml-0.5 h-4 w-4" />
                                 </TableHead>
                             </TableRow>
                         </TableHeader>
@@ -495,8 +492,19 @@ export const Tasks = (props: Props) => {
                                 <TableRow key={index} className="border-b">
                                     {/* Display task details */}
                                     <TableCell className="py-2">{task.id}</TableCell>
-                                    <TableCell className="py-2">{task.description}</TableCell>
-                                    <TableCell className="py-2">
+                                    <TableCell className="flex items-center space-x-2 py-2">
+                                        <span>{task.description}</span>
+                                        {task.project != '' && <Badge variant={"secondary"}>
+                                            <Folder className="pr-2" />
+                                            {task.project === '' ? 'none' : task.project}
+                                        </Badge>}
+                                        {task.tag != '' && <Badge variant={"secondary"}>
+                                            <Tag className="pr-2" />
+                                            {task.tag === '' ? 'none' : task.tag}
+                                        </Badge>}
+                                    </TableCell>
+
+                                    {/* <TableCell className="py-2">
                                         <Badge variant={"secondary"}>
                                             {task.project === '' ? 'none' : task.project}
                                         </Badge>
@@ -505,7 +513,7 @@ export const Tasks = (props: Props) => {
                                         <Badge variant={"secondary"}>
                                             {task.tag === '' ? 'none' : task.tag}
                                         </Badge>
-                                    </TableCell>
+                                    </TableCell> */}
                                     <TableCell className="py-2">
                                         <Badge
                                             variant={task.status === 'pending' ? 'secondary' : task.status === 'deleted' ? 'destructive' : 'default'}
