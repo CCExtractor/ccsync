@@ -13,7 +13,6 @@ import { firestore, tasksCollection } from "@/lib/controller";
 import { collection, doc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { Badge } from "@/components/ui/badge"
-import { FaInfo } from "react-icons/fa6";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { ArrowUpDown, CopyIcon, Folder, Tag, Trash2Icon } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -489,22 +488,24 @@ export const Tasks = (props: Props) => {
                         <TableBody>
                             {/* Display tasks */}
                             {currentTasks.map((task: Task, index: number) => (
-                                <TableRow key={index} className="border-b">
-                                    {/* Display task details */}
-                                    <TableCell className="py-2">{task.id}</TableCell>
-                                    <TableCell className="flex items-center space-x-2 py-2">
-                                        <span>{task.description}</span>
-                                        {task.project != '' && <Badge variant={"secondary"}>
-                                            <Folder className="pr-2" />
-                                            {task.project === '' ? 'none' : task.project}
-                                        </Badge>}
-                                        {task.tag != '' && <Badge variant={"secondary"}>
-                                            <Tag className="pr-2" />
-                                            {task.tag === '' ? 'none' : task.tag}
-                                        </Badge>}
-                                    </TableCell>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <TableRow key={index} className="border-b">
+                                            {/* Display task details */}
+                                            <TableCell className="py-2">{task.id}</TableCell>
+                                            <TableCell className="flex items-center space-x-2 py-2">
+                                                <span>{task.description}</span>
+                                                {task.project != '' && <Badge variant={"secondary"}>
+                                                    <Folder className="pr-2" />
+                                                    {task.project === '' ? 'none' : task.project}
+                                                </Badge>}
+                                                {task.tag != '' && <Badge variant={"secondary"}>
+                                                    <Tag className="pr-2" />
+                                                    {task.tag === '' ? 'none' : task.tag}
+                                                </Badge>}
+                                            </TableCell>
 
-                                    {/* <TableCell className="py-2">
+                                            {/* <TableCell className="py-2">
                                         <Badge variant={"secondary"}>
                                             {task.project === '' ? 'none' : task.project}
                                         </Badge>
@@ -514,136 +515,133 @@ export const Tasks = (props: Props) => {
                                             {task.tag === '' ? 'none' : task.tag}
                                         </Badge>
                                     </TableCell> */}
-                                    <TableCell className="py-2">
-                                        <Badge
-                                            variant={task.status === 'pending' ? 'secondary' : task.status === 'deleted' ? 'destructive' : 'default'}
-                                        >
-                                            {task.status === 'completed' ? 'C' : task.status === 'deleted' ? 'D' : 'P'}
-                                        </Badge>
-                                    </TableCell>
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <TableCell className="py-2 max-h-2">
-                                                <Button variant="ghost" className="py-2 max-h-2"><FaInfo /></Button>
+                                            <TableCell className="py-2">
+                                                <Badge
+                                                    variant={task.status === 'pending' ? 'secondary' : task.status === 'deleted' ? 'destructive' : 'default'}
+                                                >
+                                                    {task.status === 'completed' ? 'C' : task.status === 'deleted' ? 'D' : 'P'}
+                                                </Badge>
                                             </TableCell>
-                                        </DialogTrigger>
-                                        <DialogContent className="sm:max-w-[425px]">
-                                            <DialogHeader>
-                                                <DialogTitle>
-                                                    <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-                                                        <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                                            Task{" "}
-                                                        </span>
-                                                        Details
-                                                    </h3>
-                                                </DialogTitle>
-                                                <DialogDescription>
-                                                    <Table>
-                                                        <TableBody>
-                                                            <TableRow>
-                                                                <TableCell>ID:</TableCell>
-                                                                <TableCell>{task.id}</TableCell>
-                                                            </TableRow><TableRow>
-                                                                <TableCell>Description:</TableCell>
-                                                                <TableCell>{task.description}</TableCell>
-                                                            </TableRow><TableRow>
-                                                                <TableCell>Due:</TableCell>
-                                                                <TableCell>{formattedDate(task.due)}</TableCell>
-                                                            </TableRow><TableRow>
-                                                                <TableCell>End:</TableCell>
-                                                                <TableCell>{formattedDate(task.end)}</TableCell>
-                                                            </TableRow><TableRow>
-                                                                <TableCell>Priority:</TableCell>
-                                                                <TableCell>{task.priority}</TableCell>
-                                                            </TableRow><TableRow>
-                                                                <TableCell>Project:</TableCell>
-                                                                <TableCell>{task.project}</TableCell>
-                                                            </TableRow><TableRow>
-                                                                <TableCell>Status:</TableCell>
-                                                                <TableCell>{task.status}</TableCell>
-                                                            </TableRow><TableRow>
-                                                                <TableCell>Tag:</TableCell>
-                                                                <TableCell>{task.tag}</TableCell>
-                                                            </TableRow><TableRow>
-                                                                <TableCell>Urgency:</TableCell>
-                                                                <TableCell>{task.urgency}</TableCell>
-                                                            </TableRow><TableRow>
-                                                                <TableCell>UUID:</TableCell>
-                                                                <TableCell className="flex items-center">
-                                                                    <span>{task.uuid}</span>
-                                                                    <CopyToClipboard text={task.uuid} onCopy={() => handleCopy('Task UUID')}>
-                                                                        <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-2 px-2 rounded ml-2">
-                                                                            <CopyIcon />
-                                                                        </button>
-                                                                    </CopyToClipboard>
-                                                                </TableCell>
 
-                                                            </TableRow>
-                                                        </TableBody>
-                                                    </Table>
-                                                </DialogDescription>
-                                            </DialogHeader>
 
-                                            {/*Mark task as completed*/}
-                                            <DialogFooter className="flex flex-row justify-end">
-                                                {task.status == "pending" ? <Dialog>
-                                                    <DialogTrigger className="mr-5">
-                                                        <Button >Mark As Completed</Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent>
-                                                        <DialogTitle>
-                                                            <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-                                                                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                                                    Are you{" "}
-                                                                </span>
-                                                                sure?
-                                                            </h3>
-                                                        </DialogTitle>
-                                                        <DialogFooter className="flex flex-row justify-center">
-                                                            <Button className="mr-5" onClick={() => markTaskAsCompleted(task.uuid)}>
-                                                                Yes
-                                                            </Button>
-                                                            <DialogClose>
-                                                                <Button variant={"destructive"}>No</Button>
-                                                            </DialogClose>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog> : null}
+                                        </TableRow>
+                                    </DialogTrigger>
 
-                                                {/*Mark task as deleted*/}
-                                                {task.status != "deleted" ? <Dialog>
-                                                    <DialogTrigger>
-                                                        <Button variant={"destructive"}>
-                                                            <Trash2Icon />
+
+                                    <DialogContent className="sm:max-w-[425px]">
+                                        <DialogHeader>
+                                            <DialogTitle>
+                                                <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                                    <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                                        Task{" "}
+                                                    </span>
+                                                    Details
+                                                </h3>
+                                            </DialogTitle>
+                                            <DialogDescription>
+                                                <Table>
+                                                    <TableBody>
+                                                        <TableRow>
+                                                            <TableCell>ID:</TableCell>
+                                                            <TableCell>{task.id}</TableCell>
+                                                        </TableRow><TableRow>
+                                                            <TableCell>Description:</TableCell>
+                                                            <TableCell>{task.description}</TableCell>
+                                                        </TableRow><TableRow>
+                                                            <TableCell>Due:</TableCell>
+                                                            <TableCell>{formattedDate(task.due)}</TableCell>
+                                                        </TableRow><TableRow>
+                                                            <TableCell>End:</TableCell>
+                                                            <TableCell>{formattedDate(task.end)}</TableCell>
+                                                        </TableRow><TableRow>
+                                                            <TableCell>Priority:</TableCell>
+                                                            <TableCell>{task.priority}</TableCell>
+                                                        </TableRow><TableRow>
+                                                            <TableCell>Project:</TableCell>
+                                                            <TableCell>{task.project}</TableCell>
+                                                        </TableRow><TableRow>
+                                                            <TableCell>Status:</TableCell>
+                                                            <TableCell>{task.status}</TableCell>
+                                                        </TableRow><TableRow>
+                                                            <TableCell>Tag:</TableCell>
+                                                            <TableCell>{task.tag}</TableCell>
+                                                        </TableRow><TableRow>
+                                                            <TableCell>Urgency:</TableCell>
+                                                            <TableCell>{task.urgency}</TableCell>
+                                                        </TableRow><TableRow>
+                                                            <TableCell>UUID:</TableCell>
+                                                            <TableCell className="flex items-center">
+                                                                <span>{task.uuid}</span>
+                                                                <CopyToClipboard text={task.uuid} onCopy={() => handleCopy('Task UUID')}>
+                                                                    <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-2 px-2 rounded ml-2">
+                                                                        <CopyIcon />
+                                                                    </button>
+                                                                </CopyToClipboard>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    </TableBody>
+                                                </Table>
+                                            </DialogDescription>
+                                        </DialogHeader>
+
+                                        {/*Mark task as completed*/}
+                                        <DialogFooter className="flex flex-row justify-end">
+                                            {task.status == "pending" ? <Dialog>
+                                                <DialogTrigger className="mr-5">
+                                                    <Button >Mark As Completed</Button>
+                                                </DialogTrigger>
+                                                <DialogContent>
+                                                    <DialogTitle>
+                                                        <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                                            <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                                                Are you{" "}
+                                                            </span>
+                                                            sure?
+                                                        </h3>
+                                                    </DialogTitle>
+                                                    <DialogFooter className="flex flex-row justify-center">
+                                                        <Button className="mr-5" onClick={() => markTaskAsCompleted(task.uuid)}>
+                                                            Yes
                                                         </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent>
-                                                        <DialogTitle>
-                                                            <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-                                                                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                                                    Are you{" "}
-                                                                </span>
-                                                                sure?
-                                                            </h3>
-                                                        </DialogTitle>
-                                                        <DialogFooter className="flex flex-row justify-center">
-                                                            <Button className="mr-5" onClick={() => markTaskAsDeleted(task.uuid)}>
-                                                                Yes
-                                                            </Button>
-                                                            <DialogClose>
-                                                                <Button variant={"destructive"}>No</Button>
-                                                            </DialogClose>
-                                                        </DialogFooter>
-                                                    </DialogContent>
-                                                </Dialog> : null}
-                                                <DialogClose>
-                                                    <Button variant={"destructive"}>Close</Button>
-                                                </DialogClose>
-                                            </DialogFooter>
-                                        </DialogContent>
-                                    </Dialog>
-                                </TableRow>
+                                                        <DialogClose>
+                                                            <Button variant={"destructive"}>No</Button>
+                                                        </DialogClose>
+                                                    </DialogFooter>
+                                                </DialogContent>
+                                            </Dialog> : null}
 
+                                            {/*Mark task as deleted*/}
+                                            {task.status != "deleted" ? <Dialog>
+                                                <DialogTrigger>
+                                                    <Button className="mr-4" variant={"destructive"}>
+                                                        <Trash2Icon />
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent>
+                                                    <DialogTitle>
+                                                        <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                                            <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                                                Are you{" "}
+                                                            </span>
+                                                            sure?
+                                                        </h3>
+                                                    </DialogTitle>
+                                                    <DialogFooter className="flex flex-row justify-center">
+                                                        <Button className="mr-5" onClick={() => markTaskAsDeleted(task.uuid)}>
+                                                            Yes
+                                                        </Button>
+                                                        <DialogClose>
+                                                            <Button variant={"destructive"}>No</Button>
+                                                        </DialogClose>
+                                                    </DialogFooter>
+                                                </DialogContent>
+                                            </Dialog> : null}
+                                            <DialogClose>
+                                                <Button className="bg-white">Close</Button>
+                                            </DialogClose>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
                             ))}
 
                             {/* Display empty rows */}
