@@ -25,24 +25,24 @@ type Task struct {
 	Modified    string  `json:"modified"`
 }
 
-func editTaskHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		uuid := r.FormValue("uuid")
-		description := r.FormValue("description")
-		if strings.TrimSpace(uuid) == "" || strings.TrimSpace(description) == "" {
-			http.Error(w, "UUID and description are required", http.StatusBadRequest)
-			return
-		}
-		if err := EditTaskInTaskwarrior(uuid, description); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
-		return
-	}
+// func editTaskHandler(w http.ResponseWriter, r *http.Request) {
+// 	if r.Method == http.MethodPost {
+// 		uuid := r.FormValue("uuid")
+// 		description := r.FormValue("description")
+// 		if strings.TrimSpace(uuid) == "" || strings.TrimSpace(description) == "" {
+// 			http.Error(w, "UUID and description are required", http.StatusBadRequest)
+// 			return
+// 		}
+// 		if err := EditTaskInTaskwarrior(uuid, description); err != nil {
+// 			http.Error(w, err.Error(), http.StatusInternalServerError)
+// 			return
+// 		}
+// 		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
+// 		return
+// 	}
 
-	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-}
+// 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+// }
 
 func syncTasksHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
@@ -166,10 +166,43 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 	return nil
 }
 
-func EditTaskInTaskwarrior(uuid, description string) error {
-	cmd := exec.Command("task", uuid, "modify", description)
+func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskuuid string) error {
+	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	if err != nil {
+		return fmt.Errorf("failed to create temporary directory: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	origin := os.Getenv("CONTAINER_ORIGIN")
+	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
+		return err
+	}
+
+	if err := SyncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+
+	// Escape the double quotes in the description and format it
+	escapedDescription := fmt.Sprintf(`description:"%s"`, strings.ReplaceAll(description, `"`, `\"`))
+
+	cmd := exec.Command("task", taskuuid, "modify", escapedDescription)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to edit task: %v", err)
+	}
+
+	// Sync Taskwarrior again
+	if err := SyncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+	return nil
+}
+
+func SyncTasksWithTaskwarrior() error {
+	cmd := exec.Command("task", "sync")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Printf("Error syncing tasks: %v, Output: %s\n", err, output)
+		return fmt.Errorf("failed to sync tasks: %v, Output: %s", err, output)
 	}
 	return nil
 }
@@ -233,15 +266,5 @@ func CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) e
 		return err
 	}
 
-	return nil
-}
-
-func SyncTasksWithTaskwarrior() error {
-	cmd := exec.Command("task", "sync")
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Printf("Error syncing tasks: %v, Output: %s\n", err, output)
-		return fmt.Errorf("failed to sync tasks: %v, Output: %s", err, output)
-	}
 	return nil
 }
