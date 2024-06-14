@@ -371,6 +371,8 @@
     "yocto-queue": "^0.1.0"
   },
   "devDependencies": {
+    "@types/babel__core": "^7.20.5",
+    "@types/babel-generator": "^6.25.8",
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.0"
