@@ -313,7 +313,7 @@ export const Tasks = (props: Props) => {
             });
             if (response) {
                 console.log('Task edited successfully!');
-                toast.success('Task task edited successfully!', {
+                toast.success('Task edited successfully!', {
                     position: 'bottom-left',
                     autoClose: 3000,
                     hideProgressBar: false,
