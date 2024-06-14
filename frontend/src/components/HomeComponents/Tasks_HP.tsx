@@ -14,7 +14,7 @@ import { collection, doc, getDocs, query, setDoc, updateDoc, where } from "fireb
 import { toast } from "react-toastify";
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { ArrowUpDown, CopyIcon, Folder, Tag, Trash2Icon } from "lucide-react"
+import { ArrowUpDown, CheckIcon, CopyIcon, Folder, PencilIcon, Tag, Trash2Icon, XIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { parseISO, format } from 'date-fns';
@@ -34,8 +34,11 @@ export const Tasks = (props: Props) => {
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
     const [newTask, setNewTask] = useState({ description: "", priority: "", project: "", due: "" });
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+    const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+    const [_isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedDescription, setEditedDescription] = useState("");
+    const [_selectedTask, setSelectedTask] = useState(null);
     const tasksPerPage = 10;
 
     useEffect(() => {
@@ -276,7 +279,7 @@ export const Tasks = (props: Props) => {
                     progress: undefined,
                 });
                 setNewTask({ description: "", priority: "", project: "", due: "" });
-                setIsDialogOpen(false);
+                setIsAddTaskOpen(false);
             } else {
                 toast.error('Error in adding task. Please try again.', {
                     position: 'bottom-left',
@@ -291,6 +294,50 @@ export const Tasks = (props: Props) => {
             }
         } catch (error) {
             console.error('Failed to add task: ', error);
+        }
+    }
+
+    async function handleEditTaskDesc(email: string, encryptionSecret: string, UUID: string, taskuuid: string, description?: string) {
+        try {
+            const backendURL = import.meta.env.VITE_BACKEND_URL;
+            const url = backendURL + `edit-task`;
+            const response = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: email,
+                    encryptionSecret: encryptionSecret,
+                    UUID: UUID,
+                    taskuuid: taskuuid,
+                    description: description,
+                }),
+            });
+            if (response) {
+                console.log('Task edited successfully!');
+                toast.success('Task task edited successfully!', {
+                    position: 'bottom-left',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+                setNewTask({ description: "", priority: "", project: "", due: "" });
+                setIsAddTaskOpen(false);
+            } else {
+                toast.error('Error in editing task. Please try again.', {
+                    position: 'bottom-left',
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                });
+                console.error('Failed to edit task');
+            }
+        } catch (error) {
+            console.error('Failed to edit task: ', error);
         }
     }
 
@@ -372,6 +419,33 @@ export const Tasks = (props: Props) => {
         });
     };
 
+    const handleEditClick = (description: string) => {
+        setIsEditing(true);
+        setEditedDescription(description);
+    };
+
+    const handleSaveClick = (task: Task) => {
+        // Save the edited description to the task (this would typically involve an API call)
+        task.description = editedDescription;
+        handleEditTaskDesc(props.email, props.encryptionSecret, props.UUID, task.description, task.uuid);
+        setIsEditing(false);
+    };
+
+    const handleCancelClick = () => {
+        setIsEditing(false);
+    };
+
+    const handleDialogOpenChange = (_isDialogOpen: boolean, task: any) => {
+        setIsDialogOpen(_isDialogOpen);
+        if (!_isDialogOpen) {
+            setIsEditing(false);
+            setEditedDescription("");
+        } else {
+            setSelectedTask(task);
+            setEditedDescription(task?.description || "");
+        }
+    };
+
     return (
         <section id="tasks" className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32">
             <h2 className="text-3xl md:text-4xl font-bold text-center">
@@ -390,9 +464,9 @@ export const Tasks = (props: Props) => {
                     </h3>
                     <div className="flex items-center justify-left">
                         <div className="pr-2">
-                            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                            <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline" onClick={() => setIsDialogOpen(true)}>Add Task</Button>
+                                    <Button variant="outline" onClick={() => setIsAddTaskOpen(true)}>Add Task</Button>
                                 </DialogTrigger>
                                 <DialogContent>
                                     <DialogHeader>
@@ -470,7 +544,7 @@ export const Tasks = (props: Props) => {
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                                        <Button variant="secondary" onClick={() => setIsAddTaskOpen(false)}>Cancel</Button>
                                         <Button className="mb-1" variant="default" onClick={() => handleAddTask(
                                             props.email,
                                             props.encryptionSecret,
@@ -506,7 +580,7 @@ export const Tasks = (props: Props) => {
                         <TableBody>
                             {/* Display tasks */}
                             {currentTasks.map((task: Task, index: number) => (
-                                <Dialog key={index}>
+                                <Dialog onOpenChange={(_isDialogOpen) => handleDialogOpenChange(_isDialogOpen, task)} key={index}>
                                     <DialogTrigger asChild>
                                         <TableRow key={index} className="border-b">
                                             {/* Display task details */}
@@ -564,7 +638,32 @@ export const Tasks = (props: Props) => {
                                                             <TableCell>{task.id}</TableCell>
                                                         </TableRow><TableRow>
                                                             <TableCell>Description:</TableCell>
-                                                            <TableCell>{task.description}</TableCell>
+                                                            <TableCell>{
+                                                                isEditing ?
+                                                                    <>
+                                                                        <div className="flex items-center">            <Input
+                                                                            id={`description-${task.id}`}
+                                                                            name={`description-${task.id}`}
+                                                                            type="text"
+                                                                            value={editedDescription}
+                                                                            onChange={(e) => setEditedDescription(e.target.value)}
+                                                                            className="flex-grow mr-2"
+                                                                        />
+                                                                            <Button variant="ghost" size="icon" onClick={() => handleSaveClick(task)}>
+                                                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                                                            </Button>
+                                                                            <Button variant="ghost" size="icon" onClick={handleCancelClick}>
+                                                                                <XIcon className="h-4 w-4 text-red-500" />
+                                                                            </Button></div>
+                                                                    </>
+                                                                    : (
+                                                                        <>
+                                                                            <span>{task.description}</span>
+                                                                            <Button variant="ghost" size="icon" onClick={() => handleEditClick(task.description)}>
+                                                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                                                            </Button>
+                                                                        </>
+                                                                    )}</TableCell>
                                                         </TableRow><TableRow>
                                                             <TableCell>Due:</TableCell>
                                                             <TableCell>{formattedDate(task.due)}</TableCell>
