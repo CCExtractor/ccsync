@@ -297,7 +297,7 @@ export const Tasks = (props: Props) => {
         }
     }
 
-    async function handleEditTaskDesc(email: string, encryptionSecret: string, UUID: string, taskuuid: string, description?: string) {
+    async function handleEditTaskDesc(email: string, encryptionSecret: string, UUID: string, description: string, taskuuid: string) {
         try {
             const backendURL = import.meta.env.VITE_BACKEND_URL;
             const url = backendURL + `edit-task`;
@@ -322,7 +322,6 @@ export const Tasks = (props: Props) => {
                     draggable: true,
                     progress: undefined,
                 });
-                setNewTask({ description: "", priority: "", project: "", due: "" });
                 setIsAddTaskOpen(false);
             } else {
                 toast.error('Error in editing task. Please try again.', {
