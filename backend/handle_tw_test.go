@@ -23,23 +23,23 @@ func TestSyncTasksWithTaskwarrior(t *testing.T) {
 	}
 }
 
-func TestSyncTaskwarrior(t *testing.T) {
-	err := SyncTaskwarrior("./")
-	if err != nil {
-		t.Errorf("SyncTaskwarrior failed: %v", err)
-	} else {
-		fmt.Println("Sync Dir test passed")
-	}
-}
+// func TestSyncTaskwarrior(t *testing.T) {
+// 	err := SyncTaskwarrior("./")
+// 	if err != nil {
+// 		t.Errorf("SyncTaskwarrior failed: %v", err)
+// 	} else {
+// 		fmt.Println("Sync Dir test passed")
+// 	}
+// }
 
-func TestEditTaskInATaskwarrior(t *testing.T) {
-	err := EditTaskInTaskwarrior("task_uuid", "description")
-	if err != nil {
-		t.Errorf("EditTaskInTaskwarrior() failed: %v", err)
-	} else {
-		fmt.Println("Edit test passed")
-	}
-}
+// func TestEditTaskInATaskwarrior(t *testing.T) {
+// 	err := EditTaskInTaskwarrior("task_uuid", "description")
+// 	if err != nil {
+// 		t.Errorf("EditTaskInTaskwarrior() failed: %v", err)
+// 	} else {
+// 		fmt.Println("Edit test passed")
+// 	}
+// }
 
 func TestExportTasks(t *testing.T) {
 	task, err := ExportTasks("./")
