@@ -12,7 +12,7 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { LogOut, Github } from "lucide-react";
+import { LogOut, Github, Trash2 } from "lucide-react";
 
 import {
     DropdownMenu,
@@ -31,7 +31,7 @@ import logo from "../../assets/logo.png";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { toast } from "react-toastify";
 import { tasksCollection } from "@/lib/controller";
-import { doc, getDocs, setDoc, updateDoc } from "firebase/firestore";
+import { deleteDoc, doc, getDocs, setDoc, updateDoc } from "firebase/firestore";
 
 interface RouteProps {
     href: string;
@@ -95,7 +95,7 @@ export const Navbar = (props: Props) => {
 
             const email = props.email;
             const encryptionSecret = props.encryptionSecret;
-            const UUID = props.UUID; 
+            const UUID = props.UUID;
 
             const url = backendURL + `tasks?email=${encodeURIComponent(email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
 
@@ -156,6 +156,58 @@ export const Navbar = (props: Props) => {
             console.log('Error syncing tasks on frontend: ', error);
         }
     }
+
+    async function deleteAllTasks() {
+        try {
+            // show a loading toast
+            const loadingToastId = toast.info(`Deleting all tasks for ${props.email}...`, {
+                position: "bottom-left",
+                autoClose: false,
+                hideProgressBar: true,
+                closeOnClick: false,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+
+            const snapshot = await getDocs(tasksCollection);
+            const tasksToDelete = snapshot.docs.filter((doc) => doc.data().email === props.email);
+
+            await Promise.all(
+                tasksToDelete.map(async (task) => {
+                    const taskRef = doc(tasksCollection, task.id);
+                    await deleteDoc(taskRef);
+                })
+            );
+
+            // remove the loading toast and show success toast
+            toast.update(loadingToastId, {
+                render: `All tasks for ${props.email} deleted successfully!`,
+                type: "success",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
+
+            console.log(`All tasks for ${props.email} deleted successfully!`);
+        } catch (error) {
+            // Remove the loading toast and show error toast
+            toast.error(`Error deleting tasks for ${props.email}: ${error}`, {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+
+            console.error(`Error deleting tasks for ${props.email}:`, error);
+        }
+    }
+
     return (
         <header className="sticky border-b-[1px] top-0 z-40 w-full bg-white dark:border-b-slate-700 dark:bg-background">
             <NavigationMenu className="mx-auto">
@@ -222,6 +274,13 @@ export const Navbar = (props: Props) => {
                                         Sync Tasks
                                     </div>
                                     <div
+                                        onClick={deleteAllTasks}
+                                        className={`w-[110px] border ${buttonVariants({
+                                            variant: "destructive",
+                                        })}`}>
+                                        Delete All Tasks
+                                    </div>
+                                    <div
                                         onClick={handleLogout}
                                         className={`w-[110px] border ${buttonVariants({
                                             variant: "destructive",
@@ -268,6 +327,10 @@ export const Navbar = (props: Props) => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-56">
                                 <DropdownMenuLabel>{props.email}</DropdownMenuLabel>
+                                <DropdownMenuItem className="text-red-500" onClick={deleteAllTasks}>
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete all tasks
+                                </DropdownMenuItem>
                                 <DropdownMenuItem>
                                     <Github className="mr-2 h-4 w-4" />
                                     <span>GitHub</span>
