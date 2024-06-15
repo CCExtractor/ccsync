@@ -582,7 +582,9 @@ export const Tasks = (props: Props) => {
                                         <TableRow key={index} className="border-b">
                                             {/* Display task details */}
                                             <TableCell className="py-2">
-                                                {task.id}
+                                                <span className="text-s text-foreground">
+                                                    {task.id}
+                                                </span>
                                             </TableCell>
                                             <TableCell className="flex items-center space-x-2 py-2">
                                                 {task.priority === "H" && (
@@ -597,8 +599,9 @@ export const Tasks = (props: Props) => {
                                                     <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3">
                                                     </div>
                                                 )}
-
-                                                <span>{task.description}</span>
+                                                <span className="text-s text-foreground">
+                                                    {task.description}
+                                                </span>
                                                 {task.project != '' && <Badge variant={"secondary"}>
                                                     <Folder className="pr-2" />
                                                     {task.project === '' ? 'none' : task.project}
