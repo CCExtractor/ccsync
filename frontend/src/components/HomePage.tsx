@@ -18,7 +18,6 @@ export const HomePage: React.FC = () => {
 
     const fetchUserInfo = async () => {
         try {
-            0
             const response = await fetch(backendURL + "api/user", {
                 method: "GET",
                 credentials: "include",
