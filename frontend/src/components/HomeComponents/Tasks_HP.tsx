@@ -322,6 +322,7 @@ export const Tasks = (props: Props) => {
                     draggable: true,
                     progress: undefined,
                 });
+                syncTasksWithTwAndDb();
                 setIsAddTaskOpen(false);
             } else {
                 toast.error('Error in editing task. Please try again.', {
@@ -373,11 +374,8 @@ export const Tasks = (props: Props) => {
     const indexOfLastTask = currentPage * tasksPerPage;
     const indexOfFirstTask = indexOfLastTask - tasksPerPage;
     const currentTasks = tasks.slice(indexOfFirstTask, indexOfLastTask);
-
     const emptyRows = tasksPerPage - currentTasks.length;
-
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-
     const totalPages = Math.ceil(tasks.length / tasksPerPage);
 
     const getDisplayedPages = () => {
@@ -470,12 +468,12 @@ export const Tasks = (props: Props) => {
                                 <DialogContent>
                                     <DialogHeader>
                                         <DialogTitle>
-                                            <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                            <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
                                                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                                                     Add a{" "}
                                                 </span>
                                                 new task
-                                            </h3>
+                                            </span>
                                         </DialogTitle>
                                         <DialogDescription>
                                             Fill in the details below to add a new task.
@@ -622,14 +620,14 @@ export const Tasks = (props: Props) => {
                                     <DialogContent className="sm:max-w-[425px]">
                                         <DialogHeader>
                                             <DialogTitle>
-                                                <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                                <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
                                                     <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                                                         Task{" "}
                                                     </span>
                                                     Details
-                                                </h3>
+                                                </span>
                                             </DialogTitle>
-                                            <DialogDescription>
+                                            <DialogDescription asChild>
                                                 <Table>
                                                     <TableBody>
                                                         <TableRow>
@@ -703,23 +701,23 @@ export const Tasks = (props: Props) => {
                                         {/*Mark task as completed*/}
                                         <DialogFooter className="flex flex-row justify-end">
                                             {task.status == "pending" ? <Dialog>
-                                                <DialogTrigger className="mr-5">
-                                                    <Button >Mark As Completed</Button>
+                                                <DialogTrigger asChild className="mr-5">
+                                                    <Button>Mark As Completed</Button>
                                                 </DialogTrigger>
                                                 <DialogContent>
                                                     <DialogTitle>
-                                                        <h3 className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                                        <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
                                                             <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                                                                 Are you{" "}
                                                             </span>
                                                             sure?
-                                                        </h3>
+                                                        </span>
                                                     </DialogTitle>
                                                     <DialogFooter className="flex flex-row justify-center">
                                                         <Button className="mr-5" onClick={() => markTaskAsCompleted(task.uuid)}>
                                                             Yes
                                                         </Button>
-                                                        <DialogClose>
+                                                        <DialogClose asChild>
                                                             <Button variant={"destructive"}>No</Button>
                                                         </DialogClose>
                                                     </DialogFooter>
@@ -728,7 +726,7 @@ export const Tasks = (props: Props) => {
 
                                             {/*Mark task as deleted*/}
                                             {task.status != "deleted" ? <Dialog>
-                                                <DialogTrigger>
+                                                <DialogTrigger asChild>
                                                     <Button className="mr-4" variant={"destructive"}>
                                                         <Trash2Icon />
                                                     </Button>
@@ -752,7 +750,7 @@ export const Tasks = (props: Props) => {
                                                     </DialogFooter>
                                                 </DialogContent>
                                             </Dialog> : null}
-                                            <DialogClose>
+                                            <DialogClose asChild>
                                                 <Button className="bg-white">Close</Button>
                                             </DialogClose>
                                         </DialogFooter>
@@ -784,6 +782,7 @@ export const Tasks = (props: Props) => {
                             {getDisplayedPages().map(page => (
                                 <li key={page}>
                                     <Button
+                                        size="sm"
                                         variant={currentPage === page ? "secondary" : "outline"}
                                         onClick={() => paginate(page)}
                                     >
