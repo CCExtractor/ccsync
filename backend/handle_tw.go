@@ -1,12 +1,16 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 // Task represents a Taskwarrior task
@@ -25,26 +29,7 @@ type Task struct {
 	Modified    string  `json:"modified"`
 }
 
-// func editTaskHandler(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method == http.MethodPost {
-// 		uuid := r.FormValue("uuid")
-// 		description := r.FormValue("description")
-// 		if strings.TrimSpace(uuid) == "" || strings.TrimSpace(description) == "" {
-// 			http.Error(w, "UUID and description are required", http.StatusBadRequest)
-// 			return
-// 		}
-// 		if err := EditTaskInTaskwarrior(uuid, description); err != nil {
-// 			http.Error(w, err.Error(), http.StatusInternalServerError)
-// 			return
-// 		}
-// 		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
-// 		return
-// 	}
-
-// 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-// }
-
-func syncTasksHandler(w http.ResponseWriter, r *http.Request) {
+func SyncTasksHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		if err := SyncTasksWithTaskwarrior(); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -57,7 +42,18 @@ func syncTasksHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
-func fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]Task, error) {
+func GenerateUUID(email, id string) string {
+	namespace := uuid.NewMD5(uuid.NameSpaceOID, []byte(email+id))
+	return namespace.String()
+}
+
+func GenerateEncryptionSecret(uuidStr, email, id string) string {
+	hash := sha256.New()
+	hash.Write([]byte(uuidStr + email + id))
+	return hex.EncodeToString(hash.Sum(nil))
+}
+
+func FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]Task, error) {
 	// temporary directory for each user
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
@@ -89,6 +85,7 @@ func SetTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID string) error 
 		{"task", "config", "sync.server.origin", origin, "rc.confirmation=off"},
 		{"task", "config", "sync.server.client_id", UUID, "rc.confirmation=off"},
 	}
+
 	for _, args := range configCmds {
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Dir = tempDir
