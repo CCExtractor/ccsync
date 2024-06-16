@@ -1,6 +1,6 @@
 import { About } from "./LandingComponents/About_LP";
 import { FAQ } from "./LandingComponents/FAQ/FAQ";
-import { Footer } from "./LandingComponents/Footer_LP";
+import { Footer } from "./LandingComponents/Footer/Footer";
 import { Hero } from "./LandingComponents/Hero_LP";
 import { HowItWorks } from "./LandingComponents/HowItWorks_LP";
 import { Navbar } from "./LandingComponents/Navbar/Navbar";
