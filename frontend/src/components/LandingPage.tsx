@@ -1,14 +1,14 @@
 import { About } from "./LandingComponents/About_LP";
-import { FAQ } from "./LandingComponents/FAQ_LP";
+import { FAQ } from "./LandingComponents/FAQ/FAQ";
 import { Footer } from "./LandingComponents/Footer_LP";
 import { Hero } from "./LandingComponents/Hero_LP";
 import { HowItWorks } from "./LandingComponents/HowItWorks_LP";
-import { Navbar } from "./LandingComponents/Navbar_LP";
+import { Navbar } from "./LandingComponents/Navbar/Navbar";
 import { ScrollToTop } from "../components/ScrollToTop";
 import { Contact } from "./LandingComponents/Contact_LP";
 import "../App.css";
 
-export const LandingPage = () =>  {
+export const LandingPage = () => {
   return (
     <>
       <Navbar />
