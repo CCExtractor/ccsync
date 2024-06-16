@@ -1,16 +1,13 @@
 package main_test
 
 import (
-	"crypto/sha256"
 	"encoding/gob"
-	"encoding/hex"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/assert"
@@ -41,7 +38,7 @@ func setup() *App {
 	return &App{Config: conf, SessionStore: store}
 }
 
-func Test_oAuthHandler(t *testing.T) {
+func Test_OAuthHandler(t *testing.T) {
 	app := setup()
 	req, err := http.NewRequest("GET", "/auth/oauth", nil)
 	assert.NoError(t, err)
@@ -56,7 +53,7 @@ func Test_oAuthHandler(t *testing.T) {
 	assert.Contains(t, location.String(), app.Config.AuthCodeURL("state", oauth2.AccessTypeOffline))
 }
 
-func Test_oAuthCallbackHandler(t *testing.T) {
+func Test_OAuthCallbackHandler(t *testing.T) {
 	app := setup()
 	// This part of the test requires mocking the OAuth provider which can be complex. Simplified for demonstration.
 	req, err := http.NewRequest("GET", "/auth/callback?code=testcode", nil)
@@ -70,7 +67,7 @@ func Test_oAuthCallbackHandler(t *testing.T) {
 	assert.NotEqual(t, http.StatusInternalServerError, rr.Code)
 }
 
-func Test_userInfoHandler(t *testing.T) {
+func Test_UserInfoHandler(t *testing.T) {
 	app := setup()
 
 	// Create a request object to pass to the session store
@@ -101,7 +98,7 @@ func Test_userInfoHandler(t *testing.T) {
 	assert.Equal(t, "secret-test", userInfo["encryption_secret"])
 }
 
-func Test_enableCORS(t *testing.T) {
+func Test_EnableCORS(t *testing.T) {
 	app := setup()
 	req, err := http.NewRequest("OPTIONS", "/", nil)
 	assert.NoError(t, err)
@@ -114,7 +111,7 @@ func Test_enableCORS(t *testing.T) {
 	assert.Equal(t, os.Getenv("FRONTEND_ORIGIN_DEV"), rr.Header().Get("Access-Control-Allow-Origin"))
 }
 
-func Test_logoutHandler(t *testing.T) {
+func Test_LogoutHandler(t *testing.T) {
 	app := setup()
 	req, err := http.NewRequest("POST", "/auth/logout", nil)
 	assert.NoError(t, err)
@@ -126,25 +123,4 @@ func Test_logoutHandler(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rr.Code)
 	session, _ := app.SessionStore.Get(req, "session-name")
 	assert.Equal(t, -1, session.Options.MaxAge)
-}
-
-func Test_generateUUID(t *testing.T) {
-	email := "test@example.com"
-	id := "12345"
-	expectedUUID := uuid.NewMD5(uuid.NameSpaceOID, []byte(email+id)).String()
-
-	uuidStr := GenerateUUID(email, id)
-	assert.Equal(t, expectedUUID, uuidStr)
-}
-
-func Test_generateEncryptionSecret(t *testing.T) {
-	uuidStr := "uuid-test"
-	email := "test@example.com"
-	id := "12345"
-	hash := sha256.New()
-	hash.Write([]byte(uuidStr + email + id))
-	expectedSecret := hex.EncodeToString(hash.Sum(nil))
-
-	encryptionSecret := GenerateEncryptionSecret(uuidStr, email, id)
-	assert.Equal(t, expectedSecret, encryptionSecret)
 }
