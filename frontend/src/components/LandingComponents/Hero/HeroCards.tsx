@@ -26,7 +26,7 @@ export const HeroCards = () => {
         </CardContent>
       </Card>
       <Card className="absolute w-[350px] -right-[10px] bottom-[135px]  drop-shadow-xl shadow-black/10 dark:shadow-white/10">
-        <CardContent className="text-center pb-2 mt-5 mb-5">
+        <CardContent className="text-center pb-5 mt-5 mb-5">
           <p>
             Have any issues or queries?
           </p>
