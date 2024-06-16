@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Navbar } from "./HomeComponents/Navbar/Navbar";
-import { Hero } from "./HomeComponents/Hero_HP";
+import { Hero } from "./HomeComponents/Hero/Hero";
 import { Footer } from "./HomeComponents/Footer/Footer";
 import { SetupGuide } from "./HomeComponents/SetupGuide_HP";
 import { FAQ } from "./HomeComponents/FAQ/FAQ";
