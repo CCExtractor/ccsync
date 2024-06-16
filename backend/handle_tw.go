@@ -84,7 +84,7 @@ func FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]
 	if err != nil {
 		return nil, err
 	} else {
-		fmt.Fprintln(os.Stdout, []any{"Synced tasks for ", email, tasks}...)
+		fmt.Fprintln(os.Stdout, []any{"Synced tasks for ", email}...)
 	}
 
 	return tasks, nil
