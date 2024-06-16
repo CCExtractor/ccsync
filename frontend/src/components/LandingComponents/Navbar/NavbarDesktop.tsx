@@ -1,5 +1,5 @@
 import { buttonVariants } from "../../ui/button";
-import { ModeToggle } from "../../theme-mode-toggle";
+import { ModeToggle } from "../../utils/theme-mode-toggle";
 import { routeList } from "./navbar-utils";
 
 export const NavbarDesktop = () => {

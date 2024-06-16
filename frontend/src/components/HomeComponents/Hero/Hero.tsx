@@ -1,4 +1,4 @@
-import { Props } from '../../types';
+import { Props } from '../../utils/types';
 import { CopyButton } from './CopyButton';
 import { ToastNotification } from './ToastNotification';
 

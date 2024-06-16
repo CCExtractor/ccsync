@@ -1,7 +1,7 @@
 import { CopyIcon } from "lucide-react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
-import { Props } from "../types";
+import { Props } from "../utils/types";
 
 export const SetupGuide = (props: Props) => {
     const containerOrigin = import.meta.env.VITE_CONATINER_ORIGIN;

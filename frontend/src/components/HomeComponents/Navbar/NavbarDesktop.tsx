@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
-import { ModeToggle } from "../../theme-mode-toggle";
+import { ModeToggle } from "../../utils/theme-mode-toggle";
 import { buttonVariants } from "../../ui/button";
 import { routeList, syncTasksWithTwAndDb, deleteAllTasks, handleLogout, RouteProps, Props } from "./navbar-utils";
 
