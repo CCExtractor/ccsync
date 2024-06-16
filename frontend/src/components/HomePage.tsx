@@ -4,7 +4,7 @@ import { Hero } from "./HomeComponents/Hero/Hero";
 import { Footer } from "./HomeComponents/Footer/Footer";
 import { SetupGuide } from "./HomeComponents/SetupGuide/SetupGuide";
 import { FAQ } from "./HomeComponents/FAQ/FAQ";
-import { Tasks } from "./HomeComponents/Tasks_HP";
+import { Tasks } from "./HomeComponents/Tasks/Tasks";
 
 export const HomePage: React.FC = () => {
     const [userInfo, setUserInfo] = useState<any>(null);

@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { MedalIcon, MapIcon, PlaneIcon, GiftIcon } from "../utils/Icons";
+import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
+import { MedalIcon, MapIcon, PlaneIcon, GiftIcon } from "../../utils/Icons";
 
 interface FeatureProps {
   icon: JSX.Element;
@@ -32,7 +32,6 @@ const features: FeatureProps[] = [
     description:
       "You can also deploy your own server instance by following this documentation",
   },
-  //TODO: add the tcsc link here
 ];
 
 export const HowItWorks = () => {
