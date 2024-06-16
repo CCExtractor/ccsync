@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Navbar } from "./HomeComponents/Navbar_HP";
-import { Hero } from "./HomeComponents/Hero_HP";
-import { Footer } from "./HomeComponents/Footer_HP";
-import { SetupGuide } from "./HomeComponents/SetupGuide_HP";
-import { FAQ } from "./HomeComponents/FAQ_HP";
-import { Tasks } from "./HomeComponents/Tasks_HP";
+import { Navbar } from "./HomeComponents/Navbar/Navbar";
+import { Hero } from "./HomeComponents/Hero/Hero";
+import { Footer } from "./HomeComponents/Footer/Footer";
+import { SetupGuide } from "./HomeComponents/SetupGuide/SetupGuide";
+import { FAQ } from "./HomeComponents/FAQ/FAQ";
+import { Tasks } from "./HomeComponents/Tasks/Tasks";
 
 export const HomePage: React.FC = () => {
     const [userInfo, setUserInfo] = useState<any>(null);
