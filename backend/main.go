@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"crypto/sha256"
 	"encoding/gob"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,7 +10,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
@@ -61,12 +58,12 @@ func main() {
 	mux.HandleFunc("/auth/callback", app.OAuthCallbackHandler)
 	mux.HandleFunc("/api/user", app.UserInfoHandler)
 	mux.HandleFunc("/auth/logout", app.LogoutHandler)
-	mux.HandleFunc("/tasks", app.tasksHandler)
-	mux.HandleFunc("/add-task", addTaskHandler)
-	mux.HandleFunc("/edit-task", editTaskHandler)
-	mux.HandleFunc("/complete-task", completeTaskHandler)
-	mux.HandleFunc("/delete-task", deleteTaskHandler)
-	mux.HandleFunc("/sync-tasks", syncTasksHandler)
+	mux.HandleFunc("/tasks", app.TasksHandler)
+	mux.HandleFunc("/add-task", AddTaskHandler)
+	mux.HandleFunc("/edit-task", EditTaskHandler)
+	mux.HandleFunc("/complete-task", CompleteTaskHandler)
+	mux.HandleFunc("/delete-task", DeleteTaskHandler)
+	mux.HandleFunc("/sync-tasks", SyncTasksHandler)
 
 	log.Println("Server started at :8000")
 	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
@@ -74,13 +71,11 @@ func main() {
 	}
 }
 
-// this creates a unique OAuth URL and redirects the user
 func (a *App) OAuthHandler(w http.ResponseWriter, r *http.Request) {
 	url := a.Config.AuthCodeURL("state", oauth2.AccessTypeOffline)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-// this exchanges the code for an access token and fetches user info
 func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Fetching user info...")
 
@@ -106,7 +101,6 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate a UUID based on email and id
 	email, okEmail := userInfo["email"].(string)
 	id, okId := userInfo["id"].(string)
 	if !okEmail || !okId {
@@ -114,11 +108,8 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	uuidStr := GenerateUUID(email, id)
-
-	// Generate an encryption secret based on the UUID, email, and id
 	encryptionSecret := GenerateEncryptionSecret(uuidStr, email, id)
 
-	// Store the data in a session
 	userInfo["uuid"] = uuidStr
 	userInfo["encryption_secret"] = encryptionSecret
 	session, _ := a.SessionStore.Get(r, "session-name")
@@ -128,27 +119,12 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Log the user info for troubleshooting
 	log.Printf("User Info: %v", userInfo)
 
 	frontendOriginDev := os.Getenv("FRONTEND_ORIGIN_DEV")
 	http.Redirect(w, r, frontendOriginDev+"/home", http.StatusSeeOther)
 }
 
-// generate a UUID based on email and id
-func GenerateUUID(email, id string) string {
-	namespace := uuid.NewMD5(uuid.NameSpaceOID, []byte(email+id))
-	return namespace.String()
-}
-
-// generate a secret based on UUID, email, and id
-func GenerateEncryptionSecret(uuidStr, email, id string) string {
-	hash := sha256.New()
-	hash.Write([]byte(uuidStr + email + id))
-	return hex.EncodeToString(hash.Sum(nil))
-}
-
-// returns the authenticated user's info
 func (a *App) UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := a.SessionStore.Get(r, "session-name")
 	userInfo, ok := session.Values["user"].(map[string]interface{})
@@ -157,17 +133,13 @@ func (a *App) UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Log user info
 	log.Printf("Sending User Info: %v", userInfo)
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(userInfo)
 }
 
-// enableCORS allows CORS from specific origins
 func (a *App) EnableCORS(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set the allowed origin
 		allowedOrigin := os.Getenv("FRONTEND_ORIGIN_DEV") // frontend origin
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -181,7 +153,7 @@ func (a *App) EnableCORS(handler http.Handler) http.Handler {
 	})
 }
 
-func (a *App) tasksHandler(w http.ResponseWriter, r *http.Request) {
+func (a *App) TasksHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.URL.Query().Get("email")
 	encryptionSecret := r.URL.Query().Get("encryptionSecret")
 	UUID := r.URL.Query().Get("UUID")
@@ -192,7 +164,7 @@ func (a *App) tasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodGet {
-		tasks, _ := fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
+		tasks, _ := FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
 		if tasks == nil {
 			http.Error(w, "Failed to fetch tasks", http.StatusInternalServerError)
 			return
@@ -205,7 +177,7 @@ func (a *App) tasksHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
-func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
+func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -247,7 +219,7 @@ func deleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
-func completeTaskHandler(w http.ResponseWriter, r *http.Request) {
+func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -292,7 +264,7 @@ func completeTaskHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
-func editTaskHandler(w http.ResponseWriter, r *http.Request) {
+func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -339,7 +311,7 @@ func editTaskHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
-func addTaskHandler(w http.ResponseWriter, r *http.Request) {
+func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -387,7 +359,6 @@ func addTaskHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
-// Logout handler clears user session data
 func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := a.SessionStore.Get(r, "session-name")
 	session.Options.MaxAge = -1
