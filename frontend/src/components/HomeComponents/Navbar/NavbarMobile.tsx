@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sheet";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { Menu } from "lucide-react";
-import { ModeToggle } from "../../theme-mode-toggle";
+import { ModeToggle } from "../../utils/theme-mode-toggle";
 import { buttonVariants } from "../../ui/button";
 import { routeList, syncTasksWithTwAndDb, deleteAllTasks, handleLogout, RouteProps, Props } from "./navbar-utils";
 

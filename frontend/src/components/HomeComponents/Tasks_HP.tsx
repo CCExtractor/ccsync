@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Task } from "../types";
+import { Task } from "../utils/types";
 import {
     Table,
     TableBody,
