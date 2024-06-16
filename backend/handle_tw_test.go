@@ -1,8 +1,13 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"testing"
+
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSetTaskwarriorConfig(t *testing.T) {
@@ -23,23 +28,23 @@ func TestSyncTasksWithTaskwarrior(t *testing.T) {
 	}
 }
 
-// func TestSyncTaskwarrior(t *testing.T) {
-// 	err := SyncTaskwarrior("./")
-// 	if err != nil {
-// 		t.Errorf("SyncTaskwarrior failed: %v", err)
-// 	} else {
-// 		fmt.Println("Sync Dir test passed")
-// 	}
-// }
+func TestSyncTaskwarrior(t *testing.T) {
+	err := SyncTaskwarrior("./")
+	if err != nil {
+		t.Errorf("SyncTaskwarrior failed: %v", err)
+	} else {
+		fmt.Println("Sync Dir test passed")
+	}
+}
 
-// func TestEditTaskInATaskwarrior(t *testing.T) {
-// 	err := EditTaskInTaskwarrior("task_uuid", "description")
-// 	if err != nil {
-// 		t.Errorf("EditTaskInTaskwarrior() failed: %v", err)
-// 	} else {
-// 		fmt.Println("Edit test passed")
-// 	}
-// }
+func TestEditTaskInATaskwarrior(t *testing.T) {
+	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid")
+	if err != nil {
+		t.Errorf("EditTaskInTaskwarrior() failed: %v", err)
+	} else {
+		fmt.Println("Edit test passed")
+	}
+}
 
 func TestExportTasks(t *testing.T) {
 	task, err := ExportTasks("./")
@@ -66,4 +71,25 @@ func TestCompleteTaskInTaskwarrior(t *testing.T) {
 	} else {
 		fmt.Println("Complete task passed")
 	}
+}
+
+func Test_GenerateUUID(t *testing.T) {
+	email := "test@example.com"
+	id := "12345"
+	expectedUUID := uuid.NewMD5(uuid.NameSpaceOID, []byte(email+id)).String()
+
+	uuidStr := GenerateUUID(email, id)
+	assert.Equal(t, expectedUUID, uuidStr)
+}
+
+func Test_GenerateEncryptionSecret(t *testing.T) {
+	uuidStr := "uuid-test"
+	email := "test@example.com"
+	id := "12345"
+	hash := sha256.New()
+	hash.Write([]byte(uuidStr + email + id))
+	expectedSecret := hex.EncodeToString(hash.Sum(nil))
+
+	encryptionSecret := GenerateEncryptionSecret(uuidStr, email, id)
+	assert.Equal(t, expectedSecret, encryptionSecret)
 }
