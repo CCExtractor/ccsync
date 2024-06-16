@@ -5,7 +5,7 @@ import { routeList } from "./navbar-utils";
 export const NavbarDesktop = () => {
   return (
     <>
-      <nav className="hidden md:flex gap-2 justify-center flex-1">
+      <nav className="hidden md:flex gap-2 justify-center flex-1 mr-20">
         {routeList.map(({ href, label }, i) => (
           <a
             rel="noreferrer noopener"
@@ -17,7 +17,7 @@ export const NavbarDesktop = () => {
           </a>
         ))}
       </nav>
-      <div className="hidden md:flex gap-2">
+      <div className="pl-20 hidden md:flex gap-2">
         <ModeToggle />
       </div>
     </>
