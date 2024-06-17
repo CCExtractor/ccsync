@@ -55,18 +55,29 @@ func GenerateEncryptionSecret(uuidStr, email, id string) string {
 
 func FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]Task, error) {
 	// temporary directory for each user
+	cmd := exec.Command("rm", "-rf", "/root/.task")
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("error deleting Taskwarrior data: %v", err)
+	}
+
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temporary directory: %v", err)
+	} else {
+		fmt.Print("dir created successfully")
 	}
 	defer os.RemoveAll(tempDir)
 
 	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID); err != nil {
 		return nil, err
+	} else {
+		fmt.Print("set config successfully")
 	}
 
 	if err := SyncTaskwarrior(tempDir); err != nil {
 		return nil, err
+	} else {
+		fmt.Print("synced successfully")
 	}
 
 	tasks, err := ExportTasks(tempDir)
