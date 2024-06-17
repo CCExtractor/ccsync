@@ -51,7 +51,7 @@ export const Tasks = (props: Props) => {
                         id: data.id,
                         description: data.description,
                         project: data.project,
-                        tag: data.tag,
+                        tags: data.tags,
                         status: data.status,
                         uuid: data.uuid,
                         urgency: data.urgency,
@@ -136,7 +136,7 @@ export const Tasks = (props: Props) => {
                     id: data.id,
                     description: data.description,
                     project: data.project,
-                    tag: data.tag,
+                    tags: data.tags,
                     status: data.status,
                     uuid: data.uuid,
                     urgency: data.urgency,
@@ -437,11 +437,7 @@ export const Tasks = (props: Props) => {
                                                     </span>
                                                     {task.project != '' && <Badge variant={"secondary"}>
                                                         <Folder className="pr-2" />
-                                                        {task.project === '' ? 'none' : task.project}
-                                                    </Badge>}
-                                                    {task.tag != '' && <Badge variant={"secondary"}>
-                                                        <Tag className="pr-2" />
-                                                        {task.tag === '' ? 'none' : task.tag}
+                                                        {task.project === '' ? '' : task.project}
                                                     </Badge>}
                                                 </TableCell>
                                                 <TableCell className="py-2">
@@ -516,8 +512,16 @@ export const Tasks = (props: Props) => {
                                                                 <TableCell>Status:</TableCell>
                                                                 <TableCell>{task.status}</TableCell>
                                                             </TableRow><TableRow>
-                                                                <TableCell>Tag:</TableCell>
-                                                                <TableCell>{task.tag}</TableCell>
+                                                                <TableCell>Tags:</TableCell>
+                                                                <TableCell>
+                                                                    {task.tags !== null && task.tags.length > 1 ? (
+                                                                        task.tags.map((tags, index) => (
+                                                                            <Badge key={index} variant="secondary" className="mr-2">
+                                                                                <Tag className="pr-3" />{tags}
+                                                                            </Badge>
+                                                                        ))
+                                                                    ) : null}
+                                                                </TableCell>
                                                             </TableRow><TableRow>
                                                                 <TableCell>Urgency:</TableCell>
                                                                 <TableCell>{task.urgency}</TableCell>

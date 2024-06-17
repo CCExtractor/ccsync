@@ -15,7 +15,7 @@ export interface Task {
   id: number;
   description: string;
   project: string;
-  tag: string;
+  tags: string[];
   status: string;
   uuid: string;
   urgency: number;
