@@ -15,18 +15,18 @@ import (
 
 // Task represents a Taskwarrior task
 type Task struct {
-	ID          int32   `json:"id"`
-	Description string  `json:"description"`
-	Project     string  `json:"project"`
-	Tag         string  `json:"tag"`
-	Status      string  `json:"status"`
-	UUID        string  `json:"uuid"`
-	Urgency     float32 `json:"urgency"`
-	Priority    string  `json:"priority"`
-	Due         string  `json:"due"`
-	End         string  `json:"end"`
-	Entry       string  `json:"entry"`
-	Modified    string  `json:"modified"`
+	ID          int32    `json:"id"`
+	Description string   `json:"description"`
+	Project     string   `json:"project"`
+	Tags        []string `json:"tags"`
+	Status      string   `json:"status"`
+	UUID        string   `json:"uuid"`
+	Urgency     float32  `json:"urgency"`
+	Priority    string   `json:"priority"`
+	Due         string   `json:"due"`
+	End         string   `json:"end"`
+	Entry       string   `json:"entry"`
+	Modified    string   `json:"modified"`
 }
 
 func SyncTasksHandler(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +84,7 @@ func FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]
 	if err != nil {
 		return nil, err
 	} else {
-		fmt.Fprintln(os.Stdout, []any{"Synced tasks for ", email}...)
+		fmt.Fprintln(os.Stdout, []any{"Synced tasks for ", email, tasks}...)
 	}
 
 	return tasks, nil
