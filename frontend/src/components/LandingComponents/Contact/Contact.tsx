@@ -10,7 +10,7 @@ import { SlackIcon } from "lucide-react";
 import { GithubIcon } from "lucide-react";
 import { MailIcon } from "lucide-react";
 
-interface ContactProps {
+export interface ContactProps {
   icon: JSX.Element;
   name: string;
   position: string;
