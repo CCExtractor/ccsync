@@ -116,7 +116,7 @@ Sync server for Taskwarrior
   priority (string)
   project (string)
   status (string)
-  tag (string)
+  tags (array : string)
   urgency (number)
   uuid (string)
   ```
