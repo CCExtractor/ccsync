@@ -60,7 +60,6 @@ export const Footer = () => {
             </a>
           </div>
 
-
           <div>
             <a
               rel="noreferrer noopener"
