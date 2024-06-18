@@ -1,9 +1,8 @@
+import { url } from "@/lib/URLs";
 import { Props } from "../../utils/types";
 import { CopyableCode } from "./CopyableCode";
 
 export const SetupGuide = (props: Props) => {
-  const containerOrigin = import.meta.env.VITE_CONATINER_ORIGIN;
-
   return (
     <section id="setup-guide" className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32">
       <h2 className="text-3xl md:text-4xl font-bold text-center">
@@ -43,7 +42,7 @@ export const SetupGuide = (props: Props) => {
                 Configure Taskwarrior with these commands, run these commands one block at a time
 
                 {/* Link to container */}
-                <CopyableCode text={`task config sync.server.origin ${containerOrigin}`} copyText={`task config sync.server.origin ${containerOrigin}`} />
+                <CopyableCode text={`task config sync.server.origin ${url.containerOrigin}`} copyText={`task config sync.server.origin ${url.containerOrigin}`} />
 
                 {/* Client ID */}
                 <CopyableCode text={`task config sync.server.client_id ${props.uuid}`} copyText={`task config sync.server.client_id ${props.uuid}`} />

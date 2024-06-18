@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
 import { tasksCollection } from "@/lib/controller";
 import { deleteDoc, doc, getDocs, setDoc, updateDoc } from "firebase/firestore";
+import { url } from "@/lib/URLs";
 
 export interface RouteProps {
     href: string;
@@ -23,9 +24,8 @@ export const routeList: RouteProps[] = [
 ];
 
 export const handleLogout = async () => {
-    const backendURL = import.meta.env.VITE_BACKEND_URL;
     try {
-        const response = await fetch(backendURL + "auth/logout", {
+        const response = await fetch(url.backendURL + "auth/logout", {
             method: "POST",
             credentials: "include",
         });
@@ -41,21 +41,20 @@ export const handleLogout = async () => {
 
 export const syncTasksWithTwAndDb = async (props: Props) => {
     try {
-        const backendURL = import.meta.env.VITE_BACKEND_URL;
         const user_email = props.email;
 
         const email = props.email;
         const encryptionSecret = props.encryptionSecret;
         const UUID = props.UUID;
 
-        const url = backendURL + `tasks?email=${encodeURIComponent(email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
+        const backendURL = url.backendURL + `tasks?email=${encodeURIComponent(email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
 
         // Fetch tasks from Firebase Firestore
         const snapshot = await getDocs(tasksCollection);
         const firebaseTasks = snapshot.docs.map(doc => ({ uuid: doc.id, ...doc.data() }));
 
         // Fetch tasks from Taskwarrior
-        const response = await fetch(url, {
+        const response = await fetch(backendURL, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
