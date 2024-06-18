@@ -46,14 +46,11 @@ export const syncTasksWithTwAndDb = async (props: Props) => {
         const email = props.email;
         const encryptionSecret = props.encryptionSecret;
         const UUID = props.UUID;
-
         const backendURL = url.backendURL + `tasks?email=${encodeURIComponent(email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
 
-        // Fetch tasks from Firebase Firestore
         const snapshot = await getDocs(tasksCollection);
         const firebaseTasks = snapshot.docs.map(doc => ({ uuid: doc.id, ...doc.data() }));
 
-        // Fetch tasks from Taskwarrior
         const response = await fetch(backendURL, {
             method: 'GET',
             headers: {
@@ -109,7 +106,6 @@ export const syncTasksWithTwAndDb = async (props: Props) => {
 
 export const deleteAllTasks = async (props: Props) => {
     try {
-        // show a loading toast
         const loadingToastId = toast.info(`Deleting all tasks for ${props.email}...`, {
             position: "bottom-left",
             autoClose: false,
@@ -130,7 +126,6 @@ export const deleteAllTasks = async (props: Props) => {
             })
         );
 
-        // remove the loading toast and show success toast
         toast.update(loadingToastId, {
             render: `All tasks for ${props.email} deleted successfully!`,
             type: "success",
@@ -143,7 +138,6 @@ export const deleteAllTasks = async (props: Props) => {
 
         console.log(`All tasks for ${props.email} deleted successfully!`);
     } catch (error) {
-        // Remove the loading toast and show error toast
         toast.error(`Error deleting tasks for ${props.email}: ${error}`, {
             position: "bottom-left",
             autoClose: 3000,
@@ -153,7 +147,6 @@ export const deleteAllTasks = async (props: Props) => {
             draggable: true,
             progress: undefined,
         });
-
         console.error(`Error deleting tasks for ${props.email}:`, error);
     }
 };
