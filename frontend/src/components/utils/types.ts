@@ -1,4 +1,3 @@
-// types.ts - used for home page
 export interface User {
   name: string;
   email: string;
