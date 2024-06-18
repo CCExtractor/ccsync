@@ -33,7 +33,7 @@ export const Hero = () => {
             <Button className="w-full md:w-1/3 bg-blue-400 hover:bg-blue-500">Sign in to get started</Button>
           </a>
           <a
-            href="/////todo/////"
+            href="https://github.com/its-me-abhishek/ccsync"
             target="_blank"
             className={`w-full md:w-1/3 ${buttonVariants({
               variant: "outline",
