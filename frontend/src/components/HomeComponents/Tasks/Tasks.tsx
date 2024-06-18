@@ -20,6 +20,7 @@ import { Label } from "@/components/ui/label"
 import CopyToClipboard from "react-copy-to-clipboard";
 import { formattedDate, getDisplayedPages, handleCopy, markTaskAsCompleted, markTaskAsDeleted, Props, sortTasks, sortTasksById } from "./tasks-utils";
 import Pagination from "./Pagination";
+import { url } from "@/lib/URLs";
 
 export const Tasks = (props: Props) => {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -39,7 +40,6 @@ export const Tasks = (props: Props) => {
     const emptyRows = tasksPerPage - currentTasks.length;
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
     const totalPages = Math.ceil(tasks.length / tasksPerPage);
-    const backendURL = import.meta.env.VITE_BACKEND_URL;
 
     useEffect(() => {
         const fetchTasksForEmail = async () => {
@@ -76,14 +76,14 @@ export const Tasks = (props: Props) => {
             const user_email = props.email;
             const encryptionSecret = props.encryptionSecret;
             const UUID = props.UUID;
-            const url = backendURL + `/tasks?email=${encodeURIComponent(user_email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
+            const backendURL = url.backendURL + `/tasks?email=${encodeURIComponent(user_email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
 
             // Fetch tasks from Firebase Firestore
             const snapshot = await getDocs(tasksCollection);
             const firebaseTasks = snapshot.docs.map(doc => ({ uuid: doc.id, ...doc.data() }));
 
             // Fetch tasks from Taskwarrior
-            const response = await fetch(url, {
+            const response = await fetch(backendURL, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -159,8 +159,8 @@ export const Tasks = (props: Props) => {
 
     async function handleAddTask(email: string, encryptionSecret: string, UUID: string, description: string, project: string, priority: string, due: string,) {
         try {
-            const url = backendURL + `add-task`;
-            const response = await fetch(url, {
+            const backendURL = url.backendURL + `add-task`;
+            const response = await fetch(backendURL, {
                 method: 'POST',
                 body: JSON.stringify({
                     email: email,
@@ -204,8 +204,8 @@ export const Tasks = (props: Props) => {
 
     async function handleEditTaskDesc(email: string, encryptionSecret: string, UUID: string, description: string, taskuuid: string) {
         try {
-            const url = backendURL + `edit-task`;
-            const response = await fetch(url, {
+            const backendURL = url.backendURL + `edit-task`;
+            const response = await fetch(backendURL, {
                 method: 'POST',
                 body: JSON.stringify({
                     email: email,
@@ -514,7 +514,7 @@ export const Tasks = (props: Props) => {
                                                             </TableRow><TableRow>
                                                                 <TableCell>Tags:</TableCell>
                                                                 <TableCell>
-                                                                    {task.tags !== null && task.tags.length > 1 ? (
+                                                                    {task.tags !== null && task.tags.length >= 1 ? (
                                                                         task.tags.map((tags, index) => (
                                                                             <Badge key={index} variant="secondary" className="mr-2">
                                                                                 <Tag className="pr-3" />{tags}
