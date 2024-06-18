@@ -67,8 +67,7 @@ export const HomePage: React.FC = () => {
                     <a color="red" href={url.frontendURL}> home page </a>
                     and sign in again</p>
             </div>
-            )
-            }
+            )}
         </div >
     );
 };
