@@ -5,12 +5,10 @@ import { Footer } from "./HomeComponents/Footer/Footer";
 import { SetupGuide } from "./HomeComponents/SetupGuide/SetupGuide";
 import { FAQ } from "./HomeComponents/FAQ/FAQ";
 import { Tasks } from "./HomeComponents/Tasks/Tasks";
+import { url } from "@/lib/URLs";
 
 export const HomePage: React.FC = () => {
     const [userInfo, setUserInfo] = useState<any>(null);
-    const backendURL = import.meta.env.VITE_BACKEND_URL;
-    const frontendURL = import.meta.env.VITE_FRONTEND_URL;
-    const containerOrigin = import.meta.env.VITE_CONATINER_ORIGIN;
 
     useEffect(() => {
         fetchUserInfo();
@@ -18,7 +16,7 @@ export const HomePage: React.FC = () => {
 
     const fetchUserInfo = async () => {
         try {
-            const response = await fetch(backendURL + "api/user", {
+            const response = await fetch(url.backendURL + "api/user", {
                 method: "GET",
                 credentials: "include",
             });
@@ -41,7 +39,7 @@ export const HomePage: React.FC = () => {
                         imgurl={userInfo.picture}
                         email={userInfo.email}
                         encryptionSecret={userInfo.encryption_secret}
-                        origin={containerOrigin}
+                        origin={url.containerOrigin}
                         UUID={userInfo.uuid}
                     />
                     <Hero
@@ -52,7 +50,7 @@ export const HomePage: React.FC = () => {
                     <Tasks
                         email={userInfo.email}
                         encryptionSecret={userInfo.encryption_secret}
-                        origin={containerOrigin}
+                        origin={url.containerOrigin}
                         UUID={userInfo.uuid}
                     />
                     <SetupGuide
@@ -66,7 +64,7 @@ export const HomePage: React.FC = () => {
             ) : (<div>
                 <p>Session has been expired.</p>
                 <p>Please to go back to the
-                    <a color="red" href={frontendURL}> home page </a>
+                    <a color="red" href={url.frontendURL}> home page </a>
                     and sign in again</p>
             </div>
             )
