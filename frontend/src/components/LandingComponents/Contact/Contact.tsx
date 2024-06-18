@@ -31,7 +31,7 @@ const contactList: ContactProps[] = [
     url: "",
   },
   {
-    icon: <AiOutlineDiscord size={45}/>,
+    icon: <AiOutlineDiscord size={45} />,
     name: "Discord",
     position: "Join us at Discord for discussions",
     url: "",
@@ -56,9 +56,8 @@ export const Contact = () => {
         </span>
         Us
       </h2>
-      <br></br>
-      <br></br>
-      <br></br>
+      
+      <br /><br /><br />
 
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 gap-y-10">
         {contactList.map(
