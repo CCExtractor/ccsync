@@ -1,4 +1,5 @@
 import { Task } from "@/components/utils/types";
+import { url } from "@/lib/URLs";
 import { format, parseISO } from "date-fns";
 import { toast } from "react-toastify";
 
@@ -24,10 +25,9 @@ export const markTaskAsCompleted = async (
   taskuuid: string
 ) => {
   try {
-    const backendURL = import.meta.env.VITE_BACKEND_URL;
-    const url = backendURL + `complete-task`;
+    const backendURL = url.backendURL + `complete-task`;
 
-    const response = await fetch(url, {
+    const response = await fetch(backendURL, {
       method: "POST",
       body: JSON.stringify({
         email: email,
@@ -72,10 +72,9 @@ export const markTaskAsDeleted = async (
   taskuuid: string
 ) => {
   try {
-    const backendURL = import.meta.env.VITE_BACKEND_URL;
-    const url = backendURL + `delete-task`;
+    const backendURL = url.backendURL + `delete-task`;
 
-    const response = await fetch(url, {
+    const response = await fetch(backendURL, {
       method: "POST",
       body: JSON.stringify({
         email: email,
