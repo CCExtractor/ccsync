@@ -1,9 +1,8 @@
+import { url } from "@/lib/URLs";
 import { Button } from "../../ui/button";
 import { buttonVariants } from "../../ui/button";
 import { HeroCards } from "./HeroCards";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
-
-const backendURL = import.meta.env.VITE_BACKEND_URL;
 
 export const Hero = () => {
   return (
@@ -30,7 +29,7 @@ export const Hero = () => {
         </p>
 
         <div className="space-y-4 md:space-y-0 md:space-x-4">
-          <a href={backendURL + "auth/oauth"}>
+          <a href={url.backendURL + "auth/oauth"}>
             <Button className="w-full md:w-1/3 bg-blue-400 hover:bg-blue-500">Sign in to get started</Button>
           </a>
           <a
