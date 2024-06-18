@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { ModeToggle } from "../theme-mode-toggle"; // Adjust the import path accordingly
+import { ModeToggle } from "../theme-mode-toggle";
 import { useTheme } from "@/components/utils/theme-provider";
 
 // Mocking the useTheme hook
