@@ -1,4 +1,5 @@
 import logo from "../../../assets/logo.png";
+import logoLight from "../../../assets/logo_light.png";
 
 export const Footer = () => {
   return (
@@ -10,9 +11,16 @@ export const Footer = () => {
           <a
             rel="noreferrer noopener"
             href="/"
-            className="font-bold text-xl flex"
+            className="ml-2 font-bold text-xl flex items-center dark:hidden"
           >
-            <img src={logo} alt="Logo" className="h-12 mr-0 mt-2 bg-blend-soft-light" />
+            <img src={logoLight} alt="Logo" className="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light" />
+          </a>
+          <a
+            rel="noreferrer noopener"
+            href="/"
+            className="ml-2 font-bold text-xl hidden dark:flex items-center"
+          >
+            <img src={logo} alt="Logo" className="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light" />
           </a>
         </div>
 
