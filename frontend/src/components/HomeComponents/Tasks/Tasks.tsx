@@ -158,47 +158,49 @@ export const Tasks = (props: Props) => {
     }
 
     async function handleAddTask(email: string, encryptionSecret: string, UUID: string, description: string, project: string, priority: string, due: string,) {
-        try {
-            const backendURL = url.backendURL + `add-task`;
-            const response = await fetch(backendURL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    email: email,
-                    encryptionSecret: encryptionSecret,
-                    UUID: UUID,
-                    description: description,
-                    project: project,
-                    priority: priority,
-                    due: due,
-                }),
-            });
-            if (response) {
-                console.log('Task added successfully!');
-                toast.success('Task added successfully!', {
-                    position: 'bottom-left',
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
+        if (handleDate(newTask.due)) {
+            try {
+                const backendURL = url.backendURL + `add-task`;
+                const response = await fetch(backendURL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        email: email,
+                        encryptionSecret: encryptionSecret,
+                        UUID: UUID,
+                        description: description,
+                        project: project,
+                        priority: priority,
+                        due: due,
+                    }),
                 });
-                setNewTask({ description: "", priority: "", project: "", due: "" });
-                setIsAddTaskOpen(false);
-            } else {
-                toast.error('Error in adding task. Please try again.', {
-                    position: 'bottom-left',
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
-                console.error('Failed to mark task as completed');
+                if (response) {
+                    console.log('Task added successfully!');
+                    toast.success('Task added successfully!', {
+                        position: 'bottom-left',
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                    setNewTask({ description: "", priority: "", project: "", due: "" });
+                    setIsAddTaskOpen(false);
+                } else {
+                    toast.error('Error in adding task. Please try again.', {
+                        position: 'bottom-left',
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                    console.error('Failed to mark task as completed');
+                }
+            } catch (error) {
+                console.error('Failed to add task: ', error);
             }
-        } catch (error) {
-            console.error('Failed to add task: ', error);
         }
     }
 
@@ -281,6 +283,23 @@ export const Tasks = (props: Props) => {
             setSelectedTask(task);
             setEditedDescription(task?.description || "");
         }
+    };
+
+    const handleDate = (v: string) => {
+        const date = v;
+        const isValid = /^\d{4}-\d{2}-\d{2}$/.test(date);
+        if (!isValid) {
+            toast.error("Invalid Date Format. Please use the YYYY-MM-DD format.", {
+                position: "bottom-left",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+            return false
+        } return true;
     };
 
     return (
@@ -366,7 +385,6 @@ export const Tasks = (props: Props) => {
                                                 <Input
                                                     id="due"
                                                     name="due"
-                                                    type=""
                                                     placeholder="YYYY-MM-DD"
                                                     value={newTask.due}
                                                     onChange={(e) => setNewTask({ ...newTask, due: e.target.value })}
@@ -382,7 +400,8 @@ export const Tasks = (props: Props) => {
                                                 newTask.description,
                                                 newTask.project,
                                                 newTask.priority,
-                                                newTask.due)}>Add Task</Button>
+                                                newTask.due)
+                                            }>Add Task</Button>
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
