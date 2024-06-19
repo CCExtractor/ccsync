@@ -449,7 +449,7 @@ export const Tasks = (props: Props) => {
                                                 </TableCell>
                                             </TableRow>
                                         </DialogTrigger>
-                                        <DialogContent className="sm:max-w-[425px]">
+                                        <DialogContent className="sm:h-auto sm:w-auto">
                                             <DialogHeader>
                                                 <DialogTitle>
                                                     <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
