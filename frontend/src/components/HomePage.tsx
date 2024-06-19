@@ -6,9 +6,11 @@ import { SetupGuide } from "./HomeComponents/SetupGuide/SetupGuide";
 import { FAQ } from "./HomeComponents/FAQ/FAQ";
 import { Tasks } from "./HomeComponents/Tasks/Tasks";
 import { url } from "@/lib/URLs";
+import { useNavigate } from "react-router";
 
 export const HomePage: React.FC = () => {
     const [userInfo, setUserInfo] = useState<any>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchUserInfo();
@@ -25,9 +27,11 @@ export const HomePage: React.FC = () => {
                 setUserInfo(data);
             } else {
                 console.error("Failed to fetch user info");
+                navigate('/');
             }
         } catch (error) {
             console.error("Error fetching user info:", error);
+            navigate('/');
         }
     };
 
