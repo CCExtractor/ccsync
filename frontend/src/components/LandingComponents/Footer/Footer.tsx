@@ -13,8 +13,8 @@ export const Footer = () => {
             href="/"
             className="ml-2 font-bold text-xl flex items-center dark:hidden"
           >
-            <img src={logoLight} alt="Logo" className="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light" />
-          </a>
+            <img src={logoLight} alt="Logo-light" className="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light" />
+            </a>
           <a
             rel="noreferrer noopener"
             href="/"
