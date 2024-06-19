@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -27,19 +26,6 @@ type Task struct {
 	End         string   `json:"end"`
 	Entry       string   `json:"entry"`
 	Modified    string   `json:"modified"`
-}
-
-func SyncTasksHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		if err := SyncTasksWithTaskwarrior(); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
-		return
-	}
-
-	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
 func GenerateUUID(email, id string) string {
@@ -201,16 +187,6 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskuuid 
 	// Sync Taskwarrior again
 	if err := SyncTaskwarrior(tempDir); err != nil {
 		return err
-	}
-	return nil
-}
-
-func SyncTasksWithTaskwarrior() error {
-	cmd := exec.Command("task", "sync")
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Printf("Error syncing tasks: %v, Output: %s\n", err, output)
-		return fmt.Errorf("failed to sync tasks: %v, Output: %s", err, output)
 	}
 	return nil
 }
