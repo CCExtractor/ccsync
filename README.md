@@ -1,6 +1,6 @@
 # CCSync
 
-Sync server for Taskwarrior
+Web UI + Sync server for Taskwarrior 3.0
 
 ### Guide to setup the frontend for development purposes
 
