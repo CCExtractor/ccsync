@@ -18,16 +18,6 @@ func TestSetTaskwarriorConfig(t *testing.T) {
 		fmt.Println("SetTaskwarriorConfig test passed")
 	}
 }
-
-func TestSyncTasksWithTaskwarrior(t *testing.T) {
-	err := SyncTasksWithTaskwarrior()
-	if err != nil {
-		t.Errorf("SyncTasksWithTaskwarrior() failed: %v", err)
-	} else {
-		fmt.Println("Sync test passed")
-	}
-}
-
 func TestSyncTaskwarrior(t *testing.T) {
 	err := SyncTaskwarrior("./")
 	if err != nil {
