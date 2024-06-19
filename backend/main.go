@@ -63,7 +63,6 @@ func main() {
 	mux.HandleFunc("/edit-task", EditTaskHandler)
 	mux.HandleFunc("/complete-task", CompleteTaskHandler)
 	mux.HandleFunc("/delete-task", DeleteTaskHandler)
-	mux.HandleFunc("/sync-tasks", SyncTasksHandler)
 
 	log.Println("Server started at :8000")
 	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
