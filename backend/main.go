@@ -54,6 +54,7 @@ func main() {
 	app := App{Config: conf, SessionStore: store}
 	mux := http.NewServeMux()
 
+	// API endpoints
 	mux.HandleFunc("/auth/oauth", app.OAuthHandler)
 	mux.HandleFunc("/auth/callback", app.OAuthCallbackHandler)
 	mux.HandleFunc("/api/user", app.UserInfoHandler)
@@ -75,6 +76,7 @@ func (a *App) OAuthHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
+// fetching the info
 func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Fetching user info...")
 
@@ -152,6 +154,7 @@ func (a *App) EnableCORS(handler http.Handler) http.Handler {
 	})
 }
 
+// helps to fetch tasks using '/tasks' route
 func (a *App) TasksHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.URL.Query().Get("email")
 	encryptionSecret := r.URL.Query().Get("encryptionSecret")
@@ -358,6 +361,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
+// logout and delete session
 func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := a.SessionStore.Get(r, "session-name")
 	session.Options.MaxAge = -1
