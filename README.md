@@ -2,7 +2,7 @@
 
 Web interface + Sync server for Taskwarrior 3.0
 
-### Guide to setup the frontend for development purposes
+### Guide to setup the frontend for development purposes:
 
 - ```bash
   npm i
