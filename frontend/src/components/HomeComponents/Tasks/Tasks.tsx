@@ -21,22 +21,31 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import { formattedDate, getDisplayedPages, handleCopy, markTaskAsCompleted, markTaskAsDeleted, Props, sortTasks, sortTasksById } from "./tasks-utils";
 import Pagination from "./Pagination";
 import { url } from "@/lib/URLs";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import BottomBar from "../BottomBar/BottomBar";
 
 export const Tasks = (props: Props) => {
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [uniqueProjects, setUniqueProjects] = useState<string[]>([]);
+    const [selectedProject, setSelectedProject] = useState<string>("all");
+    const [tempTasks, setTempTasks] = useState<Task[]>([]); // Temporary tasks state
+
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
+
     const [newTask, setNewTask] = useState({ description: "", priority: "", project: "", due: "" });
     const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
     const [_isDialogOpen, setIsDialogOpen] = useState(false);
+
     const [isEditing, setIsEditing] = useState(false);
     const [editedDescription, setEditedDescription] = useState("");
     const [_selectedTask, setSelectedTask] = useState(null);
+
     const tasksPerPage = 10;
     const indexOfLastTask = currentPage * tasksPerPage;
     const indexOfFirstTask = indexOfLastTask - tasksPerPage;
-    const currentTasks = tasks.slice(indexOfFirstTask, indexOfLastTask);
+    const currentTasks = tempTasks.slice(indexOfFirstTask, indexOfLastTask);
     const emptyRows = tasksPerPage - currentTasks.length;
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
     const totalPages = Math.ceil(tasks.length / tasksPerPage);
@@ -64,7 +73,14 @@ export const Tasks = (props: Props) => {
                     };
                 });
                 setTasks(sortTasksById(tasksFromDB, 'desc'));
+                setTempTasks(sortTasksById(tasksFromDB, 'desc'));
                 console.log('Tasks fetched successfully for email: ' + props.email);
+
+                // Extract unique projects
+                const projectsSet = new Set(tasksFromDB.map(task => task.project));
+                const filteredProjects = Array.from(projectsSet).filter(project => project !== "")
+                    .sort((a, b) => (a > b ? 1 : -1));
+                setUniqueProjects(filteredProjects);
             } catch (error) {
                 console.error("Error fetching tasks:", error);
             }
@@ -302,8 +318,27 @@ export const Tasks = (props: Props) => {
         } return true;
     };
 
+    const handleProjectChange = (value: string) => {
+        setSelectedProject(value);
+    };
+
+    // useEffect to update tempTasks whenever selectedProject changes
+    useEffect(() => {
+        if (selectedProject === "all") {
+            setTempTasks(tasks);
+        } else {
+            const filteredTasks = tasks.filter(task => task.project === selectedProject);
+            setTempTasks(sortTasksById(filteredTasks, 'desc'));
+        }
+    }, [selectedProject, tasks]);
+
     return (
         <section id="tasks" className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32">
+            <BottomBar
+                projects={uniqueProjects}
+                selectedProject={selectedProject}
+                setSelectedProject={setSelectedProject}
+            />
             <h2 className="text-3xl md:text-4xl font-bold text-center">
                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                     Tasks
@@ -320,6 +355,22 @@ export const Tasks = (props: Props) => {
                             your tasks
                         </h3>
                         <div className="flex items-center justify-left">
+                            <Select onValueChange={handleProjectChange}>
+                                <SelectTrigger className="w-[180px] hidden sm:flex mr-2">
+                                    <SelectValue placeholder="Select a project" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Select Project</SelectLabel>
+                                        <SelectItem value="all">All Projects</SelectItem>
+                                        {uniqueProjects.map((project) => (
+                                            <SelectItem key={project} value={project ? project : 'all'}>
+                                                {project}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
                             <div className="pr-2">
                                 <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
                                     <DialogTrigger asChild>

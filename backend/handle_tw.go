@@ -28,17 +28,20 @@ type Task struct {
 	Modified    string   `json:"modified"`
 }
 
+// logic to generate client ID for tw config
 func GenerateUUID(email, id string) string {
 	namespace := uuid.NewMD5(uuid.NameSpaceOID, []byte(email+id))
 	return namespace.String()
 }
 
+// logic to generate encryption secret for tw config
 func GenerateEncryptionSecret(uuidStr, email, id string) string {
 	hash := sha256.New()
 	hash.Write([]byte(uuidStr + email + id))
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
+// complete logic (delete config if any->setup config->sync->get tasks->export)
 func FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]Task, error) {
 	// temporary directory for each user
 	cmd := exec.Command("rm", "-rf", "/root/.task")
@@ -49,33 +52,25 @@ func FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temporary directory: %v", err)
-	} else {
-		fmt.Print("dir created successfully")
 	}
 	defer os.RemoveAll(tempDir)
 
 	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID); err != nil {
 		return nil, err
-	} else {
-		fmt.Print("set config successfully")
 	}
 
 	if err := SyncTaskwarrior(tempDir); err != nil {
 		return nil, err
-	} else {
-		fmt.Print("synced successfully")
 	}
 
 	tasks, err := ExportTasks(tempDir)
 	if err != nil {
 		return nil, err
-	} else {
-		fmt.Fprintln(os.Stdout, []any{"Synced tasks for ", email, tasks}...)
 	}
-
 	return tasks, nil
 }
 
+// logic to set tw config on backend
 func SetTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID string) error {
 	configCmds := [][]string{
 		{"task", "config", "sync.encryption_secret", encryptionSecret, "rc.confirmation=off"},
@@ -93,6 +88,7 @@ func SetTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID string) error 
 	return nil
 }
 
+// sync the user's tasks to all of their TW clients
 func SyncTaskwarrior(tempDir string) error {
 	cmd := exec.Command("task", "sync")
 	cmd.Dir = tempDir
@@ -102,6 +98,7 @@ func SyncTaskwarrior(tempDir string) error {
 	return nil
 }
 
+// export the tasks so as to add them to DB
 func ExportTasks(tempDir string) ([]Task, error) {
 	cmd := exec.Command("task", "export")
 	cmd.Dir = tempDir
@@ -119,6 +116,7 @@ func ExportTasks(tempDir string) ([]Task, error) {
 	return tasks, nil
 }
 
+// add task to the user's tw client
 func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate string) error {
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
