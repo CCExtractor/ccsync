@@ -22,6 +22,7 @@ import { formattedDate, getDisplayedPages, handleCopy, markTaskAsCompleted, mark
 import Pagination from "./Pagination";
 import { url } from "@/lib/URLs";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import BottomBar from "../BottomBar/BottomBar";
 
 export const Tasks = (props: Props) => {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -333,6 +334,11 @@ export const Tasks = (props: Props) => {
 
     return (
         <section id="tasks" className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32">
+            <BottomBar
+                projects={uniqueProjects}
+                selectedProject={selectedProject}
+                setSelectedProject={setSelectedProject}
+            />
             <h2 className="text-3xl md:text-4xl font-bold text-center">
                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                     Tasks
