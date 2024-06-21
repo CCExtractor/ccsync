@@ -18,7 +18,7 @@ import { ArrowUpDown, CheckIcon, CopyIcon, Folder, PencilIcon, Tag, Trash2Icon, 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import CopyToClipboard from "react-copy-to-clipboard";
-import { formattedDate, getDisplayedPages, handleCopy, markTaskAsCompleted, markTaskAsDeleted, Props, sortTasks, sortTasksById } from "./tasks-utils";
+import { formattedDate, getDisplayedPages, handleCopy, handleDate, markTaskAsCompleted, markTaskAsDeleted, Props, sortTasks, sortTasksById } from "./tasks-utils";
 import Pagination from "./Pagination";
 import { url } from "@/lib/URLs";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -302,23 +302,6 @@ export const Tasks = (props: Props) => {
         }
     };
 
-    const handleDate = (v: string) => {
-        const date = v;
-        const isValid = /^\d{4}-\d{2}-\d{2}$/.test(date);
-        if (!isValid) {
-            toast.error("Invalid Date Format. Please use the YYYY-MM-DD format.", {
-                position: "bottom-left",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
-            return false
-        } return true;
-    };
-
     const handleProjectChange = (value: string) => {
         setSelectedProject(value);
     };
@@ -356,7 +339,7 @@ export const Tasks = (props: Props) => {
                 selectedStatus={selectedStatus}
                 setSelectedStatus={setSelectedStatus}
             />
-            <h2 className="text-3xl md:text-4xl font-bold text-center">
+            <h2 data-testid="tasks" className="text-3xl md:text-4xl font-bold text-center">
                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                     Tasks
                 </span>
