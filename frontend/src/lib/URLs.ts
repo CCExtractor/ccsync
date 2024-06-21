@@ -1,5 +1,11 @@
-export const url = {
+const isTesting = true;
+
+export const url = isTesting ? {
+    backendURL: '',
+    frontendURL: '',
+    containerOrigin: '',
+} : {
     backendURL: import.meta.env.VITE_BACKEND_URL,
     frontendURL: import.meta.env.VITE_FRONTEND_URL,
-    containerOrigin: import.meta.env.VITE_CONATINER_ORIGIN,
+    containerOrigin: import.meta.env.VITE_CONTAINER_ORIGIN,
 };

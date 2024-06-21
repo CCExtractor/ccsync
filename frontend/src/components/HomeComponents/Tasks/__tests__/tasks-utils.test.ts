@@ -1,5 +1,12 @@
 import { toast } from "react-toastify";
-import { formattedDate, getDisplayedPages, handleCopy, sortTasks, sortTasksById } from "../tasks-utils";
+import {
+  formattedDate,
+  getDisplayedPages,
+  handleCopy,
+  handleDate,
+  sortTasks,
+  sortTasksById,
+} from "../tasks-utils";
 import { Task } from "@/components/utils/types";
 
 describe("sortTasks", () => {
@@ -318,18 +325,19 @@ describe("sortTasksById", () => {
   });
 });
 
-jest.mock('react-toastify', () => ({
+jest.mock("react-toastify", () => ({
   toast: {
     success: jest.fn(),
+    error: jest.fn(),
   },
 }));
 
-describe('handleCopy', () => {
-  it('shows success toast with correct message', () => {
-    const text = 'Sample text';
+describe("handleCopy", () => {
+  it("shows success toast with correct message", () => {
+    const text = "Sample text";
     handleCopy(text);
     expect(toast.success).toHaveBeenCalledWith(`${text} copied to clipboard!`, {
-      position: 'bottom-left',
+      position: "bottom-left",
       autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
@@ -340,8 +348,8 @@ describe('handleCopy', () => {
   });
 });
 
-describe('getDisplayedPages', () => {
-  it('returns all pages if totalPages is less than or equal to 3', () => {
+describe("getDisplayedPages", () => {
+  it("returns all pages if totalPages is less than or equal to 3", () => {
     expect(getDisplayedPages(1, 1)).toEqual([1]);
     expect(getDisplayedPages(2, 1)).toEqual([1, 2]);
     expect(getDisplayedPages(2, 2)).toEqual([1, 2]);
@@ -350,23 +358,78 @@ describe('getDisplayedPages', () => {
     expect(getDisplayedPages(3, 3)).toEqual([1, 2, 3]);
   });
 
-  it('returns first three pages if currentPage is 1', () => {
+  it("returns first three pages if currentPage is 1", () => {
     expect(getDisplayedPages(4, 1)).toEqual([1, 2, 3]);
     expect(getDisplayedPages(5, 1)).toEqual([1, 2, 3]);
     expect(getDisplayedPages(6, 1)).toEqual([1, 2, 3]);
   });
 
-  it('returns last three pages if currentPage is the last page', () => {
+  it("returns last three pages if currentPage is the last page", () => {
     expect(getDisplayedPages(4, 4)).toEqual([2, 3, 4]);
     expect(getDisplayedPages(5, 5)).toEqual([3, 4, 5]);
     expect(getDisplayedPages(6, 6)).toEqual([4, 5, 6]);
   });
 
-  it('returns three consecutive pages centered around the currentPage if it is in the middle', () => {
+  it("returns three consecutive pages centered around the currentPage if it is in the middle", () => {
     expect(getDisplayedPages(5, 2)).toEqual([1, 2, 3]);
     expect(getDisplayedPages(5, 3)).toEqual([2, 3, 4]);
     expect(getDisplayedPages(5, 4)).toEqual([3, 4, 5]);
     expect(getDisplayedPages(6, 3)).toEqual([2, 3, 4]);
     expect(getDisplayedPages(6, 4)).toEqual([3, 4, 5]);
+  });
+});
+
+describe("handleDate", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("should return true for valid date format YYYY-MM-DD", () => {
+    const validDate = "2023-06-21";
+    const result = handleDate(validDate);
+    expect(result).toBe(true);
+    expect(toast.error).not.toHaveBeenCalled();
+  });
+
+  it("should return false and show error toast for invalid date format", () => {
+    const invalidDate = "06/21/2023";
+    const result = handleDate(invalidDate);
+    expect(result).toBe(false);
+    expect(toast.error).toHaveBeenCalledWith(
+      "Invalid Date Format. Please use the YYYY-MM-DD format.",
+      {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      }
+    );
+  });
+
+  it("should return true and show no toast for empty date string", () => {
+    const emptyDate = "";
+    const result = handleDate(emptyDate);
+    expect(result).toBe(true);
+  });
+
+  it("should return false and show error toast for date with invalid characters", () => {
+    const invalidDate = "2023-06-21a";
+    const result = handleDate(invalidDate);
+    expect(result).toBe(false);
+    expect(toast.error).toHaveBeenCalledWith(
+      "Invalid Date Format. Please use the YYYY-MM-DD format.",
+      {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      }
+    );
   });
 });
