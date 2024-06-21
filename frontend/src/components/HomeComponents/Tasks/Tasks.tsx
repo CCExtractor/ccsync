@@ -29,7 +29,8 @@ export const Tasks = (props: Props) => {
     const [uniqueProjects, setUniqueProjects] = useState<string[]>([]);
     const [selectedProject, setSelectedProject] = useState<string>("all");
     const [tempTasks, setTempTasks] = useState<Task[]>([]); // Temporary tasks state
-
+    const [selectedStatus, setSelectedStatus] = useState<string>("all");
+    const status = ["pending", "completed", "deleted"];
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -332,12 +333,28 @@ export const Tasks = (props: Props) => {
         }
     }, [selectedProject, tasks]);
 
+    const handleStatusChange = (value: string) => {
+        setSelectedStatus(value);
+    };
+
+    useEffect(() => {
+        if (selectedStatus === "all") {
+            setTempTasks(tasks);
+        } else {
+            const filteredTasks = tasks.filter(task => task.status === selectedStatus);
+            setTempTasks(sortTasksById(filteredTasks, 'desc'));
+        }
+    }, [selectedStatus, tasks]);
+
     return (
         <section id="tasks" className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32">
             <BottomBar
                 projects={uniqueProjects}
                 selectedProject={selectedProject}
                 setSelectedProject={setSelectedProject}
+                status={["pending", "completed", "deleted"]}
+                selectedStatus={selectedStatus}
+                setSelectedStatus={setSelectedStatus}
             />
             <h2 className="text-3xl md:text-4xl font-bold text-center">
                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
@@ -366,6 +383,22 @@ export const Tasks = (props: Props) => {
                                         {uniqueProjects.map((project) => (
                                             <SelectItem key={project} value={project ? project : 'all'}>
                                                 {project}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                            <Select value={selectedStatus || ""} onValueChange={handleStatusChange}>
+                                <SelectTrigger className="w-[120px]  hidden sm:flex mr-2">
+                                    <SelectValue placeholder="Select a project" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectLabel>Status</SelectLabel>
+                                        <SelectItem value="all">All</SelectItem>
+                                        {status.map((status) => (
+                                            <SelectItem key={status} value={status}>
+                                                {status}
                                             </SelectItem>
                                         ))}
                                     </SelectGroup>
