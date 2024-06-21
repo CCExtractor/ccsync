@@ -159,3 +159,21 @@ export const handleCopy = (text: string) => {
     progress: undefined,
   });
 };
+
+export const handleDate = (v: string) => {
+  const date = v;
+  const isValid = date === "" || /^\d{4}-\d{2}-\d{2}$/.test(date);
+  if (!isValid) {
+    toast.error("Invalid Date Format. Please use the YYYY-MM-DD format.", {
+      position: "bottom-left",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+    return false;
+  }
+  return true;
+};
