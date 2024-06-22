@@ -2,7 +2,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/(.*)$': ['<rootDir>/src/$1', '<rootDir>/lib/$1'],
   },
   transformIgnorePatterns: [
     "/node_modules/(?!react-toastify)"
