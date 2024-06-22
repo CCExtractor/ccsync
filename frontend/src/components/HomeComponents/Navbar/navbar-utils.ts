@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import { tasksCollection } from "@/lib/controller";
 import { deleteDoc, doc, getDocs, setDoc, updateDoc } from "firebase/firestore";
-import { url } from "@/lib/URLs";
+import { url } from "@/components/utils/URLs";
 
 export interface RouteProps {
     href: string;
