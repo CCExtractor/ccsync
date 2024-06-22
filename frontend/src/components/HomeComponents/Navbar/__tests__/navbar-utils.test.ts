@@ -25,7 +25,7 @@ jest.mock("@/lib/controller", () => ({
   tasksCollection: {},
 }));
 
-jest.mock("@/lib/URLs", () => ({
+jest.mock("@/components/utils/URLs.ts", () => ({
   url: {
     backendURL: "http://localhost:3000/",
   },
