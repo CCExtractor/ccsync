@@ -1,4 +1,4 @@
-import { url } from "@/lib/URLs";
+import { url } from "@/components/utils/URLs";
 import { Props } from "../../utils/types";
 import { CopyableCode } from "./CopyableCode";
 

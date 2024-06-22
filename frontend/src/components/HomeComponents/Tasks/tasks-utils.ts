@@ -1,5 +1,5 @@
 import { Task } from "@/components/utils/types";
-import { url } from "@/lib/URLs";
+import { url } from "@/components/utils/URLs";
 import { format, parseISO } from "date-fns";
 import { toast } from "react-toastify";
 

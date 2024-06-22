@@ -1,17 +1,8 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import React from 'react';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { NavigationMenu } from '@/components/ui/navigation-menu';
 import { buttonVariants } from '@/components/ui/button';
-
-interface BottomBarProps {
-  projects: string[];
-  selectedProject: string | null;
-  setSelectedProject: Dispatch<SetStateAction<string>>;
-
-  status: string[];
-  selectedStatus: string | null;
-  setSelectedStatus: Dispatch<SetStateAction<string>>;
-}
+import { BottomBarProps } from './bottom-bar-utils';
 
 const BottomBar: React.FC<BottomBarProps> = ({ projects, selectedProject, setSelectedProject, status, selectedStatus, setSelectedStatus }) => {
   return (
