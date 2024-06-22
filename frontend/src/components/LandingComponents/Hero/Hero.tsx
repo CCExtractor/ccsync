@@ -1,4 +1,4 @@
-import { url } from "@/lib/URLs";
+import { url } from "@/components/utils/URLs";
 import { Button } from "../../ui/button";
 import { buttonVariants } from "../../ui/button";
 import { HeroCards } from "./HeroCards";

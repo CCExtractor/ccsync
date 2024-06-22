@@ -1,16 +1,12 @@
 import { Accordion } from "@/components/ui/accordion";
 import { FAQItem } from "./FAQItem";
 import { FAQList } from "./faq-utils";
+import { BlueHeading } from "@/components/utils/utils";
 
 export const FAQ = () => {
   return (
     <section id="faq" className="container py-24 sm:py-32">
-      <h2 className="text-3xl md:text-4xl font-bold mb-4">
-        Frequently Asked{" "}
-        <span className="inline bg-gradient-to-r from-[#61DAFB] to-[#1fc0f1] text-transparent bg-clip-text">
-          Questions
-        </span>
-      </h2>
+      <BlueHeading prefix="Frequently Asked" suffix="Questions" />
 
       <Accordion type="single" collapsible className="w-full AccordionRoot">
         {FAQList.map(({ question, answer, value }) => (
