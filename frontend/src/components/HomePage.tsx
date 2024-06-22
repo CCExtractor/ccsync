@@ -5,7 +5,7 @@ import { Footer } from "./HomeComponents/Footer/Footer";
 import { SetupGuide } from "./HomeComponents/SetupGuide/SetupGuide";
 import { FAQ } from "./HomeComponents/FAQ/FAQ";
 import { Tasks } from "./HomeComponents/Tasks/Tasks";
-import { url } from "@/lib/URLs";
+import { url } from "@/components/utils/URLs";
 import { useNavigate } from "react-router";
 
 export const HomePage: React.FC = () => {
