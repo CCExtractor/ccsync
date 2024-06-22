@@ -1,7 +1,7 @@
 import { Accordion } from "@/components/ui/accordion";
 import { FAQItem } from "./FAQItem";
 import { FAQList } from "./faq-utils";
-import { BlueHeading } from "@/components/utils/Utils.tsx";
+import { BlueHeading } from "@/lib/utils";
 
 export const FAQ = () => {
   return (
