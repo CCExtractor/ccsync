@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { SetupGuide } from '../SetupGuide';
 import { Props } from '../../../utils/types';
-import { url } from '@/lib/URLs';
+import { url } from '@/components/utils/URLs';
 
 // Mocking the CopyableCode component
 jest.mock('../CopyableCode', () => ({

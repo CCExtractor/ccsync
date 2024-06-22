@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label"
 import CopyToClipboard from "react-copy-to-clipboard";
 import { formattedDate, getDisplayedPages, handleCopy, handleDate, markTaskAsCompleted, markTaskAsDeleted, Props, sortTasks, sortTasksById } from "./tasks-utils";
 import Pagination from "./Pagination";
-import { url } from "@/lib/URLs";
+import { url } from "@/components/utils/URLs";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BottomBar from "../BottomBar/BottomBar";
 

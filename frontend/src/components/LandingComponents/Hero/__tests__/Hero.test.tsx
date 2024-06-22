@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Hero } from '../Hero';
-import { url } from '@/lib/URLs';
+import { url } from '@/components/utils/URLs';
 
 // mocking the HeroCards component
 jest.mock('../HeroCards', () => ({
