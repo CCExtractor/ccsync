@@ -2,6 +2,8 @@
 
 Web interface + Sync server for Taskwarrior 3.0
 
+[**Blogs**](https://abhishek31.medium.com/)
+
 ### Guide to setup the frontend for development purposes:
 
 - ```bash
