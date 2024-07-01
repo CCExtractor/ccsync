@@ -6,6 +6,8 @@ import {
   handleDate,
   sortTasks,
   sortTasksById,
+  markTaskAsCompleted,
+  markTaskAsDeleted,
 } from "../tasks-utils";
 import { Task } from "@/components/utils/types";
 
@@ -421,6 +423,104 @@ describe("handleDate", () => {
     expect(result).toBe(false);
     expect(toast.error).toHaveBeenCalledWith(
       "Invalid Date Format. Please use the YYYY-MM-DD format.",
+      {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      }
+    );
+  });
+});
+
+import { url } from "@/components/utils/URLs";
+// Mock fetch and toast
+global.fetch = jest.fn();
+jest.mock("react-toastify", () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
+describe("markTaskAsCompleted", () => {
+  const email = "test@example.com";
+  const encryptionSecret = "secret";
+  const UUID = "user-uuid";
+  const taskuuid = "task-uuid";
+  const backendURL = `${url.backendURL}complete-task`;
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("marks task as completed successfully", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
+
+    await markTaskAsCompleted(email, encryptionSecret, UUID, taskuuid);
+
+    expect(fetch).toHaveBeenCalledWith(backendURL, {
+      method: "POST",
+      body: JSON.stringify({
+        email: email,
+        encryptionSecret: encryptionSecret,
+        UUID: UUID,
+        taskuuid: taskuuid,
+      }),
+    });
+    expect(toast.success).toHaveBeenCalledWith(
+      "Task marked as completed successfully!",
+      {
+        position: "bottom-left",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      }
+    );
+  });
+});
+
+global.fetch = jest.fn();
+jest.mock("react-toastify", () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
+describe("markTaskAsDeleted", () => {
+  const email = "test@example.com";
+  const encryptionSecret = "secret";
+  const UUID = "user-uuid";
+  const taskuuid = "task-uuid";
+  const backendURL = `${url.backendURL}delete-task`;
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it("marks task as deleted successfully", async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
+
+    await markTaskAsDeleted(email, encryptionSecret, UUID, taskuuid);
+
+    expect(fetch).toHaveBeenCalledWith(backendURL, {
+      method: "POST",
+      body: JSON.stringify({
+        email: email,
+        encryptionSecret: encryptionSecret,
+        UUID: UUID,
+        taskuuid: taskuuid,
+      }),
+    });
+    expect(toast.success).toHaveBeenCalledWith(
+      "Task marked as deleted successfully!",
       {
         position: "bottom-left",
         autoClose: 3000,
