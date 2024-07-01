@@ -14,6 +14,9 @@
     <a href="https://github.com/its-me-abhishek/ccsync/pulls?q=is%3Apr+is%3Aclosed">
     <img src="https://img.shields.io/github/issues-pr-closed-raw/its-me-abhishek/ccsync?style=flat-square&logo=github&logoColor=white"
          alt="Closed pull requests"></a>
+    <img src="https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/its-me-abhishek/ccsync/main/frontend/coverage-report.json&query=$.frontend&label=frontend coverage"
+          alt="Dynamic JSON Badge" >
+
 </p>
 <p align="center">
   <a href="">Website</a> •
@@ -22,7 +25,6 @@
 </p>
 
 ---
-
 
 ## Guide to setup the frontend for development purposes:
 
@@ -36,21 +38,21 @@
 
 ### Set environment variables in .env as:
 
-  *For docker usage:*
+_For docker usage:_
 
-  ```bash
-  VITE_BACKEND_URL="http://localhost:8000/"
-  VITE_FRONTEND_URL="http://localhost:80"
-  VITE_CONTAINER_ORIGIN="http://localhost:8080/"
-  ```
+```bash
+VITE_BACKEND_URL="http://localhost:8000/"
+VITE_FRONTEND_URL="http://localhost:80"
+VITE_CONTAINER_ORIGIN="http://localhost:8080/"
+```
 
-  *For normal npm usage:*
+_For normal npm usage:_
 
-  ```bash
-  VITE_BACKEND_URL="http://localhost:8000/"
-  VITE_FRONTEND_URL="http://localhost:5173"
-  VITE_CONTAINER_ORIGIN="http://localhost:8080/"
-  ```
+```bash
+VITE_BACKEND_URL="http://localhost:8000/"
+VITE_FRONTEND_URL="http://localhost:5173"
+VITE_CONTAINER_ORIGIN="http://localhost:8080/"
+```
 
 - Note: The ports can be changed on demand, and if you want to do so, be sure to change ports of the Dockerfiles as well as the ports in docker-compose.yml
 
@@ -72,7 +74,7 @@
 - Go to [Google cloud credential page](https://console.cloud.google.com/apis/credentials) for generating client id and secret.
 
 - Add the Client ID and secret as an environment variable
-- *Sample .env format:*
+- _Sample .env format:_
 
   ```bash
   CLIENT_ID="client_ID"
@@ -91,16 +93,18 @@
 
   ```
   FRONTEND_ORIGIN_DEV="http://localhost"
-  CONTAINER_ORIGIN="http://172.19.0.2:8080/"
+  CONTAINER_ORIGIN="http://YOUR_DOCKER_CONTAINER_IP:8080/"
   ```
 
   only while using Docker Container
 
   use
+
   ```
   FRONTEND_ORIGIN_DEV="http://localhost:"
   CONTAINER_ORIGIN="http://localhost:8080/"
   ```
+
   if you want to run by `npm run dev`
 
 - Run the application:
@@ -115,7 +119,6 @@
   docker-compose build backend
   docker-compose up
   ```
-
 
 ## Taskchampion Sync Server:
 
@@ -159,7 +162,7 @@
   // Initialize Firebase
   export const app = initializeApp(firebaseConfig);
   ```
--  Download it, and store it at frontend/src/lib/ by the name *firestore.js*
+- Download it, and store it at frontend/src/lib/ by the name _firestore.js_
 
 ## Run the Containers:
 
