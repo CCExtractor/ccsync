@@ -11,6 +11,9 @@
     <a href="https://github.com/its-me-abhishek/ccsync/pulls">
     <img src="https://img.shields.io/github/issues-pr-raw/its-me-abhishek/ccsync?style=flat-square&logo=github&logoColor=white"
          alt="GitHub pull requests"></a>
+    <a href="https://github.com/its-me-abhishek/ccsync/pulls?q=is%3Apr+is%3Aclosed">
+    <img src="https://img.shields.io/github/issues-pr-closed-raw/its-me-abhishek/ccsync?style=flat-square&logo=github&logoColor=white"
+         alt="Closed pull requests"></a>
 </p>
 <p align="center">
   <a href="">Website</a> •
