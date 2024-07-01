@@ -118,6 +118,11 @@ func ExportTasks(tempDir string) ([]Task, error) {
 
 // add task to the user's tw client
 func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate string) error {
+	cmd := exec.Command("rm", "-rf", "/root/.task")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
+	}
+
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
@@ -144,7 +149,7 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 		cmdArgs = append(cmdArgs, "due:"+dueDate)
 	}
 
-	cmd := exec.Command("task", cmdArgs...)
+	cmd = exec.Command("task", cmdArgs...)
 	cmd.Dir = tempDir
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to add task: %v", err)
@@ -159,6 +164,10 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 }
 
 func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskuuid string) error {
+	cmd := exec.Command("rm", "-rf", "/root/.task")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
+	}
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
@@ -177,7 +186,7 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskuuid 
 	// Escape the double quotes in the description and format it
 	escapedDescription := fmt.Sprintf(`description:"%s"`, strings.ReplaceAll(description, `"`, `\"`))
 
-	cmd := exec.Command("task", taskuuid, "modify", escapedDescription)
+	cmd = exec.Command("task", taskuuid, "modify", escapedDescription)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to edit task: %v", err)
 	}
@@ -189,7 +198,72 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskuuid 
 	return nil
 }
 
+func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskuuid string) error {
+	cmd := exec.Command("rm", "-rf", "/root/.task")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
+	}
+	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	if err != nil {
+		return fmt.Errorf("failed to create temporary directory: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	origin := os.Getenv("CONTAINER_ORIGIN")
+	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
+		return err
+	}
+
+	if err := SyncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+
+	escapedDescription := fmt.Sprintf(`description:"%s"`, strings.ReplaceAll(description, `"`, `\"`))
+
+	cmd = exec.Command("task", taskuuid, "modify", escapedDescription)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to edit task: %v", err)
+	}
+
+	escapedProject := fmt.Sprintf(`project:%s`, strings.ReplaceAll(project, `"`, `\"`))
+	cmd = exec.Command("task", taskuuid, "modify", escapedProject)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to edit task project: %v", err)
+	}
+
+	escapedPriority := fmt.Sprintf(`priority:%s`, strings.ReplaceAll(priority, `"`, `\"`))
+	cmd = exec.Command("task", taskuuid, "modify", escapedPriority)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to edit task priority: %v", cmd)
+	}
+
+	escapedDue := fmt.Sprintf(`due:%s`, strings.ReplaceAll(due, `"`, `\"`))
+	cmd = exec.Command("task", taskuuid, "modify", escapedDue)
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to edit task due: %v", err)
+	}
+
+	escapedStatus := fmt.Sprintf(`status:%s`, strings.ReplaceAll(status, `"`, `\"`))
+	if escapedStatus == "completed" {
+		cmd = exec.Command("task", taskuuid, "done", "rc.confirmation=off")
+		cmd.Run()
+	} else if escapedStatus == "deleted" {
+		cmd = exec.Command("task", taskuuid, "delete", "rc.confirmation=off")
+		cmd.Run()
+	}
+
+	// Sync Taskwarrior again
+	if err := SyncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+	return nil
+}
+
 func DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) error {
+	cmd := exec.Command("rm", "-rf", "/root/.task")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
+	}
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
@@ -206,7 +280,7 @@ func DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) err
 	}
 
 	// Mark the task as deleted
-	cmd := exec.Command("task", taskuuid, "delete", "rc.confirmation=off")
+	cmd = exec.Command("task", taskuuid, "delete", "rc.confirmation=off")
 	cmd.Dir = tempDir
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to mark task as deleted: %v", err)
@@ -221,6 +295,10 @@ func DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) err
 }
 
 func CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) error {
+	cmd := exec.Command("rm", "-rf", "/root/.task")
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
+	}
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
@@ -237,7 +315,7 @@ func CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid string) e
 	}
 
 	// Mark the task as done
-	cmd := exec.Command("task", taskuuid, "done", "rc.confirmation=off")
+	cmd = exec.Command("task", taskuuid, "done", "rc.confirmation=off")
 	cmd.Dir = tempDir
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to mark task as done: %v", err)
