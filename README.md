@@ -78,7 +78,7 @@
   SESSION_KEY=""
   # If using Docker
   FRONTEND_ORIGIN_DEV="http://localhost"
-  CONTAINER_ORIGIN="http://172.19.0.2:8080/"
+  CONTAINER_ORIGIN="http://YOUR_CONTAINER_IP_ORIGIN:8080/"
   # Else if using npm
   FRONTEND_ORIGIN_DEV="http://localhost:5173"
   CONTAINER_ORIGIN="http://localhost:8080/"
