@@ -93,7 +93,7 @@ VITE_CONTAINER_ORIGIN="http://localhost:8080/"
 
   ```
   FRONTEND_ORIGIN_DEV="http://localhost"
-  CONTAINER_ORIGIN="http://172.19.0.2:8080/"
+  CONTAINER_ORIGIN="http://YOUR_DOCKER_CONTAINER_IP:8080/"
   ```
 
   only while using Docker Container
