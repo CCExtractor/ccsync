@@ -8,7 +8,19 @@ const mockProps = {
     UUID: 'mockUUID',
 };
 
-// Mock fetch function to simulate API calls
+// Mock functions and modules
+jest.mock('react-toastify', () => ({
+    toast: {
+        success: jest.fn(),
+        error: jest.fn(),
+    },
+}));
+
+jest.mock('../tasks-utils', () => ({
+    markTaskAsCompleted: jest.fn(),
+    markTaskAsDeleted: jest.fn(),
+}));
+
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
 
 describe('Tasks Component', () => {
