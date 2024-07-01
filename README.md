@@ -5,7 +5,7 @@
 </h1>
 <h4 align="center">Web interface + Sync server for Taskwarrior 3.0 and higher</h4>
 <p align="center">
-    <a href="https://github.com/its-me-abhishek/ccsync/commits/master">
+    <a href="https://github.com/its-me-abhishek/ccsync/commits/main">
     <img src="https://img.shields.io/github/last-commit/its-me-abhishek/ccsync.svg?style=flat-square&logo=github&logoColor=white"
          alt="GitHub last commit"></a>
     <a href="https://github.com/its-me-abhishek/ccsync/pulls">
