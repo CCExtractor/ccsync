@@ -3,6 +3,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   moduleNameMapper: {
     '^@/(.*)$': ['<rootDir>/src/$1', '<rootDir>/lib/$1'],
+    "\\.(scss|sass|css)$": "identity-obj-proxy"
   },
   transformIgnorePatterns: [
     "/node_modules/(?!react-toastify)"
