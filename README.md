@@ -1,10 +1,27 @@
-# CCSync
+<a href="https://github.com/its-me-abhishek/ccsync">
+  <img src="https://github.com/its-me-abhishek/ccsync/blob/main/frontend/src/assets/logo.jpg" alt="CCSync">
+</a>
 
-Web interface + Sync server for Taskwarrior 3.0
+</h1>
+<h4 align="center">Web interface + Sync server for Taskwarrior 3.0 and higher</h4>
+<p align="center">
+    <a href="https://github.com/its-me-abhishek/ccsync/commits/master">
+    <img src="https://img.shields.io/github/last-commit/its-me-abhishek/ccsync.svg?style=flat-square&logo=github&logoColor=white"
+         alt="GitHub last commit"></a>
+    <a href="https://github.com/its-me-abhishek/ccsync/pulls">
+    <img src="https://img.shields.io/github/issues-pr-raw/its-me-abhishek/ccsync?style=flat-square&logo=github&logoColor=white"
+         alt="GitHub pull requests"></a>
+</p>
+<p align="center">
+  <a href="">Website</a> •
+  <a href="">Documentation</a> •
+  <a href="https://abhishek31.medium.com/">Blogs</a>
+</p>
 
-[**Blogs**](https://abhishek31.medium.com/)
+---
 
-### Guide to setup the frontend for development purposes:
+
+## Guide to setup the frontend for development purposes:
 
 - ```bash
   npm i
@@ -14,9 +31,9 @@ Web interface + Sync server for Taskwarrior 3.0
   npm run dev
   ```
 
-- Set environment variables in .env as:
+### Set environment variables in .env as:
 
-  For docker usage:
+  *For docker usage:*
 
   ```bash
   VITE_BACKEND_URL="http://localhost:8000/"
@@ -24,7 +41,7 @@ Web interface + Sync server for Taskwarrior 3.0
   VITE_CONTAINER_ORIGIN="http://localhost:8080/"
   ```
 
-  For normal npm usage:
+  *For normal npm usage:*
 
   ```bash
   VITE_BACKEND_URL="http://localhost:8000/"
@@ -40,7 +57,7 @@ Web interface + Sync server for Taskwarrior 3.0
   docker-compose up
   ```
 
-### Guide to setup the backend for development purposes:
+## Guide to setup the backend for development purposes:
 
 - Download the requirements
 
@@ -52,7 +69,7 @@ Web interface + Sync server for Taskwarrior 3.0
 - Go to [Google cloud credential page](https://console.cloud.google.com/apis/credentials) for generating client id and secret.
 
 - Add the Client ID and secret as an environment variable
-- Sample .env format:
+- *Sample .env format:*
 
   ```bash
   CLIENT_ID="client_ID"
@@ -97,11 +114,11 @@ Web interface + Sync server for Taskwarrior 3.0
   ```
 
 
-### Taskchampion Sync Server:
+## Taskchampion Sync Server:
 
 - Setup the Taskchampion Sync Server "As a Container" by following the [official documentation](https://github.com/GothenburgBitFactory/taskchampion-sync-server/tree/main)
 
-### Google Firebase Database Setup:
+## Google Firebase Database Setup:
 
 - Create new project and then setup a Firestore database.
 - Add a collection of the name `tasks`
@@ -141,7 +158,7 @@ Web interface + Sync server for Taskwarrior 3.0
   ```
 -  Download it, and store it at frontend/src/lib/ by the name *firestore.js*
 
-### Run the Containers:
+## Run the Containers:
 
 - This is the last step. Run these commands one at a time to setup the docker containers under a common network and run the sync server along with the backend and frontend:
 
