@@ -83,7 +83,7 @@ VITE_CONTAINER_ORIGIN="http://localhost:8080/"
   SESSION_KEY=""
   # If using Docker
   FRONTEND_ORIGIN_DEV="http://localhost"
-  CONTAINER_ORIGIN="http://YOUR_CONTAINER_IP_ORIGIN:8080/"
+  CONTAINER_ORIGIN="http://YOUR_CONTAINER_NAME:8080/"
   # Else if using npm
   FRONTEND_ORIGIN_DEV="http://localhost:5173"
   CONTAINER_ORIGIN="http://localhost:8080/"
@@ -93,7 +93,7 @@ VITE_CONTAINER_ORIGIN="http://localhost:8080/"
 
   ```
   FRONTEND_ORIGIN_DEV="http://localhost"
-  CONTAINER_ORIGIN="http://YOUR_DOCKER_CONTAINER_IP:8080/"
+  CONTAINER_ORIGIN="http://YOUR_CONTAINER_NAME:8080/"
   ```
 
   only while using Docker Container
@@ -101,7 +101,7 @@ VITE_CONTAINER_ORIGIN="http://localhost:8080/"
   use
 
   ```
-  FRONTEND_ORIGIN_DEV="http://localhost:"
+  FRONTEND_ORIGIN_DEV="http://localhost"
   CONTAINER_ORIGIN="http://localhost:8080/"
   ```
 
@@ -172,5 +172,3 @@ VITE_CONTAINER_ORIGIN="http://localhost:8080/"
   docker-compose build
   docker-compose up
 ```
-
-Either the sync between TW-SyncServer works or SyncServer-BackendContainer would work if using docker, as containers interact with each other using IP, while a person outside the container cannot, and vice versa. So the config must set the origin to an address that is accessible to both client and server.
