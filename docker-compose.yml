@@ -7,6 +7,15 @@ services:
       - "80:80"
     networks:
       - tasknetwork
+    depends_on:
+      - backend
+    env_file:
+      - ./frontend/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   backend:
     build:
@@ -18,14 +27,27 @@ services:
       - tasknetwork
     depends_on:
       - syncserver
+    env_file:
+      - ./backend/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./backend/data:/app/data
 
   syncserver:
-    # THIS IMAGE SHOULD BE PULLED FROM THE OFFICIAL TASKCHAMPION-SYNC-SERVER REPOSITORY
     image: taskchampion-sync-server:latest
     ports:
       - "8080:8080"
     networks:
       - tasknetwork
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   tasknetwork:

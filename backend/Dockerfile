@@ -14,19 +14,30 @@ COPY . .
 # Copy the .env file
 COPY .env .env
 
-# Install dependencies for Taskwarrior and libuuid-dev
-RUN apk add --no-cache cmake g++ make tar util-linux-dev rust cargo libuuid libstdc++
-RUN apk update 
-RUN apk add util-linux
-RUN apk add libgcc
-RUN apk add libstdc++
-RUN apk add libgc++
-RUN apk add libuuid
+# Install dependencies for Taskwarrior and libuuid
+RUN apk add --no-cache \
+    cmake \
+    g++ \
+    make \
+    tar \
+    util-linux-dev \
+    rust \
+    cargo \
+    libuuid \
+    libstdc++ \
+    libgcc \
+    # Ensure all required packages are installed
+    && apk update \
+    && apk add --no-cache \
+    libuuid \
+    libstdc++ \
+    libgcc \
+    util-linux
 
-# Copy Taskwarrior source code and build it
-COPY task-3.0.2.tar.gz /tmp/task-3.0.2.tar.gz
-RUN tar xzf /tmp/task-3.0.2.tar.gz && \
-    cd task-3.0.2 && \
+# Download and build Taskwarrior
+RUN wget https://github.com/GothenburgBitFactory/taskwarrior/releases/download/v3.0.2/task-3.0.2.tar.gz -O /tmp/task-3.0.2.tar.gz && \
+    tar xzf /tmp/task-3.0.2.tar.gz -C /tmp && \
+    cd /tmp/task-3.0.2 && \
     cmake -DCMAKE_BUILD_TYPE=release . && \
     make && \
     make install
@@ -34,9 +45,15 @@ RUN tar xzf /tmp/task-3.0.2.tar.gz && \
 # Build the Go application
 RUN go build -o main .
 
-# Use a minimal image for running the backend (Can use others as well)
+# Use a minimal image for running the backend
 FROM alpine:latest
 WORKDIR /root/
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    libuuid \
+    libstdc++ \
+    libgcc
 
 # Copy the binary and .env file from the build stage
 COPY --from=build /app/main .
