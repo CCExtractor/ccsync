@@ -1,12 +1,12 @@
 import { useState } from "react";
 import {
-    Sheet,
-    SheetContent,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
-import { buttonVariants } from "../../ui/button";
+import { Button, buttonVariants } from "../../ui/button";
 import { Menu } from "lucide-react";
 import { ModeToggle } from "../../utils/theme-mode-toggle";
 import { routeList } from "./navbar-utils";
@@ -44,6 +44,9 @@ export const NavbarMobile = () => {
                 {label}
               </a>
             ))}
+            <a target="_blank" href="https://its-me-abhishek.github.io/ccsync-docs/">
+              <Button variant={'outline'}>Docs</Button>
+            </a>
           </nav>
         </SheetContent>
       </Sheet>
