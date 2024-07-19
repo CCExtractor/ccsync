@@ -20,7 +20,7 @@
 </p>
 <p align="center">
   <a href="">Website</a> •
-  <a href="">Documentation</a> •
+  <a href="https://its-me-abhishek.github.io/ccsync-docs/">Documentation</a> •
   <a href="https://abhishek31.medium.com/">Blogs</a>
 </p>
 
