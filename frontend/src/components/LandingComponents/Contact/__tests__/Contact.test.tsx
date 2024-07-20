@@ -1,70 +1,57 @@
+// Contact.test.tsx
 import { render, screen } from '@testing-library/react';
-import { Contact, ContactProps } from '../Contact';
-import { AiOutlineDiscord } from 'react-icons/ai';
-import { SlackIcon, GithubIcon, MailIcon } from 'lucide-react';
+import '@testing-library/jest-dom';
+import { Contact } from '../Contact';
+import { useInView } from 'react-intersection-observer';
 
-jest.mock('lucide-react', () => ({
-  SlackIcon: jest.fn().mockReturnValue(<div data-testid="mocked-slack-icon" />),
-  GithubIcon: jest.fn().mockReturnValue(<div data-testid="mocked-github-icon" />),
-  MailIcon: jest.fn().mockReturnValue(<div data-testid="mocked-mail-icon" />),
+// Mock useInView hook
+jest.mock('react-intersection-observer', () => ({
+  useInView: jest.fn(),
 }));
 
-jest.mock('react-icons/ai', () => ({
-  AiOutlineDiscord: jest.fn().mockReturnValue(<div data-testid="mocked-discord-icon" />),
-}));
-
-describe('Contact component', () => {
-  const mockContactList: ContactProps[] = [
-    {
-      icon: <SlackIcon size={45} />,
-      name: 'Slack',
-      position: 'Join our slack channel',
-      url: '',
-    },
-    {
-      icon: <GithubIcon size={45} />,
-      name: 'Github',
-      position: 'Check out our Github repository',
-      url: '',
-    },
-    {
-      icon: <AiOutlineDiscord size={45} />,
-      name: 'Discord',
-      position: 'Join us at Discord for discussions',
-      url: '',
-    },
-    {
-      icon: <MailIcon size={45} />,
-      name: 'Email',
-      position: 'Email us for any queries',
-      url: '',
-    },
-  ];
-
+describe('Contact Component', () => {
   beforeEach(() => {
-    render(<Contact />);
-  });
-
-  test('renders all contact cards', () => {
-    mockContactList.forEach(({ name, position }) => {
-      expect(screen.getByText(name)).toBeInTheDocument();
-      expect(screen.getByText(position)).toBeInTheDocument();
+    (useInView as jest.Mock).mockReturnValue({
+      ref: jest.fn(),
+      inView: true, // Set inView to true to simulate the element being in view
     });
   });
 
-  test('renders Slack icon', () => {
-    expect(screen.getByTestId('mocked-slack-icon')).toBeInTheDocument();
+  test('renders the Contact section', () => {
+    render(<Contact />);
+    const sectionElement = screen.getByTestId('#contact');
+    expect(sectionElement).toBeInTheDocument();
   });
 
-  test('renders Github icon', () => {
-    expect(screen.getByTestId('mocked-github-icon')).toBeInTheDocument();
+  test('renders all contact cards', () => {
+    render(<Contact />);
+    
+    const contactNames = [
+      'Slack',
+      'Github',
+      'Discord',
+      'Email'
+    ];
+
+    contactNames.forEach(name => {
+      const contactCard = screen.getByText(name);
+      expect(contactCard).toBeInTheDocument();
+    });
   });
 
-  test('renders Discord icon', () => {
-    expect(screen.getByTestId('mocked-discord-icon')).toBeInTheDocument();
-  });
+  test('renders the correct positions for contact cards', () => {
+    render(<Contact />);
+    
+    const contactPositions = [
+      'Join our slack channel',
+      'Check out our Github repository',
+      'Join us at Discord for discussions',
+      'Email us for any queries'
+    ];
 
-  test('renders Email icon', () => {
-    expect(screen.getByTestId('mocked-mail-icon')).toBeInTheDocument();
+    contactPositions.forEach(position => {
+      const contactPosition = screen.getByText(position);
+      expect(contactPosition).toBeInTheDocument();
+    });
   });
 });
