@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
 import {
   Card,
   CardDescription,
@@ -6,9 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AiOutlineDiscord } from "react-icons/ai";
-import { SlackIcon } from "lucide-react";
-import { GithubIcon } from "lucide-react";
-import { MailIcon } from "lucide-react";
+import { SlackIcon, GithubIcon, MailIcon } from "lucide-react";
 
 export interface ContactProps {
   icon: JSX.Element;
@@ -44,38 +44,60 @@ const contactList: ContactProps[] = [
   },
 ];
 
+const cardVariants = {
+  hidden: { opacity: 0, x: 50 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
+};
+
 export const Contact = () => {
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
+
   return (
     <section
       id="contact"
+      data-testid="#contact"
       className="container py-24 sm:py-32 mt-0"
     >
-      <h2 className="text-3xl md:text-4xl font-bold">
-        <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+      <h2 className="text-3xl md:text-4xl font-bold text-center">
+        <span className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
           Contact{" "}
         </span>
         Us
       </h2>
-      
-      <br /><br /><br />
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 gap-y-10">
+      <br />
+      <div
+        data-testid="contact"
+
+        ref={ref}
+        className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 gap-y-10"
+      >
         {contactList.map(
           ({ icon, name, position }: ContactProps) => (
-            <Card
+            <motion.div
               key={name}
-              className="bg-muted/50 relative mt-8 flex flex-col justify-center items-center"
+              data-testid="contact"
+              initial="hidden"
+              animate={inView ? "visible" : "hidden"}
+              variants={cardVariants}
             >
-              <CardHeader className="mt-8 flex justify-center items-center pb-2">
-                {icon}
-                <CardTitle className="text-center">{name}</CardTitle>
-                <CardDescription className="inline bg-gradient-to-r from-[#61DAFB]  to-[#1fc0f1] text-transparent bg-clip-text">
-                  {position}
-                </CardDescription>
-              </CardHeader>
-              <CardFooter>
-              </CardFooter>
-            </Card>
+              <Card
+                className="bg-muted/50 relative mt-8 flex flex-col justify-center items-center"
+              >
+                <CardHeader className="mt-8 flex justify-center items-center pb-2">
+                  {icon}
+                  <CardTitle className="text-center">{name}</CardTitle>
+                  <CardDescription className="inline bg-gradient-to-r from-[#61DAFB] to-[#1fc0f1] text-transparent bg-clip-text">
+                    {position}
+                  </CardDescription>
+                </CardHeader>
+                <CardFooter>
+                </CardFooter>
+              </Card>
+            </motion.div>
           )
         )}
       </div>
