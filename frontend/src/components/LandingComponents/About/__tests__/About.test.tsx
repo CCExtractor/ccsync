@@ -2,8 +2,20 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { About } from '../About';
+import { useInView } from 'react-intersection-observer';
+
+jest.mock('react-intersection-observer', () => ({
+  useInView: jest.fn(),
+}));
 
 describe('About Component', () => {
+  beforeEach(() => {
+    (useInView as jest.Mock).mockReturnValue({
+      ref: jest.fn(),
+      inView: true,
+    });
+  });
+
   it('renders the About section', () => {
     render(<About />);
     const aboutSection = screen.getByTestId('about-section');
