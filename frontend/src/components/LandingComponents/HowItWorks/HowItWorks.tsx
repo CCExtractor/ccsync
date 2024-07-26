@@ -14,7 +14,7 @@ const features: FeatureProps[] = [
   {
     icon: <MedalIcon />,
     title: "Sign in",
-    description: "Sign in with Google to generate secret UUIDs, or generate your own",
+    description: "Sign in with Google to generate secret UUIDs, or generate your own using a random key generator",
   },
   {
     icon: <MapIcon />,
@@ -36,6 +36,7 @@ const features: FeatureProps[] = [
 const cardVariants = {
   hidden: { opacity: 0, x: -50 },
   visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
+  hover: { scale: 1.05, transition: { duration: 0.3 } },
 };
 
 export const HowItWorks = () => {
@@ -57,16 +58,21 @@ export const HowItWorks = () => {
         </span>
       </h2>
       <br /><br />
-      <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div ref={ref}
+        className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 gap-y-10"
+      >
         {features.map(({ icon, title, description }: FeatureProps) => (
           <motion.div
             key={title}
             initial="hidden"
             animate={controls}
             variants={cardVariants}
+            whileHover="hover"
             className="bg-muted/50"
           >
-            <Card className="bg-muted/50">
+            <Card
+              className="bg-muted/50 relative flex flex-col justify-center items-center"
+            >
               <CardHeader>
                 <CardTitle className="grid gap-4 place-items-center">
                   {icon}

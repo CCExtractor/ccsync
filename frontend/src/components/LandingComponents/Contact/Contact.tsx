@@ -47,6 +47,7 @@ const contactList: ContactProps[] = [
 const cardVariants = {
   hidden: { opacity: 0, x: 50 },
   visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
+  hover: { scale: 1.05, transition: { duration: 0.3 } },
 };
 
 export const Contact = () => {
@@ -83,6 +84,7 @@ export const Contact = () => {
               initial="hidden"
               animate={inView ? "visible" : "hidden"}
               variants={cardVariants}
+              whileHover={"hover"}
             >
               <Card
                 className="bg-muted/50 relative mt-8 flex flex-col justify-center items-center"
