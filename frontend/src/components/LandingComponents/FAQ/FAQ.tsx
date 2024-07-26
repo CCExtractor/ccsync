@@ -18,7 +18,7 @@ export const FAQ = () => {
         Still have questions?{" "}
         <a
           rel="noreferrer noopener"
-          href="#contact"
+          href="https://github.com/its-me-abhishek/ccsync"
           className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text"
         >
           Contact us

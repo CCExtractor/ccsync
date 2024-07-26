@@ -43,7 +43,7 @@ describe('HowItWorks Component', () => {
     render(<HowItWorks />);
 
     const featureDescriptions = [
-      'Sign in with Google to generate secret UUIDs, or generate your own',
+      'Sign in with Google to generate secret UUIDs, or generate your own using a random key generator',
       'Setup the taskserver for your Taskwarrior clients by following the documentation',
       'Sign in on multiple devices and use the same UUIDs to sync tasks across all the clients or your team',
       'You can also deploy your own server instance by following this documentation'
