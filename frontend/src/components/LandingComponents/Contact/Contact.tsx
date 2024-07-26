@@ -22,13 +22,13 @@ const contactList: ContactProps[] = [
     icon: <SlackIcon size={45} />,
     name: "Slack",
     position: "Join our slack channel",
-    url: "",
+    url: "https://ccextractor.org/public/general/support/",
   },
   {
     icon: <GithubIcon size={45} />,
     name: "Github",
     position: "Check out our Github repository",
-    url: "",
+    url: "https://github.com/its-me-abhishek/ccsync",
   },
   {
     icon: <AiOutlineDiscord size={45} />,
@@ -77,7 +77,7 @@ export const Contact = () => {
         className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 gap-y-10"
       >
         {contactList.map(
-          ({ icon, name, position }: ContactProps) => (
+          ({ icon, name, position, url }: ContactProps) => (
             <motion.div
               key={name}
               data-testid="contact"
@@ -90,10 +90,12 @@ export const Contact = () => {
                 className="bg-muted/50 relative mt-8 flex flex-col justify-center items-center"
               >
                 <CardHeader className="mt-8 flex justify-center items-center pb-2">
-                  {icon}
-                  <CardTitle className="text-center">{name}</CardTitle>
+                  <a href={url}>{icon}</a>
+                  <CardTitle className="text-center">
+                    <a href={url}>{name}</a>
+                  </CardTitle>
                   <CardDescription className="inline bg-gradient-to-r from-[#61DAFB] to-[#1fc0f1] text-transparent bg-clip-text">
-                    {position}
+                    <a href={url}>{position}</a>
                   </CardDescription>
                 </CardHeader>
                 <CardFooter>
