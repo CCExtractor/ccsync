@@ -14,7 +14,7 @@ export const Footer = () => {
             className="ml-2 font-bold text-xl flex items-center dark:hidden"
           >
             <img src={logoLight} alt="Logo-light" className="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light" />
-            </a>
+          </a>
           <a
             rel="noreferrer noopener"
             href="/"
@@ -28,7 +28,7 @@ export const Footer = () => {
           <div>
             <a
               rel="noreferrer noopener"
-              href="#"
+              href="https://github.com/its-me-abhishek/ccsync"
               className="opacity-60 hover:opacity-100"
             >
               Github
@@ -38,7 +38,7 @@ export const Footer = () => {
           <div>
             <a
               rel="noreferrer noopener"
-              href="#"
+              href="https://ccextractor.org/public/general/support/"
               className="opacity-60 hover:opacity-100"
             >
               Slack

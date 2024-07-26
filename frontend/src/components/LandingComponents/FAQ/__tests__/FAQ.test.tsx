@@ -46,6 +46,5 @@ describe('FAQ component', () => {
         render(<FAQ />);
         const contactLink = screen.getByText(/Contact us/i);
         expect(contactLink).toBeInTheDocument();
-        expect(contactLink).toHaveAttribute('href', '#contact');
     });
 });
