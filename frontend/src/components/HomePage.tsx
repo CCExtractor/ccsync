@@ -7,6 +7,7 @@ import { FAQ } from "./HomeComponents/FAQ/FAQ";
 import { Tasks } from "./HomeComponents/Tasks/Tasks";
 import { url } from "@/components/utils/URLs";
 import { useNavigate } from "react-router";
+import { motion } from "framer-motion";
 
 export const HomePage: React.FC = () => {
     const [userInfo, setUserInfo] = useState<any>(null);
@@ -46,11 +47,17 @@ export const HomePage: React.FC = () => {
                         origin={url.containerOrigin}
                         UUID={userInfo.uuid}
                     />
-                    <Hero
-                        name={userInfo.name}
-                        uuid={userInfo.uuid}
-                        encryption_secret={userInfo.encryption_secret}
-                    />
+                    <motion.div
+                        initial={{ x: -1000 }}
+                        animate={{ x: 0 }}
+                        transition={{ duration: 0.5, ease: "easeOut" }}
+                    >
+                        <Hero
+                            name={userInfo.name}
+                            uuid={userInfo.uuid}
+                            encryption_secret={userInfo.encryption_secret}
+                        />
+                    </motion.div>
                     <Tasks
                         email={userInfo.email}
                         encryptionSecret={userInfo.encryption_secret}
