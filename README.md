@@ -60,6 +60,8 @@ CCSync comprises three main components:
 2. **Web Frontend**: A user-friendly web interface built for task management, and credentials retreival.
 3. **Taskwarrior Flutter App**: The mobile app that allows users to manage tasks on the go, fully integrated with the CCSync API.
 
+For more details, please check out the [documentation](https://its-me-abhishek.github.io/ccsync-docs/).
+
 ## Contributing
 
 We welcome contributions to CCSync! Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started. Please raise an issue for any query, bug fix, or a feature request.
