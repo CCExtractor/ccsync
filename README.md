@@ -27,149 +27,43 @@
 
 ---
 
-## Guide to setup the frontend for development purposes:
+# CCSync
 
-- ```bash
-  npm i
-  ```
+CCSync is a web UI and API solution designed to facilitate the retrieval and synchronization of tasks from a [`taskchampion-sync-server`](https://github.com/GothenburgBitFactory/taskchampion-sync-server) container. It provides a seamless experience for managing tasks across all Taskwarrior 3.0 (and higher) clients, whether using the Taskwarrior CLI, the web frontend, or the Taskwarrior Flutter app.
 
-- ```bash
-  npm run dev
-  ```
+## Table of Contents
 
-### Set environment variables in .env as:
+- [Overview](#overview)
+- [Features](#features)
+- [Architecture](#architecture)
+- [Contributing](#contributing)
+- [License](#license)
 
-_For docker usage:_
+## Overview
 
-```bash
-VITE_BACKEND_URL="http://localhost:8000/"
-VITE_FRONTEND_URL="http://localhost:80"
-VITE_CONTAINER_ORIGIN="http://localhost:8080/"
-```
+During the development of CCSync, the primary focus was placed on creating a backend that provides a series of commands capable of interacting with the Taskwarrior client on the user's system. These commands enable users to create, read, update, or delete tasks directly from the web frontend, or the Taskwarrior Flutter app. The CCSync API ensures these tasks are synchronized across all Taskwarrior clients connected to the `taskchampion-sync-server`.
 
-_For normal npm usage:_
+## Features
 
-```bash
-VITE_BACKEND_URL="http://localhost:8000/"
-VITE_FRONTEND_URL="http://localhost:5173"
-VITE_CONTAINER_ORIGIN="http://localhost:8080/"
-```
+- **Task Management**: Create, read, update, and delete tasks using Taskwarrior CLI, a web UI, or the Taskwarrior Flutter app.
+- **Cross-Platform Synchronization**: Synchronize tasks across all Taskwarrior 3.0+ clients.
+- **API Integration**: RESTful API to interact with tasks programmatically.
+- **User-Friendly Web UI**: Manage tasks through a web-based user interface.
+- **Flutter App Integration**: Seamless integration with the Taskwarrior Flutter app for mobile task management.
+- **Backend Commands**: A comprehensive set of backend commands to interact with Taskwarrior clients.
 
-- Note: The ports can be changed on demand, and if you want to do so, be sure to change ports of the Dockerfiles as well as the ports in docker-compose.yml
+## Architecture
 
-- Run the frontend container only:
-  ```bash
-  docker-compose build frontend
-  docker-compose up
-  ```
+CCSync comprises three main components:
 
-## Guide to setup the backend for development purposes:
+1. **Backend**: The main server-side component that interfaces with Taskwarrior clients, performs operations, and provides a RESTful API.
+2. **Web Frontend**: A user-friendly web interface built for task management, and credentials retreival.
+3. **Taskwarrior Flutter App**: The mobile app that allows users to manage tasks on the go, fully integrated with the CCSync API.
 
-- Download the requirements
+## Contributing
 
-  ```bash
-  go mod download
-  go mod tidy
-  ```
+We welcome contributions to CCSync! Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started. Please raise an issue for any query, bug fix, or a feature request.
 
-- Go to [Google cloud credential page](https://console.cloud.google.com/apis/credentials) for generating client id and secret.
+## License
 
-- Add the Client ID and secret as an environment variable
-- _Sample .env format:_
-
-  ```bash
-  CLIENT_ID="client_ID"
-  CLIENT_SEC="client_SECRET"
-  REDIRECT_URL_DEV="http://localhost:8000/auth/callback"
-  SESSION_KEY=""
-  # If using Docker
-  FRONTEND_ORIGIN_DEV="http://localhost"
-  CONTAINER_ORIGIN="http://YOUR_CONTAINER_NAME:8080/"
-  # Else if using npm
-  FRONTEND_ORIGIN_DEV="http://localhost:5173"
-  CONTAINER_ORIGIN="http://localhost:8080/"
-  ```
-
-  Common pitfall: use the values
-
-  ```
-  FRONTEND_ORIGIN_DEV="http://localhost"
-  CONTAINER_ORIGIN="http://YOUR_CONTAINER_NAME:8080/"
-  ```
-
-  only while using Docker Container
-
-  use
-
-  ```
-  FRONTEND_ORIGIN_DEV="http://localhost"
-  CONTAINER_ORIGIN="http://localhost:8080/"
-  ```
-
-  if you want to run by `npm run dev`
-
-- Run the application:
-
-  ```bash
-  go mod download
-  go mod tidy
-  ```
-
-- Run the backend container only:
-  ```bash
-  docker-compose build backend
-  docker-compose up
-  ```
-
-## Taskchampion Sync Server:
-
-- Setup the Taskchampion Sync Server "As a Container" by following the [official documentation](https://github.com/GothenburgBitFactory/taskchampion-sync-server/tree/main)
-
-## Google Firebase Database Setup:
-
-- Create new project and then setup a Firestore database.
-- Add a collection of the name `tasks`
-- The following fields must be there in the data model of the collection:
-
-  ```bash
-  description (string)
-  due (string)
-  email (string)
-  end (string)
-  entry (string)
-  id (number)
-  modified (string)
-  priority (string)
-  project (string)
-  status (string)
-  tags (array : string)
-  urgency (number)
-  uuid (string)
-  ```
-
-- Add web support for you database and download the config file provided by Google, it would have this format:
-  ```bash
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "firebase/app";
-  const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: "",
-  measurementId: ""
-  };
-  // Initialize Firebase
-  export const app = initializeApp(firebaseConfig);
-  ```
-- Download it, and store it at frontend/src/lib/ by the name _firestore.js_
-
-## Run the Containers:
-
-- This is the last step. Run these commands one at a time to setup the docker containers under a common network and run the sync server along with the backend and frontend:
-
-```bash
-  docker-compose build
-  docker-compose up
-```
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
