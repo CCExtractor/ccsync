@@ -22,7 +22,8 @@
   <a href="">Website</a> •
   <a href="https://its-me-abhishek.github.io/ccsync-docs/">Documentation</a> •
   <a href="https://abhishek31.medium.com/">Blogs</a> •
-  <a href="https://github.com/its-me-abhishek/gsoc-report">GSoC Report</a>
+  <a href="https://github.com/its-me-abhishek/gsoc-report">GSoC Report</a> •
+  <a href="https://www.youtube.com/watch?v=8UhAeM8iWzQ">Setup Video</a>
 </p>
 
 ---
