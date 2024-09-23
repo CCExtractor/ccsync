@@ -1,4 +1,4 @@
-const isTesting = true;
+const isTesting = false;
 
 export const url = isTesting ? {
     backendURL: '',
