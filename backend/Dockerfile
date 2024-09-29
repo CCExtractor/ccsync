@@ -1,5 +1,5 @@
 # Use the official Golang image for building the backend
-FROM golang:1.22-alpine as build
+FROM golang:1.23.1-alpine as build
 
 # Set working directory
 WORKDIR /app
@@ -35,25 +35,26 @@ RUN apk add --no-cache \
     util-linux
 
 # Download and build Taskwarrior
-RUN wget https://github.com/GothenburgBitFactory/taskwarrior/releases/download/v3.0.2/task-3.0.2.tar.gz -O /tmp/task-3.0.2.tar.gz && \
-    tar xzf /tmp/task-3.0.2.tar.gz -C /tmp && \
-    cd /tmp/task-3.0.2 && \
-    cmake -DCMAKE_BUILD_TYPE=release . && \
-    make && \
-    make install
+RUN wget https://github.com/GothenburgBitFactory/taskwarrior/releases/download/v3.1.0/task-3.1.0.tar.gz -O /tmp/task-3.1.0.tar.gz && \
+    tar xzf /tmp/task-3.1.0.tar.gz -C /tmp && \
+    cd /tmp/task-3.1.0 && \
+    cmake -B build -DCMAKE_BUILD_TYPE=None . && \
+    cmake --build build && \
+    cmake --install build
 
 # Build the Go application
 RUN go build -o main .
 
 # Use a minimal image for running the backend
-FROM alpine:latest
+FROM alpine:3.20
 WORKDIR /root/
 
 # Install runtime dependencies
 RUN apk add --no-cache \
     libuuid \
     libstdc++ \
-    libgcc
+    libgcc \
+    gnutls
 
 # Copy the binary and .env file from the build stage
 COPY --from=build /app/main .
