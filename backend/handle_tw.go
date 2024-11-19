@@ -244,10 +244,6 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 	}
 
 	// escapedStatus := fmt.Sprintf(`status:%s`, strings.ReplaceAll(status, `"`, `\"`))
-<<<<<<< HEAD
-=======
-	
->>>>>>> b956f661e0540a2628a7d7a753b13115d92051de
 	if status == "completed" {
 		cmd = exec.Command("task", taskuuid, "done", "rc.confirmation=off")
 		cmd.Run()
