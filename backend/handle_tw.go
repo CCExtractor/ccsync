@@ -243,11 +243,12 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 		return fmt.Errorf("failed to edit task due: %v", err)
 	}
 
-	escapedStatus := fmt.Sprintf(`status:%s`, strings.ReplaceAll(status, `"`, `\"`))
-	if escapedStatus == "completed" {
+	// escapedStatus := fmt.Sprintf(`status:%s`, strings.ReplaceAll(status, `"`, `\"`))
+	
+	if status == "completed" {
 		cmd = exec.Command("task", taskuuid, "done", "rc.confirmation=off")
 		cmd.Run()
-	} else if escapedStatus == "deleted" {
+	} else if status == "deleted" {
 		cmd = exec.Command("task", taskuuid, "delete", "rc.confirmation=off")
 		cmd.Run()
 	}
