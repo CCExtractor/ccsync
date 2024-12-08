@@ -63,9 +63,16 @@ CCSync comprises three main components:
 
 For more details, please check out the [documentation](https://its-me-abhishek.github.io/ccsync-docs/).
 
+
 ## Contributing
 
 We welcome contributions to CCSync! Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started. Please raise an issue for any query, bug fix, or a feature request.
+
+## Community
+
+We would love to hear from you! You may join the CCExtractor community through Slack:
+
+[![Slack](https://img.shields.io/badge/chat-on_slack-purple.svg?style=for-the-badge&logo=slack)](https://ccextractor.org/public/general/support/)
 
 ## License
 
