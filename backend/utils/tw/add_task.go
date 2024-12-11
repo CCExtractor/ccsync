@@ -1,15 +1,14 @@
 package tw
 
 import (
+	"ccsync_backend/utils"
 	"fmt"
 	"os"
-	"os/exec"
 )
 
 // add task to the user's tw client
 func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate string) error {
-	cmd := exec.Command("rm", "-rf", "/root/.task")
-	if err := cmd.Run(); err != nil {
+	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
 
@@ -39,9 +38,7 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 		cmdArgs = append(cmdArgs, "due:"+dueDate)
 	}
 
-	cmd = exec.Command("task", cmdArgs...)
-	cmd.Dir = tempDir
-	if err := cmd.Run(); err != nil {
+	if err := utils.ExecCommandInDir(tempDir, "task", cmdArgs...); err != nil {
 		return fmt.Errorf("failed to add task: %v", err)
 	}
 
