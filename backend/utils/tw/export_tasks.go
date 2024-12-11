@@ -2,16 +2,14 @@ package tw
 
 import (
 	"ccsync_backend/models"
+	"ccsync_backend/utils"
 	"encoding/json"
 	"fmt"
-	"os/exec"
 )
 
 // export the tasks so as to add them to DB
 func ExportTasks(tempDir string) ([]models.Task, error) {
-	cmd := exec.Command("task", "export")
-	cmd.Dir = tempDir
-	output, err := cmd.Output()
+	output, err := utils.ExecCommandForOutputInDir(tempDir, "task", "export")
 	if err != nil {
 		return nil, fmt.Errorf("error executing Taskwarrior export command: %v", err)
 	}
