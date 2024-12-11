@@ -2,6 +2,8 @@ package main
 
 import (
 	"ccsync_backend/models"
+	"ccsync_backend/utils"
+	"ccsync_backend/utils/tw"
 	"context"
 	"encoding/gob"
 	"encoding/json"
@@ -110,8 +112,8 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unable to retrieve user info", http.StatusInternalServerError)
 		return
 	}
-	uuidStr := GenerateUUID(email, id)
-	encryptionSecret := GenerateEncryptionSecret(uuidStr, email, id)
+	uuidStr := utils.GenerateUUID(email, id)
+	encryptionSecret := utils.GenerateEncryptionSecret(uuidStr, email, id)
 
 	userInfo["uuid"] = uuidStr
 	userInfo["encryption_secret"] = encryptionSecret
@@ -168,7 +170,7 @@ func (a *App) TasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodGet {
-		tasks, _ := FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
+		tasks, _ := tw.FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
 		if tasks == nil {
 			http.Error(w, "Failed to fetch tasks", http.StatusInternalServerError)
 			return
@@ -208,7 +210,7 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
+		if err := tw.DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -247,7 +249,7 @@ func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
+		if err := tw.CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -288,7 +290,7 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskuuid); err != nil {
+		if err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskuuid); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -333,7 +335,7 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskuuid); err != nil {
+		if err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskuuid); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -374,7 +376,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate); err != nil {
+		if err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
