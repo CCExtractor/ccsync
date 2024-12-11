@@ -1,4 +1,4 @@
-package main_test
+package controllers
 
 import (
 	"encoding/gob"
@@ -13,12 +13,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-
-	. "ccsync_backend" // Import the main package
 )
 
 func setup() *App {
-	godotenv.Load(".env")
+	godotenv.Load("../.env")
 
 	clientID := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SEC")
