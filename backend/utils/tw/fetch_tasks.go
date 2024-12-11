@@ -2,16 +2,15 @@ package tw
 
 import (
 	"ccsync_backend/models"
+	"ccsync_backend/utils"
 	"fmt"
 	"os"
-	"os/exec"
 )
 
 // complete logic (delete config if any->setup config->sync->get tasks->export)
 func FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID string) ([]models.Task, error) {
 	// temporary directory for each user
-	cmd := exec.Command("rm", "-rf", "/root/.task")
-	if err := cmd.Run(); err != nil {
+	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return nil, fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
 

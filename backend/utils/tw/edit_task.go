@@ -1,15 +1,14 @@
 package tw
 
 import (
+	"ccsync_backend/utils"
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 )
 
 func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskuuid string) error {
-	cmd := exec.Command("rm", "-rf", "/root/.task")
-	if err := cmd.Run(); err != nil {
+	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
@@ -30,8 +29,7 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskuuid 
 	// Escape the double quotes in the description and format it
 	escapedDescription := fmt.Sprintf(`description:"%s"`, strings.ReplaceAll(description, `"`, `\"`))
 
-	cmd = exec.Command("task", taskuuid, "modify", escapedDescription)
-	if err := cmd.Run(); err != nil {
+	if err := utils.ExecCommand("task", taskuuid, "modify", escapedDescription); err != nil {
 		return fmt.Errorf("failed to edit task: %v", err)
 	}
 
