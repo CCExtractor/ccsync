@@ -1,6 +1,8 @@
 package main
 
 import (
+	"ccsync_backend/utils"
+	"ccsync_backend/utils/tw"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -11,7 +13,7 @@ import (
 )
 
 func TestSetTaskwarriorConfig(t *testing.T) {
-	err := SetTaskwarriorConfig("./", "encryption_secret", "container_origin", "client_id")
+	err := tw.SetTaskwarriorConfig("./", "encryption_secret", "container_origin", "client_id")
 	if err != nil {
 		t.Errorf("SetTaskwarriorConfig() failed: %v", err)
 	} else {
@@ -19,7 +21,7 @@ func TestSetTaskwarriorConfig(t *testing.T) {
 	}
 }
 func TestSyncTaskwarrior(t *testing.T) {
-	err := SyncTaskwarrior("./")
+	err := tw.SyncTaskwarrior("./")
 	if err != nil {
 		t.Errorf("SyncTaskwarrior failed: %v", err)
 	} else {
@@ -28,7 +30,7 @@ func TestSyncTaskwarrior(t *testing.T) {
 }
 
 func TestEditTaskInATaskwarrior(t *testing.T) {
-	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid")
+	err := tw.EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid")
 	if err != nil {
 		t.Errorf("EditTaskInTaskwarrior() failed: %v", err)
 	} else {
@@ -37,7 +39,7 @@ func TestEditTaskInATaskwarrior(t *testing.T) {
 }
 
 func TestExportTasks(t *testing.T) {
-	task, err := ExportTasks("./")
+	task, err := tw.ExportTasks("./")
 	if task != nil && err == nil {
 		fmt.Println("Task export test passed")
 	} else {
@@ -46,7 +48,7 @@ func TestExportTasks(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarrior(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03")
+	err := tw.AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03")
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior failed: %v", err)
 	} else {
@@ -55,7 +57,7 @@ func TestAddTaskToTaskwarrior(t *testing.T) {
 }
 
 func TestCompleteTaskInTaskwarrior(t *testing.T) {
-	err := CompleteTaskInTaskwarrior("email", "encryptionSecret", "client_id", "taskuuid")
+	err := tw.CompleteTaskInTaskwarrior("email", "encryptionSecret", "client_id", "taskuuid")
 	if err != nil {
 		t.Errorf("CompleteTaskInTaskwarrior failed: %v", err)
 	} else {
@@ -68,7 +70,7 @@ func Test_GenerateUUID(t *testing.T) {
 	id := "12345"
 	expectedUUID := uuid.NewMD5(uuid.NameSpaceOID, []byte(email+id)).String()
 
-	uuidStr := GenerateUUID(email, id)
+	uuidStr := utils.GenerateUUID(email, id)
 	assert.Equal(t, expectedUUID, uuidStr)
 }
 
@@ -80,6 +82,6 @@ func Test_GenerateEncryptionSecret(t *testing.T) {
 	hash.Write([]byte(uuidStr + email + id))
 	expectedSecret := hex.EncodeToString(hash.Sum(nil))
 
-	encryptionSecret := GenerateEncryptionSecret(uuidStr, email, id)
+	encryptionSecret := utils.GenerateEncryptionSecret(uuidStr, email, id)
 	assert.Equal(t, expectedSecret, encryptionSecret)
 }
