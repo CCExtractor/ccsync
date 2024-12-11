@@ -1,6 +1,7 @@
 package main_test
 
 import (
+	"ccsync_backend/controllers"
 	"encoding/gob"
 	"encoding/json"
 	"net/http"
@@ -13,11 +14,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-
-	. "ccsync_backend" // Import the main package
 )
 
-func setup() *App {
+func setup() *controllers.App {
 	godotenv.Load(".env")
 
 	clientID := os.Getenv("CLIENT_ID")
@@ -35,7 +34,7 @@ func setup() *App {
 	store := sessions.NewCookieStore(sessionKey)
 	gob.Register(map[string]interface{}{})
 
-	return &App{Config: conf, SessionStore: store}
+	return &controllers.App{Config: conf, SessionStore: store}
 }
 
 func Test_OAuthHandler(t *testing.T) {
