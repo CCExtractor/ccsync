@@ -1,7 +1,6 @@
-package main_test
+package controllers
 
 import (
-	"ccsync_backend/controllers"
 	"encoding/gob"
 	"encoding/json"
 	"net/http"
@@ -16,8 +15,8 @@ import (
 	"golang.org/x/oauth2/google"
 )
 
-func setup() *controllers.App {
-	godotenv.Load(".env")
+func setup() *App {
+	godotenv.Load("../.env")
 
 	clientID := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SEC")
@@ -34,7 +33,7 @@ func setup() *controllers.App {
 	store := sessions.NewCookieStore(sessionKey)
 	gob.Register(map[string]interface{}{})
 
-	return &controllers.App{Config: conf, SessionStore: store}
+	return &App{Config: conf, SessionStore: store}
 }
 
 func Test_OAuthHandler(t *testing.T) {
