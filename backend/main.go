@@ -1,10 +1,9 @@
 package main
 
 import (
+	"ccsync_backend/controllers"
 	"ccsync_backend/models"
-	"ccsync_backend/utils"
 	"ccsync_backend/utils/tw"
-	"context"
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
@@ -18,14 +17,6 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
-
-type App struct {
-	Config           *oauth2.Config
-	SessionStore     *sessions.CookieStore
-	UserEmail        string
-	EncryptionSecret string
-	UUID             string
-}
 
 func main() {
 	if err := godotenv.Load(); err != nil {
@@ -54,7 +45,7 @@ func main() {
 	store := sessions.NewCookieStore(sessionKey)
 	gob.Register(map[string]interface{}{})
 
-	app := App{Config: conf, SessionStore: store}
+	app := controllers.App{Config: conf, SessionStore: store}
 	mux := http.NewServeMux()
 
 	// API endpoints
@@ -73,114 +64,6 @@ func main() {
 	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func (a *App) OAuthHandler(w http.ResponseWriter, r *http.Request) {
-	url := a.Config.AuthCodeURL("state", oauth2.AccessTypeOffline)
-	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
-}
-
-// fetching the info
-func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Fetching user info...")
-
-	code := r.URL.Query().Get("code")
-
-	t, err := a.Config.Exchange(context.Background(), code)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	client := a.Config.Client(context.Background(), t)
-	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	defer resp.Body.Close()
-
-	var userInfo map[string]interface{}
-	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	email, okEmail := userInfo["email"].(string)
-	id, okId := userInfo["id"].(string)
-	if !okEmail || !okId {
-		http.Error(w, "Unable to retrieve user info", http.StatusInternalServerError)
-		return
-	}
-	uuidStr := utils.GenerateUUID(email, id)
-	encryptionSecret := utils.GenerateEncryptionSecret(uuidStr, email, id)
-
-	userInfo["uuid"] = uuidStr
-	userInfo["encryption_secret"] = encryptionSecret
-	session, _ := a.SessionStore.Get(r, "session-name")
-	session.Values["user"] = userInfo
-	if err := session.Save(r, w); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	log.Printf("User Info: %v", userInfo)
-
-	frontendOriginDev := os.Getenv("FRONTEND_ORIGIN_DEV")
-	http.Redirect(w, r, frontendOriginDev+"/home", http.StatusSeeOther)
-}
-
-func (a *App) UserInfoHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := a.SessionStore.Get(r, "session-name")
-	userInfo, ok := session.Values["user"].(map[string]interface{})
-	if !ok || userInfo == nil {
-		http.Error(w, "No user info available", http.StatusUnauthorized)
-		return
-	}
-
-	log.Printf("Sending User Info: %v", userInfo)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(userInfo)
-}
-
-func (a *App) EnableCORS(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		allowedOrigin := os.Getenv("FRONTEND_ORIGIN_DEV") // frontend origin
-		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		w.Header().Set("Access-Control-Allow-Credentials", "true") // to allow credentials
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-		handler.ServeHTTP(w, r)
-	})
-}
-
-// helps to fetch tasks using '/tasks' route
-func (a *App) TasksHandler(w http.ResponseWriter, r *http.Request) {
-	email := r.URL.Query().Get("email")
-	encryptionSecret := r.URL.Query().Get("encryptionSecret")
-	UUID := r.URL.Query().Get("UUID")
-	origin := os.Getenv("CONTAINER_ORIGIN")
-	if email == "" || encryptionSecret == "" || UUID == "" {
-		http.Error(w, "Missing required parameters", http.StatusBadRequest)
-		return
-	}
-
-	if r.Method == http.MethodGet {
-		tasks, _ := tw.FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
-		if tasks == nil {
-			http.Error(w, "Failed to fetch tasks", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tasks)
-		return
-	}
-
-	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
 
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
@@ -384,17 +267,4 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-}
-
-// logout and delete session
-func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := a.SessionStore.Get(r, "session-name")
-	session.Options.MaxAge = -1
-	if err := session.Save(r, w); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	log.Print("User has logged out")
 }
