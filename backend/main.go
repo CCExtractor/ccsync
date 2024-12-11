@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ccsync_backend/models"
 	"context"
 	"encoding/gob"
 	"encoding/json"
@@ -189,12 +190,7 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		var requestBody struct {
-			Email            string `json:"email"`
-			EncryptionSecret string `json:"encryptionSecret"`
-			UUID             string `json:"UUID"`
-			TaskUUID         string `json:"taskuuid"`
-		}
+		var requestBody models.DeleteTaskRequestBody
 
 		err = json.Unmarshal(body, &requestBody)
 		if err != nil {
@@ -233,12 +229,7 @@ func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("Raw request body: %s\n", string(body))
 
-		var requestBody struct {
-			Email            string `json:"email"`
-			EncryptionSecret string `json:"encryptionSecret"`
-			UUID             string `json:"UUID"`
-			TaskUUID         string `json:"taskuuid"`
-		}
+		var requestBody models.CompleteTaskRequestBody
 
 		err = json.Unmarshal(body, &requestBody)
 		if err != nil {
@@ -278,13 +269,7 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("Raw request body: %s\n", string(body))
 
-		var requestBody struct {
-			Email            string `json:"email"`
-			EncryptionSecret string `json:"encryptionSecret"`
-			UUID             string `json:"UUID"`
-			TaskUUID         string `json:"taskuuid"`
-			Description      string `json:"description"`
-		}
+		var requestBody models.EditTaskRequestBody
 
 		err = json.Unmarshal(body, &requestBody)
 		if err != nil {
@@ -325,17 +310,7 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("Raw request body: %s\n", string(body))
 
-		var requestBody struct {
-			Email            string `json:"email"`
-			EncryptionSecret string `json:"encryptionSecret"`
-			UUID             string `json:"UUID"`
-			TaskUUID         string `json:"taskuuid"`
-			Description      string `json:"description"`
-			Project          string `json:"project"`
-			Priority         string `json:"priority"`
-			Status           string `json:"status"`
-			Due              string `json:"due"`
-		}
+		var requestBody models.ModifyTaskRequestBody
 
 		err = json.Unmarshal(body, &requestBody)
 		if err != nil {
@@ -379,15 +354,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		fmt.Printf("Raw request body: %s\n", string(body))
 
-		var requestBody struct {
-			Email            string `json:"email"`
-			EncryptionSecret string `json:"encryptionSecret"`
-			UUID             string `json:"UUID"`
-			Description      string `json:"description"`
-			Project          string `json:"project"`
-			Priority         string `json:"priority"`
-			DueDate          string `json:"due"`
-		}
+		var requestBody models.AddTaskRequestBody
 
 		err = json.Unmarshal(body, &requestBody)
 		if err != nil {
