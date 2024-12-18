@@ -19,7 +19,7 @@ If you spot a problem with the docs, [search if an issue already exists](https:/
 
 #### Solve an issue
 
-Scan through our [existing issues](https://github.com/its-me-abhishek/ccsync/issues) to find one that interests you. You can narrow down the search using `labels` as filters. If you find an issue to work on, you are welcome to open a PR with a fix.
+Scan through our [existing issues](https://github.com/its-me-abhishek/ccsync/issues) to find one that interests you. You can narrow down the search using `labels` as filters. If you find an issue to work on, and after discussion, it comes out to be a valid issue, you are welcome to open a PR with a fix.
 
 ### Make Changes
 
