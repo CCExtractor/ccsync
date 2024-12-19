@@ -43,7 +43,6 @@ func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
 		return
 	}
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)

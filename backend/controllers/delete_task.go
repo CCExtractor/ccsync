@@ -40,7 +40,6 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
 		return
 	}
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
