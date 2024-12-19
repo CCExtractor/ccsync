@@ -221,7 +221,7 @@ export const Tasks = (props: Props) => {
         }
     }
 
-    async function handleEditTaskDesc(email: string, encryptionSecret: string, UUID: string, description: string, taskuuid: string) {
+    async function handleEditTaskDesc(email: string, encryptionSecret: string, UUID: string, description: string, taskID: string) {
         try {
             const backendURL = url.backendURL + `edit-task`;
             const response = await fetch(backendURL, {
@@ -230,7 +230,7 @@ export const Tasks = (props: Props) => {
                     email: email,
                     encryptionSecret: encryptionSecret,
                     UUID: UUID,
-                    taskuuid: taskuuid,
+                    taskID: taskID,
                     description: description,
                 }),
             });
@@ -283,7 +283,7 @@ export const Tasks = (props: Props) => {
 
     const handleSaveClick = (task: Task) => {
         task.description = editedDescription;
-        handleEditTaskDesc(props.email, props.encryptionSecret, props.UUID, task.description, task.uuid);
+        handleEditTaskDesc(props.email, props.encryptionSecret, props.UUID, task.description, task.id.toString());
         setIsEditing(false);
     };
 
