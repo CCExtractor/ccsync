@@ -25,7 +25,7 @@ type EditTaskRequestBody struct {
 	Email            string `json:"email"`
 	EncryptionSecret string `json:"encryptionSecret"`
 	UUID             string `json:"UUID"`
-	TaskUUID         string `json:"taskuuid"`
+	TaskID           string `json:"taskid"`
 	Description      string `json:"description"`
 }
 type CompleteTaskRequestBody struct {
