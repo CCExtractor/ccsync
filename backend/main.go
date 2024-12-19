@@ -48,7 +48,7 @@ func main() {
 	mux.HandleFunc("/auth/callback", app.OAuthCallbackHandler)
 	mux.HandleFunc("/api/user", app.UserInfoHandler)
 	mux.HandleFunc("/auth/logout", app.LogoutHandler)
-	mux.HandleFunc("/tasks", app.TasksHandler)
+	mux.HandleFunc("/tasks", controllers.TasksHandler)
 	mux.HandleFunc("/add-task", controllers.AddTaskHandler)
 	mux.HandleFunc("/edit-task", controllers.EditTaskHandler)
 	mux.HandleFunc("/modify-task", controllers.ModifyTaskHandler)
@@ -60,4 +60,3 @@ func main() {
 		log.Fatal(err)
 	}
 }
-
