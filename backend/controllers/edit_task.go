@@ -31,20 +31,19 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		email := requestBody.Email
 		encryptionSecret := requestBody.EncryptionSecret
 		uuid := requestBody.UUID
-		taskuuid := requestBody.TaskUUID
+		taskID := requestBody.TaskID
 		description := requestBody.Description
 
-		if taskuuid == "" {
-			http.Error(w, "taskuuid is required", http.StatusBadRequest)
+		if taskID == "" {
+			http.Error(w, "taskID is required", http.StatusBadRequest)
 			return
 		}
 
-		if err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskuuid); err != nil {
+		if err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
 		return
 	}
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
