@@ -21,7 +21,7 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		tasks, _ := tw.FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
 		if tasks == nil {
-			http.Error(w, "Failed to fetch tasks", http.StatusInternalServerError)
+			http.Error(w, "Failed to fetch tasks at backend", http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")

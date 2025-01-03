@@ -81,7 +81,7 @@ export const syncTasksWithTwAndDb = async (props: Props) => {
             });
         }
         if (!response.ok) {
-            throw new Error('Failed to fetch tasks');
+            throw new Error('Failed to fetch tasks - navbar');
         }
         const taskwarriorTasks = await response.json();
 
