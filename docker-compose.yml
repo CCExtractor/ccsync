@@ -38,7 +38,7 @@ services:
       - ./backend/data:/app/data
 
   syncserver:
-    image: taskchampion-sync-server:latest
+    image: ghcr.io/gothenburgbitfactory/taskchampion-sync-server:latest
     ports:
       - "8080:8080"
     networks:

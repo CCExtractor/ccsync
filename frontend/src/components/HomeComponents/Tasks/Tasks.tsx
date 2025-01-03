@@ -128,7 +128,7 @@ export const Tasks = (props: Props) => {
                     progress: undefined,
                 });
             } if (!response.ok) {
-                throw new Error('Failed to fetch tasks');
+                throw new Error('Failed to fetch tasks - taskview');
             }
             const taskwarriorTasks = await response.json();
             const firebaseTaskUuids = new Set(firebaseTasks.map(task => task.uuid));
