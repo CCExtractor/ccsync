@@ -21,13 +21,13 @@ export const CopyableCode = ({ text, copyText }: CopyableCodeProps) => {
   };
 
   return (
-    <div className="mt-4 flex items-center">
-      <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
-        <code className="whitespace-nowrap">{text}</code>
+    <div className="mt-4 flex items-center gap-2 w-full">
+      <div className="bg-gray-900 text-white p-3 sm:p-4 rounded-lg flex-grow overflow-x-auto">
+        <code className="text-sm sm:text-base whitespace-nowrap break-all">{text}</code>
       </div>
       <CopyToClipboard text={copyText} onCopy={() => handleCopy(copyText)}>
-        <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-4 px-2 rounded ml-2">
-          <CopyIcon />
+        <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold p-3 sm:p-4 rounded flex-shrink-0">
+          <CopyIcon className="size-5" />
         </button>
       </CopyToClipboard>
     </div>
