@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 
 export const HomePage: React.FC = () => {
     const [userInfo, setUserInfo] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -46,6 +47,8 @@ export const HomePage: React.FC = () => {
                         encryptionSecret={userInfo.encryption_secret}
                         origin={url.containerOrigin}
                         UUID={userInfo.uuid}
+                        isLoading={isLoading}
+                        setIsLoading={setIsLoading}
                     />
                     <motion.div
                         initial={{ x: -1000 }}
@@ -63,6 +66,8 @@ export const HomePage: React.FC = () => {
                         encryptionSecret={userInfo.encryption_secret}
                         origin={url.containerOrigin}
                         UUID={userInfo.uuid}
+                        isLoading={isLoading}
+                        setIsLoading={setIsLoading}
                     />
                     <SetupGuide
                         name={userInfo.name}

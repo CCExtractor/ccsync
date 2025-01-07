@@ -8,13 +8,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Button } from "../../ui/button";
+import { Button } from "@/components/ui/button";
 import { firestore, tasksCollection } from "@/lib/controller";
 import { collection, doc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../ui/dialog";
-import { ArrowUpDown, CheckIcon, CopyIcon, Folder, PencilIcon, Tag, Trash2Icon, XIcon } from "lucide-react"
+import { ArrowUpDown, CheckIcon, CopyIcon, Folder, Loader2, PencilIcon, Tag, Trash2Icon, XIcon } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import CopyToClipboard from "react-copy-to-clipboard";
@@ -24,7 +24,13 @@ import { url } from "@/components/utils/URLs";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BottomBar from "../BottomBar/BottomBar";
 
-export const Tasks = (props: Props) => {
+export const Tasks = (
+    props: Props & 
+    {
+        isLoading: boolean, 
+        setIsLoading: (val: boolean)=>void
+    }
+) => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [uniqueProjects, setUniqueProjects] = useState<string[]>([]);
     const [selectedProject, setSelectedProject] = useState<string>("all");
@@ -813,7 +819,20 @@ export const Tasks = (props: Props) => {
                                         </DialogContent>
                                     </Dialog>
                                 </div>
-                                <Button variant="outline" onClick={syncTasksWithTwAndDb}>Sync</Button>
+                                <Button variant="outline" 
+                                onClick={async()=>{
+                                    props.setIsLoading(true)
+                                    await syncTasksWithTwAndDb()
+                                    props.setIsLoading(false)
+                                }}
+                                disabled={props.isLoading}
+                                >
+                                {
+                                props.isLoading ? 
+                                <Loader2 className="mx-1 size-5 animate-spin" />
+                                : "Sync"
+                                }
+                                </Button>
                             </div>
                         </div>
                         <div className="text-l ml-5 text-muted-foreground mt-5 mb-5">
