@@ -36,10 +36,18 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := tw.DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		// if err := tw.DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
+		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 	return
+		// }
+		job := Job{
+			Name: "Delete Task",
+			Execute: func() error {
+				return tw.DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid)
+			},
 		}
+		GlobalJobQueue.AddJob(job)
+		w.WriteHeader(http.StatusAccepted)
 		return
 	}
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
