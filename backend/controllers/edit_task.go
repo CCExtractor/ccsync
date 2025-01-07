@@ -18,7 +18,7 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		fmt.Printf("Raw request body: %s\n", string(body))
+		// fmt.Printf("Raw request body: %s\n", string(body))
 
 		var requestBody models.EditTaskRequestBody
 
@@ -39,10 +39,19 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		// if err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID); err != nil {
+		// http.Error(w, err.Error(), http.StatusInternalServerError)
+		// return
+		// }
+
+		job := Job{
+			Name: "Edit Task",
+			Execute: func() error {
+				return tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID)
+			},
 		}
+		GlobalJobQueue.AddJob(job)
+		w.WriteHeader(http.StatusAccepted)
 
 		return
 	}

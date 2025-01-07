@@ -18,7 +18,7 @@ func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		fmt.Printf("Raw request body: %s\n", string(body))
+		// fmt.Printf("Raw request body: %s\n", string(body))
 
 		var requestBody models.CompleteTaskRequestBody
 
@@ -38,11 +38,18 @@ func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := tw.CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		// if err := tw.CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
+		// http.Error(w, err.Error(), http.StatusInternalServerError)
+		// return
+		// }
+		job := Job{
+			Name: "Complete Task",
+			Execute: func() error {
+				return tw.CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid)
+			},
 		}
-
+		GlobalJobQueue.AddJob(job)
+		w.WriteHeader(http.StatusAccepted)
 		return
 	}
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
