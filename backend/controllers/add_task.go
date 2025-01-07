@@ -9,6 +9,8 @@ import (
 	"net/http"
 )
 
+var GlobalJobQueue *JobQueue
+
 func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)
@@ -17,7 +19,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		fmt.Printf("Raw request body: %s\n", string(body))
+		// fmt.Printf("Raw request body: %s\n", string(body))
 
 		var requestBody models.AddTaskRequestBody
 
@@ -38,12 +40,14 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "description is required", http.StatusBadRequest)
 			return
 		}
-
-		if err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		job := Job{
+			Name: "Add Task",
+			Execute: func() error {
+				return tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate)
+			},
 		}
-		http.Redirect(w, r, "/tasks", http.StatusSeeOther)
+		GlobalJobQueue.AddJob(job)
+		w.WriteHeader(http.StatusAccepted)
 		return
 	}
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
