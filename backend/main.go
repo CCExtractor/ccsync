@@ -18,6 +18,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	controllers.GlobalJobQueue = controllers.NewJobQueue()
 	// OAuth2 client credentials
 	clientID := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SEC")
