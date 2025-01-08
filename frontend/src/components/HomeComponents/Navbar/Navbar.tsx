@@ -10,7 +10,13 @@ import { NavbarMobile } from "./NavbarMobile";
 import { NavbarDesktop } from "./NavbarDesktop";
 import { Props } from "./navbar-utils";
 
-export const Navbar = (props: Props) => {
+export const Navbar = (
+  props: Props & 
+  {
+    isLoading: boolean, 
+    setIsLoading: (val: boolean)=>void
+  }
+) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
