@@ -213,7 +213,8 @@ export const Tasks = (
                     });
                     setNewTask({ description: "", priority: "", project: "", due: "" });
                     setIsAddTaskOpen(false);
-                } else {
+                } 
+                else {
                     // Parse and display the backend error message
                     const errorData = await response.text();
                     toast.error(errorData, {
@@ -429,6 +430,7 @@ export const Tasks = (
                                                     type="text"
                                                     value={newTask.description}
                                                     onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                                                    required
                                                     className="col-span-3" />
                                             </div>
                                             <div className="grid grid-cols-4 items-center gap-4">
@@ -467,6 +469,7 @@ export const Tasks = (
                                                     placeholder="YYYY-MM-DD"
                                                     value={newTask.due}
                                                     onChange={(e) => setNewTask({ ...newTask, due: e.target.value })}
+                                                    required
                                                     className="col-span-3" />
                                             </div>
                                         </div>
