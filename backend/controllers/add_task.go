@@ -40,6 +40,10 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "description is required", http.StatusBadRequest)
 			return
 		}
+		if dueDate == "" {
+			http.Error(w, "dueDate is required", http.StatusBadRequest)
+			return
+		}
 		job := Job{
 			Name: "Add Task",
 			Execute: func() error {
