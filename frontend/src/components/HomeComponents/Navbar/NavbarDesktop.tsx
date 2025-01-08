@@ -1,4 +1,4 @@
-import { Github, LogOut, Trash2 } from "lucide-react";
+import { Github, LogOut, Trash2, Loader2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,10 +8,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
 import { ModeToggle } from "../../utils/theme-mode-toggle";
-import { buttonVariants } from "../../ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { routeList, syncTasksWithTwAndDb, deleteAllTasks, handleLogout, RouteProps, Props } from "./navbar-utils";
 
-export const NavbarDesktop = (props: Props) => (
+export const NavbarDesktop = (
+  props: Props & 
+  {
+      isLoading: boolean, 
+      setIsLoading: (val: boolean)=>void
+  }
+) => (
   <div className="hidden md:flex items-center justify-between w-full">
     <nav className="hidden md:flex gap-2 justify-center flex-1">
       {routeList.map((route: RouteProps, i) => (
@@ -28,14 +34,25 @@ export const NavbarDesktop = (props: Props) => (
       ))}
     </nav>
     <div className="hidden md:flex items-center gap-2">
-      <div
-        onClick={() => syncTasksWithTwAndDb(props)}
-        className={`w-[110px] border ${buttonVariants({
-          variant: "ghost",
-        })}`}
+      <Button
+        variant={"ghost"}
+        className="w-[110px] border"
+        onClick={async() => {
+          props.setIsLoading(true)
+          await syncTasksWithTwAndDb(props)
+          props.setIsLoading(false)
+        }}
+        disabled={props.isLoading}
       >
-        Sync Tasks
-      </div>
+        {
+          props.isLoading ? 
+          <>
+            <Loader2 className="mr-2 size-5 animate-spin" />
+            Syncing
+          </>
+          : "Sync Tasks"
+        }
+      </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Avatar>

@@ -6,12 +6,18 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { Menu } from "lucide-react";
+import { Loader2, Menu } from "lucide-react";
 import { ModeToggle } from "../../utils/theme-mode-toggle";
-import { buttonVariants } from "../../ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { routeList, syncTasksWithTwAndDb, deleteAllTasks, handleLogout, RouteProps, Props } from "./navbar-utils";
 
-export const NavbarMobile = (props: Props & { setIsOpen: (isOpen: boolean) => void, isOpen: boolean }) => (
+export const NavbarMobile = (
+    props: Props & { setIsOpen: (isOpen: boolean) => void, isOpen: boolean } & 
+    {
+        isLoading: boolean, 
+        setIsLoading: (val: boolean)=>void
+    }
+) =>  (
     <span className="flex md:hidden">
         <ModeToggle />
 
@@ -55,13 +61,25 @@ export const NavbarMobile = (props: Props & { setIsOpen: (isOpen: boolean) => vo
                         <GitHubLogoIcon className="mr-2 w-5 h-5" />
                         Github
                     </a>
-                    <div
-                        onClick={() => syncTasksWithTwAndDb(props)}
-                        className={`w-[110px] border ${buttonVariants({
-                            variant: "ghost",
-                        })}`}>
-                        Sync Tasks
-                    </div>
+                    <Button
+                        variant={"ghost"}
+                        className="w-[110px] border"
+                        onClick={async() => {
+                        props.setIsLoading(true)
+                        await syncTasksWithTwAndDb(props)
+                        props.setIsLoading(false)
+                        }}
+                        disabled={props.isLoading}
+                    >
+                        {
+                        props.isLoading ? 
+                        <>
+                            <Loader2 className="mr-2 size-5 animate-spin" />
+                            Syncing
+                        </>
+                        : "Sync Tasks"
+                        }
+                    </Button>
                     <div
                         onClick={() => deleteAllTasks(props)}
                         className={`w-[110px] border ${buttonVariants({
