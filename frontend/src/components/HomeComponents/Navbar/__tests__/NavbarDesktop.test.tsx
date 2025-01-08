@@ -16,6 +16,7 @@ jest.mock("../navbar-utils", () => ({
 }));
 
 describe("NavbarDesktop", () => {
+  const mockSetIsLoading = jest.fn();
   const mockProps: Props = {
     imgurl: "http://example.com/image.png",
     email: "test@example.com",
@@ -24,12 +25,18 @@ describe("NavbarDesktop", () => {
     UUID: "1234-5678",
   };
 
+  const extendedProps = {
+    ...mockProps,
+    isLoading: false,
+    setIsLoading: mockSetIsLoading,
+  };
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it("renders the navigation links correctly", () => {
-    render(<NavbarDesktop {...mockProps} />);
+    render(<NavbarDesktop {...extendedProps} />);
 
     routeList.forEach((route) => {
       expect(screen.getByText(route.label)).toBeInTheDocument();
@@ -37,15 +44,15 @@ describe("NavbarDesktop", () => {
   });
 
   it("calls syncTasksWithTwAndDb when 'Sync Tasks' is clicked", () => {
-    render(<NavbarDesktop {...mockProps} />);
+    render(<NavbarDesktop {...extendedProps} />);
     const syncButton = screen.getByText("Sync Tasks");
 
     fireEvent.click(syncButton);
 
-    expect(syncTasksWithTwAndDb).toHaveBeenCalledWith(mockProps);
+    expect(syncTasksWithTwAndDb).toHaveBeenCalledWith(extendedProps);
   });
 
   it("displays user email and handles dropdown menu actions", () => {
-    render(<NavbarDesktop {...mockProps} />);
+    render(<NavbarDesktop {...extendedProps} />);
   });
 });
