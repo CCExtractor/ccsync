@@ -175,6 +175,33 @@ export const Tasks = (props: Props) => {
     }
 
     async function handleAddTask(email: string, encryptionSecret: string, UUID: string, description: string, project: string, priority: string, due: string,) {
+        if(description.length===0) {
+            return toast.error('Description cannot be empty!', {
+                position: 'bottom-left',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            })
+        }
+        const date = new Date(due);
+        if(
+            isNaN(date.getTime()) ||
+            due !== date.toISOString().split('T')[0]
+        ){
+            return toast.error('Due date should be in the format YYYY-MM-DD!', {
+                position: 'bottom-left',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            })
+        }
+    
         if (handleDate(newTask.due)) {
             try {
                 const backendURL = url.backendURL + `add-task`;
@@ -190,7 +217,7 @@ export const Tasks = (props: Props) => {
                         due: due,
                     }),
                 });
-                if (response) {
+                if (response.ok) {
                     console.log('Task added successfully!');
                     toast.success('Task added successfully!', {
                         position: 'bottom-left',
