@@ -6,6 +6,8 @@ const mockProps = {
     email: 'test@example.com',
     encryptionSecret: 'mockEncryptionSecret',
     UUID: 'mockUUID',
+    isLoading: false,  // mock the loading state
+    setIsLoading: jest.fn(),  // mock the setter function
 };
 
 // Mock functions and modules

@@ -15,14 +15,23 @@ jest.mock("../navbar-utils", () => ({
 }));
 
 describe("NavbarMobile", () => {
-  const mockProps: Props & { setIsOpen: (isOpen: boolean) => void; isOpen: boolean } = {
+  const mockSetIsOpen = jest.fn();
+  const mockSetIsLoading = jest.fn();
+  const mockProps: Props & {
+    setIsOpen: (isOpen: boolean) => void;
+    isOpen: boolean;
+    isLoading: boolean;
+    setIsLoading: (val: boolean) => void;
+  } = {
     imgurl: "http://example.com/image.png",
     email: "test@example.com",
     encryptionSecret: "secret",
     origin: "http://localhost:3000",
     UUID: "1234-5678",
-    setIsOpen: jest.fn(),
+    setIsOpen: mockSetIsOpen,
     isOpen: false,
+    isLoading: false,
+    setIsLoading: mockSetIsLoading,
   };
 
   afterEach(() => {
@@ -90,3 +99,4 @@ describe("NavbarMobile", () => {
     expect(handleLogout).toHaveBeenCalled();
   });
 });
+

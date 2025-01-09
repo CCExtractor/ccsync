@@ -180,7 +180,7 @@ export const Tasks = (
         }
     }
 
-    async function handleAddTask(email: string, encryptionSecret: string, UUID: string, description: string, project: string, priority: string, due: string,) {
+    async function handleAddTask(email: string, encryptionSecret: string, UUID: string, description: string, project: string, priority: string, due: string) {
         if (handleDate(newTask.due)) {
             try {
                 const backendURL = url.backendURL + `add-task`;
@@ -195,8 +195,12 @@ export const Tasks = (
                         priority: priority,
                         due: due,
                     }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 });
-                if (response) {
+    
+                if (response.ok) {
                     console.log('Task added successfully!');
                     toast.success('Task added successfully!', {
                         position: 'bottom-left',
@@ -209,8 +213,11 @@ export const Tasks = (
                     });
                     setNewTask({ description: "", priority: "", project: "", due: "" });
                     setIsAddTaskOpen(false);
-                } else {
-                    toast.error('Error in adding task. Please try again.', {
+                } 
+                else {
+                    // Parse and display the backend error message
+                    const errorData = await response.text();
+                    toast.error(errorData, {
                         position: 'bottom-left',
                         autoClose: 3000,
                         hideProgressBar: false,
@@ -219,14 +226,14 @@ export const Tasks = (
                         draggable: true,
                         progress: undefined,
                     });
-                    console.error('Failed to mark task as completed');
+                    console.error('Backend error:', errorData);
                 }
             } catch (error) {
                 console.error('Failed to add task: ', error);
             }
         }
     }
-
+    
     async function handleEditTaskDesc(email: string, encryptionSecret: string, UUID: string, description: string, taskID: string) {
         try {
             const backendURL = url.backendURL + `edit-task`;
@@ -423,6 +430,7 @@ export const Tasks = (
                                                     type="text"
                                                     value={newTask.description}
                                                     onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                                                    required
                                                     className="col-span-3" />
                                             </div>
                                             <div className="grid grid-cols-4 items-center gap-4">
@@ -461,6 +469,7 @@ export const Tasks = (
                                                     placeholder="YYYY-MM-DD"
                                                     value={newTask.due}
                                                     onChange={(e) => setNewTask({ ...newTask, due: e.target.value })}
+                                                    required
                                                     className="col-span-3" />
                                             </div>
                                         </div>

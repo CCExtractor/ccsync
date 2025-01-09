@@ -17,34 +17,38 @@ jest.mock('../NavbarDesktop', () => ({
 jest.mock('../../../../assets/logo.png', () => 'logo.png');
 jest.mock('../../../../assets/logo_light.png', () => 'logo_light.png');
 
-describe('Navbar Component', () => {
-  const props: Props = {
-      imgurl: '',
-      email: '',
-      encryptionSecret: '',
-      origin: '',
-      UUID: ''
+describe("Navbar Component", () => {
+  const mockSetIsLoading = jest.fn();
+
+  const props: Props & { isLoading: boolean; setIsLoading: (val: boolean) => void } = {
+    imgurl: "",
+    email: "",
+    encryptionSecret: "",
+    origin: "",
+    UUID: "",
+    isLoading: false,
+    setIsLoading: mockSetIsLoading,
   };
 
-  test('renders Navbar component with correct elements', () => {
+  test("renders Navbar component with correct elements", () => {
     render(<Navbar {...props} />);
 
-    const logoLightImage = screen.getByAltText('Light-Logo');
-    const logoImage = screen.getByAltText('Logo');
+    const logoLightImage = screen.getByAltText("Light-Logo");
+    const logoImage = screen.getByAltText("Logo");
 
     expect(logoLightImage).toBeInTheDocument();
-
     expect(logoImage).toBeInTheDocument();
 
     // Check for NavbarDesktop and NavbarMobile components
-    expect(screen.getByTestId('navbar-desktop')).toBeInTheDocument();
-    expect(screen.getByTestId('navbar-mobile')).toBeInTheDocument();
+    expect(screen.getByTestId("navbar-desktop")).toBeInTheDocument();
+    expect(screen.getByTestId("navbar-mobile")).toBeInTheDocument();
   });
 
-  test('NavbarMobile component receives correct props', () => {
+  test("NavbarMobile component receives correct props", () => {
     render(<Navbar {...props} />);
 
-    const navbarMobile = screen.getByTestId('navbar-mobile');
-    expect(navbarMobile).toHaveAttribute('data-isopen', 'false');
+    const navbarMobile = screen.getByTestId("navbar-mobile");
+    expect(navbarMobile).toHaveAttribute("data-isopen", "false");
   });
 });
+
