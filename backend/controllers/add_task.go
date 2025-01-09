@@ -37,7 +37,11 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		dueDate := requestBody.DueDate
 
 		if description == "" {
-			http.Error(w, "description is required", http.StatusBadRequest)
+			http.Error(w, "Description is required, and cannot be empty!", http.StatusBadRequest)
+			return
+		}
+		if dueDate == "" {
+			http.Error(w, "Due Date is required, and cannot be empty!", http.StatusBadRequest)
 			return
 		}
 		job := Job{
