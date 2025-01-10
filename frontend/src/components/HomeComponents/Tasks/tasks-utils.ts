@@ -161,8 +161,9 @@ export const handleCopy = (text: string) => {
 };
 
 export const handleDate = (v: string) => {
-  const date = v;
-  const isValid = date === "" || /^\d{4}-\d{2}-\d{2}$/.test(date);
+  const date = new Date(v);
+  const isValid = !isNaN(date.getTime()) && v === date.toISOString().split('T')[0];
+
   if (!isValid) {
     toast.error("Invalid Date Format. Please use the YYYY-MM-DD format.", {
       position: "bottom-left",
