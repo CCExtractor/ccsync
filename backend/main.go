@@ -55,7 +55,10 @@ func main() {
 	mux.HandleFunc("/modify-task", controllers.ModifyTaskHandler)
 	mux.HandleFunc("/complete-task", controllers.CompleteTaskHandler)
 	mux.HandleFunc("/delete-task", controllers.DeleteTaskHandler)
+	mux.HandleFunc("/ws", controllers.WebSocketHandler)
 
+	// --- important to keep the status notifier running ---
+	go controllers.JobStatusManager()
 	log.Println("Server started at :8000")
 	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
 		log.Fatal(err)

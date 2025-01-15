@@ -411,10 +411,10 @@ describe("handleDate", () => {
     );
   });
 
-  it("should return true and show no toast for empty date string", () => {
+  it("should return false and show no toast for empty date string", () => {
     const emptyDate = "";
     const result = handleDate(emptyDate);
-    expect(result).toBe(true);
+    expect(result).toBe(false);
   });
 
   it("should return false and show error toast for date with invalid characters", () => {
