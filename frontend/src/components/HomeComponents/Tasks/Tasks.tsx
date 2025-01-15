@@ -202,30 +202,14 @@ export const Tasks = (
 
                 if (response.ok) {
                     console.log('Task added successfully!');
-                    toast.success('Task added successfully!', {
-                        position: 'bottom-left',
-                        autoClose: 3000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                    });
+
                     setNewTask({ description: "", priority: "", project: "", due: "" });
                     setIsAddTaskOpen(false);
                 }
                 else {
                     // Parse and display the backend error message
                     const errorData = await response.text();
-                    toast.error(errorData, {
-                        position: 'bottom-left',
-                        autoClose: 3000,
-                        hideProgressBar: false,
-                        closeOnClick: true,
-                        pauseOnHover: true,
-                        draggable: true,
-                        progress: undefined,
-                    });
+
                     console.error('Backend error:', errorData);
                 }
             } catch (error) {
@@ -249,27 +233,9 @@ export const Tasks = (
             });
             if (response) {
                 console.log('Task edited successfully!');
-                toast.success('Task edited successfully!', {
-                    position: 'bottom-left',
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
                 syncTasksWithTwAndDb();
                 setIsAddTaskOpen(false);
             } else {
-                toast.error('Error in editing task. Please try again.', {
-                    position: 'bottom-left',
-                    autoClose: 3000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                });
                 console.error('Failed to edit task');
             }
         } catch (error) {
