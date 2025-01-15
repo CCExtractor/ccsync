@@ -8,6 +8,7 @@ import { Tasks } from "./HomeComponents/Tasks/Tasks";
 import { url } from "@/components/utils/URLs";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 
 export const HomePage: React.FC = () => {
     const [userInfo, setUserInfo] = useState<any>(null);
@@ -17,6 +18,96 @@ export const HomePage: React.FC = () => {
     useEffect(() => {
         fetchUserInfo();
     }, []);
+
+    useEffect(() => {
+        if (!userInfo || !userInfo.uuid) {
+            console.log("User info or UUID is not available yet, skipping WebSocket setup.");
+            return;
+        }
+
+        console.log("Setting up WebSocket with clientID:", userInfo.uuid);
+        const socketURL = `${url.backendURL.replace(/^http/, 'ws')}ws?clientID=${userInfo.uuid}`;
+        const socket = new WebSocket(socketURL);
+
+        socket.onopen = () => console.log("WebSocket connected!");
+
+        socket.onmessage = (event) => {
+            // console.log("Message received:", event.data);
+            try {
+                const data = JSON.parse(event.data);
+                if (data.status === "in-progress" || data.status === "queued") {
+                    // console.log("Loading...");
+                    // console.log(data.job);
+                }
+                else if (data.status === "success") {
+                    if (data.job === "Add Task") {
+                        console.log("Task added successfully");
+                        toast.success('Task added successfully!', {
+                            position: 'bottom-left',
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                        });
+                    } else if (data.job === "Edit Task") {
+                        console.log("Task edited successfully");
+                        toast.success('Task edited successfully!', {
+                            position: 'bottom-left',
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                        });
+                    } else if (data.job == "Complete Task") {
+                        toast.success("Task marked as completed successfully!", {
+                            position: "bottom-left",
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                        });
+                    } else if (data.job == "Delete Task") {
+                        toast.success("Task marked as deleted successfully!", {
+                            position: "bottom-left",
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                        });
+                    }
+                } else if (data.status == "failure") {
+                    console.log(`Failed to ${data.job || "perform action"}`);
+                    toast.error(`Failed to ${data.job || "perform action"}`, {
+                        position: 'bottom-left',
+                        autoClose: 3000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to parse message data:", error);
+            }
+        };
+
+        socket.onclose = () => console.log("WebSocket disconnected.");
+        socket.onerror = (error) => console.error("WebSocket error:", error);
+
+        return () => {
+            console.log("Cleaning up WebSocket...");
+            socket.close();
+        };
+    }, [userInfo]);
 
     const fetchUserInfo = async () => {
         try {

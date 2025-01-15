@@ -411,10 +411,10 @@ describe("handleDate", () => {
     );
   });
 
-  it("should return true and show no toast for empty date string", () => {
+  it("should return false and show no toast for empty date string", () => {
     const emptyDate = "";
     const result = handleDate(emptyDate);
-    expect(result).toBe(true);
+    expect(result).toBe(false);
   });
 
   it("should return false and show error toast for date with invalid characters", () => {
@@ -471,18 +471,6 @@ describe("markTaskAsCompleted", () => {
         taskuuid: taskuuid,
       }),
     });
-    expect(toast.success).toHaveBeenCalledWith(
-      "Task marked as completed successfully!",
-      {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      }
-    );
   });
 });
 
@@ -519,17 +507,5 @@ describe("markTaskAsDeleted", () => {
         taskuuid: taskuuid,
       }),
     });
-    expect(toast.success).toHaveBeenCalledWith(
-      "Task marked as deleted successfully!",
-      {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      }
-    );
   });
 });

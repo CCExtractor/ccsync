@@ -6,43 +6,60 @@ import (
 	"sync"
 )
 
-// Job struct represents a Taskwarrior command job
 type Job struct {
 	Name    string
 	Execute func() error
 }
 
-// JobQueue struct handles the sequential execution of jobs
 type JobQueue struct {
 	jobChannel chan Job
 	wg         sync.WaitGroup
 }
 
-// NewJobQueue initializes the job queue
 func NewJobQueue() *JobQueue {
 	queue := &JobQueue{
-		jobChannel: make(chan Job, 100), // Buffered channel for jobs
+		jobChannel: make(chan Job, 100),
 	}
-	go queue.processJobs() // Start processing jobs
+	go queue.processJobs()
 	return queue
 }
 
-// AddJob enqueues a job for execution
 func (q *JobQueue) AddJob(job Job) {
 	q.wg.Add(1)
 	q.jobChannel <- job
-	log.Printf("Added to the Queue: %s", job.Name)
+
+	// notify job queued
+	go BroadcastJobStatus(JobStatus{
+		Job:    job.Name,
+		Status: "queued",
+	})
 }
 
-// processJobs processes jobs sequentially
 func (q *JobQueue) processJobs() {
 	for job := range q.jobChannel {
-		fmt.Printf("Executing job: %s", job.Name)
+		fmt.Printf("Executing job: %s\n", job.Name)
+
+		go BroadcastJobStatus(JobStatus{
+			Job:    job.Name,
+			Status: "in-progress",
+		})
+
 		if err := job.Execute(); err != nil {
 			log.Printf("Error executing job %s: %v\n", job.Name, err)
+
+			go BroadcastJobStatus(JobStatus{
+				Job:    job.Name,
+				Status: "failure",
+			})
 		} else {
-			log.Printf("Executed %s", job.Name)
+			log.Printf("Success in executing job %s\n", job.Name)
+
+			go BroadcastJobStatus(JobStatus{
+				Job:    job.Name,
+				Status: "success",
+			})
 		}
+
 		q.wg.Done()
 	}
 }

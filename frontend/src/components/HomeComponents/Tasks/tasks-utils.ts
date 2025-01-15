@@ -39,25 +39,7 @@ export const markTaskAsCompleted = async (
 
     if (response) {
       console.log("Task marked as completed successfully!");
-      toast.success("Task marked as completed successfully!", {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
     } else {
-      toast.error("Error in marked the task as completed. Please try again.", {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
       console.error("Failed to mark task as completed");
     }
   } catch (error) {
@@ -86,25 +68,7 @@ export const markTaskAsDeleted = async (
 
     if (response) {
       console.log("Task marked as deleted successfully!");
-      toast.success("Task marked as deleted successfully!", {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
     } else {
-      toast.error("Error in marked the task as deleted. Please try again.", {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
       console.error("Failed to mark task as deleted");
     }
   } catch (error) {
@@ -162,7 +126,8 @@ export const handleCopy = (text: string) => {
 
 export const handleDate = (v: string) => {
   const date = new Date(v);
-  const isValid = !isNaN(date.getTime()) && v === date.toISOString().split('T')[0];
+  const isValid =
+    !isNaN(date.getTime()) && v === date.toISOString().split("T")[0];
 
   if (!isValid) {
     toast.error("Invalid Date Format. Please use the YYYY-MM-DD format.", {
