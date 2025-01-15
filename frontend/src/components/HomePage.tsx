@@ -36,7 +36,7 @@ export const HomePage: React.FC = () => {
             try {
                 const data = JSON.parse(event.data);
                 if (data.status === "in-progress" || data.status === "queued") {
-                    console.log("Loading...");
+                    // console.log("Loading...");
                     // console.log(data.job);
                 }
                 else if (data.status === "success") {
@@ -62,9 +62,29 @@ export const HomePage: React.FC = () => {
                             draggable: true,
                             progress: undefined,
                         });
+                    } else if (data.job == "Complete Task") {
+                        toast.success("Task marked as completed successfully!", {
+                            position: "bottom-left",
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                        });
+                    } else if (data.job == "Delete Task") {
+                        toast.success("Task marked as deleted successfully!", {
+                            position: "bottom-left",
+                            autoClose: 3000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                        });
                     }
                 } else if (data.status == "failure") {
-                    console.log("Failed");
+                    console.log(`Failed to ${data.job || "perform action"}`);
                     toast.error(`Failed to ${data.job || "perform action"}`, {
                         position: 'bottom-left',
                         autoClose: 3000,
