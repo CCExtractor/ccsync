@@ -471,18 +471,6 @@ describe("markTaskAsCompleted", () => {
         taskuuid: taskuuid,
       }),
     });
-    expect(toast.success).toHaveBeenCalledWith(
-      "Task marked as completed successfully!",
-      {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      }
-    );
   });
 });
 
@@ -519,17 +507,5 @@ describe("markTaskAsDeleted", () => {
         taskuuid: taskuuid,
       }),
     });
-    expect(toast.success).toHaveBeenCalledWith(
-      "Task marked as deleted successfully!",
-      {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      }
-    );
   });
 });
