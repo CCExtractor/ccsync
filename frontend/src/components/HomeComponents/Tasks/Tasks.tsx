@@ -25,10 +25,10 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import BottomBar from "../BottomBar/BottomBar";
 
 export const Tasks = (
-    props: Props & 
+    props: Props &
     {
-        isLoading: boolean, 
-        setIsLoading: (val: boolean)=>void
+        isLoading: boolean,
+        setIsLoading: (val: boolean) => void
     }
 ) => {
     const [tasks, setTasks] = useState<Task[]>([]);
@@ -199,7 +199,7 @@ export const Tasks = (
                         'Content-Type': 'application/json',
                     },
                 });
-    
+
                 if (response.ok) {
                     console.log('Task added successfully!');
                     toast.success('Task added successfully!', {
@@ -213,7 +213,7 @@ export const Tasks = (
                     });
                     setNewTask({ description: "", priority: "", project: "", due: "" });
                     setIsAddTaskOpen(false);
-                } 
+                }
                 else {
                     // Parse and display the backend error message
                     const errorData = await response.text();
@@ -233,7 +233,7 @@ export const Tasks = (
             }
         }
     }
-    
+
     async function handleEditTaskDesc(email: string, encryptionSecret: string, UUID: string, description: string, taskID: string) {
         try {
             const backendURL = url.backendURL + `edit-task`;
@@ -828,19 +828,19 @@ export const Tasks = (
                                         </DialogContent>
                                     </Dialog>
                                 </div>
-                                <Button variant="outline" 
-                                onClick={async()=>{
-                                    props.setIsLoading(true)
-                                    await syncTasksWithTwAndDb()
-                                    props.setIsLoading(false)
-                                }}
-                                disabled={props.isLoading}
+                                <Button variant="outline"
+                                    onClick={async () => {
+                                        props.setIsLoading(true)
+                                        await syncTasksWithTwAndDb()
+                                        props.setIsLoading(false)
+                                    }}
+                                    disabled={props.isLoading}
                                 >
-                                {
-                                props.isLoading ? 
-                                <Loader2 className="mx-1 size-5 animate-spin" />
-                                : "Sync"
-                                }
+                                    {
+                                        props.isLoading ?
+                                            <Loader2 className="mx-1 size-5 animate-spin" />
+                                            : "Sync"
+                                    }
                                 </Button>
                             </div>
                         </div>
