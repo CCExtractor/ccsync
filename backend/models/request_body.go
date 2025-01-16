@@ -9,6 +9,7 @@ type AddTaskRequestBody struct {
 	Project          string `json:"project"`
 	Priority         string `json:"priority"`
 	DueDate          string `json:"due"`
+	Tags             []string `json:"tags"`
 }
 type ModifyTaskRequestBody struct {
 	Email            string `json:"email"`
@@ -20,6 +21,7 @@ type ModifyTaskRequestBody struct {
 	Priority         string `json:"priority"`
 	Status           string `json:"status"`
 	Due              string `json:"due"`
+	Tags             []string `json:"tags"`
 }
 type EditTaskRequestBody struct {
 	Email            string `json:"email"`
