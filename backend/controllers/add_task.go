@@ -35,6 +35,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		project := requestBody.Project
 		priority := requestBody.Priority
 		dueDate := requestBody.DueDate
+		tags := requestBody.Tags
 
 		if description == "" {
 			http.Error(w, "Description is required, and cannot be empty!", http.StatusBadRequest)
@@ -47,7 +48,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		job := Job{
 			Name: "Add Task",
 			Execute: func() error {
-				return tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate)
+				return tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate, tags)
 			},
 		}
 		GlobalJobQueue.AddJob(job)
