@@ -59,10 +59,8 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 		GlobalJobQueue.AddJob(job)
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Task modification request received"))
-	} else {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusAccepted)
+		return
 	}
+	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 }
