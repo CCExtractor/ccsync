@@ -33,6 +33,7 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		uuid := requestBody.UUID
 		taskID := requestBody.TaskID
 		description := requestBody.Description
+		tags := requestBody.Tags
 
 		if taskID == "" {
 			http.Error(w, "taskID is required", http.StatusBadRequest)
@@ -47,7 +48,7 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		job := Job{
 			Name: "Edit Task",
 			Execute: func() error {
-				return tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID)
+				return tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID, tags)
 			},
 		}
 		GlobalJobQueue.AddJob(job)
