@@ -62,13 +62,6 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 		utils.ExecCommand("task", taskID, "delete", "rc.confirmation=off")
 	}
 
-	if status != "" {
-		if err := utils.ExecCommand("task", taskID, "modify", "status:"+status); err != nil {
-			fmt.Println("9")
-			return fmt.Errorf("failed to edit task status: %v", err)
-		}
-	}
-
 	// Handle tags
 	if len(tags) > 0 {
 		for _, tag := range tags {
