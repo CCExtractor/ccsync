@@ -27,7 +27,6 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("error decoding request body: %v", err), http.StatusBadRequest)
 			return
 		}
-
 		email := requestBody.Email
 		encryptionSecret := requestBody.EncryptionSecret
 		uuid := requestBody.UUID
@@ -37,7 +36,12 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		priority := requestBody.Priority
 		status := requestBody.Status
 		due := requestBody.Due
+		tags := requestBody.Tags
 
+		if description == "" {
+			http.Error(w, "Description is required, and cannot be empty!", http.StatusBadRequest)
+			return
+		}
 		if taskID == "" {
 			http.Error(w, "taskID is required", http.StatusBadRequest)
 			return
@@ -51,7 +55,7 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		job := Job{
 			Name: "Modify Task",
 			Execute: func() error {
-				return tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID)
+				return tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID, tags)
 			},
 		}
 		GlobalJobQueue.AddJob(job)
