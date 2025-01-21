@@ -23,7 +23,6 @@ import Pagination from "./Pagination";
 import { url } from "@/components/utils/URLs";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BottomBar from "../BottomBar/BottomBar";
-import { string } from "prop-types";
 
 export const Tasks = (
     props: Props &
@@ -49,7 +48,9 @@ export const Tasks = (
 
     const [isEditing, setIsEditing] = useState(false);
     const [editedDescription, setEditedDescription] = useState("");
-    const [_selectedTask, setSelectedTask] = useState(null);
+    const [_selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [editedTags, setEditedTags] = useState<string[]>(_selectedTask?.tags || []);
+    const [isEditingTags, setIsEditingTags] = useState(false);
 
     const tasksPerPage = 10;
     const indexOfLastTask = currentPage * tasksPerPage;
@@ -58,6 +59,13 @@ export const Tasks = (
     const emptyRows = tasksPerPage - currentTasks.length;
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
     const totalPages = Math.ceil(tasks.length / tasksPerPage);
+
+
+    useEffect(() => {
+        if (_selectedTask) {
+            setEditedTags(_selectedTask.tags || []);
+        }
+    }, [_selectedTask]);
 
     useEffect(() => {
         const fetchTasksForEmail = async () => {
@@ -229,7 +237,7 @@ export const Tasks = (
         }
     }
 
-    async function handleEditTaskDesc(email: string, encryptionSecret: string, UUID: string, description: string, taskID: string) {
+    async function handleEditTaskOnBackend(email: string, encryptionSecret: string, UUID: string, description: string, tags: string[], taskID: string) {
         try {
             const backendURL = url.backendURL + `edit-task`;
             const response = await fetch(backendURL, {
@@ -240,6 +248,7 @@ export const Tasks = (
                     UUID: UUID,
                     taskID: taskID,
                     description: description,
+                    tags: tags,
                 }),
             });
             if (response) {
@@ -273,7 +282,7 @@ export const Tasks = (
 
     const handleSaveClick = (task: Task) => {
         task.description = editedDescription;
-        handleEditTaskDesc(props.email, props.encryptionSecret, props.UUID, task.description, task.id.toString());
+        handleEditTaskOnBackend(props.email, props.encryptionSecret, props.UUID, task.description, task.tags, task.id.toString());
         setIsEditing(false);
     };
 
@@ -334,6 +343,38 @@ export const Tasks = (
             setTempTasks(sortTasksById(filteredTasks, 'desc'));
         }
     }, [selectedStatus, tasks]);
+
+    const handleEditTagsClick = (task: Task) => {
+        setEditedTags(task.tags || []);
+        setIsEditingTags(true);
+    };
+
+    const handleSaveTags = (task: Task) => {
+        const currentTags = task.tags || []; // Default to an empty array if tags are null
+        const removedTags = currentTags.filter((tag) => !editedTags.includes(tag));
+        const updatedTags = editedTags.filter((tag) => tag.trim() !== ''); // Remove any empty tags
+        const tagsToRemove = removedTags.map((tag) => `-${tag}`); // Prefix `-` for removed tags
+        const finalTags = [...updatedTags, ...tagsToRemove]; // Combine updated and removed tags
+        console.log(finalTags);
+        // Call the backend function with updated tags
+        handleEditTaskOnBackend(
+            props.email,
+            props.encryptionSecret,
+            props.UUID,
+            task.description,
+            finalTags,
+            task.id.toString()
+        );
+
+        setIsEditingTags(false); // Exit editing mode
+    };
+
+
+    const handleCancelTags = () => {
+        setIsEditingTags(false);
+        setEditedTags([]); // Reset tags
+    };
+
 
     return (
         <section id="tasks" className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32">
@@ -643,13 +684,44 @@ export const Tasks = (
                                                             </TableRow><TableRow>
                                                                 <TableCell>Tags:</TableCell>
                                                                 <TableCell>
-                                                                    {task.tags !== null && task.tags.length >= 1 ? (
-                                                                        task.tags.map((tags, index) => (
-                                                                            <Badge key={index} variant="secondary" className="mr-2">
-                                                                                <Tag className="pr-3" />{tags}
-                                                                            </Badge>
-                                                                        ))
-                                                                    ) : null}
+                                                                    {isEditingTags ? (
+                                                                        <div className="flex items-center">
+                                                                            <Input
+                                                                                type="text"
+                                                                                value={editedTags.join(', ')}
+                                                                                onChange={(e) =>
+                                                                                    setEditedTags(e.target.value.split(',').map((tag) => tag.trim()))
+                                                                                }
+                                                                                className="flex-grow mr-2"
+                                                                            />
+                                                                            <Button variant="ghost" size="icon" onClick={() => handleSaveTags(task)}>
+                                                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                                                            </Button>
+                                                                            <Button variant="ghost" size="icon" onClick={handleCancelTags}>
+                                                                                <XIcon className="h-4 w-4 text-red-500" />
+                                                                            </Button>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="flex items-center">
+                                                                            {task.tags !== null && task.tags.length >= 1 ? (
+                                                                                task.tags.map((tag, index) => (
+                                                                                    <Badge key={index} variant="secondary" className="mr-2">
+                                                                                        <Tag className="pr-3" />
+                                                                                        {tag}
+                                                                                    </Badge>
+                                                                                ))
+                                                                            ) : (
+                                                                                <span>No Tags</span>
+                                                                            )}
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                onClick={() => handleEditTagsClick(task)}
+                                                                            >
+                                                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                                                            </Button>
+                                                                        </div>
+                                                                    )}
                                                                 </TableCell>
                                                             </TableRow><TableRow>
                                                                 <TableCell>Urgency:</TableCell>
