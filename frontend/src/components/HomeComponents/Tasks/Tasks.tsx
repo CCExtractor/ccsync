@@ -23,6 +23,7 @@ import Pagination from "./Pagination";
 import { url } from "@/components/utils/URLs";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import BottomBar from "../BottomBar/BottomBar";
+import { string } from "prop-types";
 
 export const Tasks = (
     props: Props &
@@ -41,9 +42,10 @@ export const Tasks = (
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
 
-    const [newTask, setNewTask] = useState({ description: "", priority: "", project: "", due: "" });
+    const [newTask, setNewTask] = useState({ description: "", priority: "", project: "", due: "", tags: [] as string[] });
     const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
     const [_isDialogOpen, setIsDialogOpen] = useState(false);
+    const [tagInput, setTagInput] = useState('');
 
     const [isEditing, setIsEditing] = useState(false);
     const [editedDescription, setEditedDescription] = useState("");
@@ -180,7 +182,15 @@ export const Tasks = (
         }
     }
 
-    async function handleAddTask(email: string, encryptionSecret: string, UUID: string, description: string, project: string, priority: string, due: string) {
+    async function handleAddTask(
+        email: string,
+        encryptionSecret: string,
+        UUID: string,
+        description: string,
+        project: string,
+        priority: string,
+        due: string,
+        tags: string[],) {
         if (handleDate(newTask.due)) {
             try {
                 const backendURL = url.backendURL + `add-task`;
@@ -194,6 +204,7 @@ export const Tasks = (
                         project: project,
                         priority: priority,
                         due: due,
+                        tags: tags,
                     }),
                     headers: {
                         'Content-Type': 'application/json',
@@ -203,7 +214,7 @@ export const Tasks = (
                 if (response.ok) {
                     console.log('Task added successfully!');
 
-                    setNewTask({ description: "", priority: "", project: "", due: "" });
+                    setNewTask({ description: "", priority: "", project: "", due: "", tags: [] });
                     setIsAddTaskOpen(false);
                 }
                 else {
@@ -283,6 +294,22 @@ export const Tasks = (
 
     const handleProjectChange = (value: string) => {
         setSelectedProject(value);
+    };
+
+    // Handle adding a tag
+    const handleAddTag = () => {
+        if (tagInput && !newTask.tags.includes(tagInput, 0)) {
+            setNewTask({ ...newTask, tags: [...newTask.tags, tagInput] });
+            setTagInput(''); // Clear the input field
+        }
+    };
+
+    // Handle removing a tag
+    const handleRemoveTag = (tagToRemove: string) => {
+        setNewTask({
+            ...newTask,
+            tags: newTask.tags.filter((tag) => tag !== tagToRemove),
+        });
     };
 
     // useEffect to update tempTasks whenever selectedProject changes
@@ -438,6 +465,40 @@ export const Tasks = (
                                                     required
                                                     className="col-span-3" />
                                             </div>
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label htmlFor="description" className="text-right">
+                                                    Tags
+                                                </Label>
+                                                <Input
+                                                    id="tags"
+                                                    name="tags"
+                                                    placeholder="Add a tag"
+                                                    value={tagInput}
+                                                    onChange={(e) => setTagInput(e.target.value)}
+                                                    onKeyDown={(e) => e.key === 'Enter' && handleAddTag()} // Allow adding tag on pressing Enter
+                                                    required
+                                                    className="col-span-3"
+                                                />
+                                            </div>
+
+                                            <div className="mt-2">
+                                                {newTask.tags.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {newTask.tags.map((tag, index) => (
+                                                            <Badge key={index}>
+                                                                <span>{tag}</span>
+                                                                <button
+                                                                    type="button"
+                                                                    className="ml-2 text-red-500"
+                                                                    onClick={() => handleRemoveTag(tag)}
+                                                                >
+                                                                    ✖
+                                                                </button>
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                         <DialogFooter>
                                             <Button variant="secondary" onClick={() => setIsAddTaskOpen(false)}>Cancel</Button>
@@ -448,8 +509,9 @@ export const Tasks = (
                                                 newTask.description,
                                                 newTask.project,
                                                 newTask.priority,
-                                                newTask.due)
-                                            }>Add Task</Button>
+                                                newTask.due,
+                                                newTask.tags,
+                                            )}>Add Task</Button>
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
@@ -789,7 +851,9 @@ export const Tasks = (
                                                     newTask.description,
                                                     newTask.project,
                                                     newTask.priority,
-                                                    newTask.due)}>Add Task</Button>
+                                                    newTask.due,
+                                                    newTask.tags,
+                                                )}>Add Task</Button>
                                             </DialogFooter>
                                         </DialogContent>
                                     </Dialog>
