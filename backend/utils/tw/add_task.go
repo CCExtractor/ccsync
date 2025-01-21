@@ -44,13 +44,13 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 			if tag != "" {
 				// Ensure tag doesn't contain spaces
 				cleanTag := strings.ReplaceAll(tag, " ", "_")
-				cmdArgs = append(cmdArgs, "+" + cleanTag)
+				cmdArgs = append(cmdArgs, "+"+cleanTag)
 			}
 		}
 	}
 
 	if err := utils.ExecCommandInDir(tempDir, "task", cmdArgs...); err != nil {
-		return fmt.Errorf("failed to add task: %v", err)
+		return fmt.Errorf("failed to add task: %v\n %v", err, cmdArgs)
 	}
 
 	// Sync Taskwarrior again
