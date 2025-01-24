@@ -35,9 +35,17 @@ Scan through our [existing issues](https://github.com/its-me-abhishek/ccsync/iss
 
 3. Create a new working branch and start with your changes!
 
-### Commit your update
+### Commit your updates
 
 Commit the changes once you are happy with them.
+Please follow these rules or conventions while committing any new changes:
+- `feat`: new feature for the user, not a new feature for build script
+- `fix`: bug fix for the user
+- `docs`: changes to the documentation
+- `style`: formatting, missing semi colons, etc
+- `refactor`: refactoring production code, eg. renaming a variable
+- `test`: adding missing tests, refactoring tests
+- `chore`: updating grunt tasks, etc., no production code change
 
 ### Pull Request
 
