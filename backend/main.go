@@ -47,36 +47,24 @@ func main() {
 	app := controllers.App{Config: conf, SessionStore: store}
 	mux := http.NewServeMux()
 
-	// Allow 50 requests per 30 seconds per IP for testing
-	rateLimitedHandler := middleware.RateLimitMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case "/auth/oauth":
-			app.OAuthHandler(w, r)
-		case "/auth/callback":
-			app.OAuthCallbackHandler(w, r)
-		case "/api/user":
-			app.UserInfoHandler(w, r)
-		case "/auth/logout":
-			app.LogoutHandler(w, r)
-		}
-	}), 30*time.Second, 50)
+	//Rate limiter middleware that allows 50 requests per 30 seconds per IP
+	rateLimitedHandler := func(handler http.HandlerFunc) http.Handler {
+		return middleware.RateLimitMiddleware(handler, 30*time.Second, 50)
+	}
 
-	// API endpoints with rate limiting
-	mux.Handle("/auth/oauth", rateLimitedHandler)
-	mux.Handle("/auth/callback", rateLimitedHandler)
-	mux.Handle("/api/user", rateLimitedHandler)
-	mux.Handle("/auth/logout", rateLimitedHandler)
+	mux.Handle("/auth/oauth", rateLimitedHandler(app.OAuthHandler))
+	mux.Handle("/auth/callback", rateLimitedHandler(app.OAuthCallbackHandler))
+	mux.Handle("/api/user", rateLimitedHandler(app.UserInfoHandler))
+	mux.Handle("/auth/logout", rateLimitedHandler(app.LogoutHandler))
+	mux.Handle("/tasks", rateLimitedHandler(controllers.TasksHandler))
+	mux.Handle("/add-task", rateLimitedHandler(controllers.AddTaskHandler))
+	mux.Handle("/edit-task", rateLimitedHandler(controllers.EditTaskHandler))
+	mux.Handle("/modify-task", rateLimitedHandler(controllers.ModifyTaskHandler))
+	mux.Handle("/complete-task", rateLimitedHandler(controllers.CompleteTaskHandler))
+	mux.Handle("/delete-task", rateLimitedHandler(controllers.DeleteTaskHandler))
 
-	// API endpoints without rate limiting
-	mux.HandleFunc("/tasks", controllers.TasksHandler)
-	mux.HandleFunc("/add-task", controllers.AddTaskHandler)
-	mux.HandleFunc("/edit-task", controllers.EditTaskHandler)
-	mux.HandleFunc("/modify-task", controllers.ModifyTaskHandler)
-	mux.HandleFunc("/complete-task", controllers.CompleteTaskHandler)
-	mux.HandleFunc("/delete-task", controllers.DeleteTaskHandler)
 	mux.HandleFunc("/ws", controllers.WebSocketHandler)
 
-	// --- important to keep the status notifier running ---
 	go controllers.JobStatusManager()
 	log.Println("Server started at :8000")
 	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
