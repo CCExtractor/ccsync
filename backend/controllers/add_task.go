@@ -45,12 +45,6 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Due Date is required, and cannot be empty!", http.StatusBadRequest)
 			return
 		}
-
-		if priority != "" && priority != "H" && priority != "M" && priority != "L" {
-			http.Error(w, "Priority must be either 'H' (High), 'M' (Medium), or 'L' (Low)", http.StatusBadRequest)
-			return
-		}
-		
 		job := Job{
 			Name: "Add Task",
 			Execute: func() error {
