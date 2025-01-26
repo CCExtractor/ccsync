@@ -41,13 +41,16 @@ export const Tasks = (
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
 
-    const [newTask, setNewTask] = useState({ description: "", priority: "", project: "", due: "" });
+    const [newTask, setNewTask] = useState({ description: "", priority: "", project: "", due: "", tags: [] as string[] });
     const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
     const [_isDialogOpen, setIsDialogOpen] = useState(false);
+    const [tagInput, setTagInput] = useState('');
 
     const [isEditing, setIsEditing] = useState(false);
     const [editedDescription, setEditedDescription] = useState("");
-    const [_selectedTask, setSelectedTask] = useState(null);
+    const [_selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [editedTags, setEditedTags] = useState<string[]>(_selectedTask?.tags || []);
+    const [isEditingTags, setIsEditingTags] = useState(false);
 
     const tasksPerPage = 10;
     const indexOfLastTask = currentPage * tasksPerPage;
@@ -56,6 +59,13 @@ export const Tasks = (
     const emptyRows = tasksPerPage - currentTasks.length;
     const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
     const totalPages = Math.ceil(tasks.length / tasksPerPage);
+
+
+    useEffect(() => {
+        if (_selectedTask) {
+            setEditedTags(_selectedTask.tags || []);
+        }
+    }, [_selectedTask]);
 
     useEffect(() => {
         const fetchTasksForEmail = async () => {
@@ -180,7 +190,15 @@ export const Tasks = (
         }
     }
 
-    async function handleAddTask(email: string, encryptionSecret: string, UUID: string, description: string, project: string, priority: string, due: string) {
+    async function handleAddTask(
+        email: string,
+        encryptionSecret: string,
+        UUID: string,
+        description: string,
+        project: string,
+        priority: string,
+        due: string,
+        tags: string[],) {
         if (handleDate(newTask.due)) {
             try {
                 const backendURL = url.backendURL + `add-task`;
@@ -194,6 +212,7 @@ export const Tasks = (
                         project: project,
                         priority: priority,
                         due: due,
+                        tags: tags,
                     }),
                     headers: {
                         'Content-Type': 'application/json',
@@ -203,7 +222,7 @@ export const Tasks = (
                 if (response.ok) {
                     console.log('Task added successfully!');
 
-                    setNewTask({ description: "", priority: "", project: "", due: "" });
+                    setNewTask({ description: "", priority: "", project: "", due: "", tags: [] });
                     setIsAddTaskOpen(false);
                 }
                 else {
@@ -218,7 +237,7 @@ export const Tasks = (
         }
     }
 
-    async function handleEditTaskDesc(email: string, encryptionSecret: string, UUID: string, description: string, taskID: string) {
+    async function handleEditTaskOnBackend(email: string, encryptionSecret: string, UUID: string, description: string, tags: string[], taskID: string) {
         try {
             const backendURL = url.backendURL + `edit-task`;
             const response = await fetch(backendURL, {
@@ -229,6 +248,7 @@ export const Tasks = (
                     UUID: UUID,
                     taskID: taskID,
                     description: description,
+                    tags: tags,
                 }),
             });
             if (response) {
@@ -262,7 +282,7 @@ export const Tasks = (
 
     const handleSaveClick = (task: Task) => {
         task.description = editedDescription;
-        handleEditTaskDesc(props.email, props.encryptionSecret, props.UUID, task.description, task.id.toString());
+        handleEditTaskOnBackend(props.email, props.encryptionSecret, props.UUID, task.description, task.tags, task.id.toString());
         setIsEditing(false);
     };
 
@@ -283,6 +303,22 @@ export const Tasks = (
 
     const handleProjectChange = (value: string) => {
         setSelectedProject(value);
+    };
+
+    // Handle adding a tag
+    const handleAddTag = () => {
+        if (tagInput && !newTask.tags.includes(tagInput, 0)) {
+            setNewTask({ ...newTask, tags: [...newTask.tags, tagInput] });
+            setTagInput(''); // Clear the input field
+        }
+    };
+
+    // Handle removing a tag
+    const handleRemoveTag = (tagToRemove: string) => {
+        setNewTask({
+            ...newTask,
+            tags: newTask.tags.filter((tag) => tag !== tagToRemove),
+        });
     };
 
     // useEffect to update tempTasks whenever selectedProject changes
@@ -307,6 +343,38 @@ export const Tasks = (
             setTempTasks(sortTasksById(filteredTasks, 'desc'));
         }
     }, [selectedStatus, tasks]);
+
+    const handleEditTagsClick = (task: Task) => {
+        setEditedTags(task.tags || []);
+        setIsEditingTags(true);
+    };
+
+    const handleSaveTags = (task: Task) => {
+        const currentTags = task.tags || []; // Default to an empty array if tags are null
+        const removedTags = currentTags.filter((tag) => !editedTags.includes(tag));
+        const updatedTags = editedTags.filter((tag) => tag.trim() !== ''); // Remove any empty tags
+        const tagsToRemove = removedTags.map((tag) => `-${tag}`); // Prefix `-` for removed tags
+        const finalTags = [...updatedTags, ...tagsToRemove]; // Combine updated and removed tags
+        console.log(finalTags);
+        // Call the backend function with updated tags
+        handleEditTaskOnBackend(
+            props.email,
+            props.encryptionSecret,
+            props.UUID,
+            task.description,
+            finalTags,
+            task.id.toString()
+        );
+
+        setIsEditingTags(false); // Exit editing mode
+    };
+
+
+    const handleCancelTags = () => {
+        setIsEditingTags(false);
+        setEditedTags([]); // Reset tags
+    };
+
 
     return (
         <section id="tasks" className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32">
@@ -438,6 +506,40 @@ export const Tasks = (
                                                     required
                                                     className="col-span-3" />
                                             </div>
+                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                <Label htmlFor="description" className="text-right">
+                                                    Tags
+                                                </Label>
+                                                <Input
+                                                    id="tags"
+                                                    name="tags"
+                                                    placeholder="Add a tag"
+                                                    value={tagInput}
+                                                    onChange={(e) => setTagInput(e.target.value)}
+                                                    onKeyDown={(e) => e.key === 'Enter' && handleAddTag()} // Allow adding tag on pressing Enter
+                                                    required
+                                                    className="col-span-3"
+                                                />
+                                            </div>
+
+                                            <div className="mt-2">
+                                                {newTask.tags.length > 0 && (
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {newTask.tags.map((tag, index) => (
+                                                            <Badge key={index}>
+                                                                <span>{tag}</span>
+                                                                <button
+                                                                    type="button"
+                                                                    className="ml-2 text-red-500"
+                                                                    onClick={() => handleRemoveTag(tag)}
+                                                                >
+                                                                    ✖
+                                                                </button>
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                         <DialogFooter>
                                             <Button variant="secondary" onClick={() => setIsAddTaskOpen(false)}>Cancel</Button>
@@ -448,8 +550,9 @@ export const Tasks = (
                                                 newTask.description,
                                                 newTask.project,
                                                 newTask.priority,
-                                                newTask.due)
-                                            }>Add Task</Button>
+                                                newTask.due,
+                                                newTask.tags,
+                                            )}>Add Task</Button>
                                         </DialogFooter>
                                     </DialogContent>
                                 </Dialog>
@@ -581,13 +684,44 @@ export const Tasks = (
                                                             </TableRow><TableRow>
                                                                 <TableCell>Tags:</TableCell>
                                                                 <TableCell>
-                                                                    {task.tags !== null && task.tags.length >= 1 ? (
-                                                                        task.tags.map((tags, index) => (
-                                                                            <Badge key={index} variant="secondary" className="mr-2">
-                                                                                <Tag className="pr-3" />{tags}
-                                                                            </Badge>
-                                                                        ))
-                                                                    ) : null}
+                                                                    {isEditingTags ? (
+                                                                        <div className="flex items-center">
+                                                                            <Input
+                                                                                type="text"
+                                                                                value={editedTags.join(', ')}
+                                                                                onChange={(e) =>
+                                                                                    setEditedTags(e.target.value.split(',').map((tag) => tag.trim()))
+                                                                                }
+                                                                                className="flex-grow mr-2"
+                                                                            />
+                                                                            <Button variant="ghost" size="icon" onClick={() => handleSaveTags(task)}>
+                                                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                                                            </Button>
+                                                                            <Button variant="ghost" size="icon" onClick={handleCancelTags}>
+                                                                                <XIcon className="h-4 w-4 text-red-500" />
+                                                                            </Button>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="flex items-center">
+                                                                            {task.tags !== null && task.tags.length >= 1 ? (
+                                                                                task.tags.map((tag, index) => (
+                                                                                    <Badge key={index} variant="secondary" className="mr-2">
+                                                                                        <Tag className="pr-3" />
+                                                                                        {tag}
+                                                                                    </Badge>
+                                                                                ))
+                                                                            ) : (
+                                                                                <span>No Tags</span>
+                                                                            )}
+                                                                            <Button
+                                                                                variant="ghost"
+                                                                                size="icon"
+                                                                                onClick={() => handleEditTagsClick(task)}
+                                                                            >
+                                                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                                                            </Button>
+                                                                        </div>
+                                                                    )}
                                                                 </TableCell>
                                                             </TableRow><TableRow>
                                                                 <TableCell>Urgency:</TableCell>
@@ -789,7 +923,9 @@ export const Tasks = (
                                                     newTask.description,
                                                     newTask.project,
                                                     newTask.priority,
-                                                    newTask.due)}>Add Task</Button>
+                                                    newTask.due,
+                                                    newTask.tags,
+                                                )}>Add Task</Button>
                                             </DialogFooter>
                                         </DialogContent>
                                     </Dialog>
