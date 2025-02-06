@@ -1,16 +1,19 @@
 package main
 
 import (
-	"ccsync_backend/controllers"
 	"encoding/gob"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+
+	"ccsync_backend/controllers"
+	"ccsync_backend/middleware"
 )
 
 func main() {
@@ -44,20 +47,23 @@ func main() {
 	app := controllers.App{Config: conf, SessionStore: store}
 	mux := http.NewServeMux()
 
-	// API endpoints
-	mux.HandleFunc("/auth/oauth", app.OAuthHandler)
-	mux.HandleFunc("/auth/callback", app.OAuthCallbackHandler)
-	mux.HandleFunc("/api/user", app.UserInfoHandler)
-	mux.HandleFunc("/auth/logout", app.LogoutHandler)
-	mux.HandleFunc("/tasks", controllers.TasksHandler)
-	mux.HandleFunc("/add-task", controllers.AddTaskHandler)
-	mux.HandleFunc("/edit-task", controllers.EditTaskHandler)
-	mux.HandleFunc("/modify-task", controllers.ModifyTaskHandler)
-	mux.HandleFunc("/complete-task", controllers.CompleteTaskHandler)
-	mux.HandleFunc("/delete-task", controllers.DeleteTaskHandler)
+	//Rate limiter middleware that allows 50 requests per 30 seconds per IP
+	limiter := middleware.NewRateLimiter(30*time.Second, 50)
+	rateLimitedHandler := middleware.RateLimitMiddleware(limiter)
+
+	mux.Handle("/auth/oauth", rateLimitedHandler(http.HandlerFunc(app.OAuthHandler)))
+	mux.Handle("/auth/callback", rateLimitedHandler(http.HandlerFunc(app.OAuthCallbackHandler)))
+	mux.Handle("/api/user", rateLimitedHandler(http.HandlerFunc(app.UserInfoHandler)))
+	mux.Handle("/auth/logout", rateLimitedHandler(http.HandlerFunc(app.LogoutHandler)))
+	mux.Handle("/tasks", rateLimitedHandler(http.HandlerFunc(controllers.TasksHandler)))
+	mux.Handle("/add-task", rateLimitedHandler(http.HandlerFunc(controllers.AddTaskHandler)))
+	mux.Handle("/edit-task", rateLimitedHandler(http.HandlerFunc(controllers.EditTaskHandler)))
+	mux.Handle("/modify-task", rateLimitedHandler(http.HandlerFunc(controllers.ModifyTaskHandler)))
+	mux.Handle("/complete-task", rateLimitedHandler(http.HandlerFunc(controllers.CompleteTaskHandler)))
+	mux.Handle("/delete-task", rateLimitedHandler(http.HandlerFunc(controllers.DeleteTaskHandler)))
+
 	mux.HandleFunc("/ws", controllers.WebSocketHandler)
 
-	// --- important to keep the status notifier running ---
 	go controllers.JobStatusManager()
 	log.Println("Server started at :8000")
 	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
