@@ -48,9 +48,8 @@ func main() {
 	mux := http.NewServeMux()
 
 	//Rate limiter middleware that allows 50 requests per 30 seconds per IP
-	rateLimitedHandler := func(handler http.HandlerFunc) http.Handler {
-		return middleware.RateLimitMiddleware(handler, 30*time.Second, 50)
-	}
+	limiter := middleware.NewRateLimiter(30*time.Second, 50)
+	rateLimitedHandler := middleware.RateLimitMiddleware(limiter)
 
 	mux.Handle("/auth/oauth", rateLimitedHandler(app.OAuthHandler))
 	mux.Handle("/auth/callback", rateLimitedHandler(app.OAuthCallbackHandler))
