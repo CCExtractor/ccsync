@@ -10,100 +10,97 @@ import (
 
 type RateLimiter struct {
 	sync.RWMutex
-	requests     map[string]*TokenBucket
-	windowSize   time.Duration
-	maxRequests  int
-	cleanupTick  time.Duration
+	requests    map[string]*FixedWindow
+	windowSize  time.Duration
+	maxRequests int
+	cleanupTick time.Duration
 }
 
-type TokenBucket struct {
-	tokens    float64
-	lastTime  time.Time
-	capacity  float64
-	rate      float64
+type FixedWindow struct {
+	count       int
+	windowStart time.Time
 }
 
 func NewRateLimiter(windowSize time.Duration, maxRequests int) *RateLimiter {
 	limiter := &RateLimiter{
-		requests:    make(map[string]*TokenBucket),
+		requests:    make(map[string]*FixedWindow),
 		windowSize:  windowSize,
 		maxRequests: maxRequests,
 		cleanupTick: time.Minute,
 	}
-	
-	go func() {
-		ticker := time.NewTicker(limiter.cleanupTick)
-		for range ticker.C {
-			limiter.cleanup()
-		}
-	}()
-	
+
+	go limiter.startCleanup()
 	return limiter
+}
+
+func (rl *RateLimiter) startCleanup() {
+	ticker := time.NewTicker(rl.cleanupTick)
+	defer ticker.Stop()
+	
+	for range ticker.C {
+		rl.cleanup()
+	}
 }
 
 func (rl *RateLimiter) cleanup() {
 	rl.Lock()
 	defer rl.Unlock()
-	
+
 	now := time.Now()
-	for ip, bucket := range rl.requests {
-		if now.Sub(bucket.lastTime) > rl.windowSize*2 {
+	for ip, window := range rl.requests {
+		if now.Sub(window.windowStart) > rl.windowSize*2 {
 			delete(rl.requests, ip)
 		}
 	}
 }
 
-func (rl *RateLimiter) IsAllowed(ip string) bool {
+func (rl *RateLimiter) IsAllowed(ip string) (bool, time.Time) {
 	rl.Lock()
 	defer rl.Unlock()
 
 	now := time.Now()
-	bucket, exists := rl.requests[ip]
+	window, exists := rl.requests[ip]
 
 	if !exists {
-		bucket = &TokenBucket{
-			tokens:    float64(rl.maxRequests - 1), // Start with max-1 to account for first request
-			lastTime:  now,
-			capacity:  float64(rl.maxRequests),
-			rate:      float64(rl.maxRequests) / rl.windowSize.Seconds(),
+		rl.requests[ip] = &FixedWindow{
+			count:       1,
+			windowStart: now,
 		}
-		rl.requests[ip] = bucket
-		return true
+		return true, now.Add(rl.windowSize)
 	}
 
-	elapsed := now.Sub(bucket.lastTime).Seconds()
-	bucket.tokens += elapsed * bucket.rate
-
-	if bucket.tokens > bucket.capacity {
-		bucket.tokens = bucket.capacity
+	windowEnd := window.windowStart.Add(rl.windowSize)
+	if now.After(windowEnd) {
+		window.count = 1
+		window.windowStart = now
+		return true, now.Add(rl.windowSize)
 	}
 
-	bucket.lastTime = now
-
-	if bucket.tokens >= 1 {
-		bucket.tokens--
-		return true
+	if window.count < rl.maxRequests {
+		window.count++
+		return true, windowEnd
 	}
 
-	return false
+	return false, windowEnd
 }
 
-func RateLimitMiddleware(next http.Handler, windowSize time.Duration, maxRequests int) http.Handler {
-	limiter := NewRateLimiter(windowSize, maxRequests)
-	
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ip := getRealIP(r)
-		
-		if !limiter.IsAllowed(ip) {
-			w.Header().Set("X-RateLimit-Limit", fmt.Sprintf("%d", maxRequests))
-			w.Header().Set("X-RateLimit-Reset", time.Now().Add(windowSize).Format(time.RFC1123))
-			w.Header().Set("Retry-After", windowSize.String())
-			http.Error(w, "Rate limit exceeded. Please try again later.", http.StatusTooManyRequests)
-			return
-		}
-		
-		next.ServeHTTP(w, r)
-	})
+func RateLimitMiddleware(limiter *RateLimiter) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ip := getRealIP(r)
+
+			allowed, resetTime := limiter.IsAllowed(ip)
+			if !allowed {
+				w.Header().Set("X-RateLimit-Limit", fmt.Sprintf("%d", limiter.maxRequests))
+				w.Header().Set("X-RateLimit-Reset", resetTime.Format(time.RFC1123))
+				w.Header().Set("Retry-After", fmt.Sprintf("%.0f", time.Until(resetTime).Seconds()))
+				http.Error(w, "Rate limit exceeded. Please try again later.", http.StatusTooManyRequests)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func getRealIP(r *http.Request) string {
@@ -111,7 +108,7 @@ func getRealIP(r *http.Request) string {
 	if ip != "" {
 		return ip
 	}
-	
+
 	ip = r.Header.Get("X-Forwarded-For")
 	if ip != "" {
 		ips := strings.Split(ip, ",")
@@ -119,11 +116,11 @@ func getRealIP(r *http.Request) string {
 			return strings.TrimSpace(ips[0])
 		}
 	}
-	
+
 	ip = r.RemoteAddr
 	if idx := strings.Index(ip, ":"); idx != -1 {
 		ip = ip[:idx]
 	}
-	
+
 	return ip
 }
