@@ -1,4 +1,3 @@
-
 # Welcome to CCSync contributing guide <!-- omit in toc -->
 
 Thank you for investing your time in contributing to our project! :sparkles:.
@@ -9,7 +8,7 @@ In this guide you will get an overview of a contribution workflow from opening a
 
 ## New contributor guide
 
-To get an overview of the project, read the [documentation of CCSync](https://its-me-abhishek.github.io/ccsync-docs/). 
+To get an overview of the project, read the [documentation of CCSync](https://its-me-abhishek.github.io/ccsync-docs/).
 
 ### Issues
 
@@ -24,7 +23,9 @@ Scan through our [existing issues](https://github.com/its-me-abhishek/ccsync/iss
 ### Make Changes
 
 1. Fork the repository.
+
 - Using GitHub Desktop:
+
   - [Getting started with GitHub Desktop](https://docs.github.com/en/desktop/installing-and-configuring-github-desktop/getting-started-with-github-desktop) will guide you through setting up Desktop.
   - Once Desktop is set up, you can use it to [fork the repo](https://docs.github.com/en/desktop/contributing-and-collaborating-using-github-desktop/cloning-and-forking-repositories-from-github-desktop)!
 
@@ -39,6 +40,7 @@ Scan through our [existing issues](https://github.com/its-me-abhishek/ccsync/iss
 
 Commit the changes once you are happy with them.
 Please follow these rules or conventions while committing any new changes:
+
 - `feat`: new feature for the user, not a new feature for build script
 - `fix`: bug fix for the user
 - `docs`: changes to the documentation
@@ -50,6 +52,7 @@ Please follow these rules or conventions while committing any new changes:
 ### Pull Request
 
 When you're finished with the changes, create a pull request, also known as a PR.
+
 - Don't forget to link PR to issue if you are solving one.
 - Enable the checkbox to [allow maintainer edits](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) so the branch can be updated for a merge.
 - If you run into any merge issues, checkout this [git tutorial](https://github.com/skills/resolve-merge-conflicts) to help you resolve merge conflicts and other issues.
