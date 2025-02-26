@@ -26,14 +26,9 @@ describe('HowItWorks Component', () => {
   test('renders all feature cards', () => {
     render(<HowItWorks />);
 
-    const featureTitles = [
-      'Sign in',
-      'Setup',
-      'Share',
-      'Deploy your own'
-    ];
+    const featureTitles = ['Sign in', 'Setup', 'Share', 'Deploy your own'];
 
-    featureTitles.forEach(title => {
+    featureTitles.forEach((title) => {
       const featureCard = screen.getByText(title);
       expect(featureCard).toBeInTheDocument();
     });
@@ -46,10 +41,10 @@ describe('HowItWorks Component', () => {
       'Sign in with Google to generate secret UUIDs, or generate your own using a random key generator',
       'Setup the taskserver for your Taskwarrior clients by following the documentation',
       'Sign in on multiple devices and use the same UUIDs to sync tasks across all the clients or your team',
-      'You can also deploy your own server instance by following this documentation'
+      'You can also deploy your own server instance by following this documentation',
     ];
 
-    featureDescriptions.forEach(description => {
+    featureDescriptions.forEach((description) => {
       const featureDescription = screen.getByText(description);
       expect(featureDescription).toBeInTheDocument();
     });

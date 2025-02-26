@@ -1,8 +1,8 @@
-import { url } from "@/components/utils/URLs";
-import { Button } from "../../ui/button";
-import { buttonVariants } from "../../ui/button";
-import { HeroCards } from "./HeroCards";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { url } from '@/components/utils/URLs';
+import { Button } from '../../ui/button';
+import { buttonVariants } from '../../ui/button';
+import { HeroCards } from './HeroCards';
+import { GitHubLogoIcon } from '@radix-ui/react-icons';
 
 export const Hero = () => {
   return (
@@ -12,14 +12,14 @@ export const Hero = () => {
           <h1 className="inline">
             <span className="inline bg-gradient-to-r from-[#61DAFB]  to-[#1fc0f1] text-transparent bg-clip-text">
               CCSync
-            </span>{" "}
+            </span>{' '}
             - the hosted solution
-          </h1>{" "}
-          for syncing with all your{" "}
+          </h1>{' '}
+          for syncing with all your{' '}
           <h2 className="inline">
             <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
               Taskwarrior
-            </span>{" "}
+            </span>{' '}
             clients
           </h2>
         </main>
@@ -29,14 +29,16 @@ export const Hero = () => {
         </p>
 
         <div className="space-y-4 md:space-y-0 md:space-x-4">
-          <a href={url.backendURL + "auth/oauth"}>
-            <Button className="w-full md:w-1/3 bg-blue-400 hover:bg-blue-500">Sign in to get started</Button>
+          <a href={url.backendURL + 'auth/oauth'}>
+            <Button className="w-full md:w-1/3 bg-blue-400 hover:bg-blue-500">
+              Sign in to get started
+            </Button>
           </a>
           <a
             href="https://github.com/its-me-abhishek/ccsync"
             target="_blank"
             className={`w-full md:w-1/3 ${buttonVariants({
-              variant: "outline",
+              variant: 'outline',
             })}`}
           >
             Github Repository
@@ -50,6 +52,6 @@ export const Hero = () => {
       </div>
 
       <div className="shadow"></div>
-    </section >
+    </section>
   );
 };
