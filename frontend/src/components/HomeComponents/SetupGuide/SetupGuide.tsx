@@ -1,13 +1,16 @@
-import { url } from "@/components/utils/URLs";
-import { Props } from "../../utils/types";
-import { CopyableCode } from "./CopyableCode";
+import { url } from '@/components/utils/URLs';
+import { Props } from '../../utils/types';
+import { CopyableCode } from './CopyableCode';
 
 export const SetupGuide = (props: Props) => {
   return (
-    <section id="setup-guide" className="container mx-auto px-4 py-12 sm:py-24 md:py-32 max-w-7xl">
+    <section
+      id="setup-guide"
+      className="container mx-auto px-4 py-12 sm:py-24 md:py-32 max-w-7xl"
+    >
       <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center">
         <span className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
-          Setup{" "}
+          Setup{' '}
         </span>
         Guide
       </h2>
@@ -18,41 +21,54 @@ export const SetupGuide = (props: Props) => {
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold">
                   <span className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
-                    1.{" "}
+                    1.{' '}
                   </span>
                   PREREQUISITES
                 </h3>
                 <div className="text-base sm:text-lg md:text-xl text-muted-foreground mt-4 sm:mt-6 md:mt-8">
-                  Ensure that Taskwarrior 3.0 or greater is installed on your system
-                  <CopyableCode text={"task --version"} copyText={"task --version"} />
+                  Ensure that Taskwarrior 3.0 or greater is installed on your
+                  system
+                  <CopyableCode
+                    text={'task --version'}
+                    copyText={'task --version'}
+                  />
                 </div>
               </div>
 
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold">
                   <span className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
-                    2.{" "}
+                    2.{' '}
                   </span>
                   CONFIGURATION
                 </h3>
                 <div className="text-base sm:text-lg md:text-xl text-muted-foreground mt-4 sm:mt-6 md:mt-8">
-                  You will need an encryption secret used to encrypt and decrypt your tasks. This
-                  can be any secret string, and must match for all replicas sharing tasks.
-                  For most of these, you will need an encryption secret used to encrypt and decrypt your tasks.
-                  <CopyableCode text={`task config sync.encryption_secret ${props.encryption_secret}`} copyText={`task config sync.encryption_secret ${props.encryption_secret}`} />
-
+                  You will need an encryption secret used to encrypt and decrypt
+                  your tasks. This can be any secret string, and must match for
+                  all replicas sharing tasks. For most of these, you will need
+                  an encryption secret used to encrypt and decrypt your tasks.
+                  <CopyableCode
+                    text={`task config sync.encryption_secret ${props.encryption_secret}`}
+                    copyText={`task config sync.encryption_secret ${props.encryption_secret}`}
+                  />
                   <div className="my-4">
-                    Configure Taskwarrior with these commands, run these commands one block at a time
+                    Configure Taskwarrior with these commands, run these
+                    commands one block at a time
                   </div>
-
                   {/* Link to container */}
-                  <CopyableCode text={`task config sync.server.origin ${url.containerOrigin}`} copyText={`task config sync.server.origin ${url.containerOrigin}`} />
-
+                  <CopyableCode
+                    text={`task config sync.server.origin ${url.containerOrigin}`}
+                    copyText={`task config sync.server.origin ${url.containerOrigin}`}
+                  />
                   {/* Client ID */}
-                  <CopyableCode text={`task config sync.server.client_id ${props.uuid}`} copyText={`task config sync.server.client_id ${props.uuid}`} />
-
+                  <CopyableCode
+                    text={`task config sync.server.client_id ${props.uuid}`}
+                    copyText={`task config sync.server.client_id ${props.uuid}`}
+                  />
                   <div className="mt-4">
-                    For more information about how this works, refer to the <b>task-sync(5)</b> manpage for details on how to configure the new sync implementation.
+                    For more information about how this works, refer to the{' '}
+                    <b>task-sync(5)</b> manpage for details on how to configure
+                    the new sync implementation.
                   </div>
                 </div>
               </div>
@@ -60,13 +76,16 @@ export const SetupGuide = (props: Props) => {
               <div>
                 <h3 className="text-xl sm:text-2xl font-bold">
                   <span className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
-                    3.{" "}
+                    3.{' '}
                   </span>
                   SYNC
                 </h3>
                 <div className="text-base sm:text-lg md:text-xl text-muted-foreground mt-4 sm:mt-6 md:mt-8">
                   Finally, setup the sync for your Taskwarrior client!
-                  <CopyableCode text={"task sync init"} copyText={"task sync init"} />
+                  <CopyableCode
+                    text={'task sync init'}
+                    copyText={'task sync init'}
+                  />
                 </div>
               </div>
             </div>

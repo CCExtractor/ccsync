@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useState } from 'react';
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Button, buttonVariants } from "../../ui/button";
-import { Menu } from "lucide-react";
-import { ModeToggle } from "../../utils/theme-mode-toggle";
-import { routeList } from "./navbar-utils";
+} from '@/components/ui/sheet';
+import { Button, buttonVariants } from '../../ui/button';
+import { Menu } from 'lucide-react';
+import { ModeToggle } from '../../utils/theme-mode-toggle';
+import { routeList } from './navbar-utils';
 
 export const NavbarMobile = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -28,7 +28,7 @@ export const NavbarMobile = () => {
           </Menu>
         </SheetTrigger>
 
-        <SheetContent side={"left"}>
+        <SheetContent side={'left'}>
           <SheetHeader>
             <SheetTitle className="font-bold text-xl">CCSync</SheetTitle>
           </SheetHeader>
@@ -39,12 +39,15 @@ export const NavbarMobile = () => {
                 key={label}
                 href={href}
                 onClick={() => setIsOpen(false)}
-                className={buttonVariants({ variant: "ghost" })}
+                className={buttonVariants({ variant: 'ghost' })}
               >
                 {label}
               </a>
             ))}
-            <a target="_blank" href="https://its-me-abhishek.github.io/ccsync-docs/">
+            <a
+              target="_blank"
+              href="https://its-me-abhishek.github.io/ccsync-docs/"
+            >
               <Button variant={'outline'}>Docs</Button>
             </a>
           </nav>
