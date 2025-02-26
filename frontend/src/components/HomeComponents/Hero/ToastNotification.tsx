@@ -3,7 +3,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 export const showToast = (text: string) => {
   toast.success(`${text} copied to clipboard!`, {
-    position: "bottom-left",
+    position: 'bottom-left',
     autoClose: 3000,
     hideProgressBar: false,
     closeOnClick: true,

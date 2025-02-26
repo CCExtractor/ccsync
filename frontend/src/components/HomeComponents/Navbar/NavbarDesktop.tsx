@@ -1,21 +1,27 @@
-import { Github, LogOut, Trash2, Loader2 } from "lucide-react";
+import { Github, LogOut, Trash2, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../../ui/avatar";
-import { ModeToggle } from "../../utils/theme-mode-toggle";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { routeList, syncTasksWithTwAndDb, deleteAllTasks, handleLogout, RouteProps, Props } from "./navbar-utils";
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
+import { ModeToggle } from '../../utils/theme-mode-toggle';
+import { Button, buttonVariants } from '@/components/ui/button';
+import {
+  routeList,
+  syncTasksWithTwAndDb,
+  deleteAllTasks,
+  handleLogout,
+  RouteProps,
+  Props,
+} from './navbar-utils';
 
 export const NavbarDesktop = (
-  props: Props & 
-  {
-      isLoading: boolean, 
-      setIsLoading: (val: boolean)=>void
+  props: Props & {
+    isLoading: boolean;
+    setIsLoading: (val: boolean) => void;
   }
 ) => (
   <div className="hidden md:flex items-center justify-between w-full">
@@ -26,7 +32,7 @@ export const NavbarDesktop = (
           href={route.href}
           key={i}
           className={`text-[17px] ${buttonVariants({
-            variant: "ghost",
+            variant: 'ghost',
           })}`}
         >
           {route.label}
@@ -35,23 +41,23 @@ export const NavbarDesktop = (
     </nav>
     <div className="hidden md:flex items-center gap-2">
       <Button
-        variant={"ghost"}
+        variant={'ghost'}
         className="w-[110px] border"
-        onClick={async() => {
-          props.setIsLoading(true)
-          await syncTasksWithTwAndDb(props)
-          props.setIsLoading(false)
+        onClick={async () => {
+          props.setIsLoading(true);
+          await syncTasksWithTwAndDb(props);
+          props.setIsLoading(false);
         }}
         disabled={props.isLoading}
       >
-        {
-          props.isLoading ? 
+        {props.isLoading ? (
           <>
             <Loader2 className="mr-2 size-5 animate-spin" />
             Syncing
           </>
-          : "Sync Tasks"
-        }
+        ) : (
+          'Sync Tasks'
+        )}
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -62,7 +68,10 @@ export const NavbarDesktop = (
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel>{props.email}</DropdownMenuLabel>
-          <DropdownMenuItem className="text-red-500" onClick={() => deleteAllTasks(props)}>
+          <DropdownMenuItem
+            className="text-red-500"
+            onClick={() => deleteAllTasks(props)}
+          >
             <Trash2 className="mr-2 h-4 w-4" />
             Delete all tasks
           </DropdownMenuItem>

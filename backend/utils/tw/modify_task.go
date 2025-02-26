@@ -52,8 +52,8 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 	escapedDue := fmt.Sprintf(`due:%s`, strings.ReplaceAll(due, `"`, `\"`))
 	if err := utils.ExecCommand("task", taskID, "modify", escapedDue); err != nil {
 		fmt.Println("8")
-			return fmt.Errorf("failed to edit task due: %v", err)
-		}
+		return fmt.Errorf("failed to edit task due: %v", err)
+	}
 
 	// escapedStatus := fmt.Sprintf(`status:%s`, strings.ReplaceAll(status, `"`, `\"`))
 	if status == "completed" {
