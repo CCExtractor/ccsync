@@ -39,6 +39,7 @@ Scan through our [existing issues](https://github.com/its-me-abhishek/ccsync/iss
 ### Commit your updates
 
 Commit the changes once you are happy with them.
+
 Please follow these rules or conventions while committing any new changes:
 
 - `feat`: new feature for the user, not a new feature for build script
@@ -48,6 +49,8 @@ Please follow these rules or conventions while committing any new changes:
 - `refactor`: refactoring production code, eg. renaming a variable
 - `test`: adding missing tests, refactoring tests
 - `chore`: updating grunt tasks, etc., no production code change
+- Run `npx prettier --write .` before commiting so as to adhere to the linting scheme of the project's frontend
+- Run `gofmt -w .` before commiting so as to adhere to the linting scheme of the project's backend
 
 ### Pull Request
 
