@@ -1,10 +1,25 @@
 import React from 'react';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { NavigationMenu } from '@/components/ui/navigation-menu';
 import { buttonVariants } from '@/components/ui/button';
 import { BottomBarProps } from './bottom-bar-utils';
 
-const BottomBar: React.FC<BottomBarProps> = ({ projects, selectedProject, setSelectedProject, status, selectedStatus, setSelectedStatus }) => {
+const BottomBar: React.FC<BottomBarProps> = ({
+  projects,
+  selectedProject,
+  setSelectedProject,
+  status,
+  selectedStatus,
+  setSelectedStatus,
+}) => {
   return (
     <header className="sm:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40">
       <NavigationMenu className="mx-auto">
@@ -12,23 +27,28 @@ const BottomBar: React.FC<BottomBarProps> = ({ projects, selectedProject, setSel
           <nav className="md:flex gap-2 justify-center flex-2">
             <a
               rel="noreferrer noopener"
-              href={"#"}
+              href={'#'}
               className={`text-[17px] ${buttonVariants({
-                variant: "ghost",
+                variant: 'ghost',
               })}`}
-            >Home
+            >
+              Home
             </a>
             <a
               rel="noreferrer noopener"
-              href={"#tasks"}
+              href={'#tasks'}
               className={`text-[17px] ${buttonVariants({
-                variant: "ghost",
+                variant: 'ghost',
               })}`}
-            >Tasks
+            >
+              Tasks
             </a>
           </nav>
         </div>
-        <Select value={selectedProject || ""} onValueChange={setSelectedProject}>
+        <Select
+          value={selectedProject || ''}
+          onValueChange={setSelectedProject}
+        >
           <SelectTrigger className="w-[120px] mr-2">
             <SelectValue placeholder="Select a project" />
           </SelectTrigger>
@@ -44,7 +64,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ projects, selectedProject, setSel
             </SelectGroup>
           </SelectContent>
         </Select>
-        <Select value={selectedStatus || ""} onValueChange={setSelectedStatus}>
+        <Select value={selectedStatus || ''} onValueChange={setSelectedStatus}>
           <SelectTrigger className="w-[90px]">
             <SelectValue placeholder="Select a project" />
           </SelectTrigger>

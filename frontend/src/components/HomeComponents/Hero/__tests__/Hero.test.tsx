@@ -4,21 +4,23 @@ import { Hero } from '../Hero';
 import { Props } from '../../../utils/types';
 
 jest.mock('../CopyButton', () => ({
-  CopyButton: ({ text, label }: { text: string, label: string }) => (
-    <button data-testid={`copy-button-${text.replace(/\s+/g, '-')}`}>{label}</button>
-  )
+  CopyButton: ({ text, label }: { text: string; label: string }) => (
+    <button data-testid={`copy-button-${text.replace(/\s+/g, '-')}`}>
+      {label}
+    </button>
+  ),
 }));
 
 jest.mock('../ToastNotification', () => ({
   ToastNotification: () => <div data-testid="toast-notification"></div>,
-  showToast: jest.fn()
+  showToast: jest.fn(),
 }));
 
 describe('Hero component', () => {
   const mockProps: Props = {
     name: 'Test User',
     uuid: '1234-5678-9012-3456',
-    encryption_secret: 's3cr3t'
+    encryption_secret: 's3cr3t',
   };
 
   test('renders without crashing', () => {
@@ -35,7 +37,9 @@ describe('Hero component', () => {
 
   test('renders the guide message', () => {
     render(<Hero {...mockProps} />);
-    const guideMessage = screen.getByText(/Follow the guide below to setup sync for your Taskwarrior clients/i);
+    const guideMessage = screen.getByText(
+      /Follow the guide below to setup sync for your Taskwarrior clients/i
+    );
     expect(guideMessage).toBeInTheDocument();
   });
 

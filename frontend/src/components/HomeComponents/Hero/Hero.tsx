@@ -24,10 +24,14 @@ export const Hero = (props: Props) => {
         </p>
 
         <div>
-          <h3 className="text-3xl text-foreground font-semibold mb-3">Here are your credentials</h3>
+          <h3 className="text-3xl text-foreground font-semibold mb-3">
+            Here are your credentials
+          </h3>
           <p className="text-lg text-muted-foreground md:w-10/12 mx-auto lg:mx-0">
-            You may use your own as well, but make sure to use the same credentials on each client.
-            <br></br> Also, the tasks won't be stored on our database if you do so.
+            You may use your own as well, but make sure to use the same
+            credentials on each client.
+            <br></br> Also, the tasks won't be stored on our database if you do
+            so.
           </p>
           <br></br>
 
@@ -40,12 +44,19 @@ export const Hero = (props: Props) => {
           </div>
           <br></br>
 
-          <h3 className="text-xl text-foreground font-semibold">Encryption Secret</h3>
+          <h3 className="text-xl text-foreground font-semibold">
+            Encryption Secret
+          </h3>
           <div className="mt-4 flex items-center">
             <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
-              <code className="whitespace-nowrap">{props.encryption_secret}</code>
+              <code className="whitespace-nowrap">
+                {props.encryption_secret}
+              </code>
             </div>
-            <CopyButton text={props.encryption_secret} label="Encryption Secret" />
+            <CopyButton
+              text={props.encryption_secret}
+              label="Encryption Secret"
+            />
           </div>
         </div>
       </div>
