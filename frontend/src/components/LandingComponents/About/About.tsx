@@ -35,14 +35,17 @@ export const About = () => {
             <div className="pb-6">
               <h2 className="text-3xl md:text-4xl font-bold">
                 <span className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
-                  About{" "}
+                  About{' '}
                 </span>
                 CCSync
               </h2>
               <p className="text-xl text-muted-foreground mt-10 mb-5">
-                CCSync uses a hosted Taskchampion Sync Server instance that helps users to sync tasks across all your Taskwarrior 3.0 clients and higher.
+                CCSync uses a hosted Taskchampion Sync Server instance that
+                helps users to sync tasks across all your Taskwarrior 3.0
+                clients and higher.
                 <br />
-                Users can sign in using Google and generate their secret keys to setup synchronisation on their Taskwarrior clients.
+                Users can sign in using Google and generate their secret keys to
+                setup synchronisation on their Taskwarrior clients.
               </p>
             </div>
           </div>

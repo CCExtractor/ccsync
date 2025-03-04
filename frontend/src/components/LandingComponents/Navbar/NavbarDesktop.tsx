@@ -1,6 +1,6 @@
-import { Button, buttonVariants } from "../../ui/button";
-import { ModeToggle } from "../../utils/theme-mode-toggle";
-import { routeList } from "./navbar-utils";
+import { Button, buttonVariants } from '../../ui/button';
+import { ModeToggle } from '../../utils/theme-mode-toggle';
+import { routeList } from './navbar-utils';
 
 export const NavbarDesktop = () => {
   return (
@@ -11,7 +11,7 @@ export const NavbarDesktop = () => {
             rel="noreferrer noopener"
             href={href}
             key={i}
-            className={`text-[17px] ${buttonVariants({ variant: "ghost" })}`}
+            className={`text-[17px] ${buttonVariants({ variant: 'ghost' })}`}
           >
             {label}
           </a>

@@ -1,11 +1,11 @@
-import { render, screen } from "@testing-library/react";
-import { ModeToggle } from "../theme-mode-toggle";
-import { useTheme } from "@/components/utils/theme-provider";
+import { render, screen } from '@testing-library/react';
+import { ModeToggle } from '../theme-mode-toggle';
+import { useTheme } from '@/components/utils/theme-provider';
 
 // Mocking the useTheme hook
-jest.mock("@/components/utils/theme-provider");
+jest.mock('@/components/utils/theme-provider');
 
-describe("ModeToggle", () => {
+describe('ModeToggle', () => {
   const setThemeMock = jest.fn();
 
   beforeEach(() => {
@@ -13,8 +13,10 @@ describe("ModeToggle", () => {
     (useTheme as jest.Mock).mockReturnValue({ setTheme: setThemeMock });
   });
 
-  test("renders without crashing", () => {
+  test('renders without crashing', () => {
     render(<ModeToggle />);
-    expect(screen.getByRole("button", { name: /toggle theme/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /toggle theme/i })
+    ).toBeInTheDocument();
   });
 });

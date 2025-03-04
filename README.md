@@ -63,7 +63,6 @@ CCSync comprises three main components:
 
 For more details, please check out the [documentation](https://its-me-abhishek.github.io/ccsync-docs/).
 
-
 ## Contributing
 
 We welcome contributions to CCSync! Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started. Please raise an issue for any query, bug fix, or a feature request.

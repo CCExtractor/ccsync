@@ -25,15 +25,10 @@ describe('Contact Component', () => {
 
   test('renders all contact cards', () => {
     render(<Contact />);
-    
-    const contactNames = [
-      'Slack',
-      'Github',
-      'Discord',
-      'Email'
-    ];
 
-    contactNames.forEach(name => {
+    const contactNames = ['Slack', 'Github', 'Discord', 'Email'];
+
+    contactNames.forEach((name) => {
       const contactCard = screen.getByText(name);
       expect(contactCard).toBeInTheDocument();
     });
@@ -41,15 +36,15 @@ describe('Contact Component', () => {
 
   test('renders the correct positions for contact cards', () => {
     render(<Contact />);
-    
+
     const contactPositions = [
       'Join our slack channel',
       'Check out our Github repository',
       'Join us at Discord for discussions',
-      'Email us for any queries'
+      'Email us for any queries',
     ];
 
-    contactPositions.forEach(position => {
+    contactPositions.forEach((position) => {
       const contactPosition = screen.getByText(position);
       expect(contactPosition).toBeInTheDocument();
     });

@@ -35,10 +35,12 @@
   only while using Docker Container
 
   use
+
   ```
   FRONTEND_ORIGIN_DEV="http://localhost"
   CONTAINER_ORIGIN="http://localhost:8080/"
   ```
+
   if you want to run by `npm run dev`
 
 - Run the application:

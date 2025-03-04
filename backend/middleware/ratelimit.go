@@ -36,7 +36,7 @@ func NewRateLimiter(windowSize time.Duration, maxRequests int) *RateLimiter {
 func (rl *RateLimiter) startCleanup() {
 	ticker := time.NewTicker(rl.cleanupTick)
 	defer ticker.Stop()
-	
+
 	for range ticker.C {
 		rl.cleanup()
 	}
