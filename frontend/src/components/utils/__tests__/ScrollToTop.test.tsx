@@ -12,20 +12,20 @@ describe('ScrollToTop Component', () => {
 
   it('shows the button after scrolling down more than 400 pixels', () => {
     render(<ScrollToTop />);
-    
+
     // Simulate scrolling down
     fireEvent.scroll(window, { target: { scrollY: 500 } });
-    
+
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
 
   it('hides the button when scrolled back up above 400 pixels', () => {
     render(<ScrollToTop />);
-    
+
     // Simulate scrolling down
     fireEvent.scroll(window, { target: { scrollY: 500 } });
     expect(screen.getByRole('button')).toBeInTheDocument();
-    
+
     // Simulate scrolling back up
     fireEvent.scroll(window, { target: { scrollY: 300 } });
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
@@ -33,14 +33,14 @@ describe('ScrollToTop Component', () => {
 
   it('scrolls to the top when button is clicked', () => {
     render(<ScrollToTop />);
-    
+
     // Simulate scrolling down
     fireEvent.scroll(window, { target: { scrollY: 500 } });
     expect(screen.getByRole('button')).toBeInTheDocument();
-    
+
     // Click the button
     fireEvent.click(screen.getByRole('button'));
-    
+
     // Check if the scroll function was called with the correct parameters
     expect(global.scroll).toHaveBeenCalledWith({
       top: 0,

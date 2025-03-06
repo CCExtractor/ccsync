@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID string) error {
+func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID string, tags []string) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		fmt.Println("1")
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
@@ -62,9 +62,34 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 		utils.ExecCommand("task", taskID, "delete", "rc.confirmation=off")
 	}
 
-	// Sync Taskwarrior again
+	// Handle tags
+	if len(tags) > 0 {
+		for _, tag := range tags {
+			if strings.HasPrefix(tag, "+") {
+				// Add tag
+				tagValue := strings.TrimPrefix(tag, "+")
+				if err := utils.ExecCommand("task", taskID, "modify", "+"+tagValue); err != nil {
+					return fmt.Errorf("failed to add tag %s: %v", tagValue, err)
+				}
+			} else if strings.HasPrefix(tag, "-") {
+				// Remove tag
+				tagValue := strings.TrimPrefix(tag, "-")
+				if err := utils.ExecCommand("task", taskID, "modify", "-"+tagValue); err != nil {
+					return fmt.Errorf("failed to remove tag %s: %v", tagValue, err)
+				}
+			} else {
+				// Add tag without prefix
+				if err := utils.ExecCommand("task", taskID, "modify", "+"+tag); err != nil {
+					return fmt.Errorf("failed to add tag %s: %v", tag, err)
+				}
+			}
+		}
+	}
+
 	if err := SyncTaskwarrior(tempDir); err != nil {
+		fmt.Println("11")
 		return err
 	}
+
 	return nil
 }
