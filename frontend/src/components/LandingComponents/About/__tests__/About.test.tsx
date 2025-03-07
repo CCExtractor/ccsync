@@ -31,15 +31,23 @@ describe('About Component', () => {
 
   it('renders the paragraph text correctly', () => {
     render(<About />);
-    const paragraph = screen.getByText(/CCSync uses a hosted Taskchampion Sync Server instance/i);
+    const paragraph = screen.getByText(
+      /CCSync uses a hosted Taskchampion Sync Server instance/i
+    );
     expect(paragraph).toBeInTheDocument();
-    expect(paragraph).toHaveTextContent('CCSync uses a hosted Taskchampion Sync Server instance that helps users to sync tasks across all your Taskwarrior 3.0 clients and higher.');
+    expect(paragraph).toHaveTextContent(
+      'CCSync uses a hosted Taskchampion Sync Server instance that helps users to sync tasks across all your Taskwarrior 3.0 clients and higher.'
+    );
   });
 
   it('renders additional paragraph content correctly', () => {
     render(<About />);
-    const paragraph = screen.getByText(/Users can sign in using Google and generate their secret keys to setup synchronisation on their Taskwarrior clients/i);
+    const paragraph = screen.getByText(
+      /Users can sign in using Google and generate their secret keys to setup synchronisation on their Taskwarrior clients/i
+    );
     expect(paragraph).toBeInTheDocument();
-    expect(paragraph).toHaveTextContent('Users can sign in using Google and generate their secret keys to setup synchronisation on their Taskwarrior clients.');
+    expect(paragraph).toHaveTextContent(
+      'Users can sign in using Google and generate their secret keys to setup synchronisation on their Taskwarrior clients.'
+    );
   });
 });

@@ -1,15 +1,16 @@
-import { render, screen } from "@testing-library/react";
-import { act } from "react-dom/test-utils";
-import { ThemeProvider, useTheme } from "../theme-provider"; 
+import { render, screen } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
+import { ThemeProvider, useTheme } from '../theme-provider';
 
-describe("ThemeProvider", () => {
-  let originalMatchMedia: ((query: string) => MediaQueryList) & ((query: string) => MediaQueryList);
+describe('ThemeProvider', () => {
+  let originalMatchMedia: ((query: string) => MediaQueryList) &
+    ((query: string) => MediaQueryList);
 
   beforeAll(() => {
     originalMatchMedia = window.matchMedia;
-    window.matchMedia = jest.fn().mockImplementation(query => {
+    window.matchMedia = jest.fn().mockImplementation((query) => {
       return {
-        matches: query.includes("dark"),
+        matches: query.includes('dark'),
         media: query,
         onchange: null,
         addListener: jest.fn(),
@@ -34,23 +35,23 @@ describe("ThemeProvider", () => {
     return (
       <div>
         <span data-testid="theme">{theme}</span>
-        <button onClick={() => setTheme("light")}>Set Light Theme</button>
+        <button onClick={() => setTheme('light')}>Set Light Theme</button>
       </div>
     );
   };
 
-  test("should use default theme if no theme is stored in localStorage", () => {
+  test('should use default theme if no theme is stored in localStorage', () => {
     render(
       <ThemeProvider>
         <TestComponent />
       </ThemeProvider>
     );
 
-    expect(screen.getByTestId("theme")).toHaveTextContent("dark");
+    expect(screen.getByTestId('theme')).toHaveTextContent('dark');
   });
 
-  test("should use stored theme from localStorage", () => {
-    localStorage.setItem("vite-ui-theme", "light");
+  test('should use stored theme from localStorage', () => {
+    localStorage.setItem('vite-ui-theme', 'light');
 
     render(
       <ThemeProvider>
@@ -58,10 +59,10 @@ describe("ThemeProvider", () => {
       </ThemeProvider>
     );
 
-    expect(screen.getByTestId("theme")).toHaveTextContent("light");
+    expect(screen.getByTestId('theme')).toHaveTextContent('light');
   });
 
-  test("should update theme and localStorage when setTheme is called", () => {
+  test('should update theme and localStorage when setTheme is called', () => {
     render(
       <ThemeProvider>
         <TestComponent />
@@ -69,15 +70,17 @@ describe("ThemeProvider", () => {
     );
 
     act(() => {
-      screen.getByText("Set Light Theme").click();
+      screen.getByText('Set Light Theme').click();
     });
 
-    expect(screen.getByTestId("theme")).toHaveTextContent("light");
-    expect(localStorage.getItem("vite-ui-theme")).toBe("light");
+    expect(screen.getByTestId('theme')).toHaveTextContent('light');
+    expect(localStorage.getItem('vite-ui-theme')).toBe('light');
   });
 
-  test("useTheme hook should throw error when used outside ThemeProvider", () => {
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+  test('useTheme hook should throw error when used outside ThemeProvider', () => {
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
     const TestErrorComponent = () => {
       try {
         useTheme();
@@ -91,8 +94,8 @@ describe("ThemeProvider", () => {
     consoleError.mockRestore();
   });
 
-  test("should apply system theme if theme is set to system", () => {
-    localStorage.setItem("vite-ui-theme", "system");
+  test('should apply system theme if theme is set to system', () => {
+    localStorage.setItem('vite-ui-theme', 'system');
 
     render(
       <ThemeProvider>
@@ -100,10 +103,13 @@ describe("ThemeProvider", () => {
       </ThemeProvider>
     );
 
-    const expectedTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
+    const expectedTheme = window.matchMedia('(prefers-color-scheme: dark)')
+      .matches
+      ? 'dark'
+      : 'light';
 
-    expect(document.documentElement.classList.contains(expectedTheme)).toBe(true);
+    expect(document.documentElement.classList.contains(expectedTheme)).toBe(
+      true
+    );
   });
 });

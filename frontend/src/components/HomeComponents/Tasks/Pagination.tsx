@@ -8,7 +8,12 @@ interface PaginationProps {
   getDisplayedPages: (totalPages: number, currentPage: number) => number[];
 }
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, paginate, getDisplayedPages }) => {
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  paginate,
+  getDisplayedPages,
+}) => {
   return (
     <div className="flex justify-center mt-4 space-x-2">
       <Button
@@ -21,11 +26,11 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, pagina
       </Button>
       <nav>
         <ul className="flex space-x-2">
-          {getDisplayedPages(totalPages, currentPage).map(page => (
+          {getDisplayedPages(totalPages, currentPage).map((page) => (
             <li key={page}>
               <Button
                 size="sm"
-                variant={currentPage === page ? "secondary" : "outline"}
+                variant={currentPage === page ? 'secondary' : 'outline'}
                 onClick={() => paginate(page)}
               >
                 {page}

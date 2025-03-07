@@ -1,7 +1,7 @@
-import { Task } from "@/components/utils/types";
-import { url } from "@/components/utils/URLs";
-import { format, parseISO } from "date-fns";
-import { toast } from "react-toastify";
+import { Task } from '@/components/utils/types';
+import { url } from '@/components/utils/URLs';
+import { format, parseISO } from 'date-fns';
+import { toast } from 'react-toastify';
 
 export type Props = {
   email: string;
@@ -10,10 +10,10 @@ export type Props = {
   UUID: string;
 };
 
-export const sortTasks = (tasks: Task[], order: "asc" | "desc") => {
+export const sortTasks = (tasks: Task[], order: 'asc' | 'desc') => {
   return tasks.sort((a, b) => {
-    if (a.status < b.status) return order === "asc" ? -1 : 1;
-    if (a.status > b.status) return order === "asc" ? 1 : -1;
+    if (a.status < b.status) return order === 'asc' ? -1 : 1;
+    if (a.status > b.status) return order === 'asc' ? 1 : -1;
     return 0;
   });
 };
@@ -28,7 +28,7 @@ export const markTaskAsCompleted = async (
     const backendURL = url.backendURL + `complete-task`;
 
     const response = await fetch(backendURL, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({
         email: email,
         encryptionSecret: encryptionSecret,
@@ -38,30 +38,12 @@ export const markTaskAsCompleted = async (
     });
 
     if (response) {
-      console.log("Task marked as completed successfully!");
-      toast.success("Task marked as completed successfully!", {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      console.log('Task marked as completed successfully!');
     } else {
-      toast.error("Error in marked the task as completed. Please try again.", {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      console.error("Failed to mark task as completed");
+      console.error('Failed to mark task as completed');
     }
   } catch (error) {
-    console.error("Error marking task as completed:", error);
+    console.error('Error marking task as completed:', error);
   }
 };
 
@@ -75,7 +57,7 @@ export const markTaskAsDeleted = async (
     const backendURL = url.backendURL + `delete-task`;
 
     const response = await fetch(backendURL, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({
         email: email,
         encryptionSecret: encryptionSecret,
@@ -85,30 +67,12 @@ export const markTaskAsDeleted = async (
     });
 
     if (response) {
-      console.log("Task marked as deleted successfully!");
-      toast.success("Task marked as deleted successfully!", {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      console.log('Task marked as deleted successfully!');
     } else {
-      toast.error("Error in marked the task as deleted. Please try again.", {
-        position: "bottom-left",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-      console.error("Failed to mark task as deleted");
+      console.error('Failed to mark task as deleted');
     }
   } catch (error) {
-    console.error("Error marking task as deleted:", error);
+    console.error('Error marking task as deleted:', error);
   }
 };
 
@@ -132,15 +96,15 @@ export const getDisplayedPages = (totalPages: number, currentPage: number) => {
 
 export const formattedDate = (dateString: string) => {
   try {
-    return format(parseISO(dateString), "PPpp");
+    return format(parseISO(dateString), 'PPpp');
   } catch (error) {
     return dateString;
   }
 };
 
-export const sortTasksById = (tasks: Task[], order: "asc" | "desc") => {
+export const sortTasksById = (tasks: Task[], order: 'asc' | 'desc') => {
   return tasks.sort((a, b) => {
-    if (order === "asc") {
+    if (order === 'asc') {
       return a.id < b.id ? -1 : 1;
     } else {
       return b.id < a.id ? -1 : 1;
@@ -150,7 +114,7 @@ export const sortTasksById = (tasks: Task[], order: "asc" | "desc") => {
 
 export const handleCopy = (text: string) => {
   toast.success(`${text} copied to clipboard!`, {
-    position: "bottom-left",
+    position: 'bottom-left',
     autoClose: 3000,
     hideProgressBar: false,
     closeOnClick: true,
@@ -161,11 +125,13 @@ export const handleCopy = (text: string) => {
 };
 
 export const handleDate = (v: string) => {
-  const date = v;
-  const isValid = date === "" || /^\d{4}-\d{2}-\d{2}$/.test(date);
+  const date = new Date(v);
+  const isValid =
+    !isNaN(date.getTime()) && v === date.toISOString().split('T')[0];
+
   if (!isValid) {
-    toast.error("Invalid Date Format. Please use the YYYY-MM-DD format.", {
-      position: "bottom-left",
+    toast.error('Invalid Date Format. Please use the YYYY-MM-DD format.', {
+      position: 'bottom-left',
       autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
