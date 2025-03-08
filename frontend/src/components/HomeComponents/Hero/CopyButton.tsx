@@ -1,11 +1,7 @@
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { CopyIcon } from 'lucide-react';
 import { showToast } from './ToastNotification';
-
-interface CopyButtonProps {
-  text: string;
-  label: string;
-}
+import { CopyButtonProps } from '@/components/utils/types';
 
 export const CopyButton = ({ text, label }: CopyButtonProps) => (
   <CopyToClipboard text={text} onCopy={() => showToast(label)}>

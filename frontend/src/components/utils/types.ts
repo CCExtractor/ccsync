@@ -10,6 +10,11 @@ export interface Props {
   encryption_secret: string;
 }
 
+export interface CopyButtonProps {
+  text: string;
+  label: string;
+}
+
 export interface Task {
   id: number;
   description: string;
