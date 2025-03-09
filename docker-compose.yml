@@ -8,7 +8,8 @@ services:
     networks:
       - tasknetwork
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     env_file:
       - ./frontend/.env
     healthcheck:
@@ -26,7 +27,8 @@ services:
     networks:
       - tasknetwork
     depends_on:
-      - syncserver
+      syncserver:
+        condition: service_healthy
     env_file:
       - ./backend/.env
     healthcheck:
