@@ -69,9 +69,9 @@ We welcome contributions to CCSync! Please read our [Contributing Guidelines](CO
 
 ## Community
 
-We would love to hear from you! You may join the CCExtractor community through Slack:
+We would love to hear from you! You may join the CCExtractor community Zulip:
 
-[![Slack](https://img.shields.io/badge/chat-on_slack-purple.svg?style=for-the-badge&logo=slack)](https://ccextractor.org/public/general/support/)
+[![Zulip](https://img.shields.io/badge/chat-on_zulip-purple.svg?style=for-the-badge&logo=zulip)](https://ccextractor.org/public/general/support/)
 
 ## License
 
