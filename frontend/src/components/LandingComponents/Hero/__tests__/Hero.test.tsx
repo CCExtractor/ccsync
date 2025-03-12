@@ -36,7 +36,7 @@ describe('Hero Component', () => {
     const githubButton = screen.getByText(/Github Repository/i);
     expect(githubButton.closest('a')).toHaveAttribute(
       'href',
-      'https://github.com/its-me-abhishek/ccsync'
+      url.githubRepoURL,
     );
     expect(githubButton.closest('a')).toHaveAttribute('target', '_blank');
     expect(githubButton).toHaveClass('w-full md:w-1/3 btn-outline');
