@@ -1,4 +1,5 @@
 name: Go Format
+
 on:
   push:
     branches:
@@ -6,21 +7,26 @@ on:
   pull_request:
     branches:
       - "*"
+
 jobs:
   gofmt:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: "1.21"
-      - name: Run gofmt
+
+      - name: Check Go formatting
         run: |
-          files=$(gofmt -l .)
+          files=$(gofmt -l ./backend)
           if [[ -n "$files" ]]; then
             echo "The following files are not formatted correctly:"
             echo "$files"
+            echo "Please run 'gofmt -w .' inside the backend directory before committing."
             exit 1
+          else
+            echo "All Go files are properly formatted."
           fi
-        working-directory: backend
