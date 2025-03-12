@@ -2,6 +2,7 @@ import { Accordion } from '@/components/ui/accordion';
 import { FAQItem } from './FAQItem';
 import { FAQList } from './faq-utils';
 import { BlueHeading } from '@/lib/utils';
+import { url } from '@/components/utils/URLs';
 
 export const FAQ = () => {
   return (
@@ -23,7 +24,7 @@ export const FAQ = () => {
         Still have questions?{' '}
         <a
           rel="noreferrer noopener"
-          href="https://github.com/its-me-abhishek/ccsync"
+          href={url.githubRepoURL}
           className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text"
         >
           Contact us

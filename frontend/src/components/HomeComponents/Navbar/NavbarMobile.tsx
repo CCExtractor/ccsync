@@ -5,6 +5,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { url } from '@/components/utils/URLs';
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
 import { Loader2, Menu } from 'lucide-react';
 import { ModeToggle } from '../../utils/theme-mode-toggle';
@@ -56,7 +57,7 @@ export const NavbarMobile = (
           ))}
           <a
             rel="noreferrer noopener"
-            href="/////////////////github"
+            href={url.githubRepoURL}
             target="_blank"
             className={`w-[110px] border ${buttonVariants({
               variant: 'secondary',
