@@ -1,6 +1,7 @@
 import { Button, buttonVariants } from '../../ui/button';
 import { ModeToggle } from '../../utils/theme-mode-toggle';
 import { routeList } from './navbar-utils';
+import { url } from '@/components/utils/URLs';
 
 export const NavbarDesktop = () => {
   return (
@@ -20,7 +21,7 @@ export const NavbarDesktop = () => {
       <div className="pl-20 hidden md:flex gap-2">
         <ModeToggle />
       </div>
-      <a target="_blank" href="https://its-me-abhishek.github.io/ccsync-docs/">
+      <a target="_blank" href={url.githubDocsURL}>
         <div className="hidden md:flex">
           <Button variant={'outline'}>Docs</Button>
         </div>
