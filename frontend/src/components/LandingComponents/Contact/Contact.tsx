@@ -10,6 +10,7 @@ import {
 import { AiOutlineDiscord } from 'react-icons/ai';
 import { GithubIcon, MailIcon } from 'lucide-react';
 import { TbBrandZulip } from "react-icons/tb";
+import { url } from '@/components/utils/URLs';
 
 export interface ContactProps {
   icon: JSX.Element;
@@ -23,13 +24,13 @@ const contactList: ContactProps[] = [
     icon: <TbBrandZulip size={45} />,
     name: 'Zulip',
     position: 'Join our Zulip channel',
-    url: 'https://ccextractor.org/public/general/support/',
+    url: url.zulipURL,
   },
   {
     icon: <GithubIcon size={45} />,
     name: 'Github',
     position: 'Check out our Github repository',
-    url: 'https://github.com/its-me-abhishek/ccsync',
+    url: url.githubRepoURL,
   },
   {
     icon: <AiOutlineDiscord size={45} />,
