@@ -8,7 +8,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { AiOutlineDiscord } from 'react-icons/ai';
-import { SlackIcon, GithubIcon, MailIcon } from 'lucide-react';
+import { GithubIcon, MailIcon } from 'lucide-react';
+import { TbBrandZulip } from "react-icons/tb";
 
 export interface ContactProps {
   icon: JSX.Element;
@@ -19,9 +20,9 @@ export interface ContactProps {
 
 const contactList: ContactProps[] = [
   {
-    icon: <SlackIcon size={45} />,
-    name: 'Slack',
-    position: 'Join our slack channel',
+    icon: <TbBrandZulip size={45} />,
+    name: 'Zulip',
+    position: 'Join our Zulip channel',
     url: 'https://ccextractor.org/public/general/support/',
   },
   {

@@ -50,7 +50,7 @@ export const Footer = () => {
               href={url.zulipURL}
               className="opacity-60 hover:opacity-100"
             >
-              Slack
+              Zulip
             </a>
           </div>
           <div>
