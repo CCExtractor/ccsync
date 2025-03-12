@@ -26,7 +26,7 @@ describe('Contact Component', () => {
   test('renders all contact cards', () => {
     render(<Contact />);
 
-    const contactNames = ['Slack', 'Github', 'Discord', 'Email'];
+    const contactNames = ['Zulip', 'Github', 'Discord', 'Email'];
 
     contactNames.forEach((name) => {
       const contactCard = screen.getByText(name);
@@ -38,7 +38,7 @@ describe('Contact Component', () => {
     render(<Contact />);
 
     const contactPositions = [
-      'Join our slack channel',
+      'Join our Zulip channel',
       'Check out our Github repository',
       'Join us at Discord for discussions',
       'Email us for any queries',
