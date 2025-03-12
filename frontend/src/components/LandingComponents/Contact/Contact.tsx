@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import { AiOutlineDiscord } from 'react-icons/ai';
 import { GithubIcon, MailIcon } from 'lucide-react';
-import { TbBrandZulip } from "react-icons/tb";
+import { TbBrandZulip } from 'react-icons/tb';
 import { url } from '@/components/utils/URLs';
 
 export interface ContactProps {
