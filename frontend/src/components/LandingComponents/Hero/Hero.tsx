@@ -35,7 +35,7 @@ export const Hero = () => {
             </Button>
           </a>
           <a
-            href="https://github.com/its-me-abhishek/ccsync"
+            href={url.githubRepoURL}
             target="_blank"
             className={`w-full md:w-1/3 ${buttonVariants({
               variant: 'outline',

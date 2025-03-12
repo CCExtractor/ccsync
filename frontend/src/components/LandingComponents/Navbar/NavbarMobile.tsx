@@ -10,6 +10,7 @@ import { Button, buttonVariants } from '../../ui/button';
 import { Menu } from 'lucide-react';
 import { ModeToggle } from '../../utils/theme-mode-toggle';
 import { routeList } from './navbar-utils';
+import { url } from '@/components/utils/URLs';
 
 export const NavbarMobile = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -44,10 +45,7 @@ export const NavbarMobile = () => {
                 {label}
               </a>
             ))}
-            <a
-              target="_blank"
-              href="https://its-me-abhishek.github.io/ccsync-docs/"
-            >
+            <a target="_blank" href={url.githubDocsURL}>
               <Button variant={'outline'}>Docs</Button>
             </a>
           </nav>

@@ -1,5 +1,6 @@
 import logo from '../../../assets/logo.png';
 import logoLight from '../../../assets/logo_light.png';
+import { url } from '@/components/utils/URLs';
 
 export const Footer = () => {
   return (
@@ -36,7 +37,7 @@ export const Footer = () => {
           <div>
             <a
               rel="noreferrer noopener"
-              href="https://github.com/its-me-abhishek/ccsync"
+              href={url.githubRepoURL}
               className="opacity-60 hover:opacity-100"
             >
               Github
@@ -46,7 +47,7 @@ export const Footer = () => {
           <div>
             <a
               rel="noreferrer noopener"
-              href="https://ccextractor.org/public/general/support/"
+              href={url.zulipURL}
               className="opacity-60 hover:opacity-100"
             >
               Slack
@@ -91,7 +92,7 @@ export const Footer = () => {
           <div>
             <a
               rel="noreferrer noopener"
-              href="https://taskwarrior.org/docs/"
+              href={url.taskwarriorURL}
               className="opacity-60 hover:opacity-100"
               target="_blank"
             >
@@ -102,7 +103,7 @@ export const Footer = () => {
           <div>
             <a
               rel="noreferrer noopener"
-              href="https://github.com/GothenburgBitFactory/taskchampion-sync-server/tree/main"
+              href={url.taskchampionSyncServerURL}
               className="opacity-60 hover:opacity-100"
               target="_blank"
             >
