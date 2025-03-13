@@ -37,6 +37,8 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		status := requestBody.Status
 		due := requestBody.Due
 		tags := requestBody.Tags
+		recur := requestBody.Recur
+		until := requestBody.Until
 
 		if description == "" {
 			http.Error(w, "Description is required, and cannot be empty!", http.StatusBadRequest)
@@ -52,10 +54,23 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		// 	return
 		// }
 
+		// Validate recurrence
+		if recur != nil && *recur != "" {
+			if !isValidRecurrencePattern(*recur) {
+				http.Error(w, "Invalid recurrence pattern. Valid options are: daily, weekly, monthly, yearly", http.StatusBadRequest)
+				return
+			}
+
+			if due == "" {
+				http.Error(w, "Due date is required for recurring tasks", http.StatusBadRequest)
+				return
+			}
+		}
+
 		job := Job{
 			Name: "Modify Task",
 			Execute: func() error {
-				return tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID, tags)
+				return tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID, tags, recur, until)
 			},
 		}
 		GlobalJobQueue.AddJob(job)

@@ -14,4 +14,7 @@ type Task struct {
 	End         string   `json:"end"`
 	Entry       string   `json:"entry"`
 	Modified    string   `json:"modified"`
+	Recur       *string  `json:"recur,omitempty"`
+	Until       *string  `json:"until,omitempty"`
+	Mask        *string  `json:"mask,omitempty"`
 }
