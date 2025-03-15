@@ -999,19 +999,21 @@ export const Tasks = (
                                   </span>
                                 </DialogTitle>
                                 <DialogFooter className="flex flex-row justify-center">
-                                  <Button
-                                    className="mr-5"
-                                    onClick={() =>
-                                      markTaskAsCompleted(
-                                        props.email,
-                                        props.encryptionSecret,
-                                        props.UUID,
-                                        task.uuid
-                                      )
-                                    }
-                                  >
-                                    Yes
-                                  </Button>
+                                  <DialogClose asChild>
+                                    <Button
+                                      className="mr-5"
+                                      onClick={() =>
+                                        markTaskAsCompleted(
+                                          props.email,
+                                          props.encryptionSecret,
+                                          props.UUID,
+                                          task.uuid
+                                        )
+                                      }
+                                    >
+                                      Yes
+                                    </Button>
+                                  </DialogClose>
                                   <DialogClose asChild>
                                     <Button variant={'destructive'}>No</Button>
                                   </DialogClose>
@@ -1041,19 +1043,21 @@ export const Tasks = (
                                   </span>
                                 </DialogTitle>
                                 <DialogFooter className="flex flex-row justify-center">
-                                  <Button
-                                    className="mr-5"
-                                    onClick={() =>
-                                      markTaskAsDeleted(
-                                        props.email,
-                                        props.encryptionSecret,
-                                        props.UUID,
-                                        task.uuid
-                                      )
-                                    }
-                                  >
-                                    Yes
-                                  </Button>
+                                  <DialogClose asChild>
+                                    <Button
+                                      className="mr-5"
+                                      onClick={() =>
+                                        markTaskAsDeleted(
+                                          props.email,
+                                          props.encryptionSecret,
+                                          props.UUID,
+                                          task.uuid
+                                        )
+                                      }
+                                    >
+                                      Yes
+                                    </Button>
+                                  </DialogClose>
                                   <DialogClose asChild>
                                     <Button variant={'destructive'}>No</Button>
                                   </DialogClose>
