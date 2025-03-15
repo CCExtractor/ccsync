@@ -17,6 +17,7 @@ import {
   RouteProps,
   Props,
 } from './navbar-utils';
+import { url } from '@/components/utils/URLs';
 
 export const NavbarDesktop = (
   props: Props & {
@@ -75,7 +76,9 @@ export const NavbarDesktop = (
             <Trash2 className="mr-2 h-4 w-4" />
             Delete all tasks
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => window.open(url.githubRepoURL, '_blank')}
+          >
             <Github className="mr-2 h-4 w-4" />
             <span>GitHub</span>
           </DropdownMenuItem>
