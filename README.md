@@ -67,6 +67,17 @@ For more details, please check out the [documentation](https://its-me-abhishek.g
 
 We welcome contributions to CCSync! Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started. Please raise an issue for any query, bug fix, or a feature request.
 
+## Postman Collection for testing the backend
+
+To import the Postman collection:
+
+1. Open Postman.
+2. Click "Import".
+3. Select the `ccsync.postman_collection.json` file.
+4. Click "Import".
+
+Now you can use the API requests by modifying the body accordingly!
+
 ## Community
 
 We would love to hear from you! You may join the CCExtractor community Zulip:
