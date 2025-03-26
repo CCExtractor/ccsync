@@ -391,6 +391,9 @@
     "ts-node": "^10.9.2",
     "vite": "^6.2.3"
   },
+  "optionalDependencies": {
+    "@rollup/rollup-win32-x64-msvc": "^4.37.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
