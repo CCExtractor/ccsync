@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID string, tags []string) error {
+func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID string, tags []string, recur, until *string) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		fmt.Println("1")
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
@@ -53,6 +53,20 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 	if err := utils.ExecCommand("task", taskID, "modify", escapedDue); err != nil {
 		fmt.Println("8")
 		return fmt.Errorf("failed to edit task due: %v", err)
+	}
+
+	if recur != nil && *recur != "" {
+		escapedRecur := fmt.Sprintf(`recur:%s`, strings.ReplaceAll(*recur, `"`, `\"`))
+		if err := utils.ExecCommand("task", taskID, "modify", escapedRecur); err != nil {
+			return fmt.Errorf("failed to edit task recurrence: %v", err)
+		}
+	}
+
+	if until != nil && *until != "" {
+		escapedUntil := fmt.Sprintf(`until:%s`, strings.ReplaceAll(*until, `"`, `\"`))
+		if err := utils.ExecCommand("task", taskID, "modify", escapedUntil); err != nil {
+			return fmt.Errorf("failed to edit task until date: %v", err)
+		}
 	}
 
 	// escapedStatus := fmt.Sprintf(`status:%s`, strings.ReplaceAll(status, `"`, `\"`))

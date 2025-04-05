@@ -11,6 +11,16 @@ import (
 
 var GlobalJobQueue *JobQueue
 
+func isValidRecurrencePattern(pattern string) bool {
+	validPatterns := []string{"daily", "weekly", "monthly", "yearly"}
+	for _, valid := range validPatterns {
+		if pattern == valid {
+			return true
+		}
+	}
+	return false
+}
+
 func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)
@@ -36,6 +46,8 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		priority := requestBody.Priority
 		dueDate := requestBody.DueDate
 		tags := requestBody.Tags
+		recur := requestBody.Recur
+		until := requestBody.Until
 
 		if description == "" {
 			http.Error(w, "Description is required, and cannot be empty!", http.StatusBadRequest)
@@ -45,10 +57,19 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Due Date is required, and cannot be empty!", http.StatusBadRequest)
 			return
 		}
+
+		// Validate recurrence
+		if recur != nil && *recur != "" {
+			if !isValidRecurrencePattern(*recur) {
+				http.Error(w, "Invalid recurrence pattern. Valid options are: daily, weekly, monthly, yearly", http.StatusBadRequest)
+				return
+			}
+		}
+
 		job := Job{
 			Name: "Add Task",
 			Execute: func() error {
-				return tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate, tags)
+				return tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate, tags, recur, until)
 			},
 		}
 		GlobalJobQueue.AddJob(job)
