@@ -9,16 +9,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { firestore, tasksCollection } from '@/lib/controller';
-import {
-  collection,
-  doc,
-  getDocs,
-  query,
-  setDoc,
-  updateDoc,
-  where,
-} from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -68,6 +58,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import BottomBar from '../BottomBar/BottomBar';
+import Dexie from 'dexie';
+
+class TasksDatabase extends Dexie {
+  tasks: Dexie.Table<Task, string>; // string = type of primary key (uuid)
+
+  constructor() {
+    super('tasksDB');
+    this.version(1).stores({
+      tasks: 'uuid, email, status, project', // Primary key and indexed props
+    });
+    this.tasks = this.table('tasks');
+  }
+}
+const db = new TasksDatabase();
 
 export const Tasks = (
   props: Props & {
@@ -78,7 +82,7 @@ export const Tasks = (
   const [tasks, setTasks] = useState<Task[]>([]);
   const [uniqueProjects, setUniqueProjects] = useState<string[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('all');
-  const [tempTasks, setTempTasks] = useState<Task[]>([]); // Temporary tasks state
+  const [tempTasks, setTempTasks] = useState<Task[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const status = ['pending', 'completed', 'deleted'];
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -121,35 +125,14 @@ export const Tasks = (
   useEffect(() => {
     const fetchTasksForEmail = async () => {
       try {
-        const snapshot = await getDocs(
-          query(
-            collection(firestore, 'tasks'),
-            where('email', '==', props.email)
-          )
-        );
-        const tasksFromDB: Task[] = snapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: data.id,
-            description: data.description,
-            project: data.project,
-            tags: data.tags,
-            status: data.status,
-            uuid: data.uuid,
-            urgency: data.urgency,
-            priority: data.priority,
-            due: data.due,
-            end: data.end,
-            entry: data.entry,
-            modified: data.modified,
-            email: data.email,
-          };
-        });
+        const tasksFromDB = await db.tasks
+          .where('email')
+          .equals(props.email)
+          .toArray();
+
         setTasks(sortTasksById(tasksFromDB, 'desc'));
         setTempTasks(sortTasksById(tasksFromDB, 'desc'));
-        console.log('Tasks fetched successfully for email: ' + props.email);
 
-        // Extract unique projects
         const projectsSet = new Set(tasksFromDB.map((task) => task.project));
         const filteredProjects = Array.from(projectsSet)
           .filter((project) => project !== '')
@@ -171,93 +154,45 @@ export const Tasks = (
         url.backendURL +
         `/tasks?email=${encodeURIComponent(user_email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
 
-      // Fetch tasks from Firebase Firestore
-      const snapshot = await getDocs(tasksCollection);
-      const firebaseTasks = snapshot.docs.map((doc) => ({
-        uuid: doc.id,
-        ...doc.data(),
-      }));
-
-      // Fetch tasks from Taskwarrior
       const response = await fetch(backendURL, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      if (response.ok) {
-        console.log('Synced Tasks successfully!');
-        toast.success(`Tasks synced successfully!`, {
-          position: 'bottom-left',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      } else {
-        console.log('Failed to sync tasks. Please try again.');
-        toast.error(`Failed to sync tasks. Please try again.`, {
-          position: 'bottom-left',
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      }
-      if (!response.ok) {
-        throw new Error('Failed to fetch tasks - taskview');
-      }
-      const taskwarriorTasks = await response.json();
-      const firebaseTaskUuids = new Set(firebaseTasks.map((task) => task.uuid));
 
-      await Promise.all(
-        taskwarriorTasks.map(async (task: any) => {
-          task.email = user_email;
-          if (!firebaseTaskUuids.has(task.uuid)) {
-            const newTaskRef = doc(tasksCollection, task.uuid);
-            await setDoc(newTaskRef, task);
-            console.log('tasks synced with db!');
-          } else {
-            const existingTaskRef = doc(tasksCollection, task.uuid);
-            await updateDoc(existingTaskRef, task);
-            console.log(
-              'no changes made to the tasks, so tasks not synced with db!'
-            );
-          }
-        })
-      );
-      // After successful synchronization, fetch the updated tasks
-      const newsnapshot = await getDocs(
-        query(collection(firestore, 'tasks'), where('email', '==', props.email))
-      );
-      const tasksFromDB: Task[] = newsnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: data.id,
-          description: data.description,
-          project: data.project,
-          tags: data.tags,
-          status: data.status,
-          uuid: data.uuid,
-          urgency: data.urgency,
-          priority: data.priority,
-          due: data.due,
-          end: data.end,
-          entry: data.entry,
-          modified: data.modified,
-          email: data.email,
-        };
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks from backend');
+      }
+
+      const taskwarriorTasks = await response.json();
+      console.log(taskwarriorTasks);
+      // Use Dexie transaction to update tasks
+      await db.transaction('rw', db.tasks, async () => {
+        // Delete existing tasks for the user
+        await db.tasks.where('email').equals(user_email).delete();
+
+        // Add new tasks from backend
+        const tasksToAdd = taskwarriorTasks.map((task: Task) => ({
+          ...task,
+          email: user_email,
+        }));
+        await db.tasks.bulkPut(tasksToAdd);
+
+        // Fetch updated tasks
+        const updatedTasks = await db.tasks
+          .where('email')
+          .equals(user_email)
+          .toArray();
+
+        setTasks(sortTasksById(updatedTasks, 'desc'));
+        setTempTasks(sortTasksById(updatedTasks, 'desc'));
       });
 
-      // Update the tasks state with the new data
-      setTasks(sortTasksById(tasksFromDB, 'desc'));
-      console.log('Tasks synced successfully');
+      toast.success(`Tasks synced successfully!`);
     } catch (error) {
-      console.log('Error syncing tasks on frontend: ', error);
+      console.error('Error syncing tasks:', error);
+      toast.error(`Failed to sync tasks. Please try again.`);
     }
   }
 
@@ -293,7 +228,6 @@ export const Tasks = (
 
         if (response.ok) {
           console.log('Task added successfully!');
-
           setNewTask({
             description: '',
             priority: '',
@@ -302,10 +236,9 @@ export const Tasks = (
             tags: [],
           });
           setIsAddTaskOpen(false);
+          await syncTasksWithTwAndDb(); // Sync to update Dexie DB and UI
         } else {
-          // Parse and display the backend error message
           const errorData = await response.text();
-
           console.error('Backend error:', errorData);
         }
       } catch (error) {
@@ -335,9 +268,9 @@ export const Tasks = (
           tags: tags,
         }),
       });
-      if (response) {
+      if (response.ok) {
         console.log('Task edited successfully!');
-        syncTasksWithTwAndDb();
+        await syncTasksWithTwAndDb(); // Sync to update Dexie DB and UI
         setIsAddTaskOpen(false);
       } else {
         console.error('Failed to edit task');
@@ -804,7 +737,7 @@ export const Tasks = (
                           </TableCell>
                         </TableRow>
                       </DialogTrigger>
-                      <DialogContent className="sm:h-auto sm:w-auto">
+                      <DialogContent className="sm:max-w-[625px] max-h-[90vh] flex flex-col">
                         <DialogHeader>
                           <DialogTitle>
                             <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
@@ -814,6 +747,10 @@ export const Tasks = (
                               Details
                             </span>
                           </DialogTitle>
+                        </DialogHeader>
+
+                        {/* Scrollable content */}
+                        <div className="overflow-y-auto flex-1">
                           <DialogDescription asChild>
                             <Table>
                               <TableBody>
@@ -880,10 +817,34 @@ export const Tasks = (
                                   </TableCell>
                                 </TableRow>
                                 <TableRow>
+                                  <TableCell>Start:</TableCell>
+                                  <TableCell>
+                                    {formattedDate(task.start)}
+                                  </TableCell>
+                                </TableRow>
+                                <TableRow>
                                   <TableCell>End:</TableCell>
                                   <TableCell>
                                     {formattedDate(task.end)}
                                   </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell>Wait:</TableCell>
+                                  <TableCell>
+                                    {formattedDate(task.wait)}
+                                  </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell>Depends:</TableCell>
+                                  <TableCell>{task.depends}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell>Recur:</TableCell>
+                                  <TableCell>{task.recur}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell>RType:</TableCell>
+                                  <TableCell>{task.rtype}</TableCell>
                                 </TableRow>
                                 <TableRow>
                                   <TableCell>Priority:</TableCell>
@@ -980,10 +941,10 @@ export const Tasks = (
                               </TableBody>
                             </Table>
                           </DialogDescription>
-                        </DialogHeader>
+                        </div>
 
-                        {/*Mark task as completed*/}
-                        <DialogFooter className="flex flex-row justify-end">
+                        {/* Non-scrollable footer */}
+                        <DialogFooter className="flex flex-row justify-end pt-4">
                           {task.status == 'pending' ? (
                             <Dialog>
                               <DialogTrigger asChild className="mr-5">
@@ -1022,7 +983,6 @@ export const Tasks = (
                             </Dialog>
                           ) : null}
 
-                          {/*Mark task as deleted*/}
                           {task.status != 'deleted' ? (
                             <Dialog>
                               <DialogTrigger asChild>

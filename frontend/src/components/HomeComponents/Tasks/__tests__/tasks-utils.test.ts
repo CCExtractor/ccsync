@@ -27,6 +27,11 @@ describe('sortTasks', () => {
       entry: '',
       modified: '',
       email: '',
+      start: '',
+      wait: '',
+      depends: [''],
+      rtype: '',
+      recur: '',
     },
     {
       id: 2,
@@ -42,6 +47,11 @@ describe('sortTasks', () => {
       entry: '',
       modified: '',
       email: '',
+      start: '',
+      wait: '',
+      depends: [''],
+      rtype: '',
+      recur: '',
     },
     {
       id: 3,
@@ -57,6 +67,11 @@ describe('sortTasks', () => {
       entry: '',
       modified: '',
       email: '',
+      start: '',
+      wait: '',
+      depends: [''],
+      rtype: '',
+      recur: '',
     },
   ];
 
@@ -191,6 +206,11 @@ describe('sortTasksById', () => {
       entry: '',
       modified: '',
       email: '',
+      start: '',
+      wait: '',
+      depends: [''],
+      rtype: '',
+      recur: '',
     },
     {
       id: 3,
@@ -206,6 +226,11 @@ describe('sortTasksById', () => {
       entry: '',
       modified: '',
       email: '',
+      start: '',
+      wait: '',
+      depends: [''],
+      rtype: '',
+      recur: '',
     },
     {
       id: 1,
@@ -221,6 +246,11 @@ describe('sortTasksById', () => {
       entry: '',
       modified: '',
       email: '',
+      start: '',
+      wait: '',
+      depends: [''],
+      rtype: '',
+      recur: '',
     },
   ];
 
