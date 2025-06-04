@@ -12,7 +12,7 @@ RUN go mod tidy
 COPY . .
 
 # Copy the .env file
-COPY .env .env
+# COPY .env .env
 
 # Install dependencies for Taskwarrior and libuuid
 RUN apk add --no-cache \
@@ -58,7 +58,7 @@ RUN apk add --no-cache \
 
 # Copy the binary and .env file from the build stage
 COPY --from=build /app/main .
-COPY --from=build /app/.env .
+# COPY --from=build /app/.env .
 COPY --from=build /usr/local/bin/task /usr/local/bin/task
 
 # Expose port 8000
