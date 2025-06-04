@@ -28,7 +28,7 @@ describe('FAQList', () => {
       {
         question: 'Do you have access to my task content?',
         answer:
-          'The tasks are stored securely in a Firestore database. It helps in making the tasks available on interfaces other than the PC, directly on the web!',
+          'The tasks are stored securely in your Browser based local database. It helps in making the tasks available on interfaces other than the PC, directly on the web!',
         value: 'item-4',
       },
     ]);
