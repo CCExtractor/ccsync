@@ -17,8 +17,11 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+	if os.Getenv("ENV") != "production" {
+		_ = godotenv.Load()
+		log.Println("Loaded")
+	} else {
+		log.Println("Continue")
 	}
 
 	controllers.GlobalJobQueue = controllers.NewJobQueue()
