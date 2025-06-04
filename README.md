@@ -14,8 +14,6 @@
     <a href="https://github.com/its-me-abhishek/ccsync/pulls?q=is%3Apr+is%3Aclosed">
     <img src="https://img.shields.io/github/issues-pr-closed-raw/its-me-abhishek/ccsync?style=flat-square&logo=github&logoColor=white"
          alt="Closed pull requests"></a>
-    <img src="https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/its-me-abhishek/ccsync/main/frontend/coverage-report.json&query=$.frontend&label=frontend coverage"
-          alt="Dynamic JSON Badge" >
 
 </p>
 <p align="center">
