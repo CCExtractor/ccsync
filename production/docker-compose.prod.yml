@@ -1,0 +1,62 @@
+# Read the Docs to learn more about env variables: https://its-me-abhishek.github.io/ccsync-docs/
+services:
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - tasknetwork
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - VITE_BACKEND_URL="http://localhost:8000/"
+      - VITE_FRONTEND_URL="http://localhost:80"
+      - VITE_CONTAINER_ORIGIN="http://localhost:8080/"
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    networks:
+      - tasknetwork
+    depends_on:
+      - syncserver
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - ./backend/data:/app/data
+
+  syncserver:
+    image: ghcr.io/gothenburgbitfactory/taskchampion-sync-server:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - tasknetwork
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - SESSION_KEY="REPLACE_VALUE"
+      - CLIENT_SEC="REPLACE_VALUE"
+      - CLIENT_ID="REPLACE_VALUE"
+      - REDIRECT_URL_DEV="http://localhost:8000/auth/callback"
+      - FRONTEND_ORIGIN_DEV="http://localhost"
+      - CONTAINER_ORIGIN="http://ccsync-syncserver-1:8080/"
+
+networks:
+  tasknetwork:
+    driver: bridge
