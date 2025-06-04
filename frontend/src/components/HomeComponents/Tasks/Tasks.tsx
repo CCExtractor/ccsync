@@ -236,7 +236,7 @@ export const Tasks = (
             tags: [],
           });
           setIsAddTaskOpen(false);
-          await syncTasksWithTwAndDb(); // Sync to update Dexie DB and UI
+          // await syncTasksWithTwAndDb(); // Sync to update Dexie DB and UI
         } else {
           const errorData = await response.text();
           console.error('Backend error:', errorData);
@@ -893,7 +893,7 @@ export const Tasks = (
                                     ) : (
                                       <div className="flex items-center">
                                         {task.tags !== null &&
-                                        task.tags.length >= 1 ? (
+                                          task.tags.length >= 1 ? (
                                           task.tags.map((tag, index) => (
                                             <Badge
                                               key={index}
