@@ -29,7 +29,7 @@ jobs:
       - name: Build and push frontend image to GHCR
         uses: docker/build-push-action@v5
         with:
-          context: ../frontend
+          context: ../../frontend
           push: true
           tags: |
             ghcr.io/ccsync/frontend:latest
@@ -60,7 +60,7 @@ jobs:
       - name: Build and push backend image to GHCR
         uses: docker/build-push-action@v5
         with:
-          context: ../backend
+          context: ../../backend
           push: true
           tags: |
             ghcr.io/ccsync/backend:latest
