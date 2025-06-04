@@ -1,7 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { NavbarMobile } from '../NavbarMobile';
 import {
-  syncTasksWithTwAndDb,
   deleteAllTasks,
   handleLogout,
   Props,
@@ -9,7 +8,6 @@ import {
 } from '../navbar-utils';
 
 jest.mock('../navbar-utils', () => ({
-  syncTasksWithTwAndDb: jest.fn(),
   deleteAllTasks: jest.fn(),
   handleLogout: jest.fn(),
   routeList: [
@@ -64,7 +62,6 @@ describe('NavbarMobile', () => {
       expect(screen.getByText(route.label)).toBeInTheDocument();
     });
     expect(screen.getByText('Github')).toBeInTheDocument();
-    expect(screen.getByText('Sync Tasks')).toBeInTheDocument();
     expect(screen.getByText('Delete All Tasks')).toBeInTheDocument();
     expect(screen.getByText('Log out')).toBeInTheDocument();
   });
@@ -76,15 +73,6 @@ describe('NavbarMobile', () => {
     const homeLink = screen.getByText('Home');
     fireEvent.click(homeLink);
     expect(mockProps.setIsOpen).toHaveBeenCalledWith(false);
-  });
-
-  it("calls syncTasksWithTwAndDb when 'Sync Tasks' is clicked", () => {
-    const openProps = { ...mockProps, isOpen: true };
-    render(<NavbarMobile {...openProps} />);
-    const syncButton = screen.getByText('Sync Tasks');
-
-    fireEvent.click(syncButton);
-    expect(syncTasksWithTwAndDb).toHaveBeenCalledWith(openProps);
   });
 
   it("calls deleteAllTasks when 'Delete All Tasks' is clicked", () => {

@@ -7,12 +7,11 @@ import {
 } from '@/components/ui/sheet';
 import { url } from '@/components/utils/URLs';
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
-import { Loader2, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { ModeToggle } from '../../utils/theme-mode-toggle';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import {
   routeList,
-  syncTasksWithTwAndDb,
   deleteAllTasks,
   handleLogout,
   RouteProps,
@@ -66,25 +65,6 @@ export const NavbarMobile = (
             <GitHubLogoIcon className="mr-2 w-5 h-5" />
             Github
           </a>
-          <Button
-            variant={'ghost'}
-            className="w-[110px] border"
-            onClick={async () => {
-              props.setIsLoading(true);
-              await syncTasksWithTwAndDb(props);
-              props.setIsLoading(false);
-            }}
-            disabled={props.isLoading}
-          >
-            {props.isLoading ? (
-              <>
-                <Loader2 className="mr-2 size-5 animate-spin" />
-                Syncing
-              </>
-            ) : (
-              'Sync Tasks'
-            )}
-          </Button>
           <div
             onClick={() => deleteAllTasks(props)}
             className={`w-[110px] border ${buttonVariants({

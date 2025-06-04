@@ -25,8 +25,13 @@ export interface Task {
   urgency: number;
   priority: string;
   due: string;
+  start: string;
   end: string;
   entry: string;
+  wait: string;
   modified: string;
+  depends: string[];
+  rtype: string;
+  recur: string;
   email: string;
 }

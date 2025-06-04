@@ -1,10 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { NavbarDesktop } from '../NavbarDesktop';
-import { syncTasksWithTwAndDb, Props, routeList } from '../navbar-utils';
+import { Props, routeList } from '../navbar-utils';
 
 // Mock external dependencies
 jest.mock('../navbar-utils', () => ({
-  syncTasksWithTwAndDb: jest.fn(),
   deleteAllTasks: jest.fn(),
   handleLogout: jest.fn(),
   routeList: [
@@ -41,15 +40,6 @@ describe('NavbarDesktop', () => {
     routeList.forEach((route) => {
       expect(screen.getByText(route.label)).toBeInTheDocument();
     });
-  });
-
-  it("calls syncTasksWithTwAndDb when 'Sync Tasks' is clicked", () => {
-    render(<NavbarDesktop {...extendedProps} />);
-    const syncButton = screen.getByText('Sync Tasks');
-
-    fireEvent.click(syncButton);
-
-    expect(syncTasksWithTwAndDb).toHaveBeenCalledWith(extendedProps);
   });
 
   it('displays user email and handles dropdown menu actions', () => {

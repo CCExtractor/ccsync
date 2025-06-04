@@ -46,9 +46,14 @@ describe('Task interface', () => {
       urgency: 1,
       priority: 'high',
       due: '2024-06-20',
+      start: '2024-05-20',
       end: '2024-06-25',
       entry: '2024-06-18',
+      wait: '2025-07-18',
       modified: '2024-06-19',
+      depends: ['123e4567', '123e4567'],
+      rtype: 'any',
+      recur: 'none',
       email: 'test@example.com',
     };
 
