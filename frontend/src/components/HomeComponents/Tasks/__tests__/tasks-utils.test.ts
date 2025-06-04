@@ -11,154 +11,56 @@ import {
 } from '../tasks-utils';
 import { Task } from '@/components/utils/types';
 
+// Helper to create minimal task objects
+const createTask = (
+  id: number,
+  status: string,
+  description: string,
+  project: string,
+  tags: string[]
+): Task => ({
+  id,
+  status,
+  description,
+  project,
+  tags,
+  uuid: '',
+  urgency: 0,
+  priority: '',
+  due: '',
+  end: '',
+  entry: '',
+  modified: '',
+  email: '',
+  start: '',
+  wait: '',
+  depends: [''],
+  rtype: '',
+  recur: '',
+});
+
 describe('sortTasks', () => {
   const tasks: Task[] = [
-    {
-      id: 1,
-      status: 'pending',
-      description: '1',
-      project: '1',
-      tags: ['1'],
-      uuid: '',
-      urgency: 0,
-      priority: '',
-      due: '',
-      end: '',
-      entry: '',
-      modified: '',
-      email: '',
-    },
-    {
-      id: 2,
-      status: 'completed',
-      description: '2',
-      project: '2',
-      tags: ['2'],
-      uuid: '',
-      urgency: 0,
-      priority: '',
-      due: '',
-      end: '',
-      entry: '',
-      modified: '',
-      email: '',
-    },
-    {
-      id: 3,
-      status: 'in-progress',
-      description: '3',
-      project: '3',
-      tags: ['3'],
-      uuid: '',
-      urgency: 0,
-      priority: '',
-      due: '',
-      end: '',
-      entry: '',
-      modified: '',
-      email: '',
-    },
+    createTask(1, 'pending', '1', '1', ['1']),
+    createTask(2, 'completed', '2', '2', ['2']),
+    createTask(3, 'in-progress', '3', '3', ['3']),
   ];
 
   it('sorts tasks in ascending order by status', () => {
     const sortedTasks = sortTasks(tasks, 'asc');
     expect(sortedTasks).toEqual([
-      {
-        id: 2,
-        status: 'completed',
-        description: '2',
-        project: '2',
-        tags: ['2'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
-      {
-        id: 3,
-        status: 'in-progress',
-        description: '3',
-        project: '3',
-        tags: ['3'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
-      {
-        id: 1,
-        status: 'pending',
-        description: '1',
-        project: '1',
-        tags: ['1'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
+      createTask(2, 'completed', '2', '2', ['2']),
+      createTask(3, 'in-progress', '3', '3', ['3']),
+      createTask(1, 'pending', '1', '1', ['1']),
     ]);
   });
 
   it('sorts tasks in descending order by status', () => {
     const sortedTasks = sortTasks(tasks, 'desc');
     expect(sortedTasks).toEqual([
-      {
-        id: 1,
-        status: 'pending',
-        description: '1',
-        project: '1',
-        tags: ['1'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
-      {
-        id: 3,
-        status: 'in-progress',
-        description: '3',
-        project: '3',
-        tags: ['3'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
-      {
-        id: 2,
-        status: 'completed',
-        description: '2',
-        project: '2',
-        tags: ['2'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
+      createTask(1, 'pending', '1', '1', ['1']),
+      createTask(3, 'in-progress', '3', '3', ['3']),
+      createTask(2, 'completed', '2', '2', ['2']),
     ]);
   });
 });
@@ -177,152 +79,26 @@ describe('formattedDate', () => {
 
 describe('sortTasksById', () => {
   const tasks: Task[] = [
-    {
-      id: 2,
-      status: 'completed',
-      description: '2',
-      project: '2',
-      tags: ['2'],
-      uuid: '',
-      urgency: 0,
-      priority: '',
-      due: '',
-      end: '',
-      entry: '',
-      modified: '',
-      email: '',
-    },
-    {
-      id: 3,
-      status: 'in-progress',
-      description: '3',
-      project: '3',
-      tags: ['3'],
-      uuid: '',
-      urgency: 0,
-      priority: '',
-      due: '',
-      end: '',
-      entry: '',
-      modified: '',
-      email: '',
-    },
-    {
-      id: 1,
-      status: 'pending',
-      description: '1',
-      project: '1',
-      tags: ['1'],
-      uuid: '',
-      urgency: 0,
-      priority: '',
-      due: '',
-      end: '',
-      entry: '',
-      modified: '',
-      email: '',
-    },
+    createTask(2, 'completed', '2', '2', ['2']),
+    createTask(3, 'in-progress', '3', '3', ['3']),
+    createTask(1, 'pending', '1', '1', ['1']),
   ];
 
   it('sorts tasks in ascending order by id', () => {
     const sortedTasks = sortTasksById(tasks, 'asc');
     expect(sortedTasks).toEqual([
-      {
-        id: 1,
-        status: 'pending',
-        description: '1',
-        project: '1',
-        tags: ['1'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
-      {
-        id: 2,
-        status: 'completed',
-        description: '2',
-        project: '2',
-        tags: ['2'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
-      {
-        id: 3,
-        status: 'in-progress',
-        description: '3',
-        project: '3',
-        tags: ['3'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
+      createTask(1, 'pending', '1', '1', ['1']),
+      createTask(2, 'completed', '2', '2', ['2']),
+      createTask(3, 'in-progress', '3', '3', ['3']),
     ]);
   });
 
   it('sorts tasks in descending order by id', () => {
     const sortedTasks = sortTasksById(tasks, 'desc');
     expect(sortedTasks).toEqual([
-      {
-        id: 3,
-        status: 'in-progress',
-        description: '3',
-        project: '3',
-        tags: ['3'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
-      {
-        id: 2,
-        status: 'completed',
-        description: '2',
-        project: '2',
-        tags: ['2'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
-      {
-        id: 1,
-        status: 'pending',
-        description: '1',
-        project: '1',
-        tags: ['1'],
-        uuid: '',
-        urgency: 0,
-        priority: '',
-        due: '',
-        end: '',
-        entry: '',
-        modified: '',
-        email: '',
-      },
+      createTask(3, 'in-progress', '3', '3', ['3']),
+      createTask(2, 'completed', '2', '2', ['2']),
+      createTask(1, 'pending', '1', '1', ['1']),
     ]);
   });
 });
@@ -331,6 +107,7 @@ jest.mock('react-toastify', () => ({
   toast: {
     success: jest.fn(),
     error: jest.fn(),
+    info: jest.fn(),
   },
 }));
 
@@ -411,7 +188,7 @@ describe('handleDate', () => {
     );
   });
 
-  it('should return false and show no toast for empty date string', () => {
+  it('should return false and show toast for empty date string', () => {
     const emptyDate = '';
     const result = handleDate(emptyDate);
     expect(result).toBe(false);
@@ -473,14 +250,6 @@ describe('markTaskAsCompleted', () => {
     });
   });
 });
-
-global.fetch = jest.fn();
-jest.mock('react-toastify', () => ({
-  toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-  },
-}));
 
 describe('markTaskAsDeleted', () => {
   const email = 'test@example.com';
