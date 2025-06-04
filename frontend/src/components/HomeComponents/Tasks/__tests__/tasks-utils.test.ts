@@ -12,7 +12,13 @@ import {
 import { Task } from '@/components/utils/types';
 
 // Helper to create minimal task objects
-const createTask = (id: number, status: string, description: string, project: string, tags: string[]): Task => ({
+const createTask = (
+  id: number,
+  status: string,
+  description: string,
+  project: string,
+  tags: string[]
+): Task => ({
   id,
   status,
   description,
