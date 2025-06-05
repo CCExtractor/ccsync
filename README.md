@@ -28,7 +28,7 @@
 
 # CCSync
 
-CCSync is a web UI and API solution designed to facilitate the retrieval and synchronization of tasks from a [`taskchampion-sync-server`](https://github.com/GothenburgBitFactory/taskchampion-sync-server) container. It provides a seamless experience for managing tasks across all Taskwarrior 3.0 (and higher) clients, whether using the Taskwarrior CLI, the web frontend, or the Taskwarrior Flutter app.
+CCSync is a web UI and API solution designed to facilitate the retrieval and synchronization of tasks from a [`taskchampion-sync-server`](https://github.com/GothenburgBitFactory/taskchampion-sync-server) container. It provides a seamless experience for managing tasks across all Taskwarrior 3.0 (and higher) clients, whether using the Taskwarrior CLI, the web frontend, or the Taskwarrior Flutter app. It can either be used as a standalone Web frontend to manage or view your Taskwarrior Tasks, or along with [the Taskwarrior Flutter App](https://github.com/CCExtractor/taskwarrior-flutter). 
 
 ## Table of Contents
 
@@ -44,7 +44,7 @@ During the development of CCSync, the primary focus was placed on creating a bac
 
 ## Features
 
-- **Task Management**: Create, read, update, and delete tasks using Taskwarrior CLI, a web UI, or the Taskwarrior Flutter app.
+- **Task Management**: Create, read, update, and delete tasks using Taskwarrior CLI, the web UI frontend, or the Taskwarrior Flutter app.
 - **Cross-Platform Synchronization**: Synchronize tasks across all Taskwarrior 3.0+ clients.
 - **API Integration**: RESTful API to interact with tasks programmatically.
 - **User-Friendly Web UI**: Manage tasks through a web-based user interface.
@@ -56,7 +56,7 @@ During the development of CCSync, the primary focus was placed on creating a bac
 CCSync comprises three main components:
 
 1. **Backend**: The main server-side component that interfaces with Taskwarrior clients, performs operations, and provides a RESTful API.
-2. **Web Frontend**: A user-friendly web interface built for task management, and credentials retreival.
+2. **Web Frontend**: A user-friendly web interface built for task management, and credentials retreival. It manages all the tasks in your browser's storage, while the taskchampion syncserver acts as a central point of sync between the frontends, and your CLI clients.
 3. **Taskwarrior Flutter App**: The mobile app that allows users to manage tasks on the go, fully integrated with the CCSync API.
 
 For more details, please check out the [documentation](https://its-me-abhishek.github.io/ccsync-docs/).
