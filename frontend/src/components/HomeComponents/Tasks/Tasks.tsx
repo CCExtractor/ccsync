@@ -58,19 +58,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import BottomBar from '../BottomBar/BottomBar';
-import Dexie from 'dexie';
+import { addTaskToBackend, editTaskOnBackend, fetchTaskwarriorTasks, TasksDatabase } from './hooks';
 
-class TasksDatabase extends Dexie {
-  tasks: Dexie.Table<Task, string>; // string = type of primary key (uuid)
-
-  constructor() {
-    super('tasksDB');
-    this.version(1).stores({
-      tasks: 'uuid, email, status, project', // Primary key and indexed props
-    });
-    this.tasks = this.table('tasks');
-  }
-}
 const db = new TasksDatabase();
 
 export const Tasks = (
@@ -147,48 +136,29 @@ export const Tasks = (
 
   async function syncTasksWithTwAndDb() {
     try {
-      const user_email = props.email;
-      const encryptionSecret = props.encryptionSecret;
-      const UUID = props.UUID;
-      const backendURL =
-        url.backendURL +
-        `/tasks?email=${encodeURIComponent(user_email)}&encryptionSecret=${encodeURIComponent(encryptionSecret)}&UUID=${encodeURIComponent(UUID)}`;
-
-      const response = await fetch(backendURL, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const { email: user_email, encryptionSecret, UUID } = props;
+      const taskwarriorTasks = await fetchTaskwarriorTasks({
+        email: user_email,
+        encryptionSecret,
+        UUID,
+        backendURL: url.backendURL,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch tasks from backend');
-      }
-
-      const taskwarriorTasks = await response.json();
       console.log(taskwarriorTasks);
-      // Use Dexie transaction to update tasks
-      await db.transaction('rw', db.tasks, async () => {
-        // Delete existing tasks for the user
-        await db.tasks.where('email').equals(user_email).delete();
 
-        // Add new tasks from backend
+      await db.transaction('rw', db.tasks, async () => {
+        await db.tasks.where('email').equals(user_email).delete();
         const tasksToAdd = taskwarriorTasks.map((task: Task) => ({
           ...task,
           email: user_email,
         }));
         await db.tasks.bulkPut(tasksToAdd);
-
-        // Fetch updated tasks
         const updatedTasks = await db.tasks
           .where('email')
           .equals(user_email)
           .toArray();
-
         setTasks(sortTasksById(updatedTasks, 'desc'));
         setTempTasks(sortTasksById(updatedTasks, 'desc'));
       });
-
       toast.success(`Tasks synced successfully!`);
     } catch (error) {
       console.error('Error syncing tasks:', error);
@@ -208,41 +178,29 @@ export const Tasks = (
   ) {
     if (handleDate(newTask.due)) {
       try {
-        const backendURL = url.backendURL + `add-task`;
-        const response = await fetch(backendURL, {
-          method: 'POST',
-          body: JSON.stringify({
-            email: email,
-            encryptionSecret: encryptionSecret,
-            UUID: UUID,
-            description: description,
-            project: project,
-            priority: priority,
-            due: due,
-            tags: tags,
-          }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        await addTaskToBackend({
+          email,
+          encryptionSecret,
+          UUID,
+          description,
+          project,
+          priority,
+          due,
+          tags,
+          backendURL: url.backendURL,
         });
 
-        if (response.ok) {
-          console.log('Task added successfully!');
-          setNewTask({
-            description: '',
-            priority: '',
-            project: '',
-            due: '',
-            tags: [],
-          });
-          setIsAddTaskOpen(false);
-          // await syncTasksWithTwAndDb(); // Sync to update Dexie DB and UI
-        } else {
-          const errorData = await response.text();
-          console.error('Backend error:', errorData);
-        }
+        console.log('Task added successfully!');
+        setNewTask({
+          description: '',
+          priority: '',
+          project: '',
+          due: '',
+          tags: [],
+        });
+        setIsAddTaskOpen(false);
       } catch (error) {
-        console.error('Failed to add task: ', error);
+        console.error('Failed to add task:', error);
       }
     }
   }
@@ -256,27 +214,20 @@ export const Tasks = (
     taskID: string
   ) {
     try {
-      const backendURL = url.backendURL + `edit-task`;
-      const response = await fetch(backendURL, {
-        method: 'POST',
-        body: JSON.stringify({
-          email: email,
-          encryptionSecret: encryptionSecret,
-          UUID: UUID,
-          taskID: taskID,
-          description: description,
-          tags: tags,
-        }),
+      await editTaskOnBackend({
+        email,
+        encryptionSecret,
+        UUID,
+        description,
+        tags,
+        taskID,
+        backendURL: url.backendURL,
       });
-      if (response.ok) {
-        console.log('Task edited successfully!');
-        await syncTasksWithTwAndDb(); // Sync to update Dexie DB and UI
-        setIsAddTaskOpen(false);
-      } else {
-        console.error('Failed to edit task');
-      }
+
+      console.log('Task edited successfully!');
+      setIsAddTaskOpen(false);
     } catch (error) {
-      console.error('Failed to edit task: ', error);
+      console.error('Failed to edit task:', error);
     }
   }
 
@@ -893,7 +844,7 @@ export const Tasks = (
                                     ) : (
                                       <div className="flex items-center">
                                         {task.tags !== null &&
-                                        task.tags.length >= 1 ? (
+                                          task.tags.length >= 1 ? (
                                           task.tags.map((tag, index) => (
                                             <Badge
                                               key={index}
