@@ -1,5 +1,5 @@
-import { Task } from "@/components/utils/types";
-import Dexie from "dexie";
+import { Task } from '@/components/utils/types';
+import Dexie from 'dexie';
 
 export const fetchTaskwarriorTasks = async ({
   email,

@@ -58,7 +58,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import BottomBar from '../BottomBar/BottomBar';
-import { addTaskToBackend, editTaskOnBackend, fetchTaskwarriorTasks, TasksDatabase } from './hooks';
+import {
+  addTaskToBackend,
+  editTaskOnBackend,
+  fetchTaskwarriorTasks,
+  TasksDatabase,
+} from './hooks';
 
 const db = new TasksDatabase();
 
@@ -844,7 +849,7 @@ export const Tasks = (
                                     ) : (
                                       <div className="flex items-center">
                                         {task.tags !== null &&
-                                          task.tags.length >= 1 ? (
+                                        task.tags.length >= 1 ? (
                                           task.tags.map((tag, index) => (
                                             <Badge
                                               key={index}
