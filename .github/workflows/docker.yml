@@ -3,7 +3,7 @@ name: Build and Push Docker Images to GHCR
 on:
   push:
     branches:
-      - docker-prod
+      - main
 
 jobs:
   build-and-push-frontend:
