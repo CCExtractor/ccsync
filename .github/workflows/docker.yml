@@ -36,6 +36,10 @@ jobs:
             ghcr.io/ccextractor/frontend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            VITE_BACKEND_URL=http://localhost:8000
+            VITE_FRONTEND_URL=http://localhost:80
+            VITE_CONTAINER_ORIGIN=http://localhost:8080
 
   build-and-push-backend:
     runs-on: ubuntu-latest

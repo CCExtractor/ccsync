@@ -1,16 +1,12 @@
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ghcr.io/ccextractor/frontend:latest
     ports:
       - "80:80"
     networks:
       - tasknetwork
     depends_on:
       - backend
-    env_file:
-      - ./frontend/.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
@@ -18,9 +14,7 @@ services:
       retries: 3
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/ccextractor/backend:latest
     ports:
       - "8000:8000"
     networks:
@@ -28,7 +22,7 @@ services:
     depends_on:
       - syncserver
     env_file:
-      - ./backend/.env
+      - .backend.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
