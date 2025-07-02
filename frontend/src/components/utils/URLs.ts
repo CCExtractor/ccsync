@@ -1,4 +1,4 @@
-const isTesting = true;
+const isTesting = false;
 
 export const url = isTesting
   ? {
@@ -12,9 +12,9 @@ export const url = isTesting
       taskchampionSyncServerURL: '',
     }
   : {
-      backendURL: import.meta.env.VITE_BACKEND_URL,
-      frontendURL: import.meta.env.VITE_FRONTEND_URL,
-      containerOrigin: import.meta.env.VITE_CONTAINER_ORIGIN,
+      backendURL: 'http://localhost:8000/',
+      frontendURL: 'http://localhost:80',
+      containerOrigin: 'http://localhost:8080/',
       githubRepoURL: 'https://github.com/CCExtractor/ccsync',
       githubDocsURL: 'https://its-me-abhishek.github.io/ccsync-docs/',
       zulipURL: 'https://ccextractor.org/public/general/support/',
