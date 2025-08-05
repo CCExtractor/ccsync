@@ -64,6 +64,7 @@ import {
   fetchTaskwarriorTasks,
   TasksDatabase,
 } from './hooks';
+import { debounce } from '@/components/utils/utils';
 
 const db = new TasksDatabase();
 
@@ -101,6 +102,35 @@ export const Tasks = (
     _selectedTask?.tags || []
   );
   const [isEditingTags, setIsEditingTags] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Debounced search handler
+  const debouncedSearch = debounce((value: string) => {
+    if (!value) {
+      setTempTasks(
+        selectedProject === 'all' && selectedStatus === 'all'
+          ? tasks
+          : tempTasks
+      );
+      return;
+    }
+    const lowerValue = value.toLowerCase();
+    const filtered = tasks.filter(
+      (task) =>
+        task.description.toLowerCase().includes(lowerValue) ||
+        (task.project && task.project.toLowerCase().includes(lowerValue)) ||
+        (task.tags &&
+          task.tags.some((tag) => tag.toLowerCase().includes(lowerValue)))
+    );
+    setTempTasks(filtered);
+    setCurrentPage(1);
+  }, 300);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    debouncedSearch(value);
+  };
 
   const tasksPerPage = 10;
   const indexOfLastTask = currentPage * tasksPerPage;
@@ -383,14 +413,22 @@ export const Tasks = (
         <>
           <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full py-12">
             {/* Table for displaying tasks */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <h3 className="ml-4 mb-4 mr-4 text-2xl mt-0 md:text-2xl font-bold">
                 <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                   Here are{' '}
                 </span>
                 your tasks
               </h3>
-              <div className="flex items-center justify-left">
+              <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+                <Input
+                  type="text"
+                  placeholder="Search tasks..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  className="w-full md:w-64"
+                  data-testid="task-search-bar"
+                />
                 <Select onValueChange={handleProjectChange}>
                   <SelectTrigger className="w-[180px] hidden sm:flex mr-2">
                     <SelectValue placeholder="Select a project" />

@@ -1,8 +1,25 @@
 import { url } from '@/components/utils/URLs';
 import { Props } from '../../utils/types';
 import { CopyableCode } from './CopyableCode';
+import { exportConfigSetup } from './utils';
+import { Button } from '@/components/ui/button';
 
 export const SetupGuide = (props: Props) => {
+  const downloadConfigFile = () => {
+    const configContent = exportConfigSetup(props); // already a string
+    const blob = new Blob([configContent], {
+      type: 'text/plain;charset=utf-8',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'taskwarrior-setup.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
   return (
     <section
       id="setup-guide"
@@ -87,6 +104,20 @@ export const SetupGuide = (props: Props) => {
                     copyText={'task sync init'}
                   />
                 </div>
+              </div>
+
+              <div>
+                <h3
+                  onClick={downloadConfigFile}
+                  className="text-xl sm:text-2xl font-bold"
+                >
+                  <Button variant="link">
+                    {' '}
+                    <span className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
+                      DOWNLOAD CONFIGURATION
+                    </span>
+                  </Button>
+                </h3>
               </div>
             </div>
           </div>
