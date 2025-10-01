@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml
+    kompose.version: 1.32.0 (765fde254)
+  labels:
+    io.kompose.service: backend
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: backend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml
+        kompose.version: 1.32.0 (765fde254)
+      labels:
+        io.kompose.network/production-tasknetwork: "true"
+        io.kompose.service: backend
+    spec:
+      containers:
+        - env:
+            - name: CLIENT_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: CLIENT_ID
+                  name: backend-env
+            - name: CLIENT_SEC
+              valueFrom:
+                configMapKeyRef:
+                  key: CLIENT_SEC
+                  name: backend-env
+            - name: CONTAINER_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  key: CONTAINER_ORIGIN
+                  name: backend-env
+            - name: FRONTEND_ORIGIN_DEV
+              valueFrom:
+                configMapKeyRef:
+                  key: FRONTEND_ORIGIN_DEV
+                  name: backend-env
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: PORT
+                  name: backend-env
+            - name: REDIRECT_URL_DEV
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIRECT_URL_DEV
+                  name: backend-env
+            - name: SESSION_KEY
+              valueFrom:
+                configMapKeyRef:
+                  key: SESSION_KEY
+                  name: backend-env
+          image: ghcr.io/ccextractor/backend:latest
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8000/health
+            failureThreshold: 3
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: backend
+          ports:
+            - containerPort: 8000
+              hostPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /app/data
+              name: backend-claim0
+      restartPolicy: Always
+      volumes:
+        - name: backend-claim0
+          persistentVolumeClaim:
+            claimName: backend-claim0
