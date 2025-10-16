@@ -84,4 +84,4 @@ We would love to hear from you! You may join the CCExtractor community Zulip:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. 
