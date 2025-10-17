@@ -9,8 +9,8 @@ services:
       - tasknetwork
     depends_on:
       - backend
-    env_file:
-      - ./frontend/.env
+    # env_file:
+      # - ./frontend/.env
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
