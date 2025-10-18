@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://github.com/its-me-abhishek/ccsync">
-    <img src="https://github.com/its-me-abhishek/ccsync/blob/main/frontend/src/assets/logo.jpg" alt="CCSync Logo" width="180" />
+    <img src="https://github.com/its-me-abhishek/ccsync/blob/main/frontend/src/assets/logo.jpg" alt="CCSync Logo"/>
   </a>
   <h3>Web Interface + Sync Server for Taskwarrior 3.0 and Higher</h3>
 
