@@ -1,38 +1,48 @@
-<a href="https://github.com/its-me-abhishek/ccsync">
-  <img src="https://github.com/its-me-abhishek/ccsync/blob/main/frontend/src/assets/logo.jpg" alt="CCSync">
-</a>
+<div align="center">
+  <a href="https://github.com/its-me-abhishek/ccsync">
+    <img src="https://github.com/its-me-abhishek/ccsync/blob/main/frontend/src/assets/logo.jpg" alt="CCSync Logo"/>
+  </a>
+  <h3>Web Interface + Sync Server for Taskwarrior 3.0 and Higher</h3>
 
-</h1>
-<h4 align="center">Web interface + Sync server for Taskwarrior 3.0 and higher</h4>
-<p align="center">
-    <a href="https://github.com/its-me-abhishek/ccsync/commits/main">
-    <img src="https://img.shields.io/github/last-commit/its-me-abhishek/ccsync.svg?style=flat-square&logo=github&logoColor=white"
-         alt="GitHub last commit"></a>
+  <p>
+    A self-hosted solution for syncing and managing your tasks anywhere, anytime.
+  </p>
+
+  <p>
+    <a href="https://github.com/its-me-abhishek/ccsync/stargazers">
+      <img src="https://img.shields.io/github/stars/its-me-abhishek/ccsync?logo=github&color=gold&style=for-the-badge" alt="Stars" />
+    </a>
+    <a href="https://github.com/its-me-abhishek/ccsync/forks">
+      <img src="https://img.shields.io/github/forks/its-me-abhishek/ccsync?logo=github&color=orange&style=for-the-badge" alt="Forks" />
+    </a>
+    <a href="https://github.com/its-me-abhishek/ccsync/issues">
+      <img src="https://img.shields.io/github/issues/its-me-abhishek/ccsync?logo=github&color=red&style=for-the-badge" alt="Issues" />
+    </a>
     <a href="https://github.com/its-me-abhishek/ccsync/pulls">
-    <img src="https://img.shields.io/github/issues-pr-raw/its-me-abhishek/ccsync?style=flat-square&logo=github&logoColor=white"
-         alt="GitHub pull requests"></a>
-    <a href="https://github.com/its-me-abhishek/ccsync/pulls?q=is%3Apr+is%3Aclosed">
-    <img src="https://img.shields.io/github/issues-pr-closed-raw/its-me-abhishek/ccsync?style=flat-square&logo=github&logoColor=white"
-         alt="Closed pull requests"></a>
+      <img src="https://img.shields.io/github/issues-pr/its-me-abhishek/ccsync?logo=github&color=purple&style=for-the-badge" alt="PRs" />
+    </a>
+    <a href="https://github.com/its-me-abhishek/ccsync/commits/main">
+      <img src="https://img.shields.io/github/last-commit/its-me-abhishek/ccsync?logo=git&color=brightgreen&style=for-the-badge" alt="Last Commit" />
+    </a>
+  </p>
 
-</p>
-<p align="center">
-  <a href="">Website</a> •
-  <a href="https://its-me-abhishek.github.io/ccsync-docs/">Documentation</a> •
-  <a href="https://abhishek31.medium.com/">Blogs</a> •
-  <a href="https://github.com/its-me-abhishek/gsoc-report">GSoC Report</a> •
-  <a href="https://www.youtube.com/watch?v=8UhAeM8iWzQ">Setup Video</a>
-</p>
+  <p>
+    <img src="https://img.shields.io/github/license/its-me-abhishek/ccsync?color=blue&style=for-the-badge" alt="License" />
+    <img src="https://img.shields.io/badge/contributions-welcome-brightgreen?style=for-the-badge&logo=github" alt="Contributions Welcome" />
+  </p>
 
----
-
-# CCSync
-
-CCSync is a web UI and API solution designed to facilitate the retrieval and synchronization of tasks from a [`taskchampion-sync-server`](https://github.com/GothenburgBitFactory/taskchampion-sync-server) container. It provides a seamless experience for managing tasks across all Taskwarrior 3.0 (and higher) clients, whether using the Taskwarrior CLI, the web frontend, or the Taskwarrior Flutter app. It can either be used as a standalone Web frontend to manage or view your Taskwarrior Tasks, or along with [the Taskwarrior Flutter App](https://github.com/CCExtractor/taskwarrior-flutter). 
+  <p>
+    <a href="https://its-me-abhishek.github.io/ccsync-docs/">📘 Documentation</a> •
+    <a href="https://abhishek31.medium.com/">📝 Blogs</a> •
+    <a href="https://github.com/its-me-abhishek/gsoc-report">📄 GSoC Report</a> •
+    <a href="https://www.youtube.com/watch?v=8UhAeM8iWzQ">🎥 Setup Video</a>
+  </p>
+</div>
 
 ## Table of Contents
 
 - [Overview](#overview)
+- [Screenshots](#screenshots)
 - [Features](#features)
 - [Architecture](#architecture)
 - [Contributing](#contributing)
@@ -40,48 +50,79 @@ CCSync is a web UI and API solution designed to facilitate the retrieval and syn
 
 ## Overview
 
-During the development of CCSync, the primary focus was placed on creating a backend that provides a series of commands capable of interacting with the Taskwarrior client on the user's system. These commands enable users to create, read, update, or delete tasks directly from the web frontend, or the Taskwarrior Flutter app. The CCSync API ensures these tasks are synchronized across all Taskwarrior clients connected to the `taskchampion-sync-server`.
+**CCSync** is a web UI and API that synchronizes your [Taskwarrior](https://taskwarrior.org/) tasks across all your clients using a [`taskchampion-sync-server`](https://github.com/GothenburgBitFactory/taskchampion-sync-server).
+
+Whether you prefer the **CLI**, **Web Frontend**, or **Flutter Mobile App**, CCSync keeps everything in sync efficiently and securely.
+
+## Screenshots
+
+<img src="./assets/01_landing.png">
+<img src="./assets/02_landing.png">
+<img src="./assets/03_landing.png">
+<img src="./assets/04_landing.png">
+<img src="./assets/05_landing.png">
+<img src="./assets/01_home.png">
+<img src="./assets/02_home.png">
+<img src="./assets/03_home.png">
+<img src="./assets/04_home.png">
+<p align="center">
+  <table align="center">
+    <tr>
+      <td><img src="./assets/01_home_mobile.png" width="250"></td>
+      <td><img src="./assets/02_home_mobile.png" width="250"></td>
+    </tr>
+    <tr>
+      <td><img src="./assets/03_home_mobile.png" width="250"></td>
+      <td><img src="./assets/04_home_mobile.png" width="250"></td>
+    </tr>
+  </table>
+</p>
 
 ## Features
 
-- **Task Management**: Create, read, update, and delete tasks using Taskwarrior CLI, the web UI frontend, or the Taskwarrior Flutter app.
-- **Cross-Platform Synchronization**: Synchronize tasks across all Taskwarrior 3.0+ clients.
-- **API Integration**: RESTful API to interact with tasks programmatically.
-- **User-Friendly Web UI**: Manage tasks through a web-based user interface.
-- **Flutter App Integration**: Seamless integration with the Taskwarrior Flutter app for mobile task management.
-- **Backend Commands**: A comprehensive set of backend commands to interact with Taskwarrior clients.
+- **Task Management** — Create, read, update, and delete tasks seamlessly.
+- **Cross-Platform Sync** — Keep all Taskwarrior 3.0+ clients in sync automatically.
+- **RESTful API** — Manage and query tasks programmatically.
+- **Web Frontend** — Clean and responsive UI for easy task handling.
+- **Mobile Integration** — Compatible with the [Taskwarrior Flutter App](https://github.com/CCExtractor/taskwarrior-flutter).
+- **Backend Commands** — Full control via Taskwarrior-compatible commands.
 
 ## Architecture
 
-CCSync comprises three main components:
+CCSync is composed of **three core modules**:
 
-1. **Backend**: The main server-side component that interfaces with Taskwarrior clients, performs operations, and provides a RESTful API.
-2. **Web Frontend**: A user-friendly web interface built for task management, and credentials retreival. It manages all the tasks in your browser's storage, while the taskchampion syncserver acts as a central point of sync between the frontends, and your CLI clients.
-3. **Taskwarrior Flutter App**: The mobile app that allows users to manage tasks on the go, fully integrated with the CCSync API.
+1. **Backend** — The REST API and logic layer that communicates with Taskwarrior clients.
+2. **Web Frontend** — A modern web UI that stores and manages tasks in-browser.
+3. **Taskchampion Sync Server** — In order to sync tasks with you Taskwarrior instances, CCSync by default uses the offical Taskchampion sync server image to sync tasks.
 
-For more details, please check out the [documentation](https://its-me-abhishek.github.io/ccsync-docs/).
+📖 Learn more in the [official documentation](https://its-me-abhishek.github.io/ccsync-docs/).
 
-## Contributing
+## Testing with Postman
 
-We welcome contributions to CCSync! Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started. Please raise an issue for any query, bug fix, or a feature request.
+1. Open **Postman**.
+2. Click **Import** → Select `ccsync.postman_collection.json`.
+3. Modify the body fields and start testing!
 
-## Postman Collection for testing the backend
+## 🤝 Contributing
 
-To import the Postman collection:
+We welcome all type of contributions!  
+Check out the [Contributing Guidelines](CONTRIBUTING.md) and raise issues or PRs.
 
-1. Open Postman.
-2. Click "Import".
-3. Select the `ccsync.postman_collection.json` file.
-4. Click "Import".
+<p align="center">
+  <img src="https://img.shields.io/badge/PRs-Welcome-blueviolet?style=for-the-badge&logo=github" alt="PRs Welcome" />
+</p>
 
-Now you can use the API requests by modifying the body accordingly!
+## 💬 Community
 
-## Community
+Join discussions and get support on **Zulip** 👇  
+[![Chat on Zulip](https://img.shields.io/badge/Chat%20on-Zulip-9146FF?style=for-the-badge&logo=zulip)](https://ccextractor.org/public/general/support/)
 
-We would love to hear from you! You may join the CCExtractor community Zulip:
+## 📜 License
 
-[![Zulip](https://img.shields.io/badge/chat-on_zulip-purple.svg?style=for-the-badge&logo=zulip)](https://ccextractor.org/public/general/support/)
+Licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
-## License
+<div align="center">
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+🔝 [Back to Top](#table-of-contents)
+
+</div>

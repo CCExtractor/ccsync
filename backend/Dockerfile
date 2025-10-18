@@ -1,5 +1,5 @@
 # Use the official Golang image for building the backend
-FROM golang:1.23.1-alpine as build
+FROM golang:1.23.1-alpine AS build
 
 # Set working directory
 WORKDIR /app
