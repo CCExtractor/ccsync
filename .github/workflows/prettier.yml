@@ -5,7 +5,8 @@ on:
       - "main"
   pull_request:
     branches:
-      - ["main", "dev"]
+      - "main" 
+      - "dev"
 jobs:
   prettier:
     runs-on: ubuntu-latest
