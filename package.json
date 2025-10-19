@@ -5,7 +5,8 @@
   "description": "Development tooling for the CCSync monorepo (husky + lint-staged)",
   "scripts": {
     "prepare": "husky",
-    "lint:staged": "lint-staged"
+    "lint:staged": "lint-staged",
+    "format:go": "node scripts/format-go.js"
   },
   "devDependencies": {
     "husky": "^9.1.6",
@@ -20,7 +21,7 @@
       "prettier --write"
     ],
     "backend/**/*.go": [
-      "sh -c 'command -v gofmt >/dev/null 2>&1 && gofmt -w \"$@\" || echo \"gofmt not found; skipping Go formatting\"' --"
+      "npm run -s format:go --"
     ]
   }
 }

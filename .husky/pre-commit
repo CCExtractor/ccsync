@@ -1,8 +1,21 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# Collect staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR)
+
+# Patterns that require prettier (or lint-staged) to run
+NEEDS_NODE=$(printf "%s\n" "$STAGED_FILES" | grep -E "(frontend/.*\.(js|jsx|ts|tsx|css|scss|json|md)$)|(^.*\.(md|json|ya?ml)$)" || true)
+
 if command -v npm >/dev/null 2>&1; then
 	npm run -s lint:staged
 else
-	echo "npm not found; skipping lint-staged"
+	if [ -n "$NEEDS_NODE" ]; then
+		echo "Error: npm not found but staged files require formatting. Please install Node.js and run: npm install"
+		echo "Files:"
+		printf "%s\n" "$NEEDS_NODE"
+		exit 1
+	else
+		echo "npm not found; skipping lint-staged (no relevant files staged)"
+	fi
 fi
