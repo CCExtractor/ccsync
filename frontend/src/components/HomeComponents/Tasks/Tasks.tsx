@@ -148,28 +148,28 @@ export const Tasks = (
     }
   }, [_selectedTask]);
 
-  useEffect(() => {
-    const fetchTasksForEmail = async () => {
-      try {
-        const tasksFromDB = await db.tasks
-          .where('email')
-          .equals(props.email)
-          .toArray();
+  // useEffect(() => {
+  //   const fetchTasksForEmail = async () => {
+  //     try {
+  //       const tasksFromDB = await db.tasks
+  //         .where('email')
+  //         .equals(props.email)
+  //         .toArray();
 
-        setTasks(sortTasksById(tasksFromDB, 'desc'));
-        setTempTasks(sortTasksById(tasksFromDB, 'desc'));
+  //       setTasks(sortTasksById(tasksFromDB, 'desc'));
+  //       setTempTasks(sortTasksById(tasksFromDB, 'desc'));
 
-        const projectsSet = new Set(tasksFromDB.map((task) => task.project));
-        const filteredProjects = Array.from(projectsSet)
-          .filter((project) => project !== '')
-          .sort((a, b) => (a > b ? 1 : -1));
-        setUniqueProjects(filteredProjects);
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      }
-    };
-    fetchTasksForEmail();
-  }, [props.email]);
+  //       const projectsSet = new Set(tasksFromDB.map((task) => task.project));
+  //       const filteredProjects = Array.from(projectsSet)
+  //         .filter((project) => project !== '')
+  //         .sort((a, b) => (a > b ? 1 : -1));
+  //       setUniqueProjects(filteredProjects);
+  //     } catch (error) {
+  //       console.error('Error fetching tasks:', error);
+  //     }
+  //   };
+  //   fetchTasksForEmail();
+  // }, [props.email]);
   useEffect(() => {
   const fetchTasksForEmail = async () => {
     try {
@@ -372,16 +372,16 @@ const handleTagChange = (value: string) => {
   setSelectedTag(value);
 };
   // useEffect to update tempTasks whenever selectedProject changes
-  useEffect(() => {
-    if (selectedProject === 'all') {
-      setTempTasks(tasks);
-    } else {
-      const filteredTasks = tasks.filter(
-        (task) => task.project === selectedProject
-      );
-      setTempTasks(sortTasksById(filteredTasks, 'desc'));
-    }
-  }, [selectedProject, tasks]);
+  // useEffect(() => {
+  //   if (selectedProject === 'all') {
+  //     setTempTasks(tasks);
+  //   } else {
+  //     const filteredTasks = tasks.filter(
+  //       (task) => task.project === selectedProject
+  //     );
+  //     setTempTasks(sortTasksById(filteredTasks, 'desc'));
+  //   }
+  // }, [selectedProject, tasks]);
 
   const handleStatusChange = (value: string) => {
     setSelectedStatus(value);
@@ -407,16 +407,16 @@ useEffect(() => {
   setTempTasks(sortTasksById(filteredTasks, 'desc'));
 }, [selectedProject, selectedTag, tasks]);
 
-  useEffect(() => {
-    if (selectedStatus === 'all') {
-      setTempTasks(tasks);
-    } else {
-      const filteredTasks = tasks.filter(
-        (task) => task.status === selectedStatus
-      );
-      setTempTasks(sortTasksById(filteredTasks, 'desc'));
-    }
-  }, [selectedStatus, tasks]);
+  // useEffect(() => {
+  //   if (selectedStatus === 'all') {
+  //     setTempTasks(tasks);
+  //   } else {
+  //     const filteredTasks = tasks.filter(
+  //       (task) => task.status === selectedStatus
+  //     );
+  //     setTempTasks(sortTasksById(filteredTasks, 'desc'));
+  //   }
+  // }, [selectedStatus, tasks]);
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
