@@ -74,7 +74,9 @@ export const Tasks = (
     setIsLoading: (val: boolean) => void;
   }
 ) => {
+  const [uniqueTags, setUniqueTags] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [selectedTag, setSelectedTag] = useState('all');
   const [uniqueProjects, setUniqueProjects] = useState<string[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [tempTasks, setTempTasks] = useState<Task[]>([]);
@@ -146,28 +148,43 @@ export const Tasks = (
     }
   }, [_selectedTask]);
 
+
   useEffect(() => {
-    const fetchTasksForEmail = async () => {
-      try {
-        const tasksFromDB = await db.tasks
-          .where('email')
-          .equals(props.email)
-          .toArray();
+  const fetchTasksForEmail = async () => {
+    try {
+      const tasksFromDB = await db.tasks
+        .where('email')
+        .equals(props.email)
+        .toArray();
 
-        setTasks(sortTasksById(tasksFromDB, 'desc'));
-        setTempTasks(sortTasksById(tasksFromDB, 'desc'));
+      // Set all tasks
+      setTasks(sortTasksById(tasksFromDB, 'desc'));
+      setTempTasks(sortTasksById(tasksFromDB, 'desc'));
 
-        const projectsSet = new Set(tasksFromDB.map((task) => task.project));
-        const filteredProjects = Array.from(projectsSet)
-          .filter((project) => project !== '')
-          .sort((a, b) => (a > b ? 1 : -1));
-        setUniqueProjects(filteredProjects);
-      } catch (error) {
-        console.error('Error fetching tasks:', error);
-      }
-    };
-    fetchTasksForEmail();
-  }, [props.email]);
+     
+      const projectsSet = new Set(tasksFromDB.map((task) => task.project));
+      const filteredProjects = Array.from(projectsSet)
+        .filter((project) => project !== '')
+        .sort((a, b) => (a > b ? 1 : -1));
+      setUniqueProjects(filteredProjects);
+
+      //  Extract unique tags
+      const tagsSet = new Set(
+        tasksFromDB.flatMap((task) => task.tags || [])
+      );
+      const filteredTags = Array.from(tagsSet)
+        .filter((tag) => tag !== '')
+        .sort((a, b) => (a > b ? 1 : -1));
+      setUniqueTags(filteredTags); 
+
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  fetchTasksForEmail();
+}, [props.email]);
+
 
   async function syncTasksWithTwAndDb() {
     try {
@@ -330,33 +347,34 @@ export const Tasks = (
       tags: newTask.tags.filter((tag) => tag !== tagToRemove),
     });
   };
-
-  // useEffect to update tempTasks whenever selectedProject changes
-  useEffect(() => {
-    if (selectedProject === 'all') {
-      setTempTasks(tasks);
-    } else {
-      const filteredTasks = tasks.filter(
-        (task) => task.project === selectedProject
-      );
-      setTempTasks(sortTasksById(filteredTasks, 'desc'));
-    }
-  }, [selectedProject, tasks]);
+const handleTagChange = (value: string) => {
+  setSelectedTag(value);
+};
 
   const handleStatusChange = (value: string) => {
     setSelectedStatus(value);
   };
+useEffect(() => {
+  let filteredTasks = tasks;
 
-  useEffect(() => {
-    if (selectedStatus === 'all') {
-      setTempTasks(tasks);
-    } else {
-      const filteredTasks = tasks.filter(
-        (task) => task.status === selectedStatus
-      );
-      setTempTasks(sortTasksById(filteredTasks, 'desc'));
-    }
-  }, [selectedStatus, tasks]);
+  // Project filter
+  if (selectedProject !== 'all') {
+    filteredTasks = filteredTasks.filter(
+      (task) => task.project === selectedProject
+    );
+  }
+
+  // Tag filter
+  if (selectedTag && selectedTag !== 'all') {
+    filteredTasks = filteredTasks.filter(
+      (task) => task.tags && task.tags.includes(selectedTag)
+    );
+  }
+
+  // Sort + set
+  setTempTasks(sortTasksById(filteredTasks, 'desc'));
+}, [selectedProject, selectedTag, tasks]);
+
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
@@ -467,6 +485,22 @@ export const Tasks = (
                     </SelectGroup>
                   </SelectContent>
                 </Select>
+                <Select onValueChange={handleTagChange}>
+  <SelectTrigger className="w-[180px] hidden sm:flex mr-2">
+    <SelectValue placeholder="Select a tag" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectGroup>
+      <SelectLabel>Select Tag</SelectLabel>
+      <SelectItem value="all">All Tags</SelectItem>
+      {uniqueTags.map((tag) => (
+        <SelectItem key={tag} value={tag}>
+          {tag}
+        </SelectItem>
+      ))}
+    </SelectGroup>
+  </SelectContent>
+</Select>
                 <div className="pr-2">
                   <Dialog open={isAddTaskOpen} onOpenChange={setIsAddTaskOpen}>
                     <DialogTrigger asChild>
