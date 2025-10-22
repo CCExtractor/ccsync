@@ -103,7 +103,7 @@ CCSync is composed of **three core modules**:
 2. Click **Import** → Select `ccsync.postman_collection.json`.
 3. Modify the body fields and start testing!
 
-## 🤝 Contributing
+## Contributing
 
 We welcome all type of contributions!  
 Check out the [Contributing Guidelines](CONTRIBUTING.md) and raise issues or PRs.
@@ -112,12 +112,12 @@ Check out the [Contributing Guidelines](CONTRIBUTING.md) and raise issues or PRs
   <img src="https://img.shields.io/badge/PRs-Welcome-blueviolet?style=for-the-badge&logo=github" alt="PRs Welcome" />
 </p>
 
-## 💬 Community
+## Community
 
 Join discussions and get support on **Zulip** 👇  
 [![Chat on Zulip](https://img.shields.io/badge/Chat%20on-Zulip-9146FF?style=for-the-badge&logo=zulip)](https://ccextractor.org/public/general/support/)
 
-## 📜 License
+## License
 
 Licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
