@@ -9,6 +9,17 @@ import (
 	"net/http"
 )
 
+// ModifyTaskHandler godoc
+// @Summary Modify a task
+// @Description Modify task properties including description, project, priority, status, due date, and tags
+// @Tags Tasks
+// @Accept json
+// @Produce json
+// @Param task body models.ModifyTaskRequestBody true "Task modification details"
+// @Success 202 {string} string "Task modification accepted for processing"
+// @Failure 400 {string} string "Bad request - invalid input or missing required fields"
+// @Failure 405 {string} string "Method not allowed"
+// @Router /modify-task [post]
 func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)

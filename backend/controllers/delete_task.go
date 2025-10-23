@@ -9,6 +9,17 @@ import (
 	"net/http"
 )
 
+// DeleteTaskHandler godoc
+// @Summary Delete a task
+// @Description Delete a task from Taskwarrior
+// @Tags Tasks
+// @Accept json
+// @Produce json
+// @Param task body models.DeleteTaskRequestBody true "Task deletion details"
+// @Success 202 {string} string "Task deletion accepted for processing"
+// @Failure 400 {string} string "Bad request - invalid input or missing taskuuid"
+// @Failure 405 {string} string "Method not allowed"
+// @Router /delete-task [post]
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)

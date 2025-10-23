@@ -9,6 +9,17 @@ import (
 	"net/http"
 )
 
+// CompleteTaskHandler godoc
+// @Summary Complete a task
+// @Description Mark a task as completed in Taskwarrior
+// @Tags Tasks
+// @Accept json
+// @Produce json
+// @Param task body models.CompleteTaskRequestBody true "Task completion details"
+// @Success 202 {string} string "Task completion accepted for processing"
+// @Failure 400 {string} string "Bad request - invalid input or missing taskuuid"
+// @Failure 405 {string} string "Method not allowed"
+// @Router /complete-task [post]
 func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)

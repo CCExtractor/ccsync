@@ -9,6 +9,17 @@ import (
 	"net/http"
 )
 
+// EditTaskHandler godoc
+// @Summary Edit a task
+// @Description Edit task description and tags in Taskwarrior
+// @Tags Tasks
+// @Accept json
+// @Produce json
+// @Param task body models.EditTaskRequestBody true "Task edit details"
+// @Success 202 {string} string "Task edit accepted for processing"
+// @Failure 400 {string} string "Bad request - invalid input or missing taskID"
+// @Failure 405 {string} string "Method not allowed"
+// @Router /edit-task [post]
 func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)
