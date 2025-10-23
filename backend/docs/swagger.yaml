@@ -1,0 +1,440 @@
+basePath: /
+definitions:
+  models.AddTaskRequestBody:
+    properties:
+      UUID:
+        type: string
+      description:
+        type: string
+      due:
+        type: string
+      email:
+        type: string
+      encryptionSecret:
+        type: string
+      priority:
+        type: string
+      project:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  models.Annotation:
+    properties:
+      description:
+        type: string
+      entry:
+        type: string
+    type: object
+  models.CompleteTaskRequestBody:
+    properties:
+      UUID:
+        type: string
+      email:
+        type: string
+      encryptionSecret:
+        type: string
+      taskuuid:
+        type: string
+    type: object
+  models.DeleteTaskRequestBody:
+    properties:
+      UUID:
+        type: string
+      email:
+        type: string
+      encryptionSecret:
+        type: string
+      taskuuid:
+        type: string
+    type: object
+  models.EditTaskRequestBody:
+    properties:
+      UUID:
+        type: string
+      description:
+        type: string
+      email:
+        type: string
+      encryptionSecret:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      taskid:
+        type: string
+    type: object
+  models.ModifyTaskRequestBody:
+    properties:
+      UUID:
+        type: string
+      description:
+        type: string
+      due:
+        type: string
+      email:
+        type: string
+      encryptionSecret:
+        type: string
+      priority:
+        type: string
+      project:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      taskid:
+        type: string
+    type: object
+  models.Task:
+    properties:
+      annotations:
+        items:
+          $ref: '#/definitions/models.Annotation'
+        type: array
+      depends:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      due:
+        type: string
+      end:
+        type: string
+      entry:
+        type: string
+      id:
+        type: integer
+      modified:
+        type: string
+      priority:
+        type: string
+      project:
+        type: string
+      recur:
+        type: string
+      rtype:
+        type: string
+      start:
+        type: string
+      status:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      urgency:
+        type: number
+      uuid:
+        type: string
+      wait:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: support@ccsync.com
+    name: API Support
+    url: https://github.com/CCExtractor/ccsync
+  description: |-
+    API for CCSync - Web Interface + Sync Server for Taskwarrior 3.0 and Higher
+    A self-hosted solution for syncing and managing your tasks anywhere, anytime.
+  license:
+    name: MIT
+    url: https://github.com/CCExtractor/ccsync/blob/main/LICENSE
+  title: CCSync API
+  version: "1.0"
+paths:
+  /add-task:
+    post:
+      consumes:
+      - application/json
+      description: Add a new task to Taskwarrior for a specific user
+      parameters:
+      - description: Task details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddTaskRequestBody'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Task accepted for processing
+          schema:
+            type: string
+        "400":
+          description: Bad request - invalid input or missing required fields
+          schema:
+            type: string
+        "405":
+          description: Method not allowed
+          schema:
+            type: string
+      summary: Add a new task
+      tags:
+      - Tasks
+  /api/user:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve user information from the session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User information including email, id, uuid, and encryption_secret
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: No user info available - user not authenticated
+          schema:
+            type: string
+      summary: Get user information
+      tags:
+      - Auth
+  /auth/callback:
+    get:
+      consumes:
+      - application/json
+      description: Handles the OAuth callback and creates user session
+      parameters:
+      - description: OAuth authorization code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "303":
+          description: Redirect to frontend home page
+          schema:
+            type: string
+        "400":
+          description: Bad request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: OAuth callback handler
+      tags:
+      - Auth
+  /auth/logout:
+    get:
+      consumes:
+      - application/json
+      description: Logout user and delete session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully logged out
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Logout user
+      tags:
+      - Auth
+  /auth/oauth:
+    get:
+      consumes:
+      - application/json
+      description: Redirects user to Google OAuth login page
+      produces:
+      - application/json
+      responses:
+        "307":
+          description: Redirect to OAuth provider
+          schema:
+            type: string
+      summary: Initiate OAuth login
+      tags:
+      - Auth
+  /complete-task:
+    post:
+      consumes:
+      - application/json
+      description: Mark a task as completed in Taskwarrior
+      parameters:
+      - description: Task completion details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.CompleteTaskRequestBody'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Task completion accepted for processing
+          schema:
+            type: string
+        "400":
+          description: Bad request - invalid input or missing taskuuid
+          schema:
+            type: string
+        "405":
+          description: Method not allowed
+          schema:
+            type: string
+      summary: Complete a task
+      tags:
+      - Tasks
+  /delete-task:
+    post:
+      consumes:
+      - application/json
+      description: Delete a task from Taskwarrior
+      parameters:
+      - description: Task deletion details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteTaskRequestBody'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Task deletion accepted for processing
+          schema:
+            type: string
+        "400":
+          description: Bad request - invalid input or missing taskuuid
+          schema:
+            type: string
+        "405":
+          description: Method not allowed
+          schema:
+            type: string
+      summary: Delete a task
+      tags:
+      - Tasks
+  /edit-task:
+    post:
+      consumes:
+      - application/json
+      description: Edit task description and tags in Taskwarrior
+      parameters:
+      - description: Task edit details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.EditTaskRequestBody'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Task edit accepted for processing
+          schema:
+            type: string
+        "400":
+          description: Bad request - invalid input or missing taskID
+          schema:
+            type: string
+        "405":
+          description: Method not allowed
+          schema:
+            type: string
+      summary: Edit a task
+      tags:
+      - Tasks
+  /modify-task:
+    post:
+      consumes:
+      - application/json
+      description: Modify task properties including description, project, priority,
+        status, due date, and tags
+      parameters:
+      - description: Task modification details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.ModifyTaskRequestBody'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Task modification accepted for processing
+          schema:
+            type: string
+        "400":
+          description: Bad request - invalid input or missing required fields
+          schema:
+            type: string
+        "405":
+          description: Method not allowed
+          schema:
+            type: string
+      summary: Modify a task
+      tags:
+      - Tasks
+  /tasks:
+    get:
+      consumes:
+      - application/json
+      description: Fetch all tasks from Taskwarrior for a specific user
+      parameters:
+      - description: User email
+        in: query
+        name: email
+        required: true
+        type: string
+      - description: Encryption secret for the user
+        in: query
+        name: encryptionSecret
+        required: true
+        type: string
+      - description: User UUID
+        in: query
+        name: UUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of tasks
+          schema:
+            items:
+              $ref: '#/definitions/models.Task'
+            type: array
+        "400":
+          description: Missing required parameters
+          schema:
+            type: string
+        "500":
+          description: Failed to fetch tasks at backend
+          schema:
+            type: string
+      summary: Get all tasks
+      tags:
+      - Tasks
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
+tags:
+- description: Task management operations
+  name: Tasks
+- description: Authentication and authorization endpoints
+  name: Auth
