@@ -15,8 +15,8 @@ import (
 	"ccsync_backend/controllers"
 	"ccsync_backend/middleware"
 
-	httpSwagger "github.com/swaggo/http-swagger"
 	_ "ccsync_backend/docs" // Swagger docs
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // @title CCSync API
