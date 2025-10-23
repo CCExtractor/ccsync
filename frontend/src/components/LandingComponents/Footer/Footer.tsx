@@ -1,8 +1,10 @@
+import { HighlightLink } from '@/components/ui/link-highlight';
 import logo from '../../../assets/logo.png';
 import logoLight from '../../../assets/logo_light.png';
 import { url } from '@/components/utils/URLs';
 
 export const Footer = () => {
+ 
   return (
     <footer id="footer">
       <hr className="w-11/12 mx-auto" />
@@ -35,80 +37,47 @@ export const Footer = () => {
         <div className="flex flex-col gap-2">
           <h3 className="font-bold text-lg">Community</h3>
           <div>
-            <a
-              rel="noreferrer noopener"
-              href={url.githubRepoURL}
-              className="opacity-60 hover:opacity-100"
-            >
+            <HighlightLink rel="noreferrer noopener" href={url.githubRepoURL}>
               Github
-            </a>
+            </HighlightLink>
           </div>
-
           <div>
-            <a
-              rel="noreferrer noopener"
-              href={url.zulipURL}
-              className="opacity-60 hover:opacity-100"
-            >
+            <HighlightLink rel="noreferrer noopener" href={url.zulipURL}>
               Zulip
-            </a>
-          </div>
-          <div>
-            <a
-              rel="noreferrer noopener"
-              href="#"
-              className="opacity-60 hover:opacity-100"
-            >
-              Discord
-            </a>
+            </HighlightLink>
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
           <h3 className="font-bold text-lg">About</h3>
           <div>
-            <a
-              rel="noreferrer noopener"
-              href="#howItWorks"
-              className="opacity-60 hover:opacity-100"
-            >
+             <HighlightLink rel="noreferrer noopener" href={"#howItWorks"}>
               Features
-            </a>
+            </HighlightLink>
           </div>
 
           <div>
-            <a
-              rel="noreferrer noopener"
-              href="#faq"
-              className="opacity-60 hover:opacity-100"
-            >
+            <HighlightLink rel="noreferrer noopener" href={"#faq"}>
               FAQ
-            </a>
+            </HighlightLink>
+            
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
           <h3 className="font-bold text-lg">Important Links</h3>
           <div>
-            <a
-              rel="noreferrer noopener"
-              href={url.taskwarriorURL}
-              className="opacity-60 hover:opacity-100"
-              target="_blank"
-            >
+            <HighlightLink rel="noreferrer noopener" href={url.taskwarriorURL} target="_blank">
               Taskwarrior
-            </a>
+            </HighlightLink>
+  
           </div>
 
           <div>
-            <a
-              rel="noreferrer noopener"
-              href={url.taskchampionSyncServerURL}
-              className="opacity-60 hover:opacity-100"
-              target="_blank"
-            >
+
+            <HighlightLink rel="noreferrer noopener" href={url.taskchampionSyncServerURL} target="_blank">
               Taskchampion-sync-server
-            </a>
+            </HighlightLink>
           </div>
         </div>
       </section>
