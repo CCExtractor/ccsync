@@ -14,7 +14,34 @@ import (
 
 	"ccsync_backend/controllers"
 	"ccsync_backend/middleware"
+
+	_ "ccsync_backend/docs" // Swagger docs
+	httpSwagger "github.com/swaggo/http-swagger"
 )
+
+// @title CCSync API
+// @version 1.0
+// @description API for CCSync - Web Interface + Sync Server for Taskwarrior 3.0 and Higher
+// @description A self-hosted solution for syncing and managing your tasks anywhere, anytime.
+
+// @contact.name API Support
+// @contact.url https://github.com/CCExtractor/ccsync
+
+// @license.name MIT
+// @license.url https://github.com/CCExtractor/ccsync/blob/main/LICENSE
+
+// @host localhost:8000
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+
+// @tag.name Tasks
+// @tag.description Task management operations
+
+// @tag.name Auth
+// @tag.description Authentication and authorization endpoints
 
 func main() {
 	if os.Getenv("ENV") != "production" {
@@ -67,8 +94,12 @@ func main() {
 
 	mux.HandleFunc("/ws", controllers.WebSocketHandler)
 
+	// API documentation endpoint
+	mux.HandleFunc("/api/docs/", httpSwagger.WrapHandler)
+
 	go controllers.JobStatusManager()
 	log.Println("Server started at :8000")
+	log.Println("API documentation available at http://localhost:8000/api/docs/index.html")
 	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
 		log.Fatal(err)
 	}
