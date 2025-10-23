@@ -21,7 +21,6 @@ const BottomBar: React.FC<BottomBarProps> = ({
   selectedStatus,
   setSelectedStatus,
 }) => {
-
   const handleFilterChange = (value: string) => {
     if (!value) return;
     const [type, filterValue] = value.split(':');
@@ -66,7 +65,9 @@ const BottomBar: React.FC<BottomBarProps> = ({
           <SelectContent>
             {/* Group for Projects */}
             <SelectGroup>
-              <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">Projects</SelectLabel>
+              <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                Projects
+              </SelectLabel>
               <SelectItem value="project:all">All Projects</SelectItem>
               {projects.map((project) => (
                 <SelectItem key={project} value={`project:${project}`}>
@@ -77,7 +78,9 @@ const BottomBar: React.FC<BottomBarProps> = ({
 
             {/* Group for Statuses */}
             <SelectGroup>
-              <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">Status</SelectLabel>
+              <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                Status
+              </SelectLabel>
               <SelectItem value="status:all">All</SelectItem>
               {status.map((s) => (
                 <SelectItem key={s} value={`status:${s}`}>
