@@ -7,6 +7,7 @@ export function HighlightLink({ href, children,rel,target}: { href: string; chil
 
   return (
     <motion.a
+    target={target}
     rel={rel}
       href={href}
       onHoverStart={() => setIsHovered(true)}
