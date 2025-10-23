@@ -140,7 +140,6 @@ definitions:
 host: localhost:8000
 info:
   contact:
-    email: support@ccsync.com
     name: API Support
     url: https://github.com/CCExtractor/ccsync
   description: |-
