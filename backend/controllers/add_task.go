@@ -11,6 +11,17 @@ import (
 
 var GlobalJobQueue *JobQueue
 
+// AddTaskHandler godoc
+// @Summary Add a new task
+// @Description Add a new task to Taskwarrior for a specific user
+// @Tags Tasks
+// @Accept json
+// @Produce json
+// @Param task body models.AddTaskRequestBody true "Task details"
+// @Success 202 {string} string "Task accepted for processing"
+// @Failure 400 {string} string "Bad request - invalid input or missing required fields"
+// @Failure 405 {string} string "Method not allowed"
+// @Router /add-task [post]
 func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		body, err := io.ReadAll(r.Body)
