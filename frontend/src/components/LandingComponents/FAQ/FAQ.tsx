@@ -3,6 +3,7 @@ import { FAQItem } from './FAQItem';
 import { FAQList } from './faq-utils';
 import { BlueHeading } from '@/lib/utils';
 import { url } from '@/components/utils/URLs';
+import { HighlightLink } from '@/components/ui/link-highlight';
 
 export const FAQ = () => {
   return (
@@ -22,13 +23,10 @@ export const FAQ = () => {
 
       <h3 className="font-medium mt-4">
         Still have questions?{' '}
-        <a
-          rel="noreferrer noopener"
-          href={url.githubRepoURL}
-          className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text"
-        >
-          Contact us
-        </a>
+        <HighlightLink rel="noreferrer noopener" href={url.githubRepoURL}>
+                      Contact us
+                    </HighlightLink>
+      
       </h3>
     </section>
   );
