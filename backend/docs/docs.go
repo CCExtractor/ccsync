@@ -11,8 +11,7 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "contact": {
             "name": "API Support",
-            "url": "https://github.com/CCExtractor/ccsync",
-            "email": "support@ccsync.com"
+            "url": "https://github.com/CCExtractor/ccsync"
         },
         "license": {
             "name": "MIT",
