@@ -25,10 +25,9 @@ export const FAQ = () => {
 
       <h3 className="font-medium mt-4">
         Still have questions?{' '}
-        
-        <HighlightLink rel="noreferrer noopener" href={"#contact"}>
-                      Contact us
-                    </HighlightLink>
+        <HighlightLink rel="noreferrer noopener" href={'#contact'}>
+          Contact us
+        </HighlightLink>
       </h3>
     </section>
   );

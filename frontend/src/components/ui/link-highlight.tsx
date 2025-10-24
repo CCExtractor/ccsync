@@ -1,14 +1,23 @@
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 
-
-export function HighlightLink({ href, children,rel,target}: { href: string; children: React.ReactNode,rel:string,target?:string }) {
+export function HighlightLink({
+  href,
+  children,
+  rel,
+  target,
+}: {
+  href: string;
+  children: React.ReactNode;
+  rel: string;
+  target?: string;
+}) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.a
-    target={target}
-    rel={rel}
+      target={target}
+      rel={rel}
       href={href}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}

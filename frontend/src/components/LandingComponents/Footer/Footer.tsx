@@ -4,7 +4,6 @@ import logoLight from '../../../assets/logo_light.png';
 import { url } from '@/components/utils/URLs';
 
 export const Footer = () => {
- 
   return (
     <footer id="footer">
       <hr className="w-11/12 mx-auto" />
@@ -51,31 +50,36 @@ export const Footer = () => {
         <div className="flex flex-col gap-2">
           <h3 className="font-bold text-lg">About</h3>
           <div>
-             <HighlightLink rel="noreferrer noopener" href={"#howItWorks"}>
+            <HighlightLink rel="noreferrer noopener" href={'#howItWorks'}>
               Features
             </HighlightLink>
           </div>
 
           <div>
-            <HighlightLink rel="noreferrer noopener" href={"#faq"}>
+            <HighlightLink rel="noreferrer noopener" href={'#faq'}>
               FAQ
             </HighlightLink>
-            
           </div>
         </div>
 
         <div className="flex flex-col gap-2">
           <h3 className="font-bold text-lg">Important Links</h3>
           <div>
-            <HighlightLink rel="noreferrer noopener" href={url.taskwarriorURL} target="_blank">
+            <HighlightLink
+              rel="noreferrer noopener"
+              href={url.taskwarriorURL}
+              target="_blank"
+            >
               Taskwarrior
             </HighlightLink>
-  
           </div>
 
           <div>
-
-            <HighlightLink rel="noreferrer noopener" href={url.taskchampionSyncServerURL} target="_blank">
+            <HighlightLink
+              rel="noreferrer noopener"
+              href={url.taskchampionSyncServerURL}
+              target="_blank"
+            >
               Taskchampion-sync-server
             </HighlightLink>
           </div>
