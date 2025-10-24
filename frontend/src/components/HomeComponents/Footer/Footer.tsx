@@ -38,8 +38,8 @@ export const Footer = () => {
           <h3 className="font-bold text-lg">Community</h3>
           <div>
             <HighlightLink rel="noreferrer noopener" href={url.githubRepoURL}>
-                          Github
-                        </HighlightLink>
+              Github
+            </HighlightLink>
           </div>
 
           <div>
@@ -52,13 +52,13 @@ export const Footer = () => {
         <div className="flex flex-col gap-2">
           <h3 className="font-bold text-lg">About</h3>
           <div>
-            <HighlightLink rel="noreferrer noopener" href={"#setup-guide"}>
+            <HighlightLink rel="noreferrer noopener" href={'#setup-guide'}>
               Setup Guide
             </HighlightLink>
           </div>
 
           <div>
-            <HighlightLink rel="noreferrer noopener" href={"#faq"}>
+            <HighlightLink rel="noreferrer noopener" href={'#faq'}>
               FAQ
             </HighlightLink>
           </div>
@@ -67,14 +67,22 @@ export const Footer = () => {
         <div className="flex flex-col gap-2">
           <h3 className="font-bold text-lg">Important Links</h3>
           <div>
-            <HighlightLink rel="noreferrer noopener" href={url.taskwarriorURL} target="_blank">
+            <HighlightLink
+              rel="noreferrer noopener"
+              href={url.taskwarriorURL}
+              target="_blank"
+            >
               Taskwarrior
             </HighlightLink>
           </div>
 
           <div>
-             <HighlightLink rel="noreferrer noopener" href={url.taskchampionSyncServerURL} target="_blank">
-               Taskchampion-sync-server
+            <HighlightLink
+              rel="noreferrer noopener"
+              href={url.taskchampionSyncServerURL}
+              target="_blank"
+            >
+              Taskchampion-sync-server
             </HighlightLink>
           </div>
         </div>
