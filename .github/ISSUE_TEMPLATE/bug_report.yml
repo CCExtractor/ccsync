@@ -1,0 +1,61 @@
+name: Bug report
+description: File a bug report to help us improve
+labels: [bug]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: What happened?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce the behavior?
+      placeholder: 1. Go to ...\n2. Click on ...\n3. See error
+    validations:
+      required: true
+  - type: input
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: What did you expect to happen?
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or logs
+      description: If applicable, add screenshots or log output to help explain your problem.
+      render: shell
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area(s)
+      multiple: true
+      options:
+        - Backend (Go)
+        - Frontend (React/Vite)
+        - Docker/Compose
+        - Production manifests
+        - Docs
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: OS, browser/Node version, Go version, Docker version, etc.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues
+          required: true
+        - label: I can reproduce with the latest main branch
+          required: false

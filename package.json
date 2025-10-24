@@ -1,0 +1,27 @@
+{
+  "name": "ccsync-devtools",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Development tooling for the CCSync monorepo (husky + lint-staged)",
+  "scripts": {
+    "prepare": "husky",
+    "lint:staged": "lint-staged",
+    "format:go": "node scripts/format-go.js"
+  },
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.7",
+    "prettier": "^3.3.3"
+  },
+  "lint-staged": {
+    "**/*.{md,json,yml,yaml}": [
+      "prettier --write"
+    ],
+    "frontend/**/*.{js,jsx,ts,tsx,css,scss,json,md}": [
+      "prettier --write"
+    ],
+    "backend/**/*.go": [
+      "npm run -s format:go --"
+    ]
+  }
+}

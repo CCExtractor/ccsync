@@ -48,8 +48,11 @@ Please follow these rules or conventions while committing any new changes:
 - `refactor`: refactoring production code, eg. renaming a variable
 - `test`: adding missing tests, refactoring tests
 - `chore`: updating grunt tasks, etc., no production code change
-- Run `npx prettier --write .` before commiting so as to adhere to the linting scheme of the project's frontend
-- Run `gofmt -w .` before commiting so as to adhere to the linting scheme of the project's backend
+- Frontend and docs are automatically formatted with Prettier via a Git pre-commit hook (Husky + lint-staged).
+- Go files are automatically formatted with `gofmt` via the same pre-commit hook.
+- First-time setup: run `npm install` in the repo root to install Husky hooks. The `prepare` script will set up `.husky/`.
+- To run formatters manually: `npm run lint:staged -- --allow-empty` from the repo root.
+- To bypass hooks in emergencies, use `--no-verify` on git commit (not recommended).
 
 ### Pull Request
 
