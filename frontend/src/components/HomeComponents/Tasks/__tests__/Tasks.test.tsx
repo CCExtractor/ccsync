@@ -18,12 +18,14 @@ jest.mock('react-toastify', () => ({
   },
 }));
 
-jest.mock('../tasks-utils', () => ({
-  markTaskAsCompleted: jest.fn(),
-  markTaskAsDeleted: jest.fn(),
-  sortTasksById: jest.fn().mockImplementation((tasks) => tasks),
-  sortTasks: jest.fn().mockImplementation((tasks) => tasks),
-}));
+jest.mock('../tasks-utils', () => {
+  const originalModule = jest.requireActual('../tasks-utils');
+  return {
+    ...originalModule, // Includes all real functions like sortTasksById
+    markTaskAsCompleted: jest.fn(), // Overwrite this one with a mock
+    markTaskAsDeleted: jest.fn(), // And this one
+  };
+});
 
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
 

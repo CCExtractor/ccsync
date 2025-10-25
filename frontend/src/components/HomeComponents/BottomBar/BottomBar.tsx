@@ -11,15 +11,23 @@ import {
 import { NavigationMenu } from '@/components/ui/navigation-menu';
 import { buttonVariants } from '@/components/ui/button';
 import { BottomBarProps } from './bottom-bar-utils';
+import { Icons } from '@/components/icons';
 
 const BottomBar: React.FC<BottomBarProps> = ({
   projects,
-  selectedProject,
   setSelectedProject,
   status,
-  selectedStatus,
   setSelectedStatus,
 }) => {
+  const handleFilterChange = (value: string) => {
+    if (!value) return;
+    const [type, filterValue] = value.split(':');
+    if (type === 'project') {
+      setSelectedProject(filterValue);
+    } else if (type === 'status') {
+      setSelectedStatus(filterValue);
+    }
+  };
   return (
     <header className="sm:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40">
       <NavigationMenu className="mx-auto">
@@ -28,53 +36,55 @@ const BottomBar: React.FC<BottomBarProps> = ({
             <a
               rel="noreferrer noopener"
               href={'#'}
+              aria-label="Home"
               className={`text-[17px] ${buttonVariants({
                 variant: 'ghost',
               })}`}
             >
-              Home
+              <Icons.Home className="h-6 w-6" />
             </a>
             <a
               rel="noreferrer noopener"
               href={'#tasks'}
+              aria-label="Tasks"
               className={`text-[17px] ${buttonVariants({
                 variant: 'ghost',
               })}`}
             >
-              Tasks
+              <Icons.Tasks className="h-6 w-6" />
             </a>
           </nav>
         </div>
-        <Select
-          value={selectedProject || ''}
-          onValueChange={setSelectedProject}
-        >
-          <SelectTrigger className="w-[120px] mr-2">
-            <SelectValue placeholder="Select a project" />
+        <Select onValueChange={handleFilterChange}>
+          <SelectTrigger className="w-auto" aria-label="Filter">
+            <div className="flex items-center gap-2">
+              <Icons.Filter className="h-4 w-4" />
+              <SelectValue placeholder="Filter" />
+            </div>
           </SelectTrigger>
           <SelectContent>
+            {/* Group for Projects */}
             <SelectGroup>
-              <SelectLabel>Projects</SelectLabel>
-              <SelectItem value="all">All Projects</SelectItem>
+              <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                Projects
+              </SelectLabel>
+              <SelectItem value="project:all">All Projects</SelectItem>
               {projects.map((project) => (
-                <SelectItem key={project} value={project}>
+                <SelectItem key={project} value={`project:${project}`}>
                   {project}
                 </SelectItem>
               ))}
             </SelectGroup>
-          </SelectContent>
-        </Select>
-        <Select value={selectedStatus || ''} onValueChange={setSelectedStatus}>
-          <SelectTrigger className="w-[90px]">
-            <SelectValue placeholder="Select a project" />
-          </SelectTrigger>
-          <SelectContent>
+
+            {/* Group for Statuses */}
             <SelectGroup>
-              <SelectLabel>Status</SelectLabel>
-              <SelectItem value="all">All</SelectItem>
-              {status.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status}
+              <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                Status
+              </SelectLabel>
+              <SelectItem value="status:all">All</SelectItem>
+              {status.map((s) => (
+                <SelectItem key={s} value={`status:${s}`}>
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
                 </SelectItem>
               ))}
             </SelectGroup>
