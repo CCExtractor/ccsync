@@ -11,6 +11,7 @@ import {
 import { NavigationMenu } from '@/components/ui/navigation-menu';
 import { buttonVariants } from '@/components/ui/button';
 import { BottomBarProps } from './bottom-bar-utils';
+import { FaHome as HomeIcon, FaTasks as TasksIcon} from "react-icons/fa";
 
 const BottomBar: React.FC<BottomBarProps> = ({
   projects,
@@ -32,7 +33,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
                 variant: 'ghost',
               })}`}
             >
-              Home
+              <HomeIcon className='w-6 h-6' />
             </a>
             <a
               rel="noreferrer noopener"
@@ -41,40 +42,49 @@ const BottomBar: React.FC<BottomBarProps> = ({
                 variant: 'ghost',
               })}`}
             >
-              Tasks
+              <TasksIcon className='w-6 h-6' />
             </a>
           </nav>
         </div>
         <Select
-          value={selectedProject || ''}
-          onValueChange={setSelectedProject}
-        >
-          <SelectTrigger className="w-[120px] mr-2">
-            <SelectValue placeholder="Select a project" />
+          value={
+            selectedProject !== 'all' ? `project-${selectedProject}` :
+            selectedStatus !== 'all' ? `status-${selectedStatus}` :
+            'all'
+          }
+          onValueChange={(value) => {
+            if (value.startsWith('project-')) {
+              const project = value.replace('project-', '');
+              setSelectedProject(project);
+              setSelectedStatus('all');
+            } else if (value.startsWith('status-')) {
+              const status = value.replace('status-', '');
+              setSelectedStatus(status);
+              setSelectedProject('all');
+            } else if (value === 'all') {
+              setSelectedProject('all');
+              setSelectedStatus('all');
+            }
+          }}
+          >
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Filter tasks" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>Projects</SelectLabel>
-              <SelectItem value="all">All Projects</SelectItem>
+              <SelectLabel className="text-base font-semibold">Projects</SelectLabel>
+              <SelectItem value="all">All</SelectItem>
               {projects.map((project) => (
-                <SelectItem key={project} value={project}>
+                <SelectItem key={`project-${project}`} value={`project-${project}`}>
                   {project}
                 </SelectItem>
               ))}
             </SelectGroup>
-          </SelectContent>
-        </Select>
-        <Select value={selectedStatus || ''} onValueChange={setSelectedStatus}>
-          <SelectTrigger className="w-[90px]">
-            <SelectValue placeholder="Select a project" />
-          </SelectTrigger>
-          <SelectContent>
             <SelectGroup>
-              <SelectLabel>Status</SelectLabel>
-              <SelectItem value="all">All</SelectItem>
-              {status.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status}
+              <SelectLabel className="text-base font-semibold">Status</SelectLabel>
+              {status.map((statusItem) => (
+                <SelectItem key={`status-${statusItem}`} value={`status-${statusItem}`}>
+                  {statusItem}
                 </SelectItem>
               ))}
             </SelectGroup>

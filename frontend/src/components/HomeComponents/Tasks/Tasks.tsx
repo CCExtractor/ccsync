@@ -350,14 +350,18 @@ export const Tasks = (
   };
   useEffect(() => {
     let filteredTasks = tasks;
-
     // Project filter
     if (selectedProject !== 'all') {
       filteredTasks = filteredTasks.filter(
         (task) => task.project === selectedProject
       );
     }
-
+    // Status filter
+    if (selectedStatus !== 'all') {
+      filteredTasks = filteredTasks.filter(
+        (task) => task.status === selectedStatus
+      );
+    }
     // Tag filter
     if (selectedTag && selectedTag !== 'all') {
       filteredTasks = filteredTasks.filter(
@@ -367,7 +371,7 @@ export const Tasks = (
 
     // Sort + set
     setTempTasks(sortTasksById(filteredTasks, 'desc'));
-  }, [selectedProject, selectedTag, tasks]);
+  }, [selectedProject, selectedStatus, selectedTag, tasks]);
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
