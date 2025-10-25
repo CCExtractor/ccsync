@@ -144,7 +144,9 @@ export const handleDate = (v: string) => {
   return true;
 };
 
-export const getTimeSinceLastSync = (lastSyncTimestamp: number | null): string => {
+export const getTimeSinceLastSync = (
+  lastSyncTimestamp: number | null
+): string => {
   if (!lastSyncTimestamp) {
     return 'Never synced';
   }
