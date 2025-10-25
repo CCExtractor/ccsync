@@ -20,12 +20,30 @@ type App struct {
 	UUID             string
 }
 
+// OAuthHandler godoc
+// @Summary Initiate OAuth login
+// @Description Redirects user to Google OAuth login page
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 307 {string} string "Redirect to OAuth provider"
+// @Router /auth/oauth [get]
 func (a *App) OAuthHandler(w http.ResponseWriter, r *http.Request) {
 	url := a.Config.AuthCodeURL("state", oauth2.AccessTypeOffline)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-// fetching the info
+// OAuthCallbackHandler godoc
+// @Summary OAuth callback handler
+// @Description Handles the OAuth callback and creates user session
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param code query string true "OAuth authorization code"
+// @Success 303 {string} string "Redirect to frontend home page"
+// @Failure 400 {string} string "Bad request"
+// @Failure 500 {string} string "Internal server error"
+// @Router /auth/callback [get]
 func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Fetching user info...")
 
@@ -75,6 +93,15 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, frontendOriginDev+"/home", http.StatusSeeOther)
 }
 
+// UserInfoHandler godoc
+// @Summary Get user information
+// @Description Retrieve user information from the session
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "User information including email, id, uuid, and encryption_secret"
+// @Failure 401 {string} string "No user info available - user not authenticated"
+// @Router /api/user [get]
 func (a *App) UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := a.SessionStore.Get(r, "session-name")
 	userInfo, ok := session.Values["user"].(map[string]interface{})
@@ -103,7 +130,15 @@ func (a *App) EnableCORS(handler http.Handler) http.Handler {
 	})
 }
 
-// logout and delete session
+// LogoutHandler godoc
+// @Summary Logout user
+// @Description Logout user and delete session
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "Successfully logged out"
+// @Failure 500 {string} string "Internal server error"
+// @Router /auth/logout [get]
 func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := a.SessionStore.Get(r, "session-name")
 	session.Options.MaxAge = -1
