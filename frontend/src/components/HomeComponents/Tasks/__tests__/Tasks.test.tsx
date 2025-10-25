@@ -23,6 +23,11 @@ jest.mock('../tasks-utils', () => ({
   markTaskAsDeleted: jest.fn(),
   sortTasksById: jest.fn().mockImplementation((tasks) => tasks),
   sortTasks: jest.fn().mockImplementation((tasks) => tasks),
+  getTimeSinceLastSync: jest.fn().mockReturnValue('Last updated 5 minutes ago'),
+  formattedDate: jest.fn().mockImplementation((date) => date),
+  getDisplayedPages: jest.fn().mockReturnValue([1, 2, 3]),
+  handleCopy: jest.fn(),
+  handleDate: jest.fn().mockReturnValue(true),
 }));
 
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
