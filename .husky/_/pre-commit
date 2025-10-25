@@ -1,4 +1,23 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
-cd frontend && npx lint-staged
+echo "Running formatter for frontend..."
+(cd frontend && npx lint-staged)
+LINT_STAGED_EXIT_CODE=$?
+
+if [ $LINT_STAGED_EXIT_CODE -ne 0 ]; then
+  echo "lint-staged failed. Aborting commit."
+  exit 1
+fi
+
+echo "Checking for staged Go files..."
+STAGED_GO_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.go$')
+
+if [ -n "$STAGED_GO_FILES" ]; then
+  echo "Formatting staged Go files with gofmt..."
+  gofmt -w $STAGED_GO_FILES
+  
+  git add $STAGED_GO_FILES
+else
+  echo "No Go files to format."
+fi
+
+exit 0
