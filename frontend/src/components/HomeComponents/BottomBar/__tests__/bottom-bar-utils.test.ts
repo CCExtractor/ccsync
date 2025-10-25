@@ -9,17 +9,21 @@ describe('RouteProps interface', () => {
 });
 
 describe('BottomBarProps interface', () => {
-  it('should have project and status properties', () => {
+  it('should have project, status, and tag properties', () => {
     const example: BottomBarProps = {
       projects: [''],
       setSelectedProject: jest.fn(),
       status: [''],
       setSelectedStatus: jest.fn(),
+      tags: [''],
+      setSelectedTag: jest.fn(),
     };
     expect(example).toHaveProperty('projects');
     expect(example).toHaveProperty('setSelectedProject');
     expect(example).toHaveProperty('status');
     expect(example).toHaveProperty('setSelectedStatus');
+    expect(example).toHaveProperty('tags');
+    expect(example).toHaveProperty('setSelectedTag');
   });
 });
 
