@@ -24,6 +24,7 @@ jest.mock('../tasks-utils', () => {
     ...originalModule, // Includes all real functions like sortTasksById
     markTaskAsCompleted: jest.fn(), // Overwrite this one with a mock
     markTaskAsDeleted: jest.fn(), // And this one
+    getTimeSinceLastSync: jest.fn().mockReturnValue('Last updated 5 minutes ago'), // Mock this new function
   };
 });
 
