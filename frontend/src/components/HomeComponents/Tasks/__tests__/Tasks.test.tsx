@@ -21,6 +21,8 @@ jest.mock('react-toastify', () => ({
 jest.mock('../tasks-utils', () => ({
   markTaskAsCompleted: jest.fn(),
   markTaskAsDeleted: jest.fn(),
+  sortTasksById: jest.fn().mockImplementation((tasks) => tasks),
+  sortTasks: jest.fn().mockImplementation((tasks) => tasks),
 }));
 
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
