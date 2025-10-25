@@ -11,15 +11,20 @@ describe('BottomBar Component', () => {
     render(
       <BottomBar
         projects={projects}
-        selectedProject={null}
         setSelectedProject={mockSetSelectedProject}
         status={status}
-        selectedStatus={null}
         setSelectedStatus={mockSetSelectedStatus}
       />
     );
 
-    expect(screen.getByText('Home')).toBeInTheDocument();
-    expect(screen.getByText('Tasks')).toBeInTheDocument();
+    const homeLink = screen.getByRole('link', { name: /home/i });
+    const tasksLink = screen.getByRole('link', { name: /tasks/i });
+
+    expect(homeLink).toHaveAttribute('href', '#');
+    expect(tasksLink).toHaveAttribute('href', '#tasks');
+
+    expect(
+      screen.getByRole('combobox', { name: /filter/i })
+    ).toBeInTheDocument();
   });
 });

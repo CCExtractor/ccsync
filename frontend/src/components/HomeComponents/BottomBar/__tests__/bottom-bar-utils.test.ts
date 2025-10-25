@@ -12,17 +12,13 @@ describe('BottomBarProps interface', () => {
   it('should have project and status properties', () => {
     const example: BottomBarProps = {
       projects: [''],
-      selectedProject: '',
       setSelectedProject: jest.fn(),
       status: [''],
-      selectedStatus: '',
       setSelectedStatus: jest.fn(),
     };
     expect(example).toHaveProperty('projects');
-    expect(example).toHaveProperty('selectedProject');
     expect(example).toHaveProperty('setSelectedProject');
     expect(example).toHaveProperty('status');
-    expect(example).toHaveProperty('selectedStatus');
     expect(example).toHaveProperty('setSelectedStatus');
   });
 });
