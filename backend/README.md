@@ -55,3 +55,11 @@
   docker-compose build backend
   docker-compose up
   ```
+
+## API Documentation
+
+Once the backend server is running, you can view the interactive API documentation (Swagger UI) at:
+
+- **Local development**: http://localhost:8000/api/docs/index.html
+
+The documentation provides detailed information about all available endpoints, request/response schemas, and allows you to test the API directly from your browser.

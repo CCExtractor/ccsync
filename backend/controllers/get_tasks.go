@@ -7,7 +7,19 @@ import (
 	"os"
 )
 
-// helps to fetch tasks using '/tasks' route
+// TasksHandler godoc
+// @Summary Get all tasks
+// @Description Fetch all tasks from Taskwarrior for a specific user
+// @Tags Tasks
+// @Accept json
+// @Produce json
+// @Param email query string true "User email"
+// @Param encryptionSecret query string true "Encryption secret for the user"
+// @Param UUID query string true "User UUID"
+// @Success 200 {array} models.Task "List of tasks"
+// @Failure 400 {string} string "Missing required parameters"
+// @Failure 500 {string} string "Failed to fetch tasks at backend"
+// @Router /tasks [get]
 func TasksHandler(w http.ResponseWriter, r *http.Request) {
 	email := r.URL.Query().Get("email")
 	encryptionSecret := r.URL.Query().Get("encryptionSecret")
