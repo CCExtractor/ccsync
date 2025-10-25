@@ -8,6 +8,7 @@ import {
   sortTasksById,
   markTaskAsCompleted,
   markTaskAsDeleted,
+  getTimeSinceLastSync,
 } from '../tasks-utils';
 import { Task } from '@/components/utils/types';
 
@@ -276,5 +277,77 @@ describe('markTaskAsDeleted', () => {
         taskuuid: taskuuid,
       }),
     });
+  });
+});
+
+describe('getTimeSinceLastSync', () => {
+  let originalDateNow: () => number;
+
+  beforeAll(() => {
+    originalDateNow = Date.now;
+  });
+
+  afterAll(() => {
+    Date.now = originalDateNow;
+  });
+
+  it('returns "Never synced" when lastSyncTimestamp is null', () => {
+    expect(getTimeSinceLastSync(null)).toBe('Never synced');
+  });
+
+  it('returns correct message for seconds ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 30000; // 30 seconds ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 30 seconds ago');
+  });
+
+  it('returns correct message for 1 second ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 1000; // 1 second ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 1 second ago');
+  });
+
+  it('returns correct message for minutes ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 5 * 60 * 1000; // 5 minutes ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 5 minutes ago');
+  });
+
+  it('returns correct message for 1 minute ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 60 * 1000; // 1 minute ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 1 minute ago');
+  });
+
+  it('returns correct message for hours ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 3 * 60 * 60 * 1000; // 3 hours ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 3 hours ago');
+  });
+
+  it('returns correct message for 1 hour ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 60 * 60 * 1000; // 1 hour ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 1 hour ago');
+  });
+
+  it('returns correct message for days ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 2 * 24 * 60 * 60 * 1000; // 2 days ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 2 days ago');
+  });
+
+  it('returns correct message for 1 day ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 24 * 60 * 60 * 1000; // 1 day ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 1 day ago');
   });
 });

@@ -143,3 +143,26 @@ export const handleDate = (v: string) => {
   }
   return true;
 };
+
+export const getTimeSinceLastSync = (lastSyncTimestamp: number | null): string => {
+  if (!lastSyncTimestamp) {
+    return 'Never synced';
+  }
+
+  const now = Date.now();
+  const diffMs = now - lastSyncTimestamp;
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSeconds < 60) {
+    return `Last updated ${diffSeconds} second${diffSeconds !== 1 ? 's' : ''} ago`;
+  } else if (diffMinutes < 60) {
+    return `Last updated ${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+  } else if (diffHours < 24) {
+    return `Last updated ${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  } else {
+    return `Last updated ${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+  }
+};
