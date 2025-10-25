@@ -358,6 +358,13 @@ export const Tasks = (
       );
     }
 
+    //Status filter
+    if (selectedStatus !== 'all') {
+      filteredTasks = filteredTasks.filter(
+        (task) => task.status === selectedStatus
+      );
+    }
+
     // Tag filter
     if (selectedTag && selectedTag !== 'all') {
       filteredTasks = filteredTasks.filter(
@@ -367,7 +374,7 @@ export const Tasks = (
 
     // Sort + set
     setTempTasks(sortTasksById(filteredTasks, 'desc'));
-  }, [selectedProject, selectedTag, tasks]);
+  }, [selectedProject, selectedTag, selectedStatus, tasks]);
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
@@ -406,10 +413,8 @@ export const Tasks = (
     >
       <BottomBar
         projects={uniqueProjects}
-        selectedProject={selectedProject}
         setSelectedProject={setSelectedProject}
         status={['pending', 'completed', 'deleted']}
-        selectedStatus={selectedStatus}
         setSelectedStatus={setSelectedStatus}
       />
       <h2

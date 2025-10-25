@@ -7,11 +7,8 @@ export interface RouteProps {
 
 export interface BottomBarProps {
   projects: string[];
-  selectedProject: string | null;
   setSelectedProject: Dispatch<SetStateAction<string>>;
-
   status: string[];
-  selectedStatus: string | null;
   setSelectedStatus: Dispatch<SetStateAction<string>>;
 }
 
