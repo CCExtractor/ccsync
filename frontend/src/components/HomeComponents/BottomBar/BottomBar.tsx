@@ -36,6 +36,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
             <a
               rel="noreferrer noopener"
               href={'#'}
+              aria-label="Home"
               className={`text-[17px] ${buttonVariants({
                 variant: 'ghost',
               })}`}
@@ -45,6 +46,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
             <a
               rel="noreferrer noopener"
               href={'#tasks'}
+              aria-label="Tasks"
               className={`text-[17px] ${buttonVariants({
                 variant: 'ghost',
               })}`}
@@ -54,7 +56,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
           </nav>
         </div>
         <Select onValueChange={handleFilterChange}>
-          <SelectTrigger className="w-auto">
+          <SelectTrigger className="w-auto" aria-label="Filter">
             <div className="flex items-center gap-2">
               <Icons.Filter className="h-4 w-4" />
               <SelectValue placeholder="Filter" />
