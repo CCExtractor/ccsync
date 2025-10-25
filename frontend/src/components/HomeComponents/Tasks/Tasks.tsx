@@ -152,7 +152,9 @@ export const Tasks = (
 
   // Load last sync time from localStorage on mount
   useEffect(() => {
-    const storedLastSyncTime = localStorage.getItem(`lastSyncTime_${props.email}`);
+    const storedLastSyncTime = localStorage.getItem(
+      `lastSyncTime_${props.email}`
+    );
     if (storedLastSyncTime) {
       setLastSyncTime(parseInt(storedLastSyncTime, 10));
     }
@@ -228,7 +230,10 @@ export const Tasks = (
 
       // Store last sync timestamp
       const currentTime = Date.now();
-      localStorage.setItem(`lastSyncTime_${user_email}`, currentTime.toString());
+      localStorage.setItem(
+        `lastSyncTime_${user_email}`,
+        currentTime.toString()
+      );
       setLastSyncTime(currentTime);
 
       toast.success(`Tasks synced successfully!`);
