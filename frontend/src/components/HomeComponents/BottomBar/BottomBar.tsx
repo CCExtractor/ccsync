@@ -18,6 +18,8 @@ const BottomBar: React.FC<BottomBarProps> = ({
   setSelectedProject,
   status,
   setSelectedStatus,
+  tags,
+  setSelectedTag,
 }) => {
   const handleFilterChange = (value: string) => {
     if (!value) return;
@@ -26,6 +28,8 @@ const BottomBar: React.FC<BottomBarProps> = ({
       setSelectedProject(filterValue);
     } else if (type === 'status') {
       setSelectedStatus(filterValue);
+    } else if (type === 'tag') {
+      setSelectedTag(filterValue);
     }
   };
   return (
@@ -85,6 +89,19 @@ const BottomBar: React.FC<BottomBarProps> = ({
               {status.map((s) => (
                 <SelectItem key={s} value={`status:${s}`}>
                   {s.charAt(0).toUpperCase() + s.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+
+            {/* Group for Tags */}
+            <SelectGroup>
+              <SelectLabel className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                Tags
+              </SelectLabel>
+              <SelectItem value="tag:all">All Tags</SelectItem>
+              {tags.map((tag) => (
+                <SelectItem key={tag} value={`tag:${tag}`}>
+                  {tag}
                 </SelectItem>
               ))}
             </SelectGroup>

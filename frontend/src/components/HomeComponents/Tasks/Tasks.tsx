@@ -416,6 +416,8 @@ export const Tasks = (
         setSelectedProject={setSelectedProject}
         status={['pending', 'completed', 'deleted']}
         setSelectedStatus={setSelectedStatus}
+        tags={uniqueTags}
+        setSelectedTag={setSelectedTag}
       />
       <h2
         data-testid="tasks"
