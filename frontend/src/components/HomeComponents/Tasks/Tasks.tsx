@@ -46,6 +46,7 @@ import {
   sortTasks,
   sortTasksById,
   getTimeSinceLastSync,
+  hashKey,
 } from './tasks-utils';
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
@@ -152,9 +153,8 @@ export const Tasks = (
 
   // Load last sync time from localStorage on mount
   useEffect(() => {
-    const storedLastSyncTime = localStorage.getItem(
-      `lastSyncTime_${props.email}`
-    );
+    const hashedKey = hashKey('lastSyncTime', props.email);
+    const storedLastSyncTime = localStorage.getItem(hashedKey);
     if (storedLastSyncTime) {
       setLastSyncTime(parseInt(storedLastSyncTime, 10));
     }
@@ -228,12 +228,10 @@ export const Tasks = (
         setTempTasks(sortTasksById(updatedTasks, 'desc'));
       });
 
-      // Store last sync timestamp
+      // Store last sync timestamp using hashed key
       const currentTime = Date.now();
-      localStorage.setItem(
-        `lastSyncTime_${user_email}`,
-        currentTime.toString()
-      );
+      const hashedKey = hashKey('lastSyncTime', user_email);
+      localStorage.setItem(hashedKey, currentTime.toString());
       setLastSyncTime(currentTime);
 
       toast.success(`Tasks synced successfully!`);

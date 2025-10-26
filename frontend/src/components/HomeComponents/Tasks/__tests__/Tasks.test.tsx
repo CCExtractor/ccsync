@@ -27,6 +27,7 @@ jest.mock('../tasks-utils', () => {
     getTimeSinceLastSync: jest
       .fn()
       .mockReturnValue('Last updated 5 minutes ago'), // Mock this new function
+    hashKey: jest.fn().mockReturnValue('mockHashedKey'), // Mock the hash function
   };
 });
 

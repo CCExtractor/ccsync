@@ -9,6 +9,7 @@ import {
   markTaskAsCompleted,
   markTaskAsDeleted,
   getTimeSinceLastSync,
+  hashKey,
 } from '../tasks-utils';
 import { Task } from '@/components/utils/types';
 
@@ -349,5 +350,46 @@ describe('getTimeSinceLastSync', () => {
     Date.now = jest.fn(() => now);
     const lastSync = now - 24 * 60 * 60 * 1000; // 1 day ago
     expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 1 day ago');
+  });
+});
+
+describe('hashKey', () => {
+  it('generates a consistent hash for the same key and email', () => {
+    const key = 'lastSyncTime';
+    const email = 'test@example.com';
+    const hash1 = hashKey(key, email);
+    const hash2 = hashKey(key, email);
+    expect(hash1).toBe(hash2);
+  });
+
+  it('generates different hashes for different emails', () => {
+    const key = 'lastSyncTime';
+    const email1 = 'test1@example.com';
+    const email2 = 'test2@example.com';
+    const hash1 = hashKey(key, email1);
+    const hash2 = hashKey(key, email2);
+    expect(hash1).not.toBe(hash2);
+  });
+
+  it('generates different hashes for different keys', () => {
+    const key1 = 'lastSyncTime';
+    const key2 = 'otherKey';
+    const email = 'test@example.com';
+    const hash1 = hashKey(key1, email);
+    const hash2 = hashKey(key2, email);
+    expect(hash1).not.toBe(hash2);
+  });
+
+  it('returns a string', () => {
+    const hash = hashKey('lastSyncTime', 'test@example.com');
+    expect(typeof hash).toBe('string');
+  });
+
+  it('does not contain the original email', () => {
+    const email = 'test@example.com';
+    const hash = hashKey('lastSyncTime', email);
+    expect(hash).not.toContain(email);
+    expect(hash).not.toContain('test');
+    expect(hash).not.toContain('@');
   });
 });
