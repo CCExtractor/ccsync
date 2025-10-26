@@ -9,9 +9,11 @@ jest.mock('react-toastify', () => ({
   },
 }));
 
-// Mock CopyIcon
+// Mock icons
 jest.mock('lucide-react', () => ({
   CopyIcon: () => <svg data-testid="copy-icon"></svg>,
+  Eye: () => <svg data-testid="eye-icon"></svg>,
+  EyeOff: () => <svg data-testid="eye-off-icon"></svg>,
 }));
 
 describe('CopyableCode', () => {
