@@ -956,8 +956,7 @@ export const Tasks = (
                                     <CopyableCode
                                       text={task.uuid}
                                       copyText={task.uuid}
-                                      sensitiveValue={task.uuid}
-                                      sensitiveValueType="Task UUID"
+                                      isSensitive={true}
                                     />
                                   </TableCell>
                                 </TableRow>

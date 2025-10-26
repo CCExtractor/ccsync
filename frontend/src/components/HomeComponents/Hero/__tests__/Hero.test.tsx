@@ -3,21 +3,11 @@ import '@testing-library/jest-dom';
 import { Hero } from '../Hero';
 import { Props } from '../../../utils/types';
 
-jest.mock('../../SetupGuide/CopyableCode', () => ({
-  CopyableCode: ({
-    text,
-    sensitiveValueType,
-  }: {
-    text: string;
-    copyText: string;
-    sensitiveValue: string;
-    sensitiveValueType: string;
-  }) => (
-    <div
-      data-testid={`copyable-code-${sensitiveValueType.replace(/\s+/g, '-').toLowerCase()}`}
-    >
+jest.mock('../CopyButton', () => ({
+  CopyButton: ({ text, label }: { text: string; label: string }) => (
+    <button data-testid={`copy-button-${label.toLowerCase().replace(/\s+/g, '-')}`}>
       {text}
-    </div>
+    </button>
   ),
 }));
 
@@ -59,11 +49,12 @@ describe('Hero component', () => {
     expect(toastNotification).toBeInTheDocument();
   });
 
-  test('renders CopyableCode components for UUID and encryption secret', () => {
+  test('renders UUID and encryption secret with toggle buttons', () => {
     render(<Hero {...mockProps} />);
-    const uuidCode = screen.getByTestId('copyable-code-uuid');
-    const encryptionCode = screen.getByTestId('copyable-code-encryption-secret');
-    expect(uuidCode).toBeInTheDocument();
-    expect(encryptionCode).toBeInTheDocument();
+    
+    const uuidCopyButton = screen.getByTestId('copy-button-uuid');
+    const secretCopyButton = screen.getByTestId('copy-button-encryption-secret');
+    expect(uuidCopyButton).toBeInTheDocument();
+    expect(secretCopyButton).toBeInTheDocument();
   });
 });
