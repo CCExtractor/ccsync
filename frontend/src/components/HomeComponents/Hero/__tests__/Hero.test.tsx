@@ -3,11 +3,21 @@ import '@testing-library/jest-dom';
 import { Hero } from '../Hero';
 import { Props } from '../../../utils/types';
 
-jest.mock('../CopyButton', () => ({
-  CopyButton: ({ text, label }: { text: string; label: string }) => (
-    <button data-testid={`copy-button-${text.replace(/\s+/g, '-')}`}>
-      {label}
-    </button>
+jest.mock('../../SetupGuide/CopyableCode', () => ({
+  CopyableCode: ({
+    text,
+    sensitiveValueType,
+  }: {
+    text: string;
+    copyText: string;
+    sensitiveValue: string;
+    sensitiveValueType: string;
+  }) => (
+    <div
+      data-testid={`copyable-code-${sensitiveValueType.replace(/\s+/g, '-').toLowerCase()}`}
+    >
+      {text}
+    </div>
   ),
 }));
 
@@ -47,5 +57,13 @@ describe('Hero component', () => {
     render(<Hero {...mockProps} />);
     const toastNotification = screen.getByTestId('toast-notification');
     expect(toastNotification).toBeInTheDocument();
+  });
+
+  test('renders CopyableCode components for UUID and encryption secret', () => {
+    render(<Hero {...mockProps} />);
+    const uuidCode = screen.getByTestId('copyable-code-uuid');
+    const encryptionCode = screen.getByTestId('copyable-code-encryption-secret');
+    expect(uuidCode).toBeInTheDocument();
+    expect(encryptionCode).toBeInTheDocument();
   });
 });

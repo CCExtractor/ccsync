@@ -67,6 +67,8 @@ export const SetupGuide = (props: Props) => {
                   <CopyableCode
                     text={`task config sync.encryption_secret ${props.encryption_secret}`}
                     copyText={`task config sync.encryption_secret ${props.encryption_secret}`}
+                    sensitiveValue={props.encryption_secret}
+                    sensitiveValueType="Encryption Secret"
                   />
                   <div className="my-4">
                     Configure Taskwarrior with these commands, run these
@@ -81,6 +83,8 @@ export const SetupGuide = (props: Props) => {
                   <CopyableCode
                     text={`task config sync.server.client_id ${props.uuid}`}
                     copyText={`task config sync.server.client_id ${props.uuid}`}
+                    sensitiveValue={props.uuid}
+                    sensitiveValueType="UUID"
                   />
                   <div className="mt-4">
                     For more information about how this works, refer to the{' '}

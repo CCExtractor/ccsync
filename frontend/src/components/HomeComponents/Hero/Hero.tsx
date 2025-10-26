@@ -1,6 +1,6 @@
 import { Props } from '../../utils/types';
-import { CopyButton } from './CopyButton';
 import { ToastNotification } from './ToastNotification';
+import { CopyableCode } from '../SetupGuide/CopyableCode';
 
 export const Hero = (props: Props) => {
   return (
@@ -36,26 +36,27 @@ export const Hero = (props: Props) => {
           <br></br>
 
           <h3 className="text-xl text-foreground font-semibold">UUID</h3>
-          <div className="mt-4 flex items-center">
-            <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
-              <code className="whitespace-nowrap">{props.uuid}</code>
-            </div>
-            <CopyButton text={props.uuid} label="UUID" />
+          <div className="mt-4">
+            <CopyableCode
+              text={props.uuid}
+              copyText={props.uuid}
+              sensitiveValue={props.uuid}
+              sensitiveValueType="UUID"
+              className="w-auto max-w-3xl"
+            />
           </div>
           <br></br>
 
           <h3 className="text-xl text-foreground font-semibold">
             Encryption Secret
           </h3>
-          <div className="mt-4 flex items-center">
-            <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
-              <code className="whitespace-nowrap">
-                {props.encryption_secret}
-              </code>
-            </div>
-            <CopyButton
+          <div className="mt-4">
+            <CopyableCode
               text={props.encryption_secret}
-              label="Encryption Secret"
+              copyText={props.encryption_secret}
+              sensitiveValue={props.encryption_secret}
+              sensitiveValueType="Encryption Secret"
+              className="w-auto max-w-3xl"
             />
           </div>
         </div>
