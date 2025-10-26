@@ -24,7 +24,6 @@ import {
 import {
   ArrowUpDown,
   CheckIcon,
-  CopyIcon,
   Folder,
   Loader2,
   PencilIcon,
@@ -34,11 +33,9 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import {
   formattedDate,
   getDisplayedPages,
-  handleCopy,
   handleDate,
   markTaskAsCompleted,
   markTaskAsDeleted,
@@ -65,6 +62,7 @@ import {
   TasksDatabase,
 } from './hooks';
 import { debounce } from '@/components/utils/utils';
+import { CopyableCode } from '../SetupGuide/CopyableCode';
 
 const db = new TasksDatabase();
 
@@ -954,16 +952,13 @@ export const Tasks = (
                                 </TableRow>
                                 <TableRow>
                                   <TableCell>UUID:</TableCell>
-                                  <TableCell className="flex items-center">
-                                    <span>{task.uuid}</span>
-                                    <CopyToClipboard
+                                  <TableCell>
+                                    <CopyableCode
                                       text={task.uuid}
-                                      onCopy={() => handleCopy('Task UUID')}
-                                    >
-                                      <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-2 px-2 rounded ml-2">
-                                        <CopyIcon />
-                                      </button>
-                                    </CopyToClipboard>
+                                      copyText={task.uuid}
+                                      sensitiveValue={task.uuid}
+                                      sensitiveValueType="Task UUID"
+                                    />
                                   </TableCell>
                                 </TableRow>
                               </TableBody>

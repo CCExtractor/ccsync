@@ -27,20 +27,32 @@ export const CopyableCode = ({
       progress: undefined,
     });
   };
-  
-  const createMask = (text: string) => '•'.repeat(text.length);  
+
+  const maskSensitiveValue = (fullText: string) => {
+    const parts = fullText.split(' ');
+    if (parts.length > 0) {
+      const lastPart = parts[parts.length - 1];
+      const maskedValue = '•'.repeat(lastPart.length);
+      parts[parts.length - 1] = maskedValue;
+      return parts.join(' ');
+    }
+    return fullText;
+  };
+
+  const displayText =
+    isSensitive && !showSensitive ? maskSensitiveValue(text) : text;
 
   return (
     <div className="mt-4 flex items-center gap-2 w-full">
       <div className="bg-gray-900 text-white p-3 sm:p-4 rounded-lg flex-grow overflow-x-auto">
         <code className="text-sm sm:text-base whitespace-nowrap break-all">
-          {isSensitive && !showSensitive ? createMask(text) : text}
+          {displayText}
         </code>
       </div>
       {isSensitive && (
         <button
           onClick={() => setShowSensitive(!showSensitive)}
-          className="text-white font-bold p-2 rounded-full m-2"
+          className="bg-gray-700 hover:bg-gray-600 text-white font-bold p-3 sm:p-4 rounded flex-shrink-0"
           aria-label={
             showSensitive ? 'Hide sensitive value' : 'Show sensitive value'
           }
