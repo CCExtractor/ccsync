@@ -2,7 +2,6 @@
 import { Task } from '@/components/utils/types';
 import { handleLogout, deleteAllTasks } from '../navbar-utils';
 
-
 // Mock external dependencies
 jest.mock('react-toastify', () => ({
   toast: {
@@ -85,7 +84,7 @@ describe('navbar-utils', () => {
         encryptionSecret: '',
         origin: '',
         UUID: '',
-        tasks: [] as Task[] | null, 
+        tasks: [] as Task[] | null,
       };
 
       await expect(deleteAllTasks(props)).resolves.toBeUndefined();

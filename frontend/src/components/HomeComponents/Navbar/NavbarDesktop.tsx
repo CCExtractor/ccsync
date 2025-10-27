@@ -28,7 +28,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -53,12 +52,6 @@ export const NavbarDesktop = (
     exportTasksAsTXT(props.tasks || []);
     setIsExportDialogOpen(false);
   };
-
-  function handleExport(
-    event: MouseEvent<HTMLButtonElement, MouseEvent>
-  ): void {
-    throw new Error('Function not implemented.');
-  }
 
   return (
     <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
