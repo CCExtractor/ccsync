@@ -42,7 +42,6 @@ export const NavbarMobile = (
     setIsLoading: (val: boolean) => void;
   }
 ) => {
-
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 
   const handleExportJSON = () => {
@@ -53,8 +52,8 @@ export const NavbarMobile = (
 
   const handleExportTXT = () => {
     exportTasksAsTXT(props.tasks || []);
-    setIsExportDialogOpen(false); 
-    props.setIsOpen(false); 
+    setIsExportDialogOpen(false);
+    props.setIsOpen(false);
   };
 
   return (
@@ -74,7 +73,10 @@ export const NavbarMobile = (
           <SheetHeader>
             <SheetTitle className="font-bold text-xl">CCSync</SheetTitle>
           </SheetHeader>
-          <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
+          <Dialog
+            open={isExportDialogOpen}
+            onOpenChange={setIsExportDialogOpen}
+          >
             <nav className="flex flex-col justify-center items-center gap-2 mt-4">
               {routeList.map(({ href, label }: RouteProps) => (
                 <a
@@ -132,19 +134,22 @@ export const NavbarMobile = (
               <DialogHeader>
                 <DialogTitle>Choose Export Format</DialogTitle>
                 <DialogDescription>
-                  Would you like to download your tasks as a JSON file or a TXT file?
+                  Would you like to download your tasks as a JSON file or a TXT
+                  file?
                 </DialogDescription>
               </DialogHeader>
               <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
                 <Button
-                  
                   onClick={handleExportTXT}
                   className="w-full sm:w-auto hover:bg-white bg-[#3B82F6]"
                 >
                   <FileText className="mr-2 h-4 w-4" />
                   Download .txt
                 </Button>
-                <Button onClick={handleExportJSON} className="w-full sm:w-auto hover:bg-white bg-[#3B82F6]">
+                <Button
+                  onClick={handleExportJSON}
+                  className="w-full sm:w-auto hover:bg-white bg-[#3B82F6]"
+                >
                   <FileJson className="mr-2 h-4 w-4" />
                   Download .json
                 </Button>

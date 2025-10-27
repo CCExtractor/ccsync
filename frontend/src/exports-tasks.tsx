@@ -1,15 +1,15 @@
 import { Task } from './components/utils/types';
 export function exportTasksAsJSON(tasks: Task[]) {
   if (!tasks || tasks.length === 0) {
-    console.warn("No tasks to export.");
+    console.warn('No tasks to export.');
     return;
   }
   const jsonString = JSON.stringify(tasks, null, 2);
-  const blob = new Blob([jsonString], { type: "application/json" });
+  const blob = new Blob([jsonString], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = url;
-  a.download = "tasks.json"; 
+  a.download = 'tasks.json';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -18,11 +18,11 @@ export function exportTasksAsJSON(tasks: Task[]) {
 
 export function exportTasksAsTXT(tasks: Task[]) {
   if (!tasks || tasks.length === 0) {
-    console.warn("No tasks to export.");
+    console.warn('No tasks to export.');
     return;
   }
-   let txtContent = "Your TaskWarrior Tasks\n";
-  txtContent += "========================================\n\n";
+  let txtContent = 'Your TaskWarrior Tasks\n';
+  txtContent += '========================================\n\n';
 
   tasks.forEach((task) => {
     txtContent += `Description: ${task.description}\n`;
@@ -35,21 +35,17 @@ export function exportTasksAsTXT(tasks: Task[]) {
     txtContent += `----------------------------------------\n\n`;
   });
 
-  const blob = new Blob([txtContent], { type: "text/plain" });
+  const blob = new Blob([txtContent], { type: 'text/plain' });
 
   const url = URL.createObjectURL(blob);
 
-  const a = document.createElement("a");
+  const a = document.createElement('a');
   a.href = url;
-  a.download = "tasks.txt";
+  a.download = 'tasks.txt';
   document.body.appendChild(a);
 
-   a.click();
+  a.click();
 
-   document.body.removeChild(a);
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
-
 }
-
-  
-
