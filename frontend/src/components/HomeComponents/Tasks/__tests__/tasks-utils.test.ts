@@ -8,6 +8,8 @@ import {
   sortTasksById,
   markTaskAsCompleted,
   markTaskAsDeleted,
+  getTimeSinceLastSync,
+  hashKey,
 } from '../tasks-utils';
 import { Task } from '@/components/utils/types';
 
@@ -276,5 +278,118 @@ describe('markTaskAsDeleted', () => {
         taskuuid: taskuuid,
       }),
     });
+  });
+});
+
+describe('getTimeSinceLastSync', () => {
+  let originalDateNow: () => number;
+
+  beforeAll(() => {
+    originalDateNow = Date.now;
+  });
+
+  afterAll(() => {
+    Date.now = originalDateNow;
+  });
+
+  it('returns "Never synced" when lastSyncTimestamp is null', () => {
+    expect(getTimeSinceLastSync(null)).toBe('Never synced');
+  });
+
+  it('returns correct message for seconds ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 30000; // 30 seconds ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 30 seconds ago');
+  });
+
+  it('returns correct message for 1 second ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 1000; // 1 second ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 1 second ago');
+  });
+
+  it('returns correct message for minutes ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 5 * 60 * 1000; // 5 minutes ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 5 minutes ago');
+  });
+
+  it('returns correct message for 1 minute ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 60 * 1000; // 1 minute ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 1 minute ago');
+  });
+
+  it('returns correct message for hours ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 3 * 60 * 60 * 1000; // 3 hours ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 3 hours ago');
+  });
+
+  it('returns correct message for 1 hour ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 60 * 60 * 1000; // 1 hour ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 1 hour ago');
+  });
+
+  it('returns correct message for days ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 2 * 24 * 60 * 60 * 1000; // 2 days ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 2 days ago');
+  });
+
+  it('returns correct message for 1 day ago', () => {
+    const now = 1000000000000;
+    Date.now = jest.fn(() => now);
+    const lastSync = now - 24 * 60 * 60 * 1000; // 1 day ago
+    expect(getTimeSinceLastSync(lastSync)).toBe('Last updated 1 day ago');
+  });
+});
+
+describe('hashKey', () => {
+  it('generates a consistent hash for the same key and email', () => {
+    const key = 'lastSyncTime';
+    const email = 'test@example.com';
+    const hash1 = hashKey(key, email);
+    const hash2 = hashKey(key, email);
+    expect(hash1).toBe(hash2);
+  });
+
+  it('generates different hashes for different emails', () => {
+    const key = 'lastSyncTime';
+    const email1 = 'test1@example.com';
+    const email2 = 'test2@example.com';
+    const hash1 = hashKey(key, email1);
+    const hash2 = hashKey(key, email2);
+    expect(hash1).not.toBe(hash2);
+  });
+
+  it('generates different hashes for different keys', () => {
+    const key1 = 'lastSyncTime';
+    const key2 = 'otherKey';
+    const email = 'test@example.com';
+    const hash1 = hashKey(key1, email);
+    const hash2 = hashKey(key2, email);
+    expect(hash1).not.toBe(hash2);
+  });
+
+  it('returns a string', () => {
+    const hash = hashKey('lastSyncTime', 'test@example.com');
+    expect(typeof hash).toBe('string');
+  });
+
+  it('does not contain the original email', () => {
+    const email = 'test@example.com';
+    const hash = hashKey('lastSyncTime', email);
+    expect(hash).not.toContain(email);
+    expect(hash).not.toContain('test');
+    expect(hash).not.toContain('@');
   });
 });
