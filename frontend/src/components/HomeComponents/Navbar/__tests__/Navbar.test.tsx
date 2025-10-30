@@ -33,6 +33,7 @@ describe('Navbar Component', () => {
     origin: '',
     UUID: '',
     isLoading: false,
+    tasks: [],
     setIsLoading: mockSetIsLoading,
   };
 
