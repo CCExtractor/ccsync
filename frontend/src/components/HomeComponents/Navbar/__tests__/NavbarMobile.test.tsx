@@ -32,6 +32,7 @@ describe('NavbarMobile', () => {
     encryptionSecret: 'secret',
     origin: 'http://localhost:3000',
     UUID: '1234-5678',
+    tasks: [],
     setIsOpen: mockSetIsOpen,
     isOpen: false,
     isLoading: false,

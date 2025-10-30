@@ -9,11 +9,40 @@ import { url } from '@/components/utils/URLs';
 import { useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
+import { Task } from '@/components/utils/types';
+import { fetchTaskwarriorTasks } from './HomeComponents/Tasks/hooks';
 
 export const HomePage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const [tasks, setTasks] = useState<Task[] | null>(null);
+
+  const getTasks = async (
+    email: string,
+    encryptionSecret: string,
+    UUID: string
+  ) => {
+    setIsLoading(true);
+    try {
+      const fetchedTasks = await fetchTaskwarriorTasks({
+        email,
+        encryptionSecret,
+        UUID,
+        backendURL: url.backendURL,
+      });
+      setTasks(fetchedTasks || []);
+    } catch (error) {
+      console.error('Failed to fetch tasks:', error);
+      toast.error('Failed to fetch tasks. Please check your connection.', {
+        position: 'bottom-left',
+        // ... toast config
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchUserInfo();
@@ -27,6 +56,10 @@ export const HomePage: React.FC = () => {
       return;
     }
 
+    if (userInfo.email && userInfo.encryption_secret && userInfo.uuid) {
+      getTasks(userInfo.email, userInfo.encryption_secret, userInfo.uuid);
+    }
+
     console.log('Setting up WebSocket with clientID:', userInfo.uuid);
     const socketURL = `${url.backendURL.replace(/^http/, 'ws')}ws?clientID=${userInfo.uuid}`;
     const socket = new WebSocket(socketURL);
@@ -37,9 +70,8 @@ export const HomePage: React.FC = () => {
       // console.log("Message received:", event.data);
       try {
         const data = JSON.parse(event.data);
-        if (data.status === 'in-progress' || data.status === 'queued') {
-          // console.log("Loading...");
-          // console.log(data.job);
+        if (data.status === 'success') {
+          getTasks(userInfo.email, userInfo.encryption_secret, userInfo.uuid);
         } else if (data.status === 'success') {
           if (data.job === 'Add Task') {
             console.log('Task added successfully');
@@ -134,6 +166,7 @@ export const HomePage: React.FC = () => {
       {userInfo ? (
         <div>
           <Navbar
+            tasks={tasks}
             imgurl={userInfo.picture}
             email={userInfo.email}
             encryptionSecret={userInfo.encryption_secret}
