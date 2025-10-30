@@ -4,12 +4,12 @@ import Dexie from 'dexie';
 import { Task } from '@/components/utils/types';
 
 class TasksDatabase extends Dexie {
-  tasks: Dexie.Table<Task, string>; // string = type of primary key (uuid)
+  tasks: Dexie.Table<Task, string>;
 
   constructor() {
     super('tasksDB');
     this.version(1).stores({
-      tasks: 'uuid, email, status, project', // Primary key and indexed props
+      tasks: 'uuid, email, status, project',
     });
     this.tasks = this.table('tasks');
   }
@@ -27,6 +27,7 @@ export type Props = {
   encryptionSecret: string;
   origin: string;
   UUID: string;
+  tasks: Task[] | null;
 };
 
 export const routeList: RouteProps[] = [
@@ -66,7 +67,6 @@ export const deleteAllTasks = async (props: Props) => {
   );
 
   try {
-    // Delete tasks where email matches props.email
     await db.tasks.where('email').equals(props.email).delete();
 
     toast.update(loadingToastId, {
