@@ -143,3 +143,43 @@ export const handleDate = (v: string) => {
   }
   return true;
 };
+
+export const getTimeSinceLastSync = (
+  lastSyncTimestamp: number | null
+): string => {
+  if (!lastSyncTimestamp) {
+    return 'Never synced';
+  }
+
+  const now = Date.now();
+  const diffMs = now - lastSyncTimestamp;
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSeconds < 60) {
+    return `Last updated ${diffSeconds} second${diffSeconds !== 1 ? 's' : ''} ago`;
+  } else if (diffMinutes < 60) {
+    return `Last updated ${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+  } else if (diffHours < 24) {
+    return `Last updated ${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+  } else {
+    return `Last updated ${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+  }
+};
+
+/**
+ * Simple hash function for creating a hash of email + key
+ * This prevents storing plain email addresses in localStorage
+ */
+export const hashKey = (key: string, email: string): string => {
+  const str = key + email;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return Math.abs(hash).toString(36);
+};

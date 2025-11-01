@@ -42,6 +42,8 @@ import {
   Props,
   sortTasks,
   sortTasksById,
+  getTimeSinceLastSync,
+  hashKey,
 } from './tasks-utils';
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
@@ -103,6 +105,7 @@ export const Tasks = (
   );
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
   // Debounced search handler
   const debouncedSearch = debounce((value: string) => {
@@ -145,6 +148,25 @@ export const Tasks = (
       setEditedTags(_selectedTask.tags || []);
     }
   }, [_selectedTask]);
+
+  // Load last sync time from localStorage on mount
+  useEffect(() => {
+    const hashedKey = hashKey('lastSyncTime', props.email);
+    const storedLastSyncTime = localStorage.getItem(hashedKey);
+    if (storedLastSyncTime) {
+      setLastSyncTime(parseInt(storedLastSyncTime, 10));
+    }
+  }, [props.email]);
+
+  // Update the displayed time every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Force re-render by updating the state
+      setLastSyncTime((prevTime) => prevTime);
+    }, 10000); // Update every 10 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const fetchTasksForEmail = async () => {
@@ -203,6 +225,13 @@ export const Tasks = (
         setTasks(sortTasksById(updatedTasks, 'desc'));
         setTempTasks(sortTasksById(updatedTasks, 'desc'));
       });
+
+      // Store last sync timestamp using hashed key
+      const currentTime = Date.now();
+      const hashedKey = hashKey('lastSyncTime', user_email);
+      localStorage.setItem(hashedKey, currentTime.toString());
+      setLastSyncTime(currentTime);
+
       toast.success(`Tasks synced successfully!`);
     } catch (error) {
       console.error('Error syncing tasks:', error);
@@ -667,9 +696,14 @@ export const Tasks = (
                     </DialogContent>
                   </Dialog>
                 </div>
-                <Button variant="outline" onClick={syncTasksWithTwAndDb}>
-                  Sync
-                </Button>
+                <div className="flex flex-col items-end gap-2">
+                  <Button variant="outline" onClick={syncTasksWithTwAndDb}>
+                    Sync
+                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    {getTimeSinceLastSync(lastSyncTime)}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -1214,21 +1248,26 @@ export const Tasks = (
                     </DialogContent>
                   </Dialog>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    props.setIsLoading(true);
-                    await syncTasksWithTwAndDb();
-                    props.setIsLoading(false);
-                  }}
-                  disabled={props.isLoading}
-                >
-                  {props.isLoading ? (
-                    <Loader2 className="mx-1 size-5 animate-spin" />
-                  ) : (
-                    'Sync'
-                  )}
-                </Button>
+                <div className="flex flex-col items-end gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      props.setIsLoading(true);
+                      await syncTasksWithTwAndDb();
+                      props.setIsLoading(false);
+                    }}
+                    disabled={props.isLoading}
+                  >
+                    {props.isLoading ? (
+                      <Loader2 className="mx-1 size-5 animate-spin" />
+                    ) : (
+                      'Sync'
+                    )}
+                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    {getTimeSinceLastSync(lastSyncTime)}
+                  </span>
+                </div>
               </div>
             </div>
             <div className="text-l ml-5 text-muted-foreground mt-5 mb-5">
