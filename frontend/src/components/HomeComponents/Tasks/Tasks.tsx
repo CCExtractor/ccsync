@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Task } from '../../utils/types';
+import { ReportsView } from './ReportsView';
 import {
   Table,
   TableBody,
@@ -76,6 +77,7 @@ export const Tasks = (
     setIsLoading: (val: boolean) => void;
   }
 ) => {
+  const [showReports, setShowReports] = useState(false);
   const [uniqueTags, setUniqueTags] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTag, setSelectedTag] = useState('all');
@@ -456,6 +458,15 @@ export const Tasks = (
           Tasks
         </span>
       </h2>
+      <div className="flex justify-center md:justify-end w-full px-4 mb-4 mt-4">
+        <Button variant="outline" onClick={() => setShowReports(!showReports)}>
+          {showReports ? 'Show Tasks' : 'Show Reports'}
+        </Button>
+      </div>
+      {showReports ? (
+        <ReportsView tasks={tasks} />
+      ) : (
+        <>
       {tasks.length != 0 ? (
         <>
           <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full py-12">
@@ -1280,6 +1291,8 @@ export const Tasks = (
               Add a new task or sync tasks from taskwarrior to view tasks.
             </div>
           </div>
+            </>
+          )}
         </>
       )}
     </section>
