@@ -1,5 +1,6 @@
 import React from 'react';
-import { Task } from '../../utils/types';
+import { ReportsViewProps } from '../../utils/types';
+import { getStartOfDay } from '../../utils/utils';
 import {
   BarChart,
   Bar,
@@ -12,13 +13,6 @@ import {
 } from 'recharts';
 
 const Legend: any = RechartsLegend;
-type ReportsViewProps = {
-  tasks: Task[];
-};
-
-const getStartOfDay = (date: Date) => {
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-};
 
 const ReportChart = ({ data, title }: { data: any[]; title: string }) => (
   <div className="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] mt-10">
