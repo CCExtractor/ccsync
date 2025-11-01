@@ -5,8 +5,21 @@ import { url } from '@/components/utils/URLs';
 
 // Mocking the CopyableCode component
 jest.mock('../CopyableCode', () => ({
-  CopyableCode: ({ text, copyText }: { text: string; copyText: string }) => (
-    <div data-testid="copyable-code" data-text={text} data-copytext={copyText}>
+  CopyableCode: ({
+    text,
+    copyText,
+    isSensitive,
+  }: {
+    text: string;
+    copyText: string;
+    isSensitive?: boolean;
+  }) => (
+    <div
+      data-testid="copyable-code"
+      data-text={text}
+      data-copytext={copyText}
+      data-issensitive={isSensitive}
+    >
       {text}
     </div>
   ),
