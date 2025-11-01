@@ -22,6 +22,7 @@ describe('NavbarDesktop', () => {
     encryptionSecret: 'secret',
     origin: 'http://localhost:3000',
     UUID: '1234-5678',
+    tasks: [],
   };
 
   const extendedProps = {
