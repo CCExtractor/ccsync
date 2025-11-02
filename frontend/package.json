@@ -284,6 +284,7 @@
     "react-toastify": "^10.0.5",
     "read-cache": "^1.0.0",
     "readdirp": "^3.6.0",
+    "recharts": "^3.3.0",
     "redent": "^3.0.0",
     "regenerate": "^1.4.2",
     "regenerate-unicode-properties": "^10.1.1",
