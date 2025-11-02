@@ -56,7 +56,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Due Date is required, and cannot be empty!", http.StatusBadRequest)
 			return
 		}
-		
+
 		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Add Task",
