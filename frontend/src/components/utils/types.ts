@@ -35,3 +35,12 @@ export interface Task {
   recur: string;
   email: string;
 }
+
+export type ReportsViewProps = {
+  tasks: Task[];
+};
+
+export type ReportChartProps = {
+  data: any[];
+  title: string;
+};
