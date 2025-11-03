@@ -56,10 +56,19 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Due Date is required, and cannot be empty!", http.StatusBadRequest)
 			return
 		}
+
+		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Add Task",
 			Execute: func() error {
-				return tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate, tags)
+				logStore.AddLog("INFO", fmt.Sprintf("Adding task: %s", description), uuid, "Add Task")
+				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate, tags)
+				if err != nil {
+					logStore.AddLog("ERROR", fmt.Sprintf("Failed to add task: %v", err), uuid, "Add Task")
+					return err
+				}
+				logStore.AddLog("INFO", fmt.Sprintf("Successfully added task: %s", description), uuid, "Add Task")
+				return nil
 			},
 		}
 		GlobalJobQueue.AddJob(job)

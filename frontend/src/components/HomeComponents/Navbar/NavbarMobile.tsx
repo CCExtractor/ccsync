@@ -15,6 +15,7 @@ import {
   FileDown,
   FileJson,
   FileText,
+  Terminal,
 } from 'lucide-react';
 import { ModeToggle } from '../../utils/theme-mode-toggle';
 import { buttonVariants } from '@/components/ui/button';
@@ -35,6 +36,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { exportTasksAsJSON, exportTasksAsTXT } from '@/exports-tasks';
+import { DevLogs } from '../DevLogs/DevLogs';
 
 export const NavbarMobile = (
   props: Props & { setIsOpen: (isOpen: boolean) => void; isOpen: boolean } & {
@@ -43,6 +45,7 @@ export const NavbarMobile = (
   }
 ) => {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isDevLogsOpen, setIsDevLogsOpen] = useState(false);
 
   const handleExportJSON = () => {
     exportTasksAsJSON(props.tasks || []);
@@ -112,6 +115,18 @@ export const NavbarMobile = (
                 </div>
               </DialogTrigger>
               <div
+                onClick={() => {
+                  setIsDevLogsOpen(true);
+                  props.setIsOpen(false);
+                }}
+                className={`w-[130px] cursor-pointer border ${buttonVariants({
+                  variant: 'secondary',
+                })}`}
+              >
+                <Terminal className="mr-2 w-5 h-5" />
+                Developer Logs
+              </div>
+              <div
                 onClick={() => deleteAllTasks(props)}
                 className={`w-[130px] border ${buttonVariants({
                   variant: 'destructive',
@@ -158,6 +173,7 @@ export const NavbarMobile = (
           </Dialog>
         </SheetContent>
       </Sheet>
+      <DevLogs isOpen={isDevLogsOpen} onOpenChange={setIsDevLogsOpen} />
     </span>
   );
 };
