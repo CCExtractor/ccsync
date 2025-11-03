@@ -5,6 +5,7 @@ import {
   FileDown,
   FileText,
   FileJson,
+  Terminal,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -34,6 +35,7 @@ import { Button } from '@/components/ui/button';
 import { url } from '@/components/utils/URLs';
 import { exportTasksAsJSON, exportTasksAsTXT } from '@/exports-tasks';
 import { useState } from 'react';
+import { DevLogs } from '../DevLogs/DevLogs';
 
 export const NavbarDesktop = (
   props: Props & {
@@ -42,6 +44,7 @@ export const NavbarDesktop = (
   }
 ) => {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isDevLogsOpen, setIsDevLogsOpen] = useState(false);
 
   const handleExportJSON = () => {
     exportTasksAsJSON(props.tasks || []);
@@ -84,6 +87,10 @@ export const NavbarDesktop = (
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete all tasks
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsDevLogsOpen(true)}>
+                <Terminal className="mr-2 h-4 w-4" />
+                <span>Developer Logs</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => window.open(url.githubRepoURL, '_blank')}
@@ -129,6 +136,7 @@ export const NavbarDesktop = (
           </Button>
         </div>
       </DialogContent>
+      <DevLogs isOpen={isDevLogsOpen} onOpenChange={setIsDevLogsOpen} />
     </Dialog>
   );
 };
