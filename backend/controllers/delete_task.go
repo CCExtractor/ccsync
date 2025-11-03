@@ -51,10 +51,18 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
 		// 	return
 		// }
+		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Delete Task",
 			Execute: func() error {
-				return tw.DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid)
+				logStore.AddLog("INFO", fmt.Sprintf("Deleting task UUID: %s", taskuuid), uuid, "Delete Task")
+				err := tw.DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid)
+				if err != nil {
+					logStore.AddLog("ERROR", fmt.Sprintf("Failed to delete task UUID %s: %v", taskuuid, err), uuid, "Delete Task")
+					return err
+				}
+				logStore.AddLog("INFO", fmt.Sprintf("Successfully deleted task UUID: %s", taskuuid), uuid, "Delete Task")
+				return nil
 			},
 		}
 		GlobalJobQueue.AddJob(job)

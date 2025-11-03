@@ -53,10 +53,18 @@ func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		// http.Error(w, err.Error(), http.StatusInternalServerError)
 		// return
 		// }
+		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Complete Task",
 			Execute: func() error {
-				return tw.CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid)
+				logStore.AddLog("INFO", fmt.Sprintf("Completing task UUID: %s", taskuuid), uuid, "Complete Task")
+				err := tw.CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid)
+				if err != nil {
+					logStore.AddLog("ERROR", fmt.Sprintf("Failed to complete task UUID %s: %v", taskuuid, err), uuid, "Complete Task")
+					return err
+				}
+				logStore.AddLog("INFO", fmt.Sprintf("Successfully completed task UUID: %s", taskuuid), uuid, "Complete Task")
+				return nil
 			},
 		}
 		GlobalJobQueue.AddJob(job)
