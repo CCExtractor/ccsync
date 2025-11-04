@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
 import {
@@ -70,6 +70,7 @@ import {
 import { debounce } from '@/components/utils/utils';
 
 const db = new TasksDatabase();
+export let syncTasksWithTwAndDb: () => any;
 
 export const Tasks = (
   props: Props & {
@@ -204,7 +205,7 @@ export const Tasks = (
     fetchTasksForEmail();
   }, [props.email]);
 
-  async function syncTasksWithTwAndDb() {
+  syncTasksWithTwAndDb = useCallback(async () => {
     try {
       const { email: user_email, encryptionSecret, UUID } = props;
       const taskwarriorTasks = await fetchTaskwarriorTasks({
@@ -241,7 +242,7 @@ export const Tasks = (
       console.error('Error syncing tasks:', error);
       toast.error(`Failed to sync tasks. Please try again.`);
     }
-  }
+  }, [props.email, props.encryptionSecret, props.UUID]); // Add dependencies
 
   async function handleAddTask(
     email: string,
