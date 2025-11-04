@@ -9,21 +9,13 @@ describe('RouteProps interface', () => {
 });
 
 describe('BottomBarProps interface', () => {
-  it('should have project, status, and tag properties', () => {
+  it('should have onOpenFilterSheet and activeFilterCount properties', () => {
     const example: BottomBarProps = {
-      projects: [''],
-      setSelectedProject: jest.fn(),
-      status: [''],
-      setSelectedStatus: jest.fn(),
-      tags: [''],
-      setSelectedTag: jest.fn(),
+      onOpenFilterSheet: jest.fn(),
+      activeFilterCount: 3,
     };
-    expect(example).toHaveProperty('projects');
-    expect(example).toHaveProperty('setSelectedProject');
-    expect(example).toHaveProperty('status');
-    expect(example).toHaveProperty('setSelectedStatus');
-    expect(example).toHaveProperty('tags');
-    expect(example).toHaveProperty('setSelectedTag');
+    expect(example).toHaveProperty('onOpenFilterSheet');
+    expect(example).toHaveProperty('activeFilterCount');
   });
 });
 

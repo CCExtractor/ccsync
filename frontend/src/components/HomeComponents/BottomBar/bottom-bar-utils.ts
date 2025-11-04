@@ -1,17 +1,11 @@
-import { Dispatch, SetStateAction } from 'react';
-
 export interface RouteProps {
   href: string;
   label: string;
 }
 
 export interface BottomBarProps {
-  projects: string[];
-  setSelectedProject: Dispatch<SetStateAction<string>>;
-  status: string[];
-  setSelectedStatus: Dispatch<SetStateAction<string>>;
-  tags: string[];
-  setSelectedTag: Dispatch<SetStateAction<string>>;
+  onOpenFilterSheet: () => void;
+  activeFilterCount: number;
 }
 
 export const routeList: RouteProps[] = [

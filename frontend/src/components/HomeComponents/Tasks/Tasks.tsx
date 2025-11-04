@@ -33,6 +33,15 @@ import {
   Trash2Icon,
   XIcon,
 } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetClose,
+} from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CopyToClipboard from 'react-copy-to-clipboard';
@@ -51,15 +60,7 @@ import {
 } from './tasks-utils';
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { MultiSelectFilter } from '@/components/ui/multiSelect';
 import BottomBar from '../BottomBar/BottomBar';
 import {
   addTaskToBackend,
@@ -80,11 +81,12 @@ export const Tasks = (
   const [showReports, setShowReports] = useState(false);
   const [uniqueTags, setUniqueTags] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedTag, setSelectedTag] = useState('all');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [uniqueProjects, setUniqueProjects] = useState<string[]>([]);
-  const [selectedProject, setSelectedProject] = useState<string>('all');
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [tempTasks, setTempTasks] = useState<Task[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
   const status = ['pending', 'completed', 'deleted'];
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -111,11 +113,16 @@ export const Tasks = (
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
+  const activeFilterCount =
+    selectedProjects.length + selectedStatuses.length + selectedTags.length;
+
   // Debounced search handler
   const debouncedSearch = debounce((value: string) => {
     if (!value) {
       setTempTasks(
-        selectedProject === 'all' && selectedStatus === 'all'
+        selectedProjects.length === 0 &&
+          selectedStatuses.length === 0 &&
+          selectedTags.length === 0
           ? tasks
           : tempTasks
       );
@@ -353,10 +360,6 @@ export const Tasks = (
     }
   };
 
-  const handleProjectChange = (value: string) => {
-    setSelectedProject(value);
-  };
-
   // Handle adding a tag
   const handleAddTag = () => {
     if (tagInput && !newTask.tags.includes(tagInput, 0)) {
@@ -372,40 +375,34 @@ export const Tasks = (
       tags: newTask.tags.filter((tag) => tag !== tagToRemove),
     });
   };
-  const handleTagChange = (value: string) => {
-    setSelectedTag(value);
-  };
-
-  const handleStatusChange = (value: string) => {
-    setSelectedStatus(value);
-  };
   useEffect(() => {
     let filteredTasks = tasks;
 
     // Project filter
-    if (selectedProject !== 'all') {
+    if (selectedProjects.length > 0) {
       filteredTasks = filteredTasks.filter(
-        (task) => task.project === selectedProject
+        (task) => task.project && selectedProjects.includes(task.project)
       );
     }
 
     //Status filter
-    if (selectedStatus !== 'all') {
-      filteredTasks = filteredTasks.filter(
-        (task) => task.status === selectedStatus
+    if (selectedStatuses.length > 0) {
+      filteredTasks = filteredTasks.filter((task) =>
+        selectedStatuses.includes(task.status)
       );
     }
 
     // Tag filter
-    if (selectedTag && selectedTag !== 'all') {
+    if (selectedTags.length > 0) {
       filteredTasks = filteredTasks.filter(
-        (task) => task.tags && task.tags.includes(selectedTag)
+        (task) =>
+          task.tags && task.tags.some((tag) => selectedTags.includes(tag))
       );
     }
 
     // Sort + set
     setTempTasks(sortTasksById(filteredTasks, 'desc'));
-  }, [selectedProject, selectedTag, selectedStatus, tasks]);
+  }, [selectedProjects, selectedTags, selectedStatuses, tasks]);
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
@@ -443,12 +440,8 @@ export const Tasks = (
       className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32"
     >
       <BottomBar
-        projects={uniqueProjects}
-        setSelectedProject={setSelectedProject}
-        status={['pending', 'completed', 'deleted']}
-        setSelectedStatus={setSelectedStatus}
-        tags={uniqueTags}
-        setSelectedTag={setSelectedTag}
+        onOpenFilterSheet={() => setIsFilterSheetOpen(true)} // Pass the function
+        activeFilterCount={activeFilterCount} // Pass the count
       />
       <h2
         data-testid="tasks"
@@ -478,7 +471,7 @@ export const Tasks = (
                     </span>
                     your tasks
                   </h3>
-                  <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+                  <div className="hidden sm:flex flex-col md:flex-row items-center gap-2 md:gap-4">
                     <Input
                       type="text"
                       placeholder="Search tasks..."
@@ -487,60 +480,24 @@ export const Tasks = (
                       className="w-full md:w-64"
                       data-testid="task-search-bar"
                     />
-                    <Select onValueChange={handleProjectChange}>
-                      <SelectTrigger className="w-[180px] hidden sm:flex mr-2">
-                        <SelectValue placeholder="Select a project" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Select Project</SelectLabel>
-                          <SelectItem value="all">All Projects</SelectItem>
-                          {uniqueProjects.map((project) => (
-                            <SelectItem
-                              key={project}
-                              value={project ? project : 'all'}
-                            >
-                              {project}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <Select
-                      value={selectedStatus || ''}
-                      onValueChange={handleStatusChange}
-                    >
-                      <SelectTrigger className="w-[120px]  hidden sm:flex mr-2">
-                        <SelectValue placeholder="Select a project" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Status</SelectLabel>
-                          <SelectItem value="all">All</SelectItem>
-                          {status.map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {status}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <Select onValueChange={handleTagChange}>
-                      <SelectTrigger className="w-[180px] hidden sm:flex mr-2">
-                        <SelectValue placeholder="Select a tag" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Select Tag</SelectLabel>
-                          <SelectItem value="all">All Tags</SelectItem>
-                          {uniqueTags.map((tag) => (
-                            <SelectItem key={tag} value={tag}>
-                              {tag}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                    <MultiSelectFilter
+                      title="Projects"
+                      options={uniqueProjects}
+                      selectedValues={selectedProjects}
+                      onSelectionChange={setSelectedProjects}
+                    />
+                    <MultiSelectFilter
+                      title="Status"
+                      options={status}
+                      selectedValues={selectedStatuses}
+                      onSelectionChange={setSelectedStatuses}
+                    />
+                    <MultiSelectFilter
+                      title="Tags"
+                      options={uniqueTags}
+                      selectedValues={selectedTags}
+                      onSelectionChange={setSelectedTags}
+                    />
                     <div className="pr-2">
                       <Dialog
                         open={isAddTaskOpen}
@@ -1339,6 +1296,44 @@ export const Tasks = (
           )}
         </>
       )}
+      <Sheet open={isFilterSheetOpen} onOpenChange={setIsFilterSheetOpen}>
+        <SheetContent side="bottom" className="h-[75vh] flex flex-col">
+          <SheetHeader>
+            <SheetTitle>Filter Tasks</SheetTitle>
+            <SheetDescription>
+              Select multiple items to filter your tasks.
+            </SheetDescription>
+          </SheetHeader>
+
+          {/* This holds all your new filters */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <MultiSelectFilter
+              title="Projects"
+              options={uniqueProjects}
+              selectedValues={selectedProjects}
+              onSelectionChange={setSelectedProjects}
+            />
+            <MultiSelectFilter
+              title="Status"
+              options={status}
+              selectedValues={selectedStatuses}
+              onSelectionChange={setSelectedStatuses}
+            />
+            <MultiSelectFilter
+              title="Tags"
+              options={uniqueTags}
+              selectedValues={selectedTags}
+              onSelectionChange={setSelectedTags}
+            />
+          </div>
+
+          <SheetFooter>
+            <SheetClose asChild>
+              <Button className="w-full">Apply</Button>
+            </SheetClose>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </section>
   );
 };
