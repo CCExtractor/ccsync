@@ -1,8 +1,15 @@
 import { Props } from '../../utils/types';
 import { CopyButton } from './CopyButton';
 import { ToastNotification } from './ToastNotification';
+import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
 export const Hero = (props: Props) => {
+  const [showUuid, setShowUuid] = useState(true);
+  const [showSecret, setShowSecret] = useState(true);
+
+  const createMask = (text: string) => '•'.repeat(text.length);
+
   return (
     <section id="#" className="container py-20 md:py-32">
       <div className="text-center lg:text-start space-y-6">
@@ -38,8 +45,21 @@ export const Hero = (props: Props) => {
           <h3 className="text-xl text-foreground font-semibold">UUID</h3>
           <div className="mt-4 flex items-center">
             <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
-              <code className="whitespace-nowrap">{props.uuid}</code>
+              <code className="whitespace-nowrap">
+                {showUuid ? props.uuid : createMask(props.uuid)}
+              </code>
             </div>
+            <button
+              onClick={() => setShowUuid(!showUuid)}
+              className="text-white font-bold p-2 rounded-full m-2"
+              aria-label={showUuid ? 'Hide UUID' : 'Show UUID'}
+            >
+              {showUuid ? (
+                <EyeOff className="size-5" />
+              ) : (
+                <Eye className="size-5" />
+              )}
+            </button>
             <CopyButton text={props.uuid} label="UUID" />
           </div>
           <br></br>
@@ -50,9 +70,22 @@ export const Hero = (props: Props) => {
           <div className="mt-4 flex items-center">
             <div className="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto">
               <code className="whitespace-nowrap">
-                {props.encryption_secret}
+                {showSecret
+                  ? props.encryption_secret
+                  : createMask(props.encryption_secret)}
               </code>
             </div>
+            <button
+              onClick={() => setShowSecret(!showSecret)}
+              className="text-white font-bold p-2 rounded-full m-2"
+              aria-label={showSecret ? 'Hide secret' : 'Show secret'}
+            >
+              {showSecret ? (
+                <EyeOff className="size-5" />
+              ) : (
+                <Eye className="size-5" />
+              )}
+            </button>
             <CopyButton
               text={props.encryption_secret}
               label="Encryption Secret"
