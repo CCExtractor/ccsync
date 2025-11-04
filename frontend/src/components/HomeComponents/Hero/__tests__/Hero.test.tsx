@@ -5,8 +5,10 @@ import { Props } from '../../../utils/types';
 
 jest.mock('../CopyButton', () => ({
   CopyButton: ({ text, label }: { text: string; label: string }) => (
-    <button data-testid={`copy-button-${text.replace(/\s+/g, '-')}`}>
-      {label}
+    <button
+      data-testid={`copy-button-${label.toLowerCase().replace(/\s+/g, '-')}`}
+    >
+      {text}
     </button>
   ),
 }));
@@ -47,5 +49,16 @@ describe('Hero component', () => {
     render(<Hero {...mockProps} />);
     const toastNotification = screen.getByTestId('toast-notification');
     expect(toastNotification).toBeInTheDocument();
+  });
+
+  test('renders UUID and encryption secret with toggle buttons', () => {
+    render(<Hero {...mockProps} />);
+
+    const uuidCopyButton = screen.getByTestId('copy-button-uuid');
+    const secretCopyButton = screen.getByTestId(
+      'copy-button-encryption-secret'
+    );
+    expect(uuidCopyButton).toBeInTheDocument();
+    expect(secretCopyButton).toBeInTheDocument();
   });
 });
