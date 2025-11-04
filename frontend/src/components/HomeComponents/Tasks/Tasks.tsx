@@ -80,11 +80,11 @@ export const Tasks = (
   const [showReports, setShowReports] = useState(false);
   const [uniqueTags, setUniqueTags] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedTag, setSelectedTag] = useState('all');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [uniqueProjects, setUniqueProjects] = useState<string[]>([]);
-  const [selectedProject, setSelectedProject] = useState<string>('all');
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [tempTasks, setTempTasks] = useState<Task[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const status = ['pending', 'completed', 'deleted'];
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -115,7 +115,9 @@ export const Tasks = (
   const debouncedSearch = debounce((value: string) => {
     if (!value) {
       setTempTasks(
-        selectedProject === 'all' && selectedStatus === 'all'
+        selectedProjects.length === 0 &&
+          selectedStatuses.length === 0 &&
+          selectedTags.length === 0
           ? tasks
           : tempTasks
       );
@@ -353,10 +355,6 @@ export const Tasks = (
     }
   };
 
-  const handleProjectChange = (value: string) => {
-    setSelectedProject(value);
-  };
-
   // Handle adding a tag
   const handleAddTag = () => {
     if (tagInput && !newTask.tags.includes(tagInput, 0)) {
@@ -372,40 +370,65 @@ export const Tasks = (
       tags: newTask.tags.filter((tag) => tag !== tagToRemove),
     });
   };
-  const handleTagChange = (value: string) => {
-    setSelectedTag(value);
+  // Project Select Handler
+  const handleProjectSelect = (project: string) => {
+    if (project === 'all') {
+      setSelectedProjects([]);
+      return;
+    }
+    if (!selectedProjects.includes(project)) {
+      setSelectedProjects((prev) => [...prev, project]);
+    }
   };
 
-  const handleStatusChange = (value: string) => {
-    setSelectedStatus(value);
+  // Status Select Handler
+  const handleStatusSelect = (status: string) => {
+    if (status === 'all') {
+      setSelectedStatuses([]);
+      return;
+    }
+    if (!selectedStatuses.includes(status)) {
+      setSelectedStatuses((prev) => [...prev, status]);
+    }
+  };
+
+  // Tag Select Handler
+  const handleTagSelect = (tag: string) => {
+    if (tag === 'all') {
+      setSelectedTags([]);
+      return;
+    }
+    if (!selectedTags.includes(tag)) {
+      setSelectedTags((prev) => [...prev, tag]);
+    }
   };
   useEffect(() => {
     let filteredTasks = tasks;
 
     // Project filter
-    if (selectedProject !== 'all') {
+    if (selectedProjects.length > 0) {
       filteredTasks = filteredTasks.filter(
-        (task) => task.project === selectedProject
+        (task) => task.project && selectedProjects.includes(task.project)
       );
     }
 
-    //Status filter
-    if (selectedStatus !== 'all') {
-      filteredTasks = filteredTasks.filter(
-        (task) => task.status === selectedStatus
+    // Status filter
+    if (selectedStatuses.length > 0) {
+      filteredTasks = filteredTasks.filter((task) =>
+        selectedStatuses.includes(task.status)
       );
     }
 
     // Tag filter
-    if (selectedTag && selectedTag !== 'all') {
+    if (selectedTags.length > 0) {
       filteredTasks = filteredTasks.filter(
-        (task) => task.tags && task.tags.includes(selectedTag)
+        (task) =>
+          task.tags && task.tags.some((tag) => selectedTags.includes(tag))
       );
     }
 
-    // Sort + set
     setTempTasks(sortTasksById(filteredTasks, 'desc'));
-  }, [selectedProject, selectedTag, selectedStatus, tasks]);
+  }, [selectedProjects, selectedStatuses, selectedTags, tasks]);
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
@@ -444,11 +467,11 @@ export const Tasks = (
     >
       <BottomBar
         projects={uniqueProjects}
-        setSelectedProject={setSelectedProject}
+        onProjectSelect={handleProjectSelect}
         status={['pending', 'completed', 'deleted']}
-        setSelectedStatus={setSelectedStatus}
+        onStatusSelect={handleStatusSelect}
         tags={uniqueTags}
-        setSelectedTag={setSelectedTag}
+        onTagSelect={handleTagSelect}
       />
       <h2
         data-testid="tasks"
@@ -487,9 +510,9 @@ export const Tasks = (
                       className="w-full md:w-64"
                       data-testid="task-search-bar"
                     />
-                    <Select onValueChange={handleProjectChange}>
+                    <Select onValueChange={handleProjectSelect}>
                       <SelectTrigger className="w-[180px] hidden sm:flex mr-2">
-                        <SelectValue placeholder="Select a project" />
+                        <SelectValue placeholder="Projects" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -506,12 +529,9 @@ export const Tasks = (
                         </SelectGroup>
                       </SelectContent>
                     </Select>
-                    <Select
-                      value={selectedStatus || ''}
-                      onValueChange={handleStatusChange}
-                    >
+                    <Select onValueChange={handleStatusSelect}>
                       <SelectTrigger className="w-[120px]  hidden sm:flex mr-2">
-                        <SelectValue placeholder="Select a project" />
+                        <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -525,9 +545,9 @@ export const Tasks = (
                         </SelectGroup>
                       </SelectContent>
                     </Select>
-                    <Select onValueChange={handleTagChange}>
+                    <Select onValueChange={handleTagSelect}>
                       <SelectTrigger className="w-[180px] hidden sm:flex mr-2">
-                        <SelectValue placeholder="Select a tag" />
+                        <SelectValue placeholder="Tags" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
@@ -736,6 +756,75 @@ export const Tasks = (
                       </span>
                     </div>
                   </div>
+                </div>
+
+                {/* This is the block to display active filters */}
+                <div className="flex flex-col gap-2 mb-4 px-1 md:px-4">
+                  {/* --- Projects Filter Group --- */}
+                  {selectedProjects.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-muted-foreground">
+                        Projects:
+                      </span>
+                      {selectedProjects.map((project) => (
+                        <Badge key={project} variant="secondary">
+                          {project}
+                          <XIcon
+                            className="ml-1 h-3 w-3 cursor-pointer"
+                            onClick={() =>
+                              setSelectedProjects((prev) =>
+                                prev.filter((p) => p !== project)
+                              )
+                            }
+                          />
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* --- Status Filter Group --- */}
+                  {selectedStatuses.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-muted-foreground">
+                        Status:
+                      </span>
+                      {selectedStatuses.map((status) => (
+                        <Badge key={status} variant="secondary">
+                          {status}
+                          <XIcon
+                            className="ml-1 h-3 w-3 cursor-pointer"
+                            onClick={() =>
+                              setSelectedStatuses((prev) =>
+                                prev.filter((s) => s !== status)
+                              )
+                            }
+                          />
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* --- Tags Filter Group --- */}
+                  {selectedTags.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-muted-foreground">
+                        Tags:
+                      </span>
+                      {selectedTags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          {tag}
+                          <XIcon
+                            className="ml-1 h-3 w-3 cursor-pointer"
+                            onClick={() =>
+                              setSelectedTags((prev) =>
+                                prev.filter((t) => t !== tag)
+                              )
+                            }
+                          />
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div className="overflow-x-auto">

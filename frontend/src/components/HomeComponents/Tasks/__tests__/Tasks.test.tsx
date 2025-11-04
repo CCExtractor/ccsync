@@ -31,6 +31,10 @@ jest.mock('../tasks-utils', () => {
   };
 });
 
+jest.mock('../../BottomBar/BottomBar', () => {
+  return jest.fn(() => <div>Mocked BottomBar</div>);
+});
+
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
 
 describe('Tasks Component', () => {

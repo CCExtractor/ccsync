@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from 'react';
-
 export interface RouteProps {
   href: string;
   label: string;
@@ -7,11 +5,11 @@ export interface RouteProps {
 
 export interface BottomBarProps {
   projects: string[];
-  setSelectedProject: Dispatch<SetStateAction<string>>;
+  onProjectSelect: (project: string) => void;
   status: string[];
-  setSelectedStatus: Dispatch<SetStateAction<string>>;
+  onStatusSelect: (status: string) => void;
   tags: string[];
-  setSelectedTag: Dispatch<SetStateAction<string>>;
+  onTagSelect: (tag: string) => void;
 }
 
 export const routeList: RouteProps[] = [

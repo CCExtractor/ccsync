@@ -15,21 +15,21 @@ import { Icons } from '@/components/icons';
 
 const BottomBar: React.FC<BottomBarProps> = ({
   projects,
-  setSelectedProject,
+  onProjectSelect,
   status,
-  setSelectedStatus,
+  onStatusSelect,
   tags,
-  setSelectedTag,
+  onTagSelect,
 }) => {
   const handleFilterChange = (value: string) => {
     if (!value) return;
     const [type, filterValue] = value.split(':');
     if (type === 'project') {
-      setSelectedProject(filterValue);
+      onProjectSelect(filterValue);
     } else if (type === 'status') {
-      setSelectedStatus(filterValue);
+      onStatusSelect(filterValue);
     } else if (type === 'tag') {
-      setSelectedTag(filterValue);
+      onTagSelect(filterValue);
     }
   };
   return (
