@@ -2,6 +2,7 @@ import { CopyIcon, Eye, EyeOff } from 'lucide-react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { toast } from 'react-toastify';
 import { useState } from 'react';
+import Tooltip from '../../ui/tooltip';
 
 interface CopyableCodeProps {
   text: string;
@@ -50,24 +51,31 @@ export const CopyableCode = ({
         </code>
       </div>
       {isSensitive && (
-        <button
-          onClick={() => setShowSensitive(!showSensitive)}
-          className="bg-gray-700 hover:bg-gray-600 text-white font-bold p-3 sm:p-4 rounded flex-shrink-0"
-          aria-label={
-            showSensitive ? 'Hide sensitive value' : 'Show sensitive value'
-          }
-        >
-          {showSensitive ? (
-            <EyeOff className="size-5" />
-          ) : (
-            <Eye className="size-5" />
-          )}
-        </button>
+        <Tooltip title={showSensitive ? 'Hide sensitive value' : 'Show sensitive value'} position='bottom'>
+          <button
+            onClick={() => setShowSensitive(!showSensitive)}
+            className="bg-gray-700 hover:bg-gray-600 text-white font-bold p-3 sm:p-4 rounded flex-shrink-0"
+            aria-label={
+              showSensitive ? 'Hide sensitive value' : 'Show sensitive value'
+            }
+          >
+            {showSensitive ? (
+              <EyeOff className="size-5" />
+            ) : (
+              <Eye className="size-5" />
+            )}
+          </button>
+        </Tooltip>
       )}
       <CopyToClipboard text={copyText} onCopy={() => handleCopy(copyText)}>
-        <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold p-3 sm:p-4 rounded flex-shrink-0">
-          <CopyIcon className="size-5" />
-        </button>
+        <Tooltip title="Copy to clipboard" position='bottom'>
+          <button
+            className="bg-blue-500 hover:bg-blue-600 active:bg-blue-800 text-white font-bold p-3 sm:p-4 rounded flex-shrink-0"
+            aria-label="Copy to clipboard"
+          >
+            <CopyIcon className="size-5" />
+          </button>
+        </Tooltip>
       </CopyToClipboard>
     </div>
   );
