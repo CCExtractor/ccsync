@@ -51,7 +51,12 @@ export const CopyableCode = ({
         </code>
       </div>
       {isSensitive && (
-        <Tooltip title={showSensitive ? 'Hide sensitive value' : 'Show sensitive value'} position='bottom'>
+        <Tooltip
+          title={
+            showSensitive ? 'Hide sensitive value' : 'Show sensitive value'
+          }
+          position="bottom"
+        >
           <button
             onClick={() => setShowSensitive(!showSensitive)}
             className="bg-gray-700 hover:bg-gray-600 text-white font-bold p-3 sm:p-4 rounded flex-shrink-0"
@@ -68,7 +73,7 @@ export const CopyableCode = ({
         </Tooltip>
       )}
       <CopyToClipboard text={copyText} onCopy={() => handleCopy(copyText)}>
-        <Tooltip title="Copy to clipboard" position='bottom'>
+        <Tooltip title="Copy to clipboard" position="bottom">
           <button
             className="bg-blue-500 hover:bg-blue-600 active:bg-blue-800 text-white font-bold p-3 sm:p-4 rounded flex-shrink-0"
             aria-label="Copy to clipboard"
