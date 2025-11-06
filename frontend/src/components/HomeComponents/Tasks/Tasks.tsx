@@ -969,7 +969,7 @@ export const Tasks = (
                                         ) : (
                                           <div className="flex items-center">
                                             {task.tags !== null &&
-                                              task.tags.length >= 1 ? (
+                                            task.tags.length >= 1 ? (
                                               task.tags.map((tag, index) => (
                                                 <Badge
                                                   key={index}
