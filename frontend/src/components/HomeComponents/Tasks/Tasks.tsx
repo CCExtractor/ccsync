@@ -686,13 +686,12 @@ export const Tasks = (
                       <Button variant="outline" onClick={syncTasksWithTwAndDb}>
                         Sync
                       </Button>
-                      <span className="text-xs text-muted-foreground">
-                        {getTimeSinceLastSync(lastSyncTime)}
-                      </span>
                     </div>
                   </div>
                 </div>
-
+                <span className="text-xs text-muted-foreground ml-4">
+                  {getTimeSinceLastSync(lastSyncTime)}
+                </span>
                 <div className="overflow-x-auto">
                   <Table className="w-full text-white">
                     <TableHeader>
@@ -946,7 +945,7 @@ export const Tasks = (
                                         ) : (
                                           <div className="flex items-center">
                                             {task.tags !== null &&
-                                            task.tags.length >= 1 ? (
+                                              task.tags.length >= 1 ? (
                                               task.tags.map((tag, index) => (
                                                 <Badge
                                                   key={index}
@@ -1280,12 +1279,12 @@ export const Tasks = (
                           'Sync'
                         )}
                       </Button>
-                      <span className="text-xs text-muted-foreground">
-                        {getTimeSinceLastSync(lastSyncTime)}
-                      </span>
                     </div>
                   </div>
                 </div>
+                <span className="text-xs text-muted-foreground ml-4">
+                  {getTimeSinceLastSync(lastSyncTime)}
+                </span>
                 <div className="text-l ml-5 text-muted-foreground mt-5 mb-5">
                   Add a new task or sync tasks from taskwarrior to view tasks.
                 </div>
