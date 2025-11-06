@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import { Tasks } from '../Tasks'; // Ensure correct path to Tasks component
+import { Tasks } from '../Tasks';
 
 // Mock props for the Tasks component
 const mockProps = {
+  origin: '',
   email: 'test@example.com',
   encryptionSecret: 'mockEncryptionSecret',
   UUID: 'mockUUID',
@@ -22,20 +23,35 @@ jest.mock('../tasks-utils', () => {
   const originalModule = jest.requireActual('../tasks-utils');
   return {
     ...originalModule, // Includes all real functions like sortTasksById
-    markTaskAsCompleted: jest.fn(), // Overwrite this one with a mock
-    markTaskAsDeleted: jest.fn(), // And this one
+    markTaskAsCompleted: jest.fn(),
+    markTaskAsDeleted: jest.fn(),
     getTimeSinceLastSync: jest
       .fn()
-      .mockReturnValue('Last updated 5 minutes ago'), // Mock this new function
-    hashKey: jest.fn().mockReturnValue('mockHashedKey'), // Mock the hash function
+      .mockReturnValue('Last updated 5 minutes ago'),
+    hashKey: jest.fn().mockReturnValue('mockHashedKey'),
   };
+});
+
+jest.mock('@/components/ui/multiSelect', () => ({
+  MultiSelectFilter: jest.fn(({ title }) => (
+    <div>Mocked MultiSelect: {title}</div>
+  )),
+}));
+
+jest.mock('../../BottomBar/BottomBar', () => {
+  return jest.fn(() => <div>Mocked BottomBar</div>);
 });
 
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
 
 describe('Tasks Component', () => {
-  test('renders tasks component', async () => {
-    render(<Tasks origin={''} {...mockProps} />);
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('renders tasks component and the mocked BottomBar', async () => {
+    render(<Tasks {...mockProps} />);
     expect(screen.getByTestId('tasks')).toBeInTheDocument();
+    expect(screen.getByText('Mocked BottomBar')).toBeInTheDocument();
   });
 });
