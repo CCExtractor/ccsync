@@ -31,6 +31,8 @@ describe('Pagination', () => {
 
     expect(screen.getByText('Previous')).toBeInTheDocument();
     expect(screen.getByText('Next')).toBeInTheDocument();
+    expect(screen.getByText('First')).toBeInTheDocument();
+    expect(screen.getByText('Last')).toBeInTheDocument();
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
@@ -43,6 +45,7 @@ describe('Pagination', () => {
 
     expect(screen.getByText('Previous')).toBeDisabled();
     expect(screen.getByText('Next')).toBeEnabled();
+    expect(screen.getByText('First')).toBeDisabled();
   });
 
   it('disables the "Next" button on the last page', () => {
@@ -50,6 +53,7 @@ describe('Pagination', () => {
 
     expect(screen.getByText('Previous')).toBeEnabled();
     expect(screen.getByText('Next')).toBeDisabled();
+    expect(screen.getByText('Last')).toBeDisabled();
   });
 
   it('calls paginate with correct arguments when a page button is clicked', () => {
@@ -70,5 +74,15 @@ describe('Pagination', () => {
 
     fireEvent.click(screen.getByText('Next'));
     expect(mockPaginate).toHaveBeenCalledWith(4);
+  });
+
+  it('calls paginate with correct arguments when "First" and "Last" buttons are clicked', () => {
+    renderComponent(3, 5);
+
+    fireEvent.click(screen.getByText('First'));
+    expect(mockPaginate).toHaveBeenCalledWith(1);
+
+    fireEvent.click(screen.getByText('Last'));
+    expect(mockPaginate).toHaveBeenCalledWith(5);
   });
 });

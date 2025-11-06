@@ -19,6 +19,15 @@ const Pagination: React.FC<PaginationProps> = ({
       <Button
         variant="outline"
         size="sm"
+        onClick={() => paginate(1)}
+        disabled={currentPage === 1}
+        className="hidden sm:inline-flex"
+      >
+        First
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
         onClick={() => paginate(currentPage - 1)}
         disabled={currentPage === 1}
       >
@@ -46,6 +55,15 @@ const Pagination: React.FC<PaginationProps> = ({
         disabled={currentPage === totalPages}
       >
         Next
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => paginate(totalPages)}
+        disabled={currentPage === totalPages}
+        className="hidden sm:inline-flex"
+      >
+        Last
       </Button>
     </div>
   );

@@ -133,14 +133,29 @@ export const Tasks = (
     debouncedSearch(value);
   };
 
-  const tasksPerPage = 10;
+  const handleTasksPerPageChange = (newTasksPerPage: number) => {
+    setTasksPerPage(newTasksPerPage);
+    setCurrentPage(1);
+
+    const hashedKey = hashKey('tasksPerPage', props.email);
+    localStorage.setItem(hashedKey, newTasksPerPage.toString());
+  };
+
+  const [tasksPerPage, setTasksPerPage] = useState<number>(10);
   const indexOfLastTask = currentPage * tasksPerPage;
   const indexOfFirstTask = indexOfLastTask - tasksPerPage;
   const currentTasks = tempTasks.slice(indexOfFirstTask, indexOfLastTask);
   const emptyRows = tasksPerPage - currentTasks.length;
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-  const totalPages = Math.ceil(tasks.length / tasksPerPage);
+  const totalPages = Math.ceil(tempTasks.length / tasksPerPage) || 1;
 
+  useEffect(() => {
+    const hashedKey = hashKey('tasksPerPage', props.email);
+    const storedTasksPerPage = localStorage.getItem(hashedKey);
+    if (storedTasksPerPage) {
+      setTasksPerPage(parseInt(storedTasksPerPage, 10));
+    }
+  }, [props.email]);
   useEffect(() => {
     if (_selectedTask) {
       setEditedTags(_selectedTask.tags || []);
@@ -467,6 +482,24 @@ export const Tasks = (
                     your tasks
                   </h3>
                   <div className="hidden sm:flex flex-row w-full items-center gap-2 md:gap-4">
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="tasks-per-page" className="flex-shrink-0">
+                        Show:
+                      </Label>
+                      <select
+                        id="tasks-per-page"
+                        value={tasksPerPage}
+                        onChange={(e) =>
+                          handleTasksPerPageChange(parseInt(e.target.value, 10))
+                        }
+                        className="border rounded-md px-2 py-1 bg-black text-white h-10 text-sm" // Matched height
+                      >
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                      </select>
+                    </div>
                     <Input
                       type="text"
                       placeholder="Search tasks..."
