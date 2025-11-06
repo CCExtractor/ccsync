@@ -305,13 +305,20 @@ export const Tasks = (
   const handleIdSort = () => {
     const newOrder = idSortOrder === 'asc' ? 'desc' : 'asc';
     setIdSortOrder(newOrder);
-    setTasks(sortTasksById([...tasks], newOrder));
+    const sorted = sortTasksById([...tasks], newOrder);
+    setTasks(sorted);
+    setTempTasks(sorted);
+    setCurrentPage(1);
   };
 
   const handleSort = () => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     setSortOrder(newOrder);
-    setTasks(sortTasks([...tasks], newOrder));
+    const sorted = sortTasks([...tasks], newOrder);
+    // Keep both states in sync so the table (which renders from tempTasks) reflects the new order
+    setTasks(sorted);
+    setTempTasks(sorted);
+    setCurrentPage(1);
   };
 
   const handleEditClick = (description: string) => {
