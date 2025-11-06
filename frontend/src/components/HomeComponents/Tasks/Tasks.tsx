@@ -457,6 +457,23 @@ export const Tasks = (
         <Button variant="outline" onClick={() => setShowReports(!showReports)}>
           {showReports ? 'Show Tasks' : 'Show Reports'}
         </Button>
+        {/* Mobile-only Sync button (desktop already shows a Sync button with filters) */}
+        <Button
+          className="sm:hidden ml-2"
+          variant="outline"
+          onClick={async () => {
+            props.setIsLoading(true);
+            await syncTasksWithTwAndDb();
+            props.setIsLoading(false);
+          }}
+          disabled={props.isLoading}
+        >
+          {props.isLoading ? (
+            <Loader2 className="mx-1 size-5 animate-spin" />
+          ) : (
+            'Sync'
+          )}
+        </Button>
       </div>
       {showReports ? (
         <ReportsView tasks={tasks} />
