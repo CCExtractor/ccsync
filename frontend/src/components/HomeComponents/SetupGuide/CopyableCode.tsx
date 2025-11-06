@@ -72,16 +72,16 @@ export const CopyableCode = ({
           </button>
         </Tooltip>
       )}
-      <CopyToClipboard text={copyText} onCopy={() => handleCopy(copyText)}>
-        <Tooltip title="Copy to clipboard" position="bottom">
+      <Tooltip title="Copy to clipboard" position="bottom">
+        <CopyToClipboard text={copyText} onCopy={() => handleCopy(copyText)}>
           <button
             className="bg-blue-500 hover:bg-blue-600 active:bg-blue-800 text-white font-bold p-3 sm:p-4 rounded flex-shrink-0"
             aria-label="Copy to clipboard"
           >
             <CopyIcon className="size-5" />
           </button>
-        </Tooltip>
-      </CopyToClipboard>
+        </CopyToClipboard>
+      </Tooltip>
     </div>
   );
 };
