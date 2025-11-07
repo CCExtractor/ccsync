@@ -45,6 +45,7 @@
 - [Screenshots](#screenshots)
 - [Features](#features)
 - [Architecture](#architecture)
+- [Development Setup](#development-setup)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -96,6 +97,28 @@ CCSync is composed of **three core modules**:
 3. **Taskchampion Sync Server** — In order to sync tasks with you Taskwarrior instances, CCSync by default uses the offical Taskchampion sync server image to sync tasks.
 
 📖 Learn more in the [official documentation](https://its-me-abhishek.github.io/ccsync-docs/).
+
+## Development Setup
+
+Want to contribute or run CCSync locally? We've made it easy!
+
+### Quick Start with Tmux (Recommended)
+
+Run all services (backend, frontend, and sync server) in a single command:
+
+```bash
+./development/setup.sh
+```
+
+This will start all three services in separate tmux panes. See [development/README.md](development/README.md) for detailed setup instructions, prerequisites, and troubleshooting.
+
+### Manual Setup
+
+Alternatively, you can run each service separately:
+
+- **Backend**: See [backend/README.md](backend/README.md)
+- **Frontend**: See [frontend/README.md](frontend/README.md)
+- **Full Stack**: Use `docker-compose up`
 
 ## Testing with Postman
 
