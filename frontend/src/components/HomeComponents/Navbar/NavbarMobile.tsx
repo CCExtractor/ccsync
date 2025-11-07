@@ -110,7 +110,7 @@ export const NavbarMobile = (
                     variant: 'secondary',
                   })}`}
                 >
-                  <FileDown className="mr-2 w-5 h-5" />
+                  <FileDown />
                   Export Tasks
                 </div>
               </DialogTrigger>
