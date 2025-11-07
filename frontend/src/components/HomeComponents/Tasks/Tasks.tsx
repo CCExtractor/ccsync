@@ -305,13 +305,20 @@ export const Tasks = (
   const handleIdSort = () => {
     const newOrder = idSortOrder === 'asc' ? 'desc' : 'asc';
     setIdSortOrder(newOrder);
-    setTasks(sortTasksById([...tasks], newOrder));
+    const sorted = sortTasksById([...tasks], newOrder);
+    setTasks(sorted);
+    setTempTasks(sorted);
+    setCurrentPage(1);
   };
 
   const handleSort = () => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     setSortOrder(newOrder);
-    setTasks(sortTasks([...tasks], newOrder));
+    const sorted = sortTasks([...tasks], newOrder);
+    // Keep both states in sync so the table (which renders from tempTasks) reflects the new order
+    setTasks(sorted);
+    setTempTasks(sorted);
+    setCurrentPage(1);
   };
 
   const handleEditClick = (description: string) => {
@@ -449,6 +456,23 @@ export const Tasks = (
       <div className="flex justify-center md:justify-end w-full px-4 mb-4 mt-4">
         <Button variant="outline" onClick={() => setShowReports(!showReports)}>
           {showReports ? 'Show Tasks' : 'Show Reports'}
+        </Button>
+        {/* Mobile-only Sync button (desktop already shows a Sync button with filters) */}
+        <Button
+          className="sm:hidden ml-2"
+          variant="outline"
+          onClick={async () => {
+            props.setIsLoading(true);
+            await syncTasksWithTwAndDb();
+            props.setIsLoading(false);
+          }}
+          disabled={props.isLoading}
+        >
+          {props.isLoading ? (
+            <Loader2 className="mx-1 size-5 animate-spin" />
+          ) : (
+            'Sync'
+          )}
         </Button>
       </div>
       {showReports ? (
@@ -686,13 +710,12 @@ export const Tasks = (
                       <Button variant="outline" onClick={syncTasksWithTwAndDb}>
                         Sync
                       </Button>
-                      <span className="text-xs text-muted-foreground">
-                        {getTimeSinceLastSync(lastSyncTime)}
-                      </span>
                     </div>
                   </div>
                 </div>
-
+                <span className="text-xs text-muted-foreground ml-4">
+                  {getTimeSinceLastSync(lastSyncTime)}
+                </span>
                 <div className="overflow-x-auto">
                   <Table className="w-full text-white">
                     <TableHeader>
@@ -1280,12 +1303,12 @@ export const Tasks = (
                           'Sync'
                         )}
                       </Button>
-                      <span className="text-xs text-muted-foreground">
-                        {getTimeSinceLastSync(lastSyncTime)}
-                      </span>
                     </div>
                   </div>
                 </div>
+                <span className="text-xs text-muted-foreground ml-4">
+                  {getTimeSinceLastSync(lastSyncTime)}
+                </span>
                 <div className="text-l ml-5 text-muted-foreground mt-5 mb-5">
                   Add a new task or sync tasks from taskwarrior to view tasks.
                 </div>
