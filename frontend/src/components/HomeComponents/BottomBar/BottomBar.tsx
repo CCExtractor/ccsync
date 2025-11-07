@@ -54,7 +54,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
         {/* Filters */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" className="w-auto px-3">
+            <Button variant="ghost" className="w-auto px-3" aria-label="Filter">
               <Icons.Filter className="h-4 w-4 mr-2" />
             </Button>
           </PopoverTrigger>
