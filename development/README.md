@@ -4,6 +4,8 @@ This directory contains scripts to automate local development setup for CCSync.
 
 The `setup.sh` script starts all three services (backend, frontend, and sync server) in a single tmux session with separate panes for each service.
 
+> **Note:** The backend should ideally be run in a separate user environment (preferably root user) to avoid permission issues with Taskwarrior configuration files.
+
 ## Prerequisites
 
 Before running the setup script, ensure you have the following installed:
@@ -20,9 +22,9 @@ Before running the setup script, ensure you have the following installed:
 
 The setup script requires environment files for both backend and frontend. Create these files before running the script.
 
-### Backend Environment (`backend/.env`)
+### Backend Environment (`./backend/.env`)
 
-Create a file at `backend/.env` with the following content:
+Create a file at `./backend/.env` (relative to project root) with the following content:
 
 ```bash
 CLIENT_ID="your_google_client_id"
@@ -34,6 +36,10 @@ CONTAINER_ORIGIN="http://localhost:8080/"
 ```
 
 **How to get Google OAuth credentials:**
+
+For detailed instructions, refer to the [CCSync Documentation](https://its-me-abhishek.github.io/ccsync-docs/).
+
+Quick steps:
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select an existing one
@@ -95,7 +101,7 @@ Once running, you can access:
 - **Frontend**: http://localhost:5173
 - **Backend API**: http://localhost:8000
 - **API Documentation**: http://localhost:8000/api/docs/index.html
-- **Sync Server**: http://localhost:8080
+- **Sync Server**: http://localhost:8080 (started via `docker-compose up syncserver`)
 
 ### Tmux Commands
 
