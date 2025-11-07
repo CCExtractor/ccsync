@@ -66,6 +66,7 @@ Whether you prefer the **CLI**, **Web Frontend**, or **Flutter Mobile App**, CCS
 <img src="./assets/02_home.png">
 <img src="./assets/03_home.png">
 <img src="./assets/04_home.png">
+<img src="./assets/01_backend_docs.png">
 <p align="center">
   <table align="center">
     <tr>
