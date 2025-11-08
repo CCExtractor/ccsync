@@ -472,7 +472,7 @@ export const Tasks = (
         <>
           {tasks.length != 0 ? (
             <>
-              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full py-12">
+              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full pt-12 pb-6">
                 {/* Table for displaying tasks */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <h3 className="ml-4 mb-4 mr-4 text-2xl mt-0 md:text-2xl font-bold">
@@ -482,24 +482,6 @@ export const Tasks = (
                     your tasks
                   </h3>
                   <div className="hidden sm:flex flex-row w-full items-center gap-2 md:gap-4">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor="tasks-per-page" className="flex-shrink-0">
-                        Show:
-                      </Label>
-                      <select
-                        id="tasks-per-page"
-                        value={tasksPerPage}
-                        onChange={(e) =>
-                          handleTasksPerPageChange(parseInt(e.target.value, 10))
-                        }
-                        className="border rounded-md px-2 py-1 bg-black text-white h-10 text-sm" // Matched height
-                      >
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="50">50</option>
-                      </select>
-                    </div>
                     <Input
                       type="text"
                       placeholder="Search tasks..."
@@ -1132,18 +1114,49 @@ export const Tasks = (
                     </TableBody>
                   </Table>
                 </div>
-                {/* Pagination */}
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  paginate={paginate}
-                  getDisplayedPages={getDisplayedPages}
-                />
+                <div className="flex items-baseline mt-4">
+                  <div className="flex-1 flex justify-start">
+                    <div className="flex items-center gap-2">
+                      <Label
+                        htmlFor="tasks-per-page"
+                        className="text-sm text-muted-foreground flex-shrink-0"
+                      >
+                        Show:
+                      </Label>
+                      <select
+                        id="tasks-per-page"
+                        value={tasksPerPage}
+                        onChange={(e) =>
+                          handleTasksPerPageChange(parseInt(e.target.value, 10))
+                        }
+                        className="border rounded-md px-2 py-1 bg-black text-white h-10 text-sm"
+                      >
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Pagination */}
+                  <div className="flex-1 flex justify-center">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      paginate={paginate}
+                      getDisplayedPages={getDisplayedPages}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    {/* Intentionally empty for spacing */}
+                  </div>
+                </div>
               </div>
             </>
           ) : (
             <>
-              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full py-12">
+              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full pt-12 pb-6">
                 <div className="flex items-center justify-between">
                   <h3 className="ml-4 mb-4 mr-4 text-2xl mt-0 md:text-2xl font-bold">
                     <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
