@@ -1,0 +1,21 @@
+{
+  "name": "ccsync",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web Interface + Sync Server for Taskwarrior 3.0 and Higher",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11"
+  },
+  "lint-staged": {
+    "frontend/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "npx prettier --write"
+    ],
+    "backend/**/*.go": [
+      "gofmt -w"
+    ]
+  }
+}

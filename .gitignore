@@ -1,2 +1,4 @@
 .backend.env
 .frontend.env
+node_modules
+package-lock.json

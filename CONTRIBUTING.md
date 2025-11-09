@@ -25,6 +25,7 @@ Scan through our [existing issues](https://github.com/its-me-abhishek/ccsync/iss
 1. Fork the repository.
 
 - Using GitHub Desktop:
+
   - [Getting started with GitHub Desktop](https://docs.github.com/en/desktop/installing-and-configuring-github-desktop/getting-started-with-github-desktop) will guide you through setting up Desktop.
   - Once Desktop is set up, you can use it to [fork the repo](https://docs.github.com/en/desktop/contributing-and-collaborating-using-github-desktop/cloning-and-forking-repositories-from-github-desktop)!
 
@@ -48,8 +49,16 @@ Please follow these rules or conventions while committing any new changes:
 - `refactor`: refactoring production code, eg. renaming a variable
 - `test`: adding missing tests, refactoring tests
 - `chore`: updating grunt tasks, etc., no production code change
-- Run `npx prettier --write .` before commiting so as to adhere to the linting scheme of the project's frontend
-- Run `gofmt -w .` before commiting so as to adhere to the linting scheme of the project's backend
+
+**Note:** This project uses Husky pre-commit hooks to automatically format code before committing. When you commit changes:
+
+- Frontend files (JS/TS/JSON/CSS/MD) will be automatically formatted with Prettier
+- Backend Go files will be automatically formatted with gofmt
+
+If you need to manually format files:
+
+- Run `npx prettier --write .` for frontend formatting
+- Run `gofmt -w .` for backend formatting
 
 ### Pull Request
 
