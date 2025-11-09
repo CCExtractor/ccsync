@@ -50,14 +50,22 @@ Please follow these rules or conventions while committing any new changes:
 - `test`: adding missing tests, refactoring tests
 - `chore`: updating grunt tasks, etc., no production code change
 
-**Note:** This project uses Husky pre-commit hooks to automatically format code before committing. When you commit changes:
+**Note:** This project uses Git pre-commit hooks to automatically format code before committing.
+
+To set up the hooks, run once after cloning:
+
+```bash
+./scripts/setup-git-hooks.sh
+```
+
+After setup, when you commit changes:
 
 - Frontend files (JS/TS/JSON/CSS/MD) will be automatically formatted with Prettier
-- Backend Go files will be automatically formatted with gofmt
+- Backend Go files will be automatically formatted with gofmt (if Go is installed)
 
 If you need to manually format files:
 
-- Run `npx prettier --write .` for frontend formatting
+- Run `npx prettier --write .` for frontend formatting (from frontend directory)
 - Run `gofmt -w .` for backend formatting
 
 ### Pull Request
