@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { Tasks } from '../Tasks';
 
 // Mock props for the Tasks component
@@ -47,17 +47,48 @@ jest.mock('../hooks', () => ({
     tasks: {
       where: jest.fn(() => ({
         equals: jest.fn(() => ({
-          // Mock 12 tasks to test pagination
-          toArray: jest.fn().mockResolvedValue(
-            Array.from({ length: 12 }, (_, i) => ({
-              id: i + 1,
-              description: `Task ${i + 1}`,
+          // Mock 12 tasks to test "pagination" and "Unsynced" Feature
+          toArray: jest.fn().mockResolvedValue([
+            // A normal, synced task
+            {
+              id: 1,
+              description: 'Normal Synced Task',
+              status: 'pending',
+              project: 'ProjectA',
+              tags: ['tag1'],
+              uuid: 'uuid-1',
+              // No isUnsynced flag (or isUnsynced: false)
+            },
+            // An edited, unsynced task
+            {
+              id: 2,
+              description: 'Edited Unsynced Task',
+              status: 'pending',
+              project: 'ProjectB',
+              tags: ['tag2'],
+              uuid: 'uuid-2',
+              isUnsynced: true,
+            },
+            // A new, temporary, unsynced task
+            {
+              id: -12345,
+              description: 'New Temporary Task',
+              status: 'pending',
+              project: 'ProjectA',
+              tags: ['tag1'],
+              uuid: 'uuid-temp-3',
+              isUnsynced: true,
+            },
+            // rest of the tasks to make pagination work
+            ...Array.from({ length: 9 }, (_, i) => ({
+              id: i + 4,
+              description: `Task ${i + 4}`,
               status: 'pending',
               project: i % 2 === 0 ? 'ProjectA' : 'ProjectB',
               tags: i % 3 === 0 ? ['tag1'] : ['tag2'],
-              uuid: `uuid-${i + 1}`,
-            }))
-          ),
+              uuid: `uuid-${i + 4}`,
+            })),
+          ]),
         })),
       })),
     },
@@ -123,7 +154,7 @@ describe('Tasks Component', () => {
 
     render(<Tasks {...mockProps} />);
 
-    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    expect(await screen.findByText('Normal Synced Task')).toBeInTheDocument();
 
     expect(screen.getByLabelText('Show:')).toHaveValue('20');
   });
@@ -143,5 +174,42 @@ describe('Tasks Component', () => {
     expect(localStorageMock.setItem).toHaveBeenCalledWith('mockHashedKey', '5');
 
     expect(screen.getByTestId('current-page')).toHaveTextContent('1');
+  });
+
+  test('renders an edited, unsynced task correctly', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Edited Unsynced Task')).toBeInTheDocument();
+    expect(screen.getByText('Unsynced')).toBeInTheDocument();
+  });
+
+  test('renders a new, temporary task correctly', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Edited Unsynced Task')).toBeInTheDocument();
+
+    const dropdown = screen.getByLabelText('Show:');
+    fireEvent.change(dropdown, { target: { value: '50' } });
+
+    expect(await screen.findByText('New Temporary Task')).toBeInTheDocument();
+    expect(screen.getAllByText('Unsynced')[0]).toBeInTheDocument();
+    expect(screen.getByText('-')).toBeInTheDocument();
+    expect(screen.queryByText('-12345')).not.toBeInTheDocument();
+  });
+
+  test('renders a normal, synced task correctly', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Edited Unsynced Task')).toBeInTheDocument();
+
+    const dropdown = screen.getByLabelText('Show:');
+    fireEvent.change(dropdown, { target: { value: '50' } });
+
+    const taskText = await screen.findByText('Normal Synced Task');
+    const taskRow = taskText.closest('tr');
+
+    expect(taskRow).not.toBeNull();
+    expect(within(taskRow!).getByText('1')).toBeInTheDocument();
+    expect(within(taskRow!).queryByText('Unsynced')).not.toBeInTheDocument();
   });
 });

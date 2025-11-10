@@ -223,13 +223,13 @@ export const Tasks = (
         UUID,
         backendURL: url.backendURL,
       });
-      console.log(taskwarriorTasks);
-
+      // console.log(taskwarriorTasks);
       await db.transaction('rw', db.tasks, async () => {
         await db.tasks.where('email').equals(user_email).delete();
         const tasksToAdd = taskwarriorTasks.map((task: Task) => ({
           ...task,
           email: user_email,
+          isUnsynced: false,
         }));
         await db.tasks.bulkPut(tasksToAdd);
         const updatedTasks = await db.tasks
@@ -265,19 +265,33 @@ export const Tasks = (
   ) {
     if (handleDate(newTask.due)) {
       try {
-        await addTaskToBackend({
-          email,
-          encryptionSecret,
-          UUID,
-          description,
-          project,
-          priority,
-          due,
-          tags,
-          backendURL: url.backendURL,
-        });
+        const tempTask: Task = {
+          ...newTask,
+          id: Math.floor(Math.random() * -1000000),
+          uuid: `temp-${Date.now()}`,
+          status: 'pending',
+          email: props.email,
+          isUnsynced: true,
+          entry: new Date().toISOString(),
+          modified: new Date().toISOString(),
+          urgency: 0,
+          start: '',
+          end: '',
+          wait: '',
+          depends: [],
+          recur: '',
+          rtype: '',
+        };
 
-        console.log('Task added successfully!');
+        await db.tasks.add(tempTask);
+
+        const updatedTasks = await db.tasks
+          .where('email')
+          .equals(props.email)
+          .toArray();
+        setTasks(sortTasksById(updatedTasks, 'desc'));
+        setTempTasks(sortTasksById(updatedTasks, 'desc'));
+
         setNewTask({
           description: '',
           priority: '',
@@ -286,8 +300,31 @@ export const Tasks = (
           tags: [],
         });
         setIsAddTaskOpen(false);
-      } catch (error) {
-        console.error('Failed to add task:', error);
+        toast.success('Task added locally.');
+
+        try {
+          await addTaskToBackend({
+            email,
+            encryptionSecret,
+            UUID,
+            description,
+            project,
+            priority,
+            due,
+            tags,
+            backendURL: url.backendURL,
+          });
+
+          console.log('Task added successfully!');
+        } catch (error) {
+          console.error('Failed to add task. Please try again later.');
+          toast.error(
+            'Unable to sync task to server. It’s saved locally for now.'
+          );
+        }
+      } catch (localError) {
+        console.error('Failed to save task locally');
+        toast.error('Failed to save task locally.');
       }
     }
   }
@@ -342,17 +379,44 @@ export const Tasks = (
     setEditedDescription(description);
   };
 
-  const handleSaveClick = (task: Task) => {
-    task.description = editedDescription;
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      task.tags,
-      task.id.toString()
-    );
-    setIsEditing(false);
+  // In Tasks.tsx
+
+  const handleSaveClick = async (task: Task) => {
+    try {
+      const updatedTask: Task = {
+        ...task,
+        description: editedDescription,
+        isUnsynced: true,
+        modified: new Date().toISOString(),
+      };
+
+      await db.tasks.put(updatedTask);
+
+      const updatedTasks = await db.tasks
+        .where('email')
+        .equals(props.email)
+        .toArray();
+      setTasks(sortTasksById(updatedTasks, 'desc'));
+      setTempTasks(sortTasksById(updatedTasks, 'desc'));
+
+      setIsEditing(false);
+
+      try {
+        await handleEditTaskOnBackend(
+          props.email,
+          props.encryptionSecret,
+          props.UUID,
+          editedDescription,
+          task.tags || [],
+          task.id.toString()
+        );
+        toast.success('Description updated successfully.');
+      } catch (backendError) {
+        console.error('Backend edit-task failed.');
+      }
+    } catch (localError) {
+      console.error('Failed to save description locally.');
+    }
   };
 
   const handleCancelClick = () => {
@@ -419,24 +483,51 @@ export const Tasks = (
     setIsEditingTags(true);
   };
 
-  const handleSaveTags = (task: Task) => {
-    const currentTags = task.tags || []; // Default to an empty array if tags are null
-    const removedTags = currentTags.filter((tag) => !editedTags.includes(tag));
-    const updatedTags = editedTags.filter((tag) => tag.trim() !== ''); // Remove any empty tags
-    const tagsToRemove = removedTags.map((tag) => `-${tag}`); // Prefix `-` for removed tags
-    const finalTags = [...updatedTags, ...tagsToRemove]; // Combine updated and removed tags
-    console.log(finalTags);
-    // Call the backend function with updated tags
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      finalTags,
-      task.id.toString()
-    );
+  const handleSaveTags = async (task: Task) => {
+    const updatedTags = editedTags.filter((tag) => tag.trim() !== '');
+    const currentTags = task.tags || [];
+    const removedTags = currentTags.filter((tag) => !updatedTags.includes(tag));
+    const tagsForBackend = [
+      ...updatedTags,
+      ...removedTags.map((tag) => `-${tag}`),
+    ]; // Prefix `-` for removed tags
 
-    setIsEditingTags(false); // Exit editing mode
+    try {
+      const updatedTask: Task = {
+        ...task,
+        tags: updatedTags,
+        isUnsynced: true,
+        modified: new Date().toISOString(),
+      };
+
+      await db.tasks.put(updatedTask);
+      const updatedTasks = await db.tasks
+        .where('email')
+        .equals(props.email)
+        .toArray();
+      setTasks(sortTasksById(updatedTasks, 'desc'));
+      setTempTasks(sortTasksById(updatedTasks, 'desc'));
+
+      setIsEditingTags(false);
+
+      try {
+        await handleEditTaskOnBackend(
+          props.email,
+          props.encryptionSecret,
+          props.UUID,
+          task.description, // Send the original description
+          tagsForBackend, // Send the backend-formatted tags
+          task.id.toString()
+        );
+        toast.success('Tag updated successfully');
+      } catch (backendError) {
+        console.error('Backend edit-task failed.');
+        toast.error('Local save complete, but backend sync failed.');
+      }
+    } catch (localError) {
+      console.error('Failed to save tags locally');
+      toast.error('Failed to save locally.');
+    }
   };
 
   const handleCancelTags = () => {
@@ -782,7 +873,7 @@ export const Tasks = (
                               {/* Display task details */}
                               <TableCell className="py-2">
                                 <span className="text-s text-foreground">
-                                  {task.id}
+                                  {task.id < 0 ? '-' : task.id}
                                 </span>
                               </TableCell>
                               <TableCell className="flex items-center space-x-2 py-2">
@@ -803,6 +894,14 @@ export const Tasks = (
                                   <Badge variant={'secondary'}>
                                     <Folder className="pr-2" />
                                     {task.project === '' ? '' : task.project}
+                                  </Badge>
+                                )}
+                                {task.isUnsynced && (
+                                  <Badge
+                                    variant={'destructive'}
+                                    className="animate-pulse"
+                                  >
+                                    Unsynced
                                   </Badge>
                                 )}
                               </TableCell>
@@ -1055,14 +1154,63 @@ export const Tasks = (
                                       <DialogClose asChild>
                                         <Button
                                           className="mr-5"
-                                          onClick={() =>
-                                            markTaskAsCompleted(
-                                              props.email,
-                                              props.encryptionSecret,
-                                              props.UUID,
-                                              task.uuid
-                                            )
-                                          }
+                                          onClick={async () => {
+                                            try {
+                                              const updatedTask: Task = {
+                                                ...task,
+                                                status: 'completed',
+                                                isUnsynced: true,
+                                                modified:
+                                                  new Date().toISOString(),
+                                              };
+
+                                              await db.tasks.put(updatedTask);
+
+                                              const updatedTasks =
+                                                await db.tasks
+                                                  .where('email')
+                                                  .equals(props.email)
+                                                  .toArray();
+                                              setTasks(
+                                                sortTasksById(
+                                                  updatedTasks,
+                                                  'desc'
+                                                )
+                                              );
+                                              setTempTasks(
+                                                sortTasksById(
+                                                  updatedTasks,
+                                                  'desc'
+                                                )
+                                              );
+
+                                              try {
+                                                await markTaskAsCompleted(
+                                                  props.email,
+                                                  props.encryptionSecret,
+                                                  props.UUID,
+                                                  task.uuid
+                                                );
+                                                toast.success(
+                                                  'Task completed successfully.'
+                                                );
+                                              } catch (backendError) {
+                                                console.error(
+                                                  'Backend mark-completed failed.'
+                                                );
+                                                toast.error(
+                                                  'Local update complete, but backend sync failed.'
+                                                );
+                                              }
+                                            } catch (localError) {
+                                              console.error(
+                                                'Failed to update task locally.'
+                                              );
+                                              toast.error(
+                                                'Failed to update task locally.'
+                                              );
+                                            }
+                                          }}
                                         >
                                           Yes
                                         </Button>
@@ -1100,14 +1248,66 @@ export const Tasks = (
                                       <DialogClose asChild>
                                         <Button
                                           className="mr-5"
-                                          onClick={() =>
-                                            markTaskAsDeleted(
-                                              props.email,
-                                              props.encryptionSecret,
-                                              props.UUID,
-                                              task.uuid
-                                            )
-                                          }
+                                          onClick={async () => {
+                                            try {
+                                              const updatedTask: Task = {
+                                                ...task,
+                                                status: 'deleted',
+                                                isUnsynced: true,
+                                                modified:
+                                                  new Date().toISOString(),
+                                              };
+
+                                              await db.tasks.put(updatedTask);
+
+                                              const updatedTasks =
+                                                await db.tasks
+                                                  .where('email')
+                                                  .equals(props.email)
+                                                  .toArray();
+                                              setTasks(
+                                                sortTasksById(
+                                                  updatedTasks,
+                                                  'desc'
+                                                )
+                                              );
+                                              setTempTasks(
+                                                sortTasksById(
+                                                  updatedTasks,
+                                                  'desc'
+                                                )
+                                              );
+
+                                              try {
+                                                await markTaskAsDeleted(
+                                                  props.email,
+                                                  props.encryptionSecret,
+                                                  props.UUID,
+                                                  task.uuid
+                                                );
+                                                console.log(
+                                                  'Mark deleted sent to backend.'
+                                                );
+                                                toast.success(
+                                                  'Task deleted successfully.'
+                                                );
+                                              } catch (backendError) {
+                                                console.error(
+                                                  'Backend mark-deleted failed.'
+                                                );
+                                                toast.error(
+                                                  'Local update complete, but backend sync failed.'
+                                                );
+                                              }
+                                            } catch (localError) {
+                                              console.error(
+                                                'Failed to update task locally.'
+                                              );
+                                              toast.error(
+                                                'Failed to update task locally.'
+                                              );
+                                            }
+                                          }}
                                         >
                                           Yes
                                         </Button>

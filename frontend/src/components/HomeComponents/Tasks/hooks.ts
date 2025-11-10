@@ -125,8 +125,8 @@ export class TasksDatabase extends Dexie {
 
   constructor() {
     super('tasksDB');
-    this.version(1).stores({
-      tasks: 'uuid, email, status, project',
+    this.version(2).stores({
+      tasks: 'uuid, email, status, project, isUnsynced',
     });
     this.tasks = this.table('tasks');
   }
