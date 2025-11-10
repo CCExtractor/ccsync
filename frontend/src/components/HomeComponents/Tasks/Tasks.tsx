@@ -300,7 +300,6 @@ export const Tasks = (
           tags: [],
         });
         setIsAddTaskOpen(false);
-        toast.success('Task added locally.');
 
         try {
           await addTaskToBackend({
@@ -315,6 +314,7 @@ export const Tasks = (
             backendURL: url.backendURL,
           });
 
+          toast.success('Task added successfully.');
           console.log('Task added successfully!');
         } catch (error) {
           console.error('Failed to add task. Please try again later.');
