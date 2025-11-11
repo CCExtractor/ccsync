@@ -1,0 +1,159 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Button Component renders asChild with button correctly: as-child-button 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+    form="myForm"
+    type="submit"
+  >
+    Submit Button
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders asChild with link correctly: as-child-link 1`] = `
+<DocumentFragment>
+  <a
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+    href="#test"
+    target="_blank"
+  >
+    Link Button
+  </a>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders default button correctly: default-button 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+  >
+    Default Button
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders destructive variant correctly: destructive-variant 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground hover:bg-destructive/90 h-10 px-4 py-2"
+  >
+    Delete
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders disabled correctly: disabled-button 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+    disabled=""
+  >
+    Disabled Button
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders ghost variant correctly: ghost-variant 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+  >
+    Ghost
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders icon size correctly: icon-size 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 w-10"
+  >
+    🔍
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders large size correctly: large-size 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 rounded-md px-8"
+  >
+    Large
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders link variant correctly: link-variant 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-primary underline-offset-4 hover:underline h-10 px-4 py-2"
+  >
+    Link
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders outline variant correctly: outline-variant 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+  >
+    Outline
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders secondary variant correctly: secondary-variant 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2"
+  >
+    Secondary
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders small size correctly: small-size 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3"
+  >
+    Small
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders with all props combined correctly: all-props-combined 1`] = `
+<DocumentFragment>
+  <button
+    aria-label="Test button"
+    class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 rounded-md px-8 combined-classes"
+    data-testid="test-button"
+    disabled=""
+  >
+    Combined Props Button
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders with custom className correctly: custom-classname 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 custom-class another-class"
+  >
+    Custom Button
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button Component renders with onClick handler correctly: with-onclick 1`] = `
+<DocumentFragment>
+  <button
+    class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+  >
+    Clickable Button
+  </button>
+</DocumentFragment>
+`;
