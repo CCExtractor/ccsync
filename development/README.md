@@ -6,6 +6,9 @@ The `setup.sh` script starts all three services (backend, frontend, and sync ser
 
 > **Note:** The backend should ideally be run in a separate user environment (preferably root user) to avoid permission issues with Taskwarrior configuration files.
 
+
+> **Git Hooks:** Pre-commit hooks are automatically configured when you run `npm install` in the frontend directory. These hooks will format your code before each commit.
+
 ## Prerequisites
 
 Before running the setup script, ensure you have the following installed:

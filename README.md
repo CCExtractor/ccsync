@@ -119,6 +119,7 @@ Alternatively, you can run each service separately:
 
 - **Backend**: See [backend/README.md](backend/README.md)
 - **Frontend**: See [frontend/README.md](frontend/README.md)
+- **Full Stack**: Use `docker-compose up`
 - **Sync Server**: Use `docker-compose up syncserver`
 
 ## Testing with Postman
