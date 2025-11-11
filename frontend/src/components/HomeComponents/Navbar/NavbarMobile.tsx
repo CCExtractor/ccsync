@@ -37,6 +37,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { exportTasksAsJSON, exportTasksAsTXT } from '@/exports-tasks';
 import { DevLogs } from '../DevLogs/DevLogs';
+import { useTaskAutoSync } from '@/Task-AutoSync';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
 
 export const NavbarMobile = (
   props: Props & { setIsOpen: (isOpen: boolean) => void; isOpen: boolean } & {
@@ -45,7 +49,16 @@ export const NavbarMobile = (
   }
 ) => {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isAutoSyncDialogOpen, setIsAutoSyncDialogOpen] = useState(false);
   const [isDevLogsOpen, setIsDevLogsOpen] = useState(false);
+  const [autoSyncEnable, setAutoSyncEnable] = useState(false);
+  const [syncInterval, setSyncInterval] = useState(1);
+  useTaskAutoSync({
+    isLoading: props.isLoading,
+    setIsLoading: props.setIsLoading,
+    isAutoSyncEnabled: autoSyncEnable,
+    syncInterval: syncInterval * 60000,
+  });
 
   const handleExportJSON = () => {
     exportTasksAsJSON(props.tasks || []);
@@ -76,101 +89,146 @@ export const NavbarMobile = (
           <SheetHeader>
             <SheetTitle className="font-bold text-xl">CCSync</SheetTitle>
           </SheetHeader>
-          <Dialog
-            open={isExportDialogOpen}
-            onOpenChange={setIsExportDialogOpen}
-          >
-            <nav className="flex flex-col justify-center items-center gap-2 mt-4">
-              {routeList.map(({ href, label }: RouteProps) => (
-                <a
-                  rel="noreferrer noopener"
-                  key={label}
-                  href={href}
-                  onClick={() => props.setIsOpen(false)}
-                  className={buttonVariants({ variant: 'ghost' })}
-                >
-                  {label}
-                </a>
-              ))}
+
+          <nav className="flex flex-col justify-center items-center gap-2 mt-4">
+            {routeList.map(({ href, label }: RouteProps) => (
               <a
                 rel="noreferrer noopener"
-                href={url.githubRepoURL}
-                target="_blank"
-                className={`w-[130px] border ${buttonVariants({
-                  variant: 'secondary',
-                })}`}
+                key={label}
+                href={href}
+                onClick={() => props.setIsOpen(false)}
+                className={buttonVariants({ variant: 'ghost' })}
               >
-                <Github className="mr-2 w-5 h-5" />
-                Github
+                {label}
               </a>
+            ))}
+            <a
+              rel="noreferrer noopener"
+              href={url.githubRepoURL}
+              target="_blank"
+              className={`w-[130px] border ${buttonVariants({
+                variant: 'secondary',
+              })}`}
+            >
+              <Github className="mr-2 w-5 h-5" />
+              Github
+            </a>
 
+            <Dialog
+              open={isExportDialogOpen}
+              onOpenChange={setIsExportDialogOpen}
+            >
               <DialogTrigger asChild>
                 <div
                   className={`w-[130px] cursor-pointer border ${buttonVariants({
                     variant: 'secondary',
                   })}`}
                 >
-                  <FileDown className="mr-2 w-5 h-5" />
+                  <FileDown />
                   Export Tasks
                 </div>
               </DialogTrigger>
-              <div
-                onClick={() => {
-                  setIsDevLogsOpen(true);
-                  props.setIsOpen(false);
-                }}
-                className={`w-[130px] cursor-pointer border ${buttonVariants({
-                  variant: 'secondary',
-                })}`}
-              >
-                <Terminal className="mr-2 w-5 h-5" />
-                Developer Logs
-              </div>
-              <div
-                onClick={() => deleteAllTasks(props)}
-                className={`w-[130px] border ${buttonVariants({
-                  variant: 'destructive',
-                })}`}
-              >
-                <Trash2 className="mr-2 w-5 h-5" />
-                Delete All Tasks
-              </div>
-              <div
-                onClick={handleLogout}
-                className={`w-[130px] border ${buttonVariants({
-                  variant: 'destructive',
-                })}`}
-              >
-                <LogOut className="mr-2 w-5 h-5" />
-                Log out
-              </div>
-            </nav>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Choose Export Format</DialogTitle>
-                <DialogDescription>
-                  Would you like to download your tasks as a JSON file or a TXT
-                  file?
-                </DialogDescription>
-              </DialogHeader>
-              <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
-                <Button
-                  onClick={handleExportTXT}
-                  className="w-full sm:w-auto hover:bg-white bg-[#3B82F6]"
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Choose Export Format</DialogTitle>
+                  <DialogDescription>
+                    Would you like to download your tasks as a JSON file or a
+                    TXT file?
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+                  <Button
+                    onClick={handleExportTXT}
+                    className="w-full sm:w-auto hover:bg-white bg-[#3B82F6]"
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    Download .txt
+                  </Button>
+                  <Button
+                    onClick={handleExportJSON}
+                    className="w-full sm:w-auto hover:bg-white bg-[#3B82F6]"
+                  >
+                    <FileJson className="mr-2 h-4 w-4" />
+                    Download .json
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Dialog
+              open={isAutoSyncDialogOpen}
+              onOpenChange={setIsAutoSyncDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <div
+                  className={`w-[130px] cursor-pointer border ${buttonVariants({
+                    variant: 'secondary',
+                  })}`}
                 >
-                  <FileText className="mr-2 h-4 w-4" />
-                  Download .txt
-                </Button>
-                <Button
-                  onClick={handleExportJSON}
-                  className="w-full sm:w-auto hover:bg-white bg-[#3B82F6]"
-                >
-                  <FileJson className="mr-2 h-4 w-4" />
-                  Download .json
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+                  Auto-sync
+                </div>
+              </DialogTrigger>
+              <DialogContent>
+                <div className="flex flex-col space-y-4 pt-2">
+                  <div className="flex mt-2 items-center justify-between space-x-2">
+                    <Label htmlFor="autosync-switch" className="text-base">
+                      Enable Auto-Sync
+                    </Label>
+                    <Switch
+                      id="autosync-switch"
+                      checked={autoSyncEnable}
+                      onCheckedChange={setAutoSyncEnable}
+                    />
+                  </div>
+
+                  {autoSyncEnable && (
+                    <div className="flex flex-col space-y-3 pt-2">
+                      <Label htmlFor="sync-slider" className="text-sm">
+                        Sync every {syncInterval} minutes
+                      </Label>
+                      <Slider
+                        id="sync-slider"
+                        min={1}
+                        max={10}
+                        step={1}
+                        value={[syncInterval]}
+                        onValueChange={(value) => setSyncInterval(value[0])}
+                      />
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+            <div
+              onClick={() => {
+                setIsDevLogsOpen(true);
+                props.setIsOpen(false);
+              }}
+              className={`w-[130px] cursor-pointer border ${buttonVariants({
+                variant: 'secondary',
+              })}`}
+            >
+              <Terminal className="mr-2 w-5 h-5" />
+              Developer Logs
+            </div>
+            <div
+              onClick={() => deleteAllTasks(props)}
+              className={`w-[130px] border ${buttonVariants({
+                variant: 'destructive',
+              })}`}
+            >
+              <Trash2 className="mr-2 w-5 h-5" />
+              Delete All Tasks
+            </div>
+            <div
+              onClick={handleLogout}
+              className={`w-[130px] border ${buttonVariants({
+                variant: 'destructive',
+              })}`}
+            >
+              <LogOut className="mr-2 w-5 h-5" />
+              Log out
+            </div>
+          </nav>
         </SheetContent>
       </Sheet>
       <DevLogs isOpen={isDevLogsOpen} onOpenChange={setIsDevLogsOpen} />

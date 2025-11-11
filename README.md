@@ -66,6 +66,7 @@ Whether you prefer the **CLI**, **Web Frontend**, or **Flutter Mobile App**, CCS
 <img src="./assets/02_home.png">
 <img src="./assets/03_home.png">
 <img src="./assets/04_home.png">
+<img src="./assets/01_backend_docs.png">
 <p align="center">
   <table align="center">
     <tr>
@@ -94,7 +95,7 @@ CCSync is composed of **three core modules**:
 
 1. **Backend** — The REST API and logic layer that communicates with Taskwarrior clients.
 2. **Web Frontend** — A modern web UI that stores and manages tasks in-browser.
-3. **Taskchampion Sync Server** — In order to sync tasks with you Taskwarrior instances, CCSync by default uses the offical Taskchampion sync server image to sync tasks.
+3. **Taskchampion Sync Server** — In order to sync tasks with you Taskwarrior instances, CCSync by default uses the offical [Taskchampion sync server image](https://github.com/GothenburgBitFactory/taskchampion-sync-server) to sync tasks.
 
 📖 Learn more in the [official documentation](https://its-me-abhishek.github.io/ccsync-docs/).
 
@@ -119,6 +120,7 @@ Alternatively, you can run each service separately:
 - **Backend**: See [backend/README.md](backend/README.md)
 - **Frontend**: See [frontend/README.md](frontend/README.md)
 - **Full Stack**: Use `docker-compose up`
+- **Sync Server**: Use `docker-compose up syncserver`
 
 ## Testing with Postman
 

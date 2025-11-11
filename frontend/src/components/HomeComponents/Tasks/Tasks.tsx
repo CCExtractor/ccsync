@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
 import {
@@ -62,6 +62,7 @@ import {
 import { debounce } from '@/components/utils/utils';
 
 const db = new TasksDatabase();
+export let syncTasksWithTwAndDb: () => any;
 
 export const Tasks = (
   props: Props & {
@@ -133,14 +134,29 @@ export const Tasks = (
     debouncedSearch(value);
   };
 
-  const tasksPerPage = 10;
+  const handleTasksPerPageChange = (newTasksPerPage: number) => {
+    setTasksPerPage(newTasksPerPage);
+    setCurrentPage(1);
+
+    const hashedKey = hashKey('tasksPerPage', props.email);
+    localStorage.setItem(hashedKey, newTasksPerPage.toString());
+  };
+
+  const [tasksPerPage, setTasksPerPage] = useState<number>(10);
   const indexOfLastTask = currentPage * tasksPerPage;
   const indexOfFirstTask = indexOfLastTask - tasksPerPage;
   const currentTasks = tempTasks.slice(indexOfFirstTask, indexOfLastTask);
   const emptyRows = tasksPerPage - currentTasks.length;
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
-  const totalPages = Math.ceil(tasks.length / tasksPerPage);
+  const totalPages = Math.ceil(tempTasks.length / tasksPerPage) || 1;
 
+  useEffect(() => {
+    const hashedKey = hashKey('tasksPerPage', props.email);
+    const storedTasksPerPage = localStorage.getItem(hashedKey);
+    if (storedTasksPerPage) {
+      setTasksPerPage(parseInt(storedTasksPerPage, 10));
+    }
+  }, [props.email]);
   useEffect(() => {
     if (_selectedTask) {
       setEditedTags(_selectedTask.tags || []);
@@ -198,7 +214,7 @@ export const Tasks = (
     fetchTasksForEmail();
   }, [props.email]);
 
-  async function syncTasksWithTwAndDb() {
+  syncTasksWithTwAndDb = useCallback(async () => {
     try {
       const { email: user_email, encryptionSecret, UUID } = props;
       const taskwarriorTasks = await fetchTaskwarriorTasks({
@@ -235,7 +251,7 @@ export const Tasks = (
       console.error('Error syncing tasks:', error);
       toast.error(`Failed to sync tasks. Please try again.`);
     }
-  }
+  }, [props.email, props.encryptionSecret, props.UUID]); // Add dependencies
 
   async function handleAddTask(
     email: string,
@@ -305,13 +321,20 @@ export const Tasks = (
   const handleIdSort = () => {
     const newOrder = idSortOrder === 'asc' ? 'desc' : 'asc';
     setIdSortOrder(newOrder);
-    setTasks(sortTasksById([...tasks], newOrder));
+    const sorted = sortTasksById([...tasks], newOrder);
+    setTasks(sorted);
+    setTempTasks(sorted);
+    setCurrentPage(1);
   };
 
   const handleSort = () => {
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     setSortOrder(newOrder);
-    setTasks(sortTasks([...tasks], newOrder));
+    const sorted = sortTasks([...tasks], newOrder);
+    // Keep both states in sync so the table (which renders from tempTasks) reflects the new order
+    setTasks(sorted);
+    setTempTasks(sorted);
+    setCurrentPage(1);
   };
 
   const handleEditClick = (description: string) => {
@@ -450,6 +473,23 @@ export const Tasks = (
         <Button variant="outline" onClick={() => setShowReports(!showReports)}>
           {showReports ? 'Show Tasks' : 'Show Reports'}
         </Button>
+        {/* Mobile-only Sync button (desktop already shows a Sync button with filters) */}
+        <Button
+          className="sm:hidden ml-2"
+          variant="outline"
+          onClick={async () => {
+            props.setIsLoading(true);
+            await syncTasksWithTwAndDb();
+            props.setIsLoading(false);
+          }}
+          disabled={props.isLoading}
+        >
+          {props.isLoading ? (
+            <Loader2 className="mx-1 size-5 animate-spin" />
+          ) : (
+            'Sync'
+          )}
+        </Button>
       </div>
       {showReports ? (
         <ReportsView tasks={tasks} />
@@ -457,7 +497,7 @@ export const Tasks = (
         <>
           {tasks.length != 0 ? (
             <>
-              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full py-12">
+              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full pt-12 pb-6">
                 {/* Table for displaying tasks */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <h3 className="ml-4 mb-4 mr-4 text-2xl mt-0 md:text-2xl font-bold">
@@ -686,13 +726,12 @@ export const Tasks = (
                       <Button variant="outline" onClick={syncTasksWithTwAndDb}>
                         Sync
                       </Button>
-                      <span className="text-xs text-muted-foreground">
-                        {getTimeSinceLastSync(lastSyncTime)}
-                      </span>
                     </div>
                   </div>
                 </div>
-
+                <span className="text-xs text-muted-foreground ml-4">
+                  {getTimeSinceLastSync(lastSyncTime)}
+                </span>
                 <div className="overflow-x-auto">
                   <Table className="w-full text-white">
                     <TableHeader>
@@ -1099,18 +1138,49 @@ export const Tasks = (
                     </TableBody>
                   </Table>
                 </div>
-                {/* Pagination */}
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  paginate={paginate}
-                  getDisplayedPages={getDisplayedPages}
-                />
+                <div className="flex items-baseline mt-4">
+                  <div className="flex-1 flex justify-start">
+                    <div className="flex items-center gap-2">
+                      <Label
+                        htmlFor="tasks-per-page"
+                        className="text-sm text-muted-foreground flex-shrink-0"
+                      >
+                        Show:
+                      </Label>
+                      <select
+                        id="tasks-per-page"
+                        value={tasksPerPage}
+                        onChange={(e) =>
+                          handleTasksPerPageChange(parseInt(e.target.value, 10))
+                        }
+                        className="border rounded-md px-2 py-1 bg-black text-white h-10 text-sm"
+                      >
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Pagination */}
+                  <div className="flex-1 flex justify-center">
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      paginate={paginate}
+                      getDisplayedPages={getDisplayedPages}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    {/* Intentionally empty for spacing */}
+                  </div>
+                </div>
               </div>
             </>
           ) : (
             <>
-              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full py-12">
+              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full pt-12 pb-6">
                 <div className="flex items-center justify-between">
                   <h3 className="ml-4 mb-4 mr-4 text-2xl mt-0 md:text-2xl font-bold">
                     <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
@@ -1280,12 +1350,12 @@ export const Tasks = (
                           'Sync'
                         )}
                       </Button>
-                      <span className="text-xs text-muted-foreground">
-                        {getTimeSinceLastSync(lastSyncTime)}
-                      </span>
                     </div>
                   </div>
                 </div>
+                <span className="text-xs text-muted-foreground ml-4">
+                  {getTimeSinceLastSync(lastSyncTime)}
+                </span>
                 <div className="text-l ml-5 text-muted-foreground mt-5 mb-5">
                   Add a new task or sync tasks from taskwarrior to view tasks.
                 </div>
