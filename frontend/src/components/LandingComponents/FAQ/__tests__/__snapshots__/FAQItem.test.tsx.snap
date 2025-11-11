@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FAQitem component using snapshot renders correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="w-full AccordionRoot"
+    data-orientation="vertical"
+  >
+    <div
+      class="border-b"
+      data-orientation="vertical"
+      data-state="closed"
+    >
+      <h3
+        class="flex"
+        data-orientation="vertical"
+        data-state="closed"
+      >
+        <button
+          aria-controls="radix-:ID:"
+          aria-expanded="false"
+          class="flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180 text-left"
+          data-orientation="vertical"
+          data-radix-collection-item=""
+          data-state="closed"
+          id="radix-:ID:"
+          type="button"
+        >
+          What is your return policy?
+          <svg
+            class="lucide lucide-chevron-down h-4 w-4 shrink-0 transition-transform duration-200"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m6 9 6 6 6-6"
+            />
+          </svg>
+        </button>
+      </h3>
+      <div
+        aria-labelledby="radix-:ID:"
+        class="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+        data-orientation="vertical"
+        data-state="closed"
+        hidden=""
+        id="radix-:ID:"
+        role="region"
+        style="--radix-accordion-content-height: var(--radix-collapsible-content-height); --radix-accordion-content-width: var(--radix-collapsible-content-width);"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;

@@ -41,3 +41,10 @@ describe('LandingPage', () => {
     expect(screen.getByText('Mocked ScrollToTop')).toBeInTheDocument();
   });
 });
+
+describe('LandingPage Component using Snapshot', () => {
+  it('renders landing page correctly', () => {
+    const { asFragment } = render(<LandingPage />);
+    expect(asFragment()).toMatchSnapshot('landing-page');
+  });
+});

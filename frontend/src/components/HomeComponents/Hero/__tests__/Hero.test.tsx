@@ -18,13 +18,13 @@ jest.mock('../ToastNotification', () => ({
   showToast: jest.fn(),
 }));
 
-describe('Hero component', () => {
-  const mockProps: Props = {
-    name: 'Test User',
-    uuid: '1234-5678-9012-3456',
-    encryption_secret: 's3cr3t',
-  };
+const mockProps: Props = {
+  name: 'Test User',
+  uuid: '1234-5678-9012-3456',
+  encryption_secret: 's3cr3t',
+};
 
+describe('Hero component', () => {
   test('renders without crashing', () => {
     render(<Hero {...mockProps} />);
   });
@@ -60,5 +60,12 @@ describe('Hero component', () => {
     );
     expect(uuidCopyButton).toBeInTheDocument();
     expect(secretCopyButton).toBeInTheDocument();
+  });
+});
+
+describe('Hero component using snapshot', () => {
+  test('renders correctly', () => {
+    const { asFragment } = render(<Hero {...mockProps} />);
+    expect(asFragment()).toMatchSnapshot();
   });
 });

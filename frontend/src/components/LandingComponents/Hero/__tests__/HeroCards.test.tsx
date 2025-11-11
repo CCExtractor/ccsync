@@ -26,3 +26,10 @@ describe('HeroCards Component', () => {
     );
   });
 });
+
+describe('HeroCard component using snapshot', () => {
+  it('renders correctly', () => {
+    const { asFragment } = render(<HeroCards />);
+    expect(asFragment()).toMatchSnapshot();
+  });
+});

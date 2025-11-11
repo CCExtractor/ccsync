@@ -1,31 +1,29 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import Pagination from '../Pagination';
 
+const mockPaginate = jest.fn();
+const mockGetDisplayedPages = jest.fn((totalPages, _currentPage) => {
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pages.push(i);
+  }
+  return pages;
+});
+
+beforeEach(() => {
+  mockPaginate.mockClear();
+});
+const renderComponent = (currentPage: number, totalPages: number) => {
+  return render(
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      paginate={mockPaginate}
+      getDisplayedPages={mockGetDisplayedPages}
+    />
+  );
+};
 describe('Pagination', () => {
-  const mockPaginate = jest.fn();
-  const mockGetDisplayedPages = jest.fn((totalPages, _currentPage) => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
-  });
-
-  beforeEach(() => {
-    mockPaginate.mockClear();
-  });
-
-  const renderComponent = (currentPage: number, totalPages: number) => {
-    return render(
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        paginate={mockPaginate}
-        getDisplayedPages={mockGetDisplayedPages}
-      />
-    );
-  };
-
   it('renders correctly with given props', () => {
     renderComponent(1, 5);
 
@@ -84,5 +82,20 @@ describe('Pagination', () => {
 
     fireEvent.click(screen.getByText('Last'));
     expect(mockPaginate).toHaveBeenCalledWith(5);
+  });
+});
+
+describe('Pagination Component using snapshot', () => {
+  test('renders correctly with current page = 1', () => {
+    const { asFragment } = renderComponent(1, 5);
+    expect(asFragment()).toMatchSnapshot('current page = 1');
+  });
+  test('renders correctly with current page in the middle', () => {
+    const { asFragment } = renderComponent(3, 5);
+    expect(asFragment()).toMatchSnapshot('current page in the middle');
+  });
+  test('renders correctly with current page at the end', () => {
+    const { asFragment } = renderComponent(5, 5);
+    expect(asFragment()).toMatchSnapshot('current page at the end');
   });
 });

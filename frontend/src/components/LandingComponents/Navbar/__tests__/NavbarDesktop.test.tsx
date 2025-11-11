@@ -17,3 +17,10 @@ describe('NavbarDesktop', () => {
     render(<NavbarDesktop />);
   });
 });
+
+describe('NavbarDesktop component using snapshot', () => {
+  it('renders correctly', () => {
+    const { asFragment } = render(<NavbarDesktop />);
+    expect(asFragment()).toMatchSnapshot();
+  });
+});

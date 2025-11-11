@@ -676,3 +676,35 @@ describe('HomePage', () => {
     });
   });
 });
+
+describe('HomePage Component using Snapshot', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders correctly with user info loaded', async () => {
+    const { asFragment } = render(<HomePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Mocked Navbar')).toBeInTheDocument();
+    });
+
+    expect(asFragment()).toMatchSnapshot('homepage-with-user-info');
+  });
+
+  it('renders correctly when session is expired', async () => {
+    (fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: false,
+      })
+    );
+
+    const { asFragment } = render(<HomePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Session has been expired.')).toBeInTheDocument();
+    });
+
+    expect(asFragment()).toMatchSnapshot('homepage-session-expired');
+  });
+});
