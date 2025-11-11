@@ -401,7 +401,10 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "jest",
-    "coverage": "jest --coverage"
+    "coverage": "jest --coverage",
+    "postinstall": "git config core.hooksPath .githooks",
+    "lint": "npx prettier --write .",
+    "pre-commit": "npm run lint"
   },
   "keywords": [],
   "author": "",
