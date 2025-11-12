@@ -122,12 +122,18 @@ export const editTaskOnBackend = async ({
 
 export class TasksDatabase extends Dexie {
   tasks: Dexie.Table<Task, string>;
+  unsynced_tasks: Dexie.Table<{ uuid: string }, string>;
 
   constructor() {
     super('tasksDB');
+    // this.version(1).stores({
+    //   tasks: 'uuid, email, status, project',
+    // });
     this.version(2).stores({
-      tasks: 'uuid, email, status, project, isUnsynced',
+      tasks: 'uuid, email, status, project',
+      unsynced_tasks: '&uuid',
     });
     this.tasks = this.table('tasks');
+    this.unsynced_tasks = this.table('unsynced_tasks');
   }
 }

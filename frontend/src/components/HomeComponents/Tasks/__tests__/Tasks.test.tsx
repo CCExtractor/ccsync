@@ -47,9 +47,9 @@ jest.mock('../hooks', () => ({
     tasks: {
       where: jest.fn(() => ({
         equals: jest.fn(() => ({
-          // Mock 12 tasks to test "pagination" and "Unsynced" Feature
+          // Mock 12 tasks to test pagination
           toArray: jest.fn().mockResolvedValue([
-            // A normal, synced task
+            // Normal synced task
             {
               id: 1,
               description: 'Normal Synced Task',
@@ -57,9 +57,8 @@ jest.mock('../hooks', () => ({
               project: 'ProjectA',
               tags: ['tag1'],
               uuid: 'uuid-1',
-              // No isUnsynced flag (or isUnsynced: false)
             },
-            // An edited, unsynced task
+            // Edited task
             {
               id: 2,
               description: 'Edited Unsynced Task',
@@ -67,9 +66,8 @@ jest.mock('../hooks', () => ({
               project: 'ProjectB',
               tags: ['tag2'],
               uuid: 'uuid-2',
-              isUnsynced: true,
             },
-            // A new, temporary, unsynced task
+            // New task
             {
               id: -12345,
               description: 'New Temporary Task',
@@ -77,9 +75,7 @@ jest.mock('../hooks', () => ({
               project: 'ProjectA',
               tags: ['tag1'],
               uuid: 'uuid-temp-3',
-              isUnsynced: true,
             },
-            // rest of the tasks to make pagination work
             ...Array.from({ length: 9 }, (_, i) => ({
               id: i + 4,
               description: `Task ${i + 4}`,
@@ -91,6 +87,12 @@ jest.mock('../hooks', () => ({
           ]),
         })),
       })),
+    },
+    unsynced_tasks: {
+      toArray: jest.fn().mockResolvedValue([
+        { uuid: 'uuid-2' }, // Edited task
+        { uuid: 'uuid-temp-3' }, // New task
+      ]),
     },
   })),
   fetchTaskwarriorTasks: jest.fn().mockResolvedValue([]),
@@ -155,7 +157,6 @@ describe('Tasks Component', () => {
     render(<Tasks {...mockProps} />);
 
     expect(await screen.findByText('Normal Synced Task')).toBeInTheDocument();
-
     expect(screen.getByLabelText('Show:')).toHaveValue('20');
   });
 
@@ -170,9 +171,7 @@ describe('Tasks Component', () => {
     fireEvent.change(dropdown, { target: { value: '5' } });
 
     expect(screen.getByTestId('total-pages')).toHaveTextContent('3');
-
     expect(localStorageMock.setItem).toHaveBeenCalledWith('mockHashedKey', '5');
-
     expect(screen.getByTestId('current-page')).toHaveTextContent('1');
   });
 

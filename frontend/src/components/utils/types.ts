@@ -34,7 +34,6 @@ export interface Task {
   rtype: string;
   recur: string;
   email: string;
-  isUnsynced?: boolean;
 }
 
 export type ReportsViewProps = {

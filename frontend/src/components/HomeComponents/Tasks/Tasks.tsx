@@ -73,6 +73,7 @@ export const Tasks = (
   const [showReports, setShowReports] = useState(false);
   const [uniqueTags, setUniqueTags] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [unsyncedSet, setUnsyncedSet] = useState<Set<string>>(new Set());
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [uniqueProjects, setUniqueProjects] = useState<string[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
@@ -103,6 +104,12 @@ export const Tasks = (
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
+  const [unsyncedCount, setUnsyncedCount] = useState<number>(0);
+
+  // Calculate unsynced count
+  useEffect(() => {
+    setUnsyncedCount(unsyncedSet.size);
+  }, [unsyncedSet]);
 
   // Debounced search handler
   const debouncedSearch = debounce((value: string) => {
@@ -190,6 +197,11 @@ export const Tasks = (
           .equals(props.email)
           .toArray();
 
+        const unsyncedItems = await db.unsynced_tasks.toArray();
+        const newSet = new Set(unsyncedItems.map((item) => item.uuid));
+
+        setUnsyncedSet(newSet);
+
         // Set all tasks
         setTasks(sortTasksById(tasksFromDB, 'desc'));
         setTempTasks(sortTasksById(tasksFromDB, 'desc'));
@@ -224,14 +236,14 @@ export const Tasks = (
         backendURL: url.backendURL,
       });
       // console.log(taskwarriorTasks);
-      await db.transaction('rw', db.tasks, async () => {
+      await db.transaction('rw', db.tasks, db.unsynced_tasks, async () => {
         await db.tasks.where('email').equals(user_email).delete();
         const tasksToAdd = taskwarriorTasks.map((task: Task) => ({
           ...task,
           email: user_email,
-          isUnsynced: false,
         }));
         await db.tasks.bulkPut(tasksToAdd);
+        await db.unsynced_tasks.clear();
         const updatedTasks = await db.tasks
           .where('email')
           .equals(user_email)
@@ -239,6 +251,8 @@ export const Tasks = (
         setTasks(sortTasksById(updatedTasks, 'desc'));
         setTempTasks(sortTasksById(updatedTasks, 'desc'));
       });
+
+      setUnsyncedSet(new Set());
 
       // Store last sync timestamp using hashed key
       const currentTime = Date.now();
@@ -271,7 +285,6 @@ export const Tasks = (
           uuid: `temp-${Date.now()}`,
           status: 'pending',
           email: props.email,
-          isUnsynced: true,
           entry: new Date().toISOString(),
           modified: new Date().toISOString(),
           urgency: 0,
@@ -283,14 +296,22 @@ export const Tasks = (
           rtype: '',
         };
 
-        await db.tasks.add(tempTask);
+        await db.transaction('rw', db.tasks, db.unsynced_tasks, async () => {
+          await db.tasks.add(tempTask);
+          await db.unsynced_tasks.put({ uuid: tempTask.uuid });
+        });
 
         const updatedTasks = await db.tasks
           .where('email')
           .equals(props.email)
           .toArray();
+
+        const unsyncedItems = await db.unsynced_tasks.toArray();
+        const newSet = new Set(unsyncedItems.map((item) => item.uuid));
+
         setTasks(sortTasksById(updatedTasks, 'desc'));
         setTempTasks(sortTasksById(updatedTasks, 'desc'));
+        setUnsyncedSet(newSet);
 
         setNewTask({
           description: '',
@@ -386,18 +407,25 @@ export const Tasks = (
       const updatedTask: Task = {
         ...task,
         description: editedDescription,
-        isUnsynced: true,
         modified: new Date().toISOString(),
       };
 
-      await db.tasks.put(updatedTask);
+      await db.transaction('rw', db.tasks, db.unsynced_tasks, async () => {
+        await db.tasks.put(updatedTask);
+        await db.unsynced_tasks.put({ uuid: task.uuid });
+      });
 
       const updatedTasks = await db.tasks
         .where('email')
         .equals(props.email)
         .toArray();
+
+      const unsyncedItems = await db.unsynced_tasks.toArray();
+      const newSet = new Set(unsyncedItems.map((item) => item.uuid));
+
       setTasks(sortTasksById(updatedTasks, 'desc'));
       setTempTasks(sortTasksById(updatedTasks, 'desc'));
+      setUnsyncedSet(newSet);
 
       setIsEditing(false);
 
@@ -496,17 +524,25 @@ export const Tasks = (
       const updatedTask: Task = {
         ...task,
         tags: updatedTags,
-        isUnsynced: true,
         modified: new Date().toISOString(),
       };
 
-      await db.tasks.put(updatedTask);
+      await db.transaction('rw', db.tasks, db.unsynced_tasks, async () => {
+        await db.tasks.put(updatedTask);
+        await db.unsynced_tasks.put({ uuid: task.uuid });
+      });
+
       const updatedTasks = await db.tasks
         .where('email')
         .equals(props.email)
         .toArray();
+
+      const unsyncedItems = await db.unsynced_tasks.toArray();
+      const newSet = new Set(unsyncedItems.map((item) => item.uuid));
+
       setTasks(sortTasksById(updatedTasks, 'desc'));
       setTempTasks(sortTasksById(updatedTasks, 'desc'));
+      setUnsyncedSet(newSet);
 
       setIsEditingTags(false);
 
@@ -566,7 +602,7 @@ export const Tasks = (
         </Button>
         {/* Mobile-only Sync button (desktop already shows a Sync button with filters) */}
         <Button
-          className="sm:hidden ml-2"
+          className="sm:hidden ml-2 relative"
           variant="outline"
           onClick={async () => {
             props.setIsLoading(true);
@@ -578,7 +614,14 @@ export const Tasks = (
           {props.isLoading ? (
             <Loader2 className="mx-1 size-5 animate-spin" />
           ) : (
-            'Sync'
+            <>
+              Sync
+              {unsyncedCount > 0 && (
+                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
+                  {unsyncedCount}
+                </span>
+              )}
+            </>
           )}
         </Button>
       </div>
@@ -814,8 +857,28 @@ export const Tasks = (
                       </Dialog>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <Button variant="outline" onClick={syncTasksWithTwAndDb}>
-                        Sync
+                      <Button
+                        variant="outline"
+                        className="relative"
+                        onClick={async () => {
+                          props.setIsLoading(true);
+                          await syncTasksWithTwAndDb();
+                          props.setIsLoading(false);
+                        }}
+                        disabled={props.isLoading}
+                      >
+                        {props.isLoading ? (
+                          <Loader2 className="mx-1 size-5 animate-spin" />
+                        ) : (
+                          <>
+                            Sync
+                            {unsyncedCount > 0 && (
+                              <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
+                                {unsyncedCount}
+                              </span>
+                            )}
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -896,7 +959,7 @@ export const Tasks = (
                                     {task.project === '' ? '' : task.project}
                                   </Badge>
                                 )}
-                                {task.isUnsynced && (
+                                {unsyncedSet.has(task.uuid) && (
                                   <Badge
                                     variant={'destructive'}
                                     className="animate-pulse"
@@ -1159,18 +1222,37 @@ export const Tasks = (
                                               const updatedTask: Task = {
                                                 ...task,
                                                 status: 'completed',
-                                                isUnsynced: true,
                                                 modified:
                                                   new Date().toISOString(),
                                               };
 
-                                              await db.tasks.put(updatedTask);
+                                              await db.transaction(
+                                                'rw',
+                                                db.tasks,
+                                                db.unsynced_tasks,
+                                                async () => {
+                                                  await db.tasks.put(
+                                                    updatedTask
+                                                  );
+                                                  await db.unsynced_tasks.put({
+                                                    uuid: task.uuid,
+                                                  });
+                                                }
+                                              );
 
                                               const updatedTasks =
                                                 await db.tasks
                                                   .where('email')
                                                   .equals(props.email)
                                                   .toArray();
+
+                                              const unsyncedItems =
+                                                await db.unsynced_tasks.toArray();
+                                              const newSet = new Set(
+                                                unsyncedItems.map(
+                                                  (item) => item.uuid
+                                                )
+                                              );
                                               setTasks(
                                                 sortTasksById(
                                                   updatedTasks,
@@ -1183,6 +1265,7 @@ export const Tasks = (
                                                   'desc'
                                                 )
                                               );
+                                              setUnsyncedSet(newSet);
 
                                               try {
                                                 await markTaskAsCompleted(
@@ -1253,18 +1336,37 @@ export const Tasks = (
                                               const updatedTask: Task = {
                                                 ...task,
                                                 status: 'deleted',
-                                                isUnsynced: true,
                                                 modified:
                                                   new Date().toISOString(),
                                               };
 
-                                              await db.tasks.put(updatedTask);
+                                              await db.transaction(
+                                                'rw',
+                                                db.tasks,
+                                                db.unsynced_tasks,
+                                                async () => {
+                                                  await db.tasks.put(
+                                                    updatedTask
+                                                  );
+                                                  await db.unsynced_tasks.put({
+                                                    uuid: task.uuid,
+                                                  });
+                                                }
+                                              );
 
                                               const updatedTasks =
                                                 await db.tasks
                                                   .where('email')
                                                   .equals(props.email)
                                                   .toArray();
+
+                                              const unsyncedItems =
+                                                await db.unsynced_tasks.toArray();
+                                              const newSet = new Set(
+                                                unsyncedItems.map(
+                                                  (item) => item.uuid
+                                                )
+                                              );
                                               setTasks(
                                                 sortTasksById(
                                                   updatedTasks,
@@ -1277,6 +1379,7 @@ export const Tasks = (
                                                   'desc'
                                                 )
                                               );
+                                              setUnsyncedSet(newSet);
 
                                               try {
                                                 await markTaskAsDeleted(

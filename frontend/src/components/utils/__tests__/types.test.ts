@@ -71,30 +71,4 @@ describe('Task interface', () => {
     expect(task.modified).toBe('2024-06-19');
     expect(task.email).toBe('test@example.com');
   });
-  it('should accept valid Task object with optional isUnsynced field', () => {
-    const unsyncedTask: Task = {
-      id: 2,
-      description: 'An unsynced task',
-      project: 'Project B',
-      tags: [],
-      status: 'pending',
-      uuid: 'uuid-2',
-      urgency: 0,
-      priority: 'M',
-      due: '',
-      start: '',
-      end: '',
-      entry: '2025-11-10',
-      wait: '',
-      modified: '2025-11-10',
-      depends: [],
-      rtype: '',
-      recur: '',
-      email: 'test@example.com',
-      isUnsynced: true,
-    };
-
-    expect(unsyncedTask.id).toBe(2);
-    expect(unsyncedTask.isUnsynced).toBe(true);
-  });
 });
