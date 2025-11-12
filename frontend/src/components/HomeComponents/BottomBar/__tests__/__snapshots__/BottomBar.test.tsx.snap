@@ -62,7 +62,7 @@ exports[`BottomBar Component using Snapshot renders correctly with only one sele
         </nav>
       </div>
       <button
-        aria-controls="radix-:r7:"
+        aria-controls="radix-:r3:"
         aria-expanded="false"
         aria-haspopup="dialog"
         aria-label="Filter"
@@ -155,7 +155,7 @@ exports[`BottomBar Component using Snapshot renders correctly with several selec
         </nav>
       </div>
       <button
-        aria-controls="radix-:r9:"
+        aria-controls="radix-:r5:"
         aria-expanded="false"
         aria-haspopup="dialog"
         aria-label="Filter"
@@ -248,7 +248,7 @@ exports[`BottomBar Component using Snapshot renders correctly without selected p
         </nav>
       </div>
       <button
-        aria-controls="radix-:r5:"
+        aria-controls="radix-:r1:"
         aria-expanded="false"
         aria-haspopup="dialog"
         aria-label="Filter"

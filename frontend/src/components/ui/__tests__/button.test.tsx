@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react';
 import { Button } from '../button';
 
-describe('Button Component', () => {
+describe('Button Component using Snapshot', () => {
   it('renders default button correctly', () => {
     const { asFragment } = render(<Button>Default Button</Button>);
     expect(asFragment()).toMatchSnapshot('default-button');
