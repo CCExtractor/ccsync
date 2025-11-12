@@ -60,6 +60,8 @@ import {
   TasksDatabase,
 } from './hooks';
 import { debounce } from '@/components/utils/utils';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
 
 const db = new TasksDatabase();
 export let syncTasksWithTwAndDb: () => any;
@@ -632,26 +634,27 @@ export const Tasks = (
                               />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label
-                                htmlFor="description"
-                                className="text-right"
-                              >
+                              <Label htmlFor="due" className="text-right">
                                 Due
                               </Label>
-                              <Input
-                                id="due"
-                                name="due"
-                                placeholder="YYYY-MM-DD"
-                                value={newTask.due}
-                                onChange={(e) =>
-                                  setNewTask({
-                                    ...newTask,
-                                    due: e.target.value,
-                                  })
-                                }
-                                required
-                                className="col-span-3"
-                              />
+                              <div className="col-span-3">
+                                <DatePicker
+                                  date={
+                                    newTask.due
+                                      ? new Date(newTask.due)
+                                      : undefined
+                                  }
+                                  onDateChange={(date) => {
+                                    setNewTask({
+                                      ...newTask,
+                                      due: date
+                                        ? format(date, 'yyyy-MM-dd')
+                                        : '',
+                                    });
+                                  }}
+                                  placeholder="Select a due date"
+                                />
+                              </div>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
                               <Label
@@ -1284,25 +1287,27 @@ export const Tasks = (
                               />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label
-                                htmlFor="description"
-                                className="text-right"
-                              >
+                              <Label htmlFor="due" className="text-right">
                                 Due
                               </Label>
-                              <Input
-                                id="due"
-                                name="due"
-                                placeholder="YYYY-MM-DD"
-                                value={newTask.due}
-                                onChange={(e) =>
-                                  setNewTask({
-                                    ...newTask,
-                                    due: e.target.value,
-                                  })
-                                }
-                                className="col-span-3"
-                              />
+                              <div className="col-span-3">
+                                <DatePicker
+                                  date={
+                                    newTask.due
+                                      ? new Date(newTask.due)
+                                      : undefined
+                                  }
+                                  onDateChange={(date) => {
+                                    setNewTask({
+                                      ...newTask,
+                                      due: date
+                                        ? format(date, 'yyyy-MM-dd')
+                                        : '',
+                                    });
+                                  }}
+                                  placeholder="Select a due date"
+                                />
+                              </div>
                             </div>
                           </div>
                           <DialogFooter>
