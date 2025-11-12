@@ -1,0 +1,164 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Footer component using Snapshot renders correctly 1`] = `
+<DocumentFragment>
+  <footer
+    id="footer"
+  >
+    <hr
+      class="w-11/12 mx-auto"
+    />
+    <section
+      class="container py-20 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-x-12 gap-y-8"
+    >
+      <div
+        class="col-span-full xl:col-span-2"
+      >
+        <a
+          class="ml-2 font-bold text-xl flex items-center dark:hidden"
+          href="/"
+          rel="noreferrer noopener"
+        >
+          <img
+            alt="Logo-light"
+            class="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light"
+            src="logo-light-path"
+          />
+        </a>
+        <a
+          class="ml-2 font-bold text-xl hidden dark:flex items-center"
+          href="/"
+          rel="noreferrer noopener"
+        >
+          <img
+            alt="Logo"
+            class="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light"
+            src="logo-path"
+          />
+        </a>
+      </div>
+      <div
+        class="flex flex-col gap-2"
+      >
+        <h3
+          class="font-bold text-lg"
+        >
+          Community
+        </h3>
+        <div>
+          <a
+            class="opacity-60 hover:opacity-100 relative inline-block"
+            href="https://github.com/CCExtractor/ccsync"
+            rel="noreferrer noopener"
+          >
+            Github
+            <span
+              class="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#E776CB] via-[#FFFFFF] to-[#5FD9FA] rounded"
+              style="width: 0px;"
+            />
+          </a>
+        </div>
+        <div>
+          <a
+            class="opacity-60 hover:opacity-100 relative inline-block"
+            href="https://ccextractor.org/public/general/support/"
+            rel="noreferrer noopener"
+          >
+            Zulip
+            <span
+              class="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#E776CB] via-[#FFFFFF] to-[#5FD9FA] rounded"
+              style="width: 0px;"
+            />
+          </a>
+        </div>
+      </div>
+      <div
+        class="flex flex-col gap-2"
+      >
+        <h3
+          class="font-bold text-lg"
+        >
+          About
+        </h3>
+        <div>
+          <a
+            class="opacity-60 hover:opacity-100 relative inline-block"
+            href="#setup-guide"
+            rel="noreferrer noopener"
+          >
+            Setup Guide
+            <span
+              class="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#E776CB] via-[#FFFFFF] to-[#5FD9FA] rounded"
+              style="width: 0px;"
+            />
+          </a>
+        </div>
+        <div>
+          <a
+            class="opacity-60 hover:opacity-100 relative inline-block"
+            href="#faq"
+            rel="noreferrer noopener"
+          >
+            FAQ
+            <span
+              class="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#E776CB] via-[#FFFFFF] to-[#5FD9FA] rounded"
+              style="width: 0px;"
+            />
+          </a>
+        </div>
+      </div>
+      <div
+        class="flex flex-col gap-2"
+      >
+        <h3
+          class="font-bold text-lg"
+        >
+          Important Links
+        </h3>
+        <div>
+          <a
+            class="opacity-60 hover:opacity-100 relative inline-block"
+            href="https://taskwarrior.org/docs/"
+            rel="noreferrer noopener"
+            target="_blank"
+          >
+            Taskwarrior
+            <span
+              class="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#E776CB] via-[#FFFFFF] to-[#5FD9FA] rounded"
+              style="width: 0px;"
+            />
+          </a>
+        </div>
+        <div>
+          <a
+            class="opacity-60 hover:opacity-100 relative inline-block"
+            href="https://github.com/GothenburgBitFactory/taskchampion-sync-server/tree/main"
+            rel="noreferrer noopener"
+            target="_blank"
+          >
+            Taskchampion-sync-server
+            <span
+              class="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#E776CB] via-[#FFFFFF] to-[#5FD9FA] rounded"
+              style="width: 0px;"
+            />
+          </a>
+        </div>
+      </div>
+    </section>
+    <section
+      class="container pb-14 text-center"
+    >
+      <h3>
+        © 2025 
+        <a
+          class="text-red transition-all border-secondary hover:border-b-2"
+          rel="noreferrer noopener"
+          target="_blank"
+        >
+          CCSync
+        </a>
+      </h3>
+    </section>
+  </footer>
+</DocumentFragment>
+`;
