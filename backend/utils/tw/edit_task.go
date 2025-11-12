@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string) error {
+func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string, project string) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
@@ -30,6 +30,13 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 	if err := utils.ExecCommand("task", taskID, "modify", description); err != nil {
 		fmt.Println("task " + taskID + " modify " + description)
 		return fmt.Errorf("failed to edit task: %v", err)
+	}
+
+	// Handle project
+	if project != "" {
+		if err := utils.ExecCommand("task", taskID, "modify", "project:"+project); err != nil {
+			return fmt.Errorf("failed to set project %s: %v", project, err)
+		}
 	}
 
 	// Handle tags
