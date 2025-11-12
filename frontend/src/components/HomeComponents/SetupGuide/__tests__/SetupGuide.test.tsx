@@ -25,13 +25,12 @@ jest.mock('../CopyableCode', () => ({
   ),
 }));
 
+const props: Props = {
+  name: 'test-name',
+  encryption_secret: 'test-encryption-secret',
+  uuid: 'test-uuid',
+};
 describe('SetupGuide Component', () => {
-  const props: Props = {
-    name: 'test-name',
-    encryption_secret: 'test-encryption-secret',
-    uuid: 'test-uuid',
-  };
-
   test('renders SetupGuide component with correct text', () => {
     render(<SetupGuide {...props} />);
   });
@@ -76,5 +75,12 @@ describe('SetupGuide Component', () => {
       'data-copytext',
       `task config sync.server.client_id ${props.uuid}`
     );
+  });
+});
+
+describe('SetupGuide component using snapshot', () => {
+  test('renders correctly', () => {
+    const { asFragment } = render(<SetupGuide {...props} />);
+    expect(asFragment()).toMatchSnapshot();
   });
 });

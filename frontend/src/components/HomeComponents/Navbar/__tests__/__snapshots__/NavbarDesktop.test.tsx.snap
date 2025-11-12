@@ -45,7 +45,7 @@ exports[`NavbarDesktop component using snapshot renders correctly 1`] = `
         aria-haspopup="menu"
         class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"
         data-state="closed"
-        id="radix-:rn:"
+        id="radix-:r3:"
         type="button"
       >
         <span
@@ -59,7 +59,7 @@ exports[`NavbarDesktop component using snapshot renders correctly 1`] = `
         aria-haspopup="menu"
         class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 ghost"
         data-state="closed"
-        id="radix-:rp:"
+        id="radix-:r5:"
         type="button"
       >
         <svg
