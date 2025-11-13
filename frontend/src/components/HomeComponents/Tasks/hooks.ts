@@ -120,6 +120,58 @@ export const editTaskOnBackend = async ({
   return response;
 };
 
+export const modifyTaskOnBackend = async ({
+  email,
+  encryptionSecret,
+  UUID,
+  taskID,
+  description,
+  project,
+  priority,
+  status,
+  due,
+  tags,
+  backendURL,
+}: {
+  email: string;
+  encryptionSecret: string;
+  UUID: string;
+  taskID: string;
+  description: string;
+  project: string;
+  priority: string;
+  status: string;
+  due: string;
+  tags: string[];
+  backendURL: string;
+}) => {
+  const response = await fetch(`${backendURL}modify-task`, {
+    method: 'POST',
+    body: JSON.stringify({
+      email,
+      encryptionSecret,
+      UUID,
+      taskid: taskID,
+      description,
+      project,
+      priority,
+      status,
+      due,
+      tags,
+    }),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to modify task');
+  }
+
+  return response;
+};
+
 export class TasksDatabase extends Dexie {
   tasks: Dexie.Table<Task, string>;
 
