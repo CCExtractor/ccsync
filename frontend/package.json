@@ -142,6 +142,7 @@
     "has-flag": "^3.0.0",
     "hasown": "^2.0.0",
     "html-escaper": "^2.0.2",
+    "html2canvas": "^1.4.1",
     "http-parser-js": "^0.5.8",
     "human-signals": "^2.1.0",
     "idb": "^7.1.1",
