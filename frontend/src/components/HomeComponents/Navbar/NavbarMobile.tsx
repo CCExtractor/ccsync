@@ -51,6 +51,7 @@ export const NavbarMobile = (
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [isAutoSyncDialogOpen, setIsAutoSyncDialogOpen] = useState(false);
   const [isDevLogsOpen, setIsDevLogsOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [autoSyncEnable, setAutoSyncEnable] = useState(false);
   const [syncInterval, setSyncInterval] = useState(1);
   useTaskAutoSync({
@@ -69,6 +70,12 @@ export const NavbarMobile = (
   const handleExportTXT = () => {
     exportTasksAsTXT(props.tasks || []);
     setIsExportDialogOpen(false);
+    props.setIsOpen(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    deleteAllTasks(props);
+    setIsDeleteConfirmOpen(false);
     props.setIsOpen(false);
   };
 
@@ -211,8 +218,8 @@ export const NavbarMobile = (
               Developer Logs
             </div>
             <div
-              onClick={() => deleteAllTasks(props)}
-              className={`w-[130px] border ${buttonVariants({
+              onClick={() => setIsDeleteConfirmOpen(true)}
+              className={`w-[130px] cursor-pointer border ${buttonVariants({
                 variant: 'destructive',
               })}`}
             >
@@ -232,6 +239,43 @@ export const NavbarMobile = (
         </SheetContent>
       </Sheet>
       <DevLogs isOpen={isDevLogsOpen} onOpenChange={setIsDevLogsOpen} />
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-red-600">
+              Delete All Tasks?
+            </DialogTitle>
+            <DialogDescription>This action cannot be undone</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-base mb-2">
+              Are you sure you want to delete all tasks for{' '}
+              <span className="font-semibold">{props.email}</span>?
+            </p>
+            <p className="text-sm text-muted-foreground">
+              All your tasks will be permanently deleted from the local
+              database.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteConfirmOpen(false)}
+              className="w-full sm:w-auto"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              className="w-full sm:w-auto"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete All Tasks
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </span>
   );
 };
