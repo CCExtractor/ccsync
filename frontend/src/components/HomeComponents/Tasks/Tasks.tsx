@@ -463,18 +463,49 @@ export const Tasks = (
     }
   };
 
-  const handleProjectSaveClick = (task: Task) => {
-    task.project = editedProject;
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      task.tags,
-      task.id.toString(),
-      task.project
-    );
-    setIsEditingProject(false);
+  const handleProjectSaveClick = async (task: Task) => {
+    try {
+      const updatedTask: Task = {
+        ...task,
+        project: editedProject,
+        modified: new Date().toISOString(),
+      };
+
+      await db.tasks.put(updatedTask);
+
+      const newSet = new Set(unsyncedSet);
+      newSet.add(task.uuid);
+      setUnsyncedSet(newSet);
+      saveUnsyncedToStorage(newSet);
+
+      const updatedTasks = await db.tasks
+        .where('email')
+        .equals(props.email)
+        .toArray();
+      setTasks(sortTasksById(updatedTasks, 'desc'));
+      setTempTasks(sortTasksById(updatedTasks, 'desc'));
+
+      setIsEditingProject(false);
+
+      try {
+        await handleEditTaskOnBackend(
+          props.email,
+          props.encryptionSecret,
+          props.UUID,
+          task.description,
+          task.tags || [],
+          task.id.toString(),
+          editedProject
+        );
+        toast.success('Project updated successfully.');
+      } catch (backendError) {
+        console.error('Backend edit-task failed.');
+        toast.error('Local save complete, but backend sync failed.');
+      }
+    } catch (localError) {
+      console.error('Failed to save project locally.');
+      toast.error('Failed to save locally.');
+    }
   };
 
   const handleCancelClick = () => {
