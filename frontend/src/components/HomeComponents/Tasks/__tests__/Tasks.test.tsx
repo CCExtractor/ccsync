@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { Tasks } from '../Tasks';
 
 // Mock props for the Tasks component
@@ -48,16 +48,40 @@ jest.mock('../hooks', () => ({
       where: jest.fn(() => ({
         equals: jest.fn(() => ({
           // Mock 12 tasks to test pagination
-          toArray: jest.fn().mockResolvedValue(
-            Array.from({ length: 12 }, (_, i) => ({
-              id: i + 1,
-              description: `Task ${i + 1}`,
+          toArray: jest.fn().mockResolvedValue([
+            {
+              id: 1,
+              description: 'Normal Synced Task',
+              status: 'pending',
+              project: 'ProjectA',
+              tags: ['tag1'],
+              uuid: 'uuid-1',
+            },
+            {
+              id: 2,
+              description: 'Edited Unsynced Task',
+              status: 'pending',
+              project: 'ProjectB',
+              tags: ['tag2'],
+              uuid: 'uuid-2',
+            },
+            {
+              id: -12345,
+              description: 'New Temporary Task',
+              status: 'pending',
+              project: 'ProjectA',
+              tags: ['tag1'],
+              uuid: 'uuid-temp-3',
+            },
+            ...Array.from({ length: 9 }, (_, i) => ({
+              id: i + 4,
+              description: `Task ${i + 4}`,
               status: 'pending',
               project: i % 2 === 0 ? 'ProjectA' : 'ProjectB',
               tags: i % 3 === 0 ? ['tag1'] : ['tag2'],
-              uuid: `uuid-${i + 1}`,
-            }))
-          ),
+              uuid: `uuid-${i + 4}`,
+            })),
+          ]),
         })),
       })),
     },
@@ -78,6 +102,8 @@ jest.mock('../Pagination', () => {
 });
 
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
+
+const STORAGE_KEY = 'ccsync_unsynced_uuids';
 
 describe('Tasks Component', () => {
   const localStorageMock = (() => {
@@ -100,6 +126,9 @@ describe('Tasks Component', () => {
   beforeEach(() => {
     localStorageMock.clear();
     jest.clearAllMocks();
+
+    const unsyncedUuids = ['uuid-2', 'uuid-temp-3'];
+    localStorageMock.setItem(STORAGE_KEY, JSON.stringify(unsyncedUuids));
   });
 
   test('renders tasks component and the mocked BottomBar', async () => {
@@ -123,7 +152,7 @@ describe('Tasks Component', () => {
 
     render(<Tasks {...mockProps} />);
 
-    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    expect(await screen.findByText('Normal Synced Task')).toBeInTheDocument();
 
     expect(screen.getByLabelText('Show:')).toHaveValue('20');
   });
@@ -143,5 +172,54 @@ describe('Tasks Component', () => {
     expect(localStorageMock.setItem).toHaveBeenCalledWith('mockHashedKey', '5');
 
     expect(screen.getByTestId('current-page')).toHaveTextContent('1');
+  });
+
+  test('renders the unsynced count badge on the sync button', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 12')).toBeInTheDocument();
+
+    const countBadges = screen.getAllByText('2');
+    expect(countBadges.length).toBeGreaterThan(0);
+
+    const syncButton = screen.getAllByText('Sync')[0].closest('button');
+    expect(within(syncButton!).getByText('2')).toBeInTheDocument();
+  });
+
+  test('renders an edited, unsynced task correctly', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Edited Unsynced Task')).toBeInTheDocument();
+    expect(screen.getByText('Unsynced')).toBeInTheDocument();
+  });
+
+  test('renders a new, temporary task correctly', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 12')).toBeInTheDocument();
+
+    const dropdown = screen.getByLabelText('Show:');
+    fireEvent.change(dropdown, { target: { value: '50' } });
+
+    expect(await screen.findByText('New Temporary Task')).toBeInTheDocument();
+    expect(screen.getAllByText('Unsynced')[0]).toBeInTheDocument();
+    expect(screen.getByText('-')).toBeInTheDocument();
+    expect(screen.queryByText('-12345')).not.toBeInTheDocument();
+  });
+
+  test('renders a normal, synced task correctly', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 12')).toBeInTheDocument();
+
+    const dropdown = screen.getByLabelText('Show:');
+    fireEvent.change(dropdown, { target: { value: '50' } });
+
+    const taskText = await screen.findByText('Normal Synced Task');
+    const taskRow = taskText.closest('tr');
+
+    expect(taskRow).not.toBeNull();
+    expect(within(taskRow!).getByText('1')).toBeInTheDocument();
+    expect(within(taskRow!).queryByText('Unsynced')).not.toBeInTheDocument();
   });
 });
