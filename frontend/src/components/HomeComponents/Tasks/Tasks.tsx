@@ -111,6 +111,10 @@ export const Tasks = (
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [isEditingPriority, setIsEditingPriority] = useState(false);
   const [editedPriority, setEditedPriority] = useState('NONE');
+  const [isEditingProject, setIsEditingProject] = useState(false);
+  const [editedProject, setEditedProject] = useState(
+    _selectedTask?.project || ''
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
@@ -308,7 +312,8 @@ export const Tasks = (
     UUID: string,
     description: string,
     tags: string[],
-    taskID: string
+    taskID: string,
+    project: string
   ) {
     try {
       await editTaskOnBackend({
@@ -319,6 +324,7 @@ export const Tasks = (
         tags,
         taskID,
         backendURL: url.backendURL,
+        project,
       });
 
       console.log('Task edited successfully!');
@@ -360,9 +366,24 @@ export const Tasks = (
       props.UUID,
       task.description,
       task.tags,
-      task.id.toString()
+      task.id.toString(),
+      task.project
     );
     setIsEditing(false);
+  };
+
+  const handleProjectSaveClick = (task: Task) => {
+    task.project = editedProject;
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project
+    );
+    setIsEditingProject(false);
   };
 
   const handleCancelClick = () => {
@@ -448,7 +469,8 @@ export const Tasks = (
       props.UUID,
       task.description,
       finalTags,
-      task.id.toString()
+      task.id.toString(),
+      task.project
     );
 
     setIsEditingTags(false); // Exit editing mode
@@ -1065,7 +1087,58 @@ export const Tasks = (
                                     </TableRow>
                                     <TableRow>
                                       <TableCell>Project:</TableCell>
-                                      <TableCell>{task.project}</TableCell>
+                                      <TableCell>
+                                        {isEditingProject ? (
+                                          <>
+                                            <div className="flex items-center">
+                                              <Input
+                                                id={`project-${task.id}`}
+                                                name={`project-${task.id}`}
+                                                type="text"
+                                                value={editedProject}
+                                                onChange={(e) =>
+                                                  setEditedProject(
+                                                    e.target.value
+                                                  )
+                                                }
+                                                className="flex-grow mr-2"
+                                              />
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleProjectSaveClick(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  setIsEditingProject(false)
+                                                }
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
+                                            </div>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <span>{task.project}</span>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={() => {
+                                                setIsEditingProject(true);
+                                                setEditedProject(task.project);
+                                              }}
+                                            >
+                                              <PencilIcon className="h-4 w-4 text-gray-500" />
+                                            </Button>
+                                          </>
+                                        )}
+                                      </TableCell>
                                     </TableRow>
                                     <TableRow>
                                       <TableCell>Status:</TableCell>
