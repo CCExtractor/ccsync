@@ -60,3 +60,10 @@ describe('FAQ component', () => {
     expect(contactLink).toHaveAttribute('href', '#contact');
   });
 });
+
+describe('FAQ component using snapshot', () => {
+  test('renders correctly', () => {
+    const { asFragment } = render(<FAQ />);
+    expect(asFragment()).toMatchSnapshot();
+  });
+});

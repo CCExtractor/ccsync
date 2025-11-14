@@ -404,6 +404,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "jest",
+    "test:snapshot": "jest --testNamePattern='snapshot'",
+    "test:update-snapshot": " jest -u --testNamePattern='snapshot'",
     "coverage": "jest --coverage",
     "postinstall": "git config core.hooksPath .githooks",
     "lint": "npx prettier --write .",

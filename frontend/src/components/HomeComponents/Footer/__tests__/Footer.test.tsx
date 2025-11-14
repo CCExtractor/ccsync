@@ -22,3 +22,10 @@ describe('Footer component', () => {
     expect(logoElement).toBeInTheDocument();
   });
 });
+
+describe('Footer component using Snapshot', () => {
+  test('renders correctly', () => {
+    const { asFragment } = render(<Footer />);
+    expect(asFragment()).toMatchSnapshot();
+  });
+});

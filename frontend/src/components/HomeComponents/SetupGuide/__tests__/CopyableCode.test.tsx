@@ -16,10 +16,10 @@ jest.mock('lucide-react', () => ({
   EyeOff: () => <svg data-testid="eye-off-icon"></svg>,
 }));
 
-describe('CopyableCode', () => {
-  const sampleText = 'Sample code';
-  const sampleCopyText = 'Copy this text';
+const sampleText = 'Sample code';
+const sampleCopyText = 'Copy this text';
 
+describe('CopyableCode', () => {
   it('renders correctly with given text', () => {
     render(<CopyableCode text={sampleText} copyText={sampleCopyText} />);
 
@@ -46,5 +46,14 @@ describe('CopyableCode', () => {
         }
       );
     });
+  });
+});
+
+describe('SetupGuide component using snapshot', () => {
+  test('renders correctly', () => {
+    const { asFragment } = render(
+      <CopyableCode text={sampleText} copyText={sampleCopyText} />
+    );
+    expect(asFragment()).toMatchSnapshot();
   });
 });

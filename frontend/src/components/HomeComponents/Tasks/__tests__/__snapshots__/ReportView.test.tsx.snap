@@ -1,0 +1,367 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ReportsView Component using Snapshot renders correctly with only one task: one task 1`] = `
+<DocumentFragment>
+  <div
+    class="flex flex-wrap gap-4 justify-center"
+  >
+    <div
+      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] mt-10"
+    >
+      <h3
+        class="text-center text-xl mb-6 text-white"
+      >
+        Daily Report
+      </h3>
+      <div
+        data-testid="ResponsiveContainer"
+        style="width: 100%; height: 80%;"
+      >
+        <div
+          data-testid="BarChart"
+          style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
+        >
+          <div>
+            [object Object]
+          </div>
+          <div
+            data-stroke="#555"
+            data-stroke-dasharray="3 3"
+            data-testid="CartesianGrid"
+          />
+          <div
+            data-data-key="name"
+            data-stroke="#999"
+            data-testid="XAxis"
+          />
+          <div
+            data-allow-decimals="false"
+            data-stroke="#999"
+            data-testid="YAxis"
+          />
+          <div
+            class="text-white"
+            data-testid="Tooltip"
+            style="background-color: rgb(51, 51, 51);"
+          />
+          <div
+            class="text-white"
+            data-testid="Legend"
+          />
+          <div
+            data-data-key="completed"
+            data-fill="#E776CB"
+            data-name="Completed"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="ongoing"
+            data-fill="#5FD9FA"
+            data-name="Ongoing"
+            data-testid="Bar"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] mt-10"
+    >
+      <h3
+        class="text-center text-xl mb-6 text-white"
+      >
+        Weekly Report
+      </h3>
+      <div
+        data-testid="ResponsiveContainer"
+        style="width: 100%; height: 80%;"
+      >
+        <div
+          data-testid="BarChart"
+          style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
+        >
+          <div>
+            [object Object]
+          </div>
+          <div
+            data-stroke="#555"
+            data-stroke-dasharray="3 3"
+            data-testid="CartesianGrid"
+          />
+          <div
+            data-data-key="name"
+            data-stroke="#999"
+            data-testid="XAxis"
+          />
+          <div
+            data-allow-decimals="false"
+            data-stroke="#999"
+            data-testid="YAxis"
+          />
+          <div
+            class="text-white"
+            data-testid="Tooltip"
+            style="background-color: rgb(51, 51, 51);"
+          />
+          <div
+            class="text-white"
+            data-testid="Legend"
+          />
+          <div
+            data-data-key="completed"
+            data-fill="#E776CB"
+            data-name="Completed"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="ongoing"
+            data-fill="#5FD9FA"
+            data-name="Ongoing"
+            data-testid="Bar"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] mt-10"
+    >
+      <h3
+        class="text-center text-xl mb-6 text-white"
+      >
+        Monthly Report
+      </h3>
+      <div
+        data-testid="ResponsiveContainer"
+        style="width: 100%; height: 80%;"
+      >
+        <div
+          data-testid="BarChart"
+          style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
+        >
+          <div>
+            [object Object]
+          </div>
+          <div
+            data-stroke="#555"
+            data-stroke-dasharray="3 3"
+            data-testid="CartesianGrid"
+          />
+          <div
+            data-data-key="name"
+            data-stroke="#999"
+            data-testid="XAxis"
+          />
+          <div
+            data-allow-decimals="false"
+            data-stroke="#999"
+            data-testid="YAxis"
+          />
+          <div
+            class="text-white"
+            data-testid="Tooltip"
+            style="background-color: rgb(51, 51, 51);"
+          />
+          <div
+            class="text-white"
+            data-testid="Legend"
+          />
+          <div
+            data-data-key="completed"
+            data-fill="#E776CB"
+            data-name="Completed"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="ongoing"
+            data-fill="#5FD9FA"
+            data-name="Ongoing"
+            data-testid="Bar"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`ReportsView Component using Snapshot renders correctly with only several tasks: several tasks 1`] = `
+<DocumentFragment>
+  <div
+    class="flex flex-wrap gap-4 justify-center"
+  >
+    <div
+      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] mt-10"
+    >
+      <h3
+        class="text-center text-xl mb-6 text-white"
+      >
+        Daily Report
+      </h3>
+      <div
+        data-testid="ResponsiveContainer"
+        style="width: 100%; height: 80%;"
+      >
+        <div
+          data-testid="BarChart"
+          style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
+        >
+          <div>
+            [object Object]
+          </div>
+          <div
+            data-stroke="#555"
+            data-stroke-dasharray="3 3"
+            data-testid="CartesianGrid"
+          />
+          <div
+            data-data-key="name"
+            data-stroke="#999"
+            data-testid="XAxis"
+          />
+          <div
+            data-allow-decimals="false"
+            data-stroke="#999"
+            data-testid="YAxis"
+          />
+          <div
+            class="text-white"
+            data-testid="Tooltip"
+            style="background-color: rgb(51, 51, 51);"
+          />
+          <div
+            class="text-white"
+            data-testid="Legend"
+          />
+          <div
+            data-data-key="completed"
+            data-fill="#E776CB"
+            data-name="Completed"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="ongoing"
+            data-fill="#5FD9FA"
+            data-name="Ongoing"
+            data-testid="Bar"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] mt-10"
+    >
+      <h3
+        class="text-center text-xl mb-6 text-white"
+      >
+        Weekly Report
+      </h3>
+      <div
+        data-testid="ResponsiveContainer"
+        style="width: 100%; height: 80%;"
+      >
+        <div
+          data-testid="BarChart"
+          style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
+        >
+          <div>
+            [object Object]
+          </div>
+          <div
+            data-stroke="#555"
+            data-stroke-dasharray="3 3"
+            data-testid="CartesianGrid"
+          />
+          <div
+            data-data-key="name"
+            data-stroke="#999"
+            data-testid="XAxis"
+          />
+          <div
+            data-allow-decimals="false"
+            data-stroke="#999"
+            data-testid="YAxis"
+          />
+          <div
+            class="text-white"
+            data-testid="Tooltip"
+            style="background-color: rgb(51, 51, 51);"
+          />
+          <div
+            class="text-white"
+            data-testid="Legend"
+          />
+          <div
+            data-data-key="completed"
+            data-fill="#E776CB"
+            data-name="Completed"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="ongoing"
+            data-fill="#5FD9FA"
+            data-name="Ongoing"
+            data-testid="Bar"
+          />
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] mt-10"
+    >
+      <h3
+        class="text-center text-xl mb-6 text-white"
+      >
+        Monthly Report
+      </h3>
+      <div
+        data-testid="ResponsiveContainer"
+        style="width: 100%; height: 80%;"
+      >
+        <div
+          data-testid="BarChart"
+          style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
+        >
+          <div>
+            [object Object]
+          </div>
+          <div
+            data-stroke="#555"
+            data-stroke-dasharray="3 3"
+            data-testid="CartesianGrid"
+          />
+          <div
+            data-data-key="name"
+            data-stroke="#999"
+            data-testid="XAxis"
+          />
+          <div
+            data-allow-decimals="false"
+            data-stroke="#999"
+            data-testid="YAxis"
+          />
+          <div
+            class="text-white"
+            data-testid="Tooltip"
+            style="background-color: rgb(51, 51, 51);"
+          />
+          <div
+            class="text-white"
+            data-testid="Legend"
+          />
+          <div
+            data-data-key="completed"
+            data-fill="#E776CB"
+            data-name="Completed"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="ongoing"
+            data-fill="#5FD9FA"
+            data-name="Ongoing"
+            data-testid="Bar"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
