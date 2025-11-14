@@ -80,3 +80,71 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #3bbcf0;
 }
+
+.driver-popover.ccsync-tour-popover {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-radius: 0.75rem;
+  border: 1px solid hsl(var(--border));
+  /* box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18); */
+  max-width: 320px;
+  padding: 1rem 1.25rem 1.1rem 1.25rem;
+}
+
+.driver-popover.ccsync-tour-popover .driver-popover-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.driver-popover.ccsync-tour-popover .driver-popover-description {
+  color: hsl(var(--muted-foreground));
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.driver-popover.ccsync-tour-popover .driver-popover-progress-text {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+}
+
+.driver-popover.ccsync-tour-popover .driver-popover-navigation-btns {
+  gap: 0.5rem;
+}
+
+.driver-popover.ccsync-tour-popover .driver-popover-navigation-btns button {
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  padding: 0.35rem 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-shadow: none;
+}
+
+.driver-popover.ccsync-tour-popover .driver-popover-navigation-btns button.driver-popover-next-btn,
+.driver-popover.ccsync-tour-popover .driver-popover-navigation-btns button.driver-popover-done-btn {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.driver-popover.ccsync-tour-popover .driver-popover-navigation-btns button.driver-popover-prev-btn {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.driver-popover.ccsync-tour-popover .driver-popover-navigation-btns button.driver-popover-prev-btn:hover {
+  background-color: hsl(var(--accent));
+}
+
+.driver-popover.ccsync-tour-popover .driver-skip-btn {
+  background-color: transparent;
+  color: hsl(var(--muted-foreground));
+  border: none;
+  padding: 0.35rem 0.6rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-shadow: none;
+}
+
+.driver-popover.ccsync-tour-popover .driver-skip-btn:hover {
+  color: hsl(var(--foreground));
+}
