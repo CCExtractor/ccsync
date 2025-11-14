@@ -194,7 +194,9 @@ export const HomePage: React.FC = () => {
         {
           element: '#home-hero',
           popover: {
-            title: userInfo.name ? `Welcome, ${userInfo.name.split(' ')[0]}!` : 'Welcome to CCSync',
+            title: userInfo.name
+              ? `Welcome, ${userInfo.name.split(' ')[0]}!`
+              : 'Welcome to CCSync',
             description:
               'Kick off sync jobs, copy credentials, and review your Taskwarrior status from here.',
             side: 'bottom',

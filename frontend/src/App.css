@@ -120,18 +120,26 @@
   text-shadow: none;
 }
 
-.driver-popover.ccsync-tour-popover .driver-popover-navigation-btns button.driver-popover-next-btn,
-.driver-popover.ccsync-tour-popover .driver-popover-navigation-btns button.driver-popover-done-btn {
+.driver-popover.ccsync-tour-popover
+  .driver-popover-navigation-btns
+  button.driver-popover-next-btn,
+.driver-popover.ccsync-tour-popover
+  .driver-popover-navigation-btns
+  button.driver-popover-done-btn {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
 }
 
-.driver-popover.ccsync-tour-popover .driver-popover-navigation-btns button.driver-popover-prev-btn {
+.driver-popover.ccsync-tour-popover
+  .driver-popover-navigation-btns
+  button.driver-popover-prev-btn {
   background-color: hsl(var(--secondary));
   color: hsl(var(--secondary-foreground));
 }
 
-.driver-popover.ccsync-tour-popover .driver-popover-navigation-btns button.driver-popover-prev-btn:hover {
+.driver-popover.ccsync-tour-popover
+  .driver-popover-navigation-btns
+  button.driver-popover-prev-btn:hover {
   background-color: hsl(var(--accent));
 }
 
