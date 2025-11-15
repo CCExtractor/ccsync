@@ -41,8 +41,15 @@ export type ReportsViewProps = {
 };
 
 export type ReportChartProps = {
-  data: any[];
+  data: ReportData[];
   title: string;
+  chartId: string;
+};
+
+export type ReportData = {
+  name: string;
+  completed: number;
+  ongoing: number;
 };
 
 export type AutoSyncProps = {
