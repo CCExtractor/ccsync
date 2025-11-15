@@ -8,14 +8,14 @@ jest.mock('react-intersection-observer', () => ({
   useInView: jest.fn(),
 }));
 
-describe('About Component', () => {
-  beforeEach(() => {
-    (useInView as jest.Mock).mockReturnValue({
-      ref: jest.fn(),
-      inView: true,
-    });
+beforeEach(() => {
+  (useInView as jest.Mock).mockReturnValue({
+    ref: jest.fn(),
+    inView: true,
   });
+});
 
+describe('About Component', () => {
   it('renders the About section', () => {
     render(<About />);
     const aboutSection = screen.getByTestId('about-section');
@@ -49,5 +49,12 @@ describe('About Component', () => {
     expect(paragraph).toHaveTextContent(
       'Users can sign in using Google and generate their secret keys to setup synchronisation on their Taskwarrior clients.'
     );
+  });
+});
+
+describe('About Component using snapshot', () => {
+  it('renders correctly', () => {
+    const { asFragment } = render(<About />);
+    expect(asFragment()).toMatchSnapshot();
   });
 });
