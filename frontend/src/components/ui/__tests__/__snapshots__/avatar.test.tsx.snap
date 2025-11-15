@@ -1,0 +1,93 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Avatar Component using Snapshot renders avatar with broken image (shows fallback) correctly: broken-image 1`] = `
+<DocumentFragment>
+  <span
+    class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"
+  >
+    <span
+      class="flex h-full w-full items-center justify-center rounded-full bg-muted"
+    >
+      BR
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`Avatar Component using Snapshot renders avatar with custom className correctly: custom-classes 1`] = `
+<DocumentFragment>
+  <span
+    class="relative flex shrink-0 overflow-hidden rounded-full w-20 h-20"
+  >
+    <span
+      class="flex h-full w-full items-center justify-center rounded-full bg-muted custom-fallback"
+    >
+      CN
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`Avatar Component using Snapshot renders avatar with fallback only correctly: fallback-only 1`] = `
+<DocumentFragment>
+  <span
+    class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"
+  >
+    <span
+      class="flex h-full w-full items-center justify-center rounded-full bg-muted"
+    >
+      JD
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`Avatar Component using Snapshot renders avatar with long fallback text correctly: long-fallback 1`] = `
+<DocumentFragment>
+  <span
+    class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"
+  >
+    <span
+      class="flex h-full w-full items-center justify-center rounded-full bg-muted"
+    >
+      John Doe
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`Avatar Component using Snapshot renders avatar with single character fallback correctly: single-char 1`] = `
+<DocumentFragment>
+  <span
+    class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"
+  >
+    <span
+      class="flex h-full w-full items-center justify-center rounded-full bg-muted"
+    >
+      A
+    </span>
+  </span>
+</DocumentFragment>
+`;
+
+exports[`Avatar Component using Snapshot renders avatar without fallback correctly: no-fallback 1`] = `
+<DocumentFragment>
+  <span
+    class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"
+  />
+</DocumentFragment>
+`;
+
+exports[`Avatar Component using Snapshot renders basic avatar with image correctly: basic-avatar 1`] = `
+<DocumentFragment>
+  <span
+    class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full"
+  >
+    <span
+      class="flex h-full w-full items-center justify-center rounded-full bg-muted"
+    >
+      CN
+    </span>
+  </span>
+</DocumentFragment>
+`;
