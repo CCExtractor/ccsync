@@ -76,12 +76,35 @@ describe('NavbarMobile', () => {
     expect(mockProps.setIsOpen).toHaveBeenCalledWith(false);
   });
 
-  it("calls deleteAllTasks when 'Delete All Tasks' is clicked", () => {
+  it("opens confirmation modal when 'Delete All Tasks' is clicked", () => {
     const openProps = { ...mockProps, isOpen: true };
     render(<NavbarMobile {...openProps} />);
     const deleteButton = screen.getByText('Delete All Tasks');
 
     fireEvent.click(deleteButton);
+
+    // Verify the confirmation modal appears
+    expect(screen.getByText('Delete All Tasks?')).toBeInTheDocument();
+    expect(
+      screen.getByText(/This action cannot be undone/i)
+    ).toBeInTheDocument();
+  });
+
+  it('calls deleteAllTasks when confirmation is accepted', () => {
+    const openProps = { ...mockProps, isOpen: true };
+    render(<NavbarMobile {...openProps} />);
+
+    // Click the initial delete button to open modal
+    const deleteButtons = screen.getAllByText('Delete All Tasks');
+    fireEvent.click(deleteButtons[0]);
+
+    // After modal opens, there should be 2 "Delete All Tasks" texts
+    // The second one is the confirmation button in the modal
+    const updatedDeleteButtons = screen.getAllByText('Delete All Tasks');
+    expect(updatedDeleteButtons).toHaveLength(2);
+
+    // Click the confirmation button (second one)
+    fireEvent.click(updatedDeleteButtons[1]);
     expect(deleteAllTasks).toHaveBeenCalledWith(openProps);
   });
 
