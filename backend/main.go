@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/gob"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -14,6 +13,7 @@ import (
 
 	"ccsync_backend/controllers"
 	"ccsync_backend/middleware"
+	"ccsync_backend/utils/logger"
 
 	_ "ccsync_backend/docs" // Swagger docs
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -44,11 +44,14 @@ import (
 // @tag.description Authentication and authorization endpoints
 
 func main() {
+	// Initialize the colored logger
+	logger.Initialize()
+
 	if os.Getenv("ENV") != "production" {
 		_ = godotenv.Load()
-		log.Println("Loaded")
+		logger.Info("Environment variables loaded from .env file")
 	} else {
-		log.Println("Continue")
+		logger.Info("Running in production mode")
 	}
 
 	controllers.GlobalJobQueue = controllers.NewJobQueue()
@@ -69,7 +72,7 @@ func main() {
 	// Create a session store
 	sessionKey := []byte(os.Getenv("SESSION_KEY"))
 	if len(sessionKey) == 0 {
-		log.Fatal("SESSION_KEY environment variable is not set or empty")
+		logger.Fatal("SESSION_KEY environment variable is not set or empty")
 	}
 	store := sessions.NewCookieStore(sessionKey)
 	gob.Register(map[string]interface{}{})
@@ -98,9 +101,9 @@ func main() {
 	mux.HandleFunc("/api/docs/", httpSwagger.WrapHandler)
 
 	go controllers.JobStatusManager()
-	log.Println("Server started at :8000")
-	log.Println("API documentation available at http://localhost:8000/api/docs/index.html")
+	logger.Info("Server started at :8000")
+	logger.Info("API documentation available at http://localhost:8000/api/docs/index.html")
 	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
-		log.Fatal(err)
+		logger.Fatalf("Failed to start server: %v", err)
 	}
 }

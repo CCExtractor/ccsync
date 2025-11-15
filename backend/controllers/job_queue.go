@@ -1,8 +1,7 @@
 package controllers
 
 import (
-	"fmt"
-	"log"
+	"ccsync_backend/utils/logger"
 	"sync"
 )
 
@@ -37,7 +36,7 @@ func (q *JobQueue) AddJob(job Job) {
 
 func (q *JobQueue) processJobs() {
 	for job := range q.jobChannel {
-		fmt.Printf("Executing job: %s\n", job.Name)
+		logger.Info("Executing job", "job", job.Name)
 
 		go BroadcastJobStatus(JobStatus{
 			Job:    job.Name,
@@ -45,14 +44,14 @@ func (q *JobQueue) processJobs() {
 		})
 
 		if err := job.Execute(); err != nil {
-			log.Printf("Error executing job %s: %v\n", job.Name, err)
+			logger.Error("Job execution failed", "job", job.Name, "error", err)
 
 			go BroadcastJobStatus(JobStatus{
 				Job:    job.Name,
 				Status: "failure",
 			})
 		} else {
-			log.Printf("Success in executing job %s\n", job.Name)
+			logger.Info("Job completed successfully", "job", job.Name)
 
 			go BroadcastJobStatus(JobStatus{
 				Job:    job.Name,
