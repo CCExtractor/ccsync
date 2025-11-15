@@ -35,6 +35,13 @@ import {
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import {
   formattedDate,
@@ -56,10 +63,13 @@ import BottomBar from '../BottomBar/BottomBar';
 import {
   addTaskToBackend,
   editTaskOnBackend,
+  modifyTaskOnBackend,
   fetchTaskwarriorTasks,
   TasksDatabase,
 } from './hooks';
 import { debounce } from '@/components/utils/utils';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format, parseISO } from 'date-fns';
 
 const db = new TasksDatabase();
 export let syncTasksWithTwAndDb: () => any;
@@ -101,10 +111,14 @@ export const Tasks = (
     _selectedTask?.tags || []
   );
   const [isEditingTags, setIsEditingTags] = useState(false);
+  const [isEditingPriority, setIsEditingPriority] = useState(false);
+  const [editedPriority, setEditedPriority] = useState('NONE');
   const [isEditingProject, setIsEditingProject] = useState(false);
   const [editedProject, setEditedProject] = useState(
     _selectedTask?.project || ''
   );
+  const [isEditingStart, setIsEditingStart] = useState(false);
+  const [editedStart, setEditedStart] = useState<Date | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
@@ -303,7 +317,8 @@ export const Tasks = (
     description: string,
     tags: string[],
     taskID: string,
-    project: string
+    project: string,
+    start?: string
   ) {
     try {
       await editTaskOnBackend({
@@ -315,6 +330,7 @@ export const Tasks = (
         taskID,
         backendURL: url.backendURL,
         project,
+        start,
       });
 
       console.log('Task edited successfully!');
@@ -385,9 +401,14 @@ export const Tasks = (
     if (!_isDialogOpen) {
       setIsEditing(false);
       setEditedDescription('');
+      setIsEditingTags(false);
+      setEditedTags([]);
+      setIsEditingPriority(false);
+      setEditedPriority('NONE');
     } else {
       setSelectedTask(task);
       setEditedDescription(task?.description || '');
+      setEditedPriority(task?.priority || 'NONE');
     }
   };
 
@@ -463,7 +484,83 @@ export const Tasks = (
 
   const handleCancelTags = () => {
     setIsEditingTags(false);
-    setEditedTags([]); // Reset tags
+    setEditedTags([]);
+  };
+
+  const handleEditStartClick = (start: string) => {
+    if (start && start.trim() !== '') {
+      try {
+        const parsedDate = parseISO(start);
+        setEditedStart(isNaN(parsedDate.getTime()) ? undefined : parsedDate);
+      } catch {
+        setEditedStart(undefined);
+      }
+    } else {
+      setEditedStart(undefined);
+    }
+    setIsEditingStart(true);
+  };
+
+  const handleSaveStart = async (task: Task) => {
+    const startDate = editedStart ? format(editedStart, 'yyyy-MM-dd') : '';
+    await handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags || [],
+      task.uuid,
+      task.project,
+      startDate
+    );
+    setIsEditingStart(false);
+    await syncTasksWithTwAndDb();
+  };
+
+  const handleCancelStart = () => {
+    setIsEditingStart(false);
+    setEditedStart(undefined);
+  };
+
+  const handleEditPriorityClick = (task: Task) => {
+    // Convert empty priority to "NONE" for the select component
+    setEditedPriority(task.priority || 'NONE');
+    setIsEditingPriority(true);
+  };
+
+  const handleSavePriority = async (task: Task) => {
+    try {
+      // Convert "NONE" to empty string for backend
+      const priorityValue = editedPriority === 'NONE' ? '' : editedPriority;
+
+      await modifyTaskOnBackend({
+        email: props.email,
+        encryptionSecret: props.encryptionSecret,
+        UUID: props.UUID,
+        taskID: task.id.toString(),
+        description: task.description,
+        project: task.project || '',
+        priority: priorityValue,
+        status: task.status,
+        due: task.due || '',
+        tags: task.tags || [],
+        backendURL: url.backendURL,
+      });
+
+      console.log('Priority updated successfully!');
+      toast.success('Priority updated successfully!');
+      setIsEditingPriority(false);
+    } catch (error) {
+      console.error('Failed to update priority:', error);
+      toast.error('Failed to update priority. Please try again.');
+    }
+  };
+
+  const handleCancelPriority = () => {
+    setIsEditingPriority(false);
+    if (_selectedTask) {
+      setEditedPriority(_selectedTask.priority || 'NONE');
+    }
   };
 
   return (
@@ -654,26 +751,27 @@ export const Tasks = (
                               />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label
-                                htmlFor="description"
-                                className="text-right"
-                              >
+                              <Label htmlFor="due" className="text-right">
                                 Due
                               </Label>
-                              <Input
-                                id="due"
-                                name="due"
-                                placeholder="YYYY-MM-DD"
-                                value={newTask.due}
-                                onChange={(e) =>
-                                  setNewTask({
-                                    ...newTask,
-                                    due: e.target.value,
-                                  })
-                                }
-                                required
-                                className="col-span-3"
-                              />
+                              <div className="col-span-3">
+                                <DatePicker
+                                  date={
+                                    newTask.due
+                                      ? new Date(newTask.due)
+                                      : undefined
+                                  }
+                                  onDateChange={(date) => {
+                                    setNewTask({
+                                      ...newTask,
+                                      due: date
+                                        ? format(date, 'yyyy-MM-dd')
+                                        : '',
+                                    });
+                                  }}
+                                  placeholder="Select a due date"
+                                />
+                              </div>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
                               <Label
@@ -931,7 +1029,47 @@ export const Tasks = (
                                     <TableRow>
                                       <TableCell>Start:</TableCell>
                                       <TableCell>
-                                        {formattedDate(task.start)}
+                                        {isEditingStart ? (
+                                          <div className="flex items-center gap-2">
+                                            <DatePicker
+                                              date={editedStart}
+                                              onDateChange={setEditedStart}
+                                              placeholder="Select start date"
+                                              className="flex-grow"
+                                            />
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={() =>
+                                                handleSaveStart(task)
+                                              }
+                                            >
+                                              <CheckIcon className="h-4 w-4 text-green-500" />
+                                            </Button>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={handleCancelStart}
+                                            >
+                                              <XIcon className="h-4 w-4 text-red-500" />
+                                            </Button>
+                                          </div>
+                                        ) : (
+                                          <div className="flex items-center">
+                                            <span>
+                                              {formattedDate(task.start)}
+                                            </span>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={() =>
+                                                handleEditStartClick(task.start)
+                                              }
+                                            >
+                                              <PencilIcon className="h-4 w-4 text-gray-500" />
+                                            </Button>
+                                          </div>
+                                        )}
                                       </TableCell>
                                     </TableRow>
                                     <TableRow>
@@ -960,7 +1098,73 @@ export const Tasks = (
                                     </TableRow>
                                     <TableRow>
                                       <TableCell>Priority:</TableCell>
-                                      <TableCell>{task.priority}</TableCell>
+                                      <TableCell>
+                                        {isEditingPriority ? (
+                                          <div className="flex items-center">
+                                            <Select
+                                              value={editedPriority}
+                                              onValueChange={setEditedPriority}
+                                            >
+                                              <SelectTrigger className="flex-grow mr-2">
+                                                <SelectValue placeholder="Select priority" />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="NONE">
+                                                  None
+                                                </SelectItem>
+                                                <SelectItem value="H">
+                                                  High (H)
+                                                </SelectItem>
+                                                <SelectItem value="M">
+                                                  Medium (M)
+                                                </SelectItem>
+                                                <SelectItem value="L">
+                                                  Low (L)
+                                                </SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={() =>
+                                                handleSavePriority(task)
+                                              }
+                                            >
+                                              <CheckIcon className="h-4 w-4 text-green-500" />
+                                            </Button>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={handleCancelPriority}
+                                            >
+                                              <XIcon className="h-4 w-4 text-red-500" />
+                                            </Button>
+                                          </div>
+                                        ) : (
+                                          <div className="flex items-center">
+                                            <span>
+                                              {task.priority
+                                                ? task.priority === 'H'
+                                                  ? 'High (H)'
+                                                  : task.priority === 'M'
+                                                    ? 'Medium (M)'
+                                                    : task.priority === 'L'
+                                                      ? 'Low (L)'
+                                                      : task.priority
+                                                : 'None'}
+                                            </span>
+                                            <Button
+                                              variant="ghost"
+                                              size="icon"
+                                              onClick={() =>
+                                                handleEditPriorityClick(task)
+                                              }
+                                            >
+                                              <PencilIcon className="h-4 w-4 text-gray-500" />
+                                            </Button>
+                                          </div>
+                                        )}
+                                      </TableCell>
                                     </TableRow>
                                     <TableRow>
                                       <TableCell>Project:</TableCell>
@@ -1357,25 +1561,27 @@ export const Tasks = (
                               />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label
-                                htmlFor="description"
-                                className="text-right"
-                              >
+                              <Label htmlFor="due" className="text-right">
                                 Due
                               </Label>
-                              <Input
-                                id="due"
-                                name="due"
-                                placeholder="YYYY-MM-DD"
-                                value={newTask.due}
-                                onChange={(e) =>
-                                  setNewTask({
-                                    ...newTask,
-                                    due: e.target.value,
-                                  })
-                                }
-                                className="col-span-3"
-                              />
+                              <div className="col-span-3">
+                                <DatePicker
+                                  date={
+                                    newTask.due
+                                      ? new Date(newTask.due)
+                                      : undefined
+                                  }
+                                  onDateChange={(date) => {
+                                    setNewTask({
+                                      ...newTask,
+                                      due: date
+                                        ? format(date, 'yyyy-MM-dd')
+                                        : '',
+                                    });
+                                  }}
+                                  placeholder="Select a due date"
+                                />
+                              </div>
                             </div>
                           </div>
                           <DialogFooter>

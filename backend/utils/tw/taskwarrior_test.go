@@ -23,7 +23,7 @@ func TestSyncTaskwarrior(t *testing.T) {
 }
 
 func TestEditTaskInATaskwarrior(t *testing.T) {
-	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", nil, "project")
+	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", nil, "project", "2025-03-03")
 	if err != nil {
 		t.Errorf("EditTaskInTaskwarrior() failed: %v", err)
 	} else {
@@ -68,7 +68,7 @@ func TestAddTaskWithTags(t *testing.T) {
 }
 
 func TestEditTaskWithTagAddition(t *testing.T) {
-	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", []string{"+urgent", "+important"}, "project")
+	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", []string{"+urgent", "+important"}, "project", "")
 	if err != nil {
 		t.Errorf("EditTaskInTaskwarrior with tag addition failed: %v", err)
 	} else {
@@ -77,7 +77,7 @@ func TestEditTaskWithTagAddition(t *testing.T) {
 }
 
 func TestEditTaskWithTagRemoval(t *testing.T) {
-	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", []string{"-work", "-lowpriority"}, "project")
+	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", []string{"-work", "-lowpriority"}, "project", "")
 	if err != nil {
 		t.Errorf("EditTaskInTaskwarrior with tag removal failed: %v", err)
 	} else {
@@ -86,7 +86,7 @@ func TestEditTaskWithTagRemoval(t *testing.T) {
 }
 
 func TestEditTaskWithMixedTagOperations(t *testing.T) {
-	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", []string{"+urgent", "-work", "normal"}, "project")
+	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", []string{"+urgent", "-work", "normal"}, "project", "")
 	if err != nil {
 		t.Errorf("EditTaskInTaskwarrior with mixed tag operations failed: %v", err)
 	} else {
