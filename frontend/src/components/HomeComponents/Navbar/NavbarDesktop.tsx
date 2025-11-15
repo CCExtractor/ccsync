@@ -49,6 +49,7 @@ export const NavbarDesktop = (
 ) => {
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [isDevLogsOpen, setIsDevLogsOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [autoSyncEnable, setAutoSyncEnable] = useState(false);
   const [syncInterval, setSyncInterval] = useState(1);
   useTaskAutoSync({
@@ -66,6 +67,11 @@ export const NavbarDesktop = (
   const handleExportTXT = () => {
     exportTasksAsTXT(props.tasks || []);
     setIsExportDialogOpen(false);
+  };
+
+  const handleDeleteConfirm = () => {
+    deleteAllTasks(props);
+    setIsDeleteConfirmOpen(false);
   };
 
   return (
@@ -95,7 +101,7 @@ export const NavbarDesktop = (
               <DropdownMenuLabel>{props.email}</DropdownMenuLabel>
               <DropdownMenuItem
                 className="text-red-500"
-                onClick={() => deleteAllTasks(props)}
+                onClick={() => setIsDeleteConfirmOpen(true)}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete all tasks
@@ -176,6 +182,37 @@ export const NavbarDesktop = (
         </div>
       </DialogContent>
       <DevLogs isOpen={isDevLogsOpen} onOpenChange={setIsDevLogsOpen} />
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogDescription className="text-lg font-semibold text-red-600">
+              Delete All Tasks?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-base mb-2">
+              Are you sure you want to delete all tasks for{' '}
+              <span className="font-semibold">{props.email}</span>?
+            </p>
+            <p className="text-sm text-muted-foreground">
+              This action cannot be undone. All your tasks will be permanently
+              deleted from the local database.
+            </p>
+          </div>
+          <div className="flex justify-end gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteConfirmOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete All Tasks
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };
