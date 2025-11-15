@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from './HomeComponents/Navbar/Navbar';
 import { Hero } from './HomeComponents/Hero/Hero';
 import { Footer } from './HomeComponents/Footer/Footer';
@@ -11,6 +11,8 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { Task } from '@/components/utils/types';
 import { fetchTaskwarriorTasks } from './HomeComponents/Tasks/hooks';
+import { driver } from 'driver.js';
+import 'driver.js/dist/driver.css';
 
 export const HomePage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
@@ -18,6 +20,8 @@ export const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   const [tasks, setTasks] = useState<Task[] | null>(null);
+  const hasTourStartedRef = useRef(false);
+  const tourTimeoutRef = useRef<number | null>(null);
 
   const getTasks = async (
     email: string,
@@ -44,6 +48,7 @@ export const HomePage: React.FC = () => {
     }
   };
 
+  // Launch onboarding tour for new HomePage visitors.
   useEffect(() => {
     fetchUserInfo();
   }, []);
@@ -142,6 +147,134 @@ export const HomePage: React.FC = () => {
     };
   }, [userInfo]);
 
+  useEffect(() => {
+    if (!userInfo?.email) {
+      return;
+    }
+
+    if (hasTourStartedRef.current) {
+      return;
+    }
+
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const tourStorageKey = `ccsync-home-tour-${userInfo.email}`;
+    if (window.localStorage.getItem(tourStorageKey) === 'seen') {
+      hasTourStartedRef.current = true;
+      return;
+    }
+
+    const markTourSeen = () => {
+      window.localStorage.setItem(tourStorageKey, 'seen');
+    };
+
+    const driverInstance = driver({
+      popoverClass: 'ccsync-tour-popover',
+      showProgress: true,
+      overlayOpacity: 0.45,
+      stagePadding: 8,
+      allowClose: true,
+      showButtons: ['previous', 'next', 'close'],
+      nextBtnText: 'Next',
+      prevBtnText: 'Back',
+      doneBtnText: 'Finish',
+      steps: [
+        {
+          element: '#home-navbar',
+          popover: {
+            title: 'Navigation hub',
+            description:
+              'Find task actions, logs, and your account controls from the top bar.',
+            side: 'bottom',
+            align: 'center',
+          },
+        },
+        {
+          element: '#home-hero',
+          popover: {
+            title: userInfo.name
+              ? `Welcome, ${userInfo.name.split(' ')[0]}!`
+              : 'Welcome to CCSync',
+            description:
+              'Kick off sync jobs, copy credentials, and review your Taskwarrior status from here.',
+            side: 'bottom',
+            align: 'start',
+          },
+        },
+        {
+          element: '#home-tasks',
+          popover: {
+            title: 'Live task board',
+            description:
+              'View, edit, complete, or delete Taskwarrior items and watch updates stream in real time.',
+            side: 'top',
+            align: 'start',
+          },
+        },
+        {
+          element: '#home-setup-guide',
+          popover: {
+            title: 'Setup guide',
+            description:
+              'Follow these steps to connect Taskwarrior and keep CCSync working across your devices.',
+            side: 'top',
+            align: 'start',
+          },
+        },
+        {
+          element: '#home-faq',
+          popover: {
+            title: 'Need help?',
+            description:
+              'The FAQ covers common troubleshooting tips. Reach out if you still need a hand.',
+            side: 'top',
+            align: 'start',
+          },
+        },
+      ],
+      onDestroyed: () => {
+        markTourSeen();
+      },
+      onCloseClick: () => {
+        markTourSeen();
+        driverInstance.destroy();
+      },
+      onPopoverRender: (popover) => {
+        if (!popover.footerButtons.querySelector('[data-driver-skip-button]')) {
+          const skipButton = document.createElement('button');
+          skipButton.type = 'button';
+          skipButton.textContent = 'Skip';
+          skipButton.dataset.driverSkipButton = 'true';
+          skipButton.className = 'driver-skip-btn';
+          skipButton.addEventListener('click', () => {
+            markTourSeen();
+            driverInstance.destroy();
+          });
+          popover.footerButtons.prepend(skipButton);
+        }
+      },
+    });
+
+    hasTourStartedRef.current = true;
+
+    tourTimeoutRef.current = window.setTimeout(() => {
+      driverInstance.drive();
+    }, 600);
+
+    return () => {
+      if (tourTimeoutRef.current) {
+        window.clearTimeout(tourTimeoutRef.current);
+        tourTimeoutRef.current = null;
+      }
+
+      if (driverInstance.isActive()) {
+        driverInstance.destroy();
+      }
+    };
+  }, [userInfo]);
+
   const fetchUserInfo = async () => {
     try {
       const response = await fetch(url.backendURL + 'api/user', {
@@ -165,17 +298,20 @@ export const HomePage: React.FC = () => {
     <div>
       {userInfo ? (
         <div>
-          <Navbar
-            tasks={tasks}
-            imgurl={userInfo.picture}
-            email={userInfo.email}
-            encryptionSecret={userInfo.encryption_secret}
-            origin={url.containerOrigin}
-            UUID={userInfo.uuid}
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
-          />
+          <div id="home-navbar">
+            <Navbar
+              tasks={tasks}
+              imgurl={userInfo.picture}
+              email={userInfo.email}
+              encryptionSecret={userInfo.encryption_secret}
+              origin={url.containerOrigin}
+              UUID={userInfo.uuid}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+            />
+          </div>
           <motion.div
+            id="home-hero"
             initial={{ x: -1000 }}
             animate={{ x: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -186,20 +322,26 @@ export const HomePage: React.FC = () => {
               encryption_secret={userInfo.encryption_secret}
             />
           </motion.div>
-          <Tasks
-            email={userInfo.email}
-            encryptionSecret={userInfo.encryption_secret}
-            origin={url.containerOrigin}
-            UUID={userInfo.uuid}
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
-          />
-          <SetupGuide
-            name={userInfo.name}
-            uuid={userInfo.uuid}
-            encryption_secret={userInfo.encryption_secret}
-          />
-          <FAQ />
+          <section id="home-tasks">
+            <Tasks
+              email={userInfo.email}
+              encryptionSecret={userInfo.encryption_secret}
+              origin={url.containerOrigin}
+              UUID={userInfo.uuid}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+            />
+          </section>
+          <section id="home-setup-guide">
+            <SetupGuide
+              name={userInfo.name}
+              uuid={userInfo.uuid}
+              encryption_secret={userInfo.encryption_secret}
+            />
+          </section>
+          <section id="home-faq">
+            <FAQ />
+          </section>
           <Footer />
         </div>
       ) : (
