@@ -1,107 +1,88 @@
 import { render } from '@testing-library/react';
 import { ReportsView } from '../ReportsView';
 
-const mockToday = new Date('2025-01-05T10:00:00.000Z');
+const mockToday = new Date('2025-11-11T10:00:00.000Z');
 
-const mockBasicTaskToday = {
-  id: 2,
-  description: 'mockDescription',
-  project: 'mockProject',
-  status: 'pending',
-  tags: [''],
-  uuid: 'mockUuid',
-  urgency: 1,
-  priority: 'mockPriority',
-  due: 'mockDue',
-  start: 'mockStart',
-  end: 'mockEnd',
-  entry: 'mockEntry',
-  wait: 'mockWait',
-  modified: mockToday.toISOString(),
-  depends: [''],
-  rtype: 'mockRtype',
-  recur: 'mockRecur',
-  email: 'mockEmail',
-};
-const mockBasicTaskTodayCompleted = {
-  ...mockBasicTaskToday,
-  status: 'completed',
-};
-const mockBasicTaskTomorrow = {
-  ...mockBasicTaskToday,
-  modified: new Date(
-    mockToday.getUTCFullYear(),
-    mockToday.getUTCMonth(),
-    mockToday.getUTCDate() + 1
-  ).toISOString(),
-};
-const mockBasicTaskTomorrowCompleted = {
-  ...mockBasicTaskTomorrow,
-  status: 'completed',
-};
-const mockBasicTaskNextWeek = {
-  ...mockBasicTaskToday,
-  modified: new Date(
-    mockToday.getUTCFullYear(),
-    mockToday.getUTCMonth(),
-    mockToday.getUTCDate() + 7
-  ).toISOString(),
-};
-const mockBasicTaskNextWeekCompleted = {
-  ...mockBasicTaskNextWeek,
-  status: 'completed',
-};
+type TaskStatus = 'pending' | 'completed';
+type DateOffset = 'dailyData' | 'weeklyData' | 'monthlyData';
 
-const mockTaskWithTagsAndDependsToday = {
-  ...mockBasicTaskToday,
-  tags: ['tag1', 'tag2', 'tag3'],
-  depends: ['depend1', 'depend2', 'depend3'],
-};
-const mockTaskWithTagsAndDependsTodayCompleted = {
-  ...mockTaskWithTagsAndDependsToday,
-  status: 'completed',
-};
+const createMockTask = (
+  overrides: Partial<{
+    id: number;
+    status: TaskStatus;
+    dateOffset: DateOffset;
+    tags: string[];
+    depends: string[];
+  }> = {}
+) => {
+  const {
+    id = 1,
+    status = 'pending',
+    dateOffset = 'dailyData',
+    tags = ['tag1', 'tag2'],
+    depends = ['depends1', 'depends2'],
+  } = overrides;
 
-const mockTaskWithTagsAndDependsTomorrow = {
-  ...mockTaskWithTagsAndDependsToday,
-  modified: new Date(
-    mockToday.getUTCFullYear(),
-    mockToday.getUTCMonth(),
-    mockToday.getUTCDate() + 1
-  ).toISOString(),
-};
-const mockTaskWithTagsAndDependsTomorrowCompleted = {
-  ...mockTaskWithTagsAndDependsTomorrow,
-  status: 'completed',
-};
-const mockTaskWithTagsAndDependsWeek = {
-  ...mockTaskWithTagsAndDependsToday,
-  modified: new Date(
-    mockToday.getUTCFullYear(),
-    mockToday.getUTCMonth(),
-    mockToday.getUTCDate() + 7
-  ).toISOString(),
-};
-const mockTaskWithTagsAndDependsWeekCompleted = {
-  ...mockTaskWithTagsAndDependsWeek,
-  status: 'completed',
+  const getDateForOffset = (offset: DateOffset): Date => {
+    switch (offset) {
+      case 'dailyData':
+        return mockToday;
+      case 'weeklyData':
+        // Calcul du début de la semaine (dimanche)
+        const startOfWeek = new Date(mockToday);
+        startOfWeek.setUTCDate(
+          startOfWeek.getUTCDate() - startOfWeek.getUTCDay()
+        );
+        return startOfWeek;
+      case 'monthlyData':
+        return new Date(mockToday.getUTCFullYear(), mockToday.getUTCMonth(), 1);
+    }
+  };
+
+  return {
+    id,
+    description: 'mockDescription',
+    project: 'mockProject',
+    status,
+    tags,
+    uuid: `mockUuid-${id}`,
+    urgency: 1,
+    priority: 'mockPriority',
+    due: 'mockDue',
+    start: 'mockStart',
+    end: 'mockEnd',
+    entry: 'mockEntry',
+    wait: 'mockWait',
+    modified: getDateForOffset(dateOffset).toISOString(),
+    depends,
+    rtype: 'mockRtype',
+    recur: 'mockRecur',
+    email: 'mockEmail',
+  };
 };
 
-const mockTasksWithOneTask = [mockBasicTaskToday];
-const mockTasksWithSeveralTasks = [
-  mockBasicTaskToday,
-  mockBasicTaskTodayCompleted,
-  mockBasicTaskTomorrow,
-  mockBasicTaskTomorrowCompleted,
-  mockBasicTaskNextWeek,
-  mockBasicTaskNextWeekCompleted,
-  mockTaskWithTagsAndDependsToday,
-  mockTaskWithTagsAndDependsTodayCompleted,
-  mockTaskWithTagsAndDependsTomorrow,
-  mockTaskWithTagsAndDependsTomorrowCompleted,
-  mockTaskWithTagsAndDependsWeek,
-  mockTaskWithTagsAndDependsWeekCompleted,
+// Builders pour des scénarios spécifiques
+const createDailyTasks = () => [
+  createMockTask({ id: 1, status: 'pending', dateOffset: 'dailyData' }),
+  createMockTask({ id: 2, status: 'completed', dateOffset: 'dailyData' }),
 ];
+
+const createWeeklyTasks = () => [
+  ...createDailyTasks(),
+  createMockTask({ id: 3, status: 'pending', dateOffset: 'weeklyData' }),
+  createMockTask({ id: 4, status: 'completed', dateOffset: 'weeklyData' }),
+  createMockTask({ id: 5, status: 'pending', dateOffset: 'monthlyData' }),
+  createMockTask({ id: 6, status: 'completed', dateOffset: 'monthlyData' }),
+];
+
+const createMonthlyTasks = () => [
+  ...createWeeklyTasks(),
+  createMockTask({ id: 7, status: 'pending', dateOffset: 'monthlyData' }),
+  createMockTask({ id: 8, status: 'completed', dateOffset: 'monthlyData' }),
+];
+
+const mockTasksWithOneTask = createDailyTasks().slice(0, 1);
+const mockTasksWithSeveralTasks = createMonthlyTasks();
 
 jest.mock('recharts', () => ({
   ResponsiveContainer: ({ children, width, height }: any) => (

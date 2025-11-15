@@ -22,7 +22,15 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
           style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
         >
           <div>
-            [object Object]
+            <span>
+              name: Today 
+            </span>
+            <span>
+              completed: 0 
+            </span>
+            <span>
+              ongoing: 1 
+            </span>
           </div>
           <div
             data-stroke="#555"
@@ -80,7 +88,15 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
           style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
         >
           <div>
-            [object Object]
+            <span>
+              name: This Week 
+            </span>
+            <span>
+              completed: 0 
+            </span>
+            <span>
+              ongoing: 1 
+            </span>
           </div>
           <div
             data-stroke="#555"
@@ -138,7 +154,15 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
           style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
         >
           <div>
-            [object Object]
+            <span>
+              name: This Month 
+            </span>
+            <span>
+              completed: 0 
+            </span>
+            <span>
+              ongoing: 1 
+            </span>
           </div>
           <div
             data-stroke="#555"
@@ -205,7 +229,15 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
           style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
         >
           <div>
-            [object Object]
+            <span>
+              name: Today 
+            </span>
+            <span>
+              completed: 1 
+            </span>
+            <span>
+              ongoing: 1 
+            </span>
           </div>
           <div
             data-stroke="#555"
@@ -263,7 +295,15 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
           style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
         >
           <div>
-            [object Object]
+            <span>
+              name: This Week 
+            </span>
+            <span>
+              completed: 2 
+            </span>
+            <span>
+              ongoing: 2 
+            </span>
           </div>
           <div
             data-stroke="#555"
@@ -321,7 +361,15 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
           style="top: 5px; right: 20px; left: -20px; bottom: 5px;"
         >
           <div>
-            [object Object]
+            <span>
+              name: This Month 
+            </span>
+            <span>
+              completed: 4 
+            </span>
+            <span>
+              ongoing: 4 
+            </span>
           </div>
           <div
             data-stroke="#555"
