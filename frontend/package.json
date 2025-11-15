@@ -91,6 +91,7 @@
     "dlv": "^1.1.3",
     "doctrine": "^3.0.0",
     "dom-accessibility-api": "^0.5.16",
+    "driver.js": "^1.3.1",
     "electron-to-chromium": "^1.4.796",
     "emittery": "^0.13.1",
     "emoji-regex": "^8.0.0",
