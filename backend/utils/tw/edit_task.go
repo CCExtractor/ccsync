@@ -2,6 +2,7 @@ package tw
 
 import (
 	"ccsync_backend/utils"
+	"ccsync_backend/utils/logger"
 	"fmt"
 	"os"
 	"strings"
@@ -28,7 +29,7 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 
 	// Escape the double quotes in the description and format it
 	if err := utils.ExecCommand("task", taskID, "modify", description); err != nil {
-		fmt.Println("task " + taskID + " modify " + description)
+		logger.Error("Failed to edit task", "taskID", taskID, "description", description, "error", err)
 		return fmt.Errorf("failed to edit task: %v", err)
 	}
 
