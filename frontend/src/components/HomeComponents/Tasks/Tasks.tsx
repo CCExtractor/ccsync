@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
+import Fuse from 'fuse.js';
 import {
   Table,
   TableBody,
@@ -71,6 +72,26 @@ import { debounce } from '@/components/utils/utils';
 import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
 
+const STORAGE_KEY = 'ccsync_unsynced_uuids';
+
+const getUnsyncedFromStorage = (): Set<string> => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  } catch (e) {
+    console.error('Failed to parse unsynced tasks', e);
+    return new Set();
+  }
+};
+
+const saveUnsyncedToStorage = (uuids: Set<string>) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(uuids)));
+  } catch (e) {
+    console.error('Failed to save unsynced tasks', e);
+  }
+};
+
 const db = new TasksDatabase();
 export let syncTasksWithTwAndDb: () => any;
 
@@ -92,6 +113,10 @@ export const Tasks = (
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [unsyncedSet, setUnsyncedSet] = useState<Set<string>>(() =>
+    getUnsyncedFromStorage()
+  );
+  const [unsyncedCount, setUnsyncedCount] = useState<number>(0);
 
   const [newTask, setNewTask] = useState({
     description: '',
@@ -118,29 +143,12 @@ export const Tasks = (
     _selectedTask?.project || ''
   );
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
   // Debounced search handler
   const debouncedSearch = debounce((value: string) => {
-    if (!value) {
-      setTempTasks(
-        selectedProjects.length === 0 &&
-          selectedStatuses.length === 0 &&
-          selectedTags.length === 0
-          ? tasks
-          : tempTasks
-      );
-      return;
-    }
-    const lowerValue = value.toLowerCase();
-    const filtered = tasks.filter(
-      (task) =>
-        task.description.toLowerCase().includes(lowerValue) ||
-        (task.project && task.project.toLowerCase().includes(lowerValue)) ||
-        (task.tags &&
-          task.tags.some((tag) => tag.toLowerCase().includes(lowerValue)))
-    );
-    setTempTasks(filtered);
+    setDebouncedTerm(value);
     setCurrentPage(1);
   }, 300);
 
@@ -166,6 +174,9 @@ export const Tasks = (
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   const totalPages = Math.ceil(tempTasks.length / tasksPerPage) || 1;
 
+  useEffect(() => {
+    setUnsyncedCount(unsyncedSet.size);
+  }, [unsyncedSet]);
   useEffect(() => {
     const hashedKey = hashKey('tasksPerPage', props.email);
     const storedTasksPerPage = localStorage.getItem(hashedKey);
@@ -256,6 +267,10 @@ export const Tasks = (
         setTempTasks(sortTasksById(updatedTasks, 'desc'));
       });
 
+      const emptySet = new Set<string>();
+      setUnsyncedSet(emptySet);
+      saveUnsyncedToStorage(emptySet);
+
       // Store last sync timestamp using hashed key
       const currentTime = Date.now();
       const hashedKey = hashKey('lastSyncTime', user_email);
@@ -281,19 +296,37 @@ export const Tasks = (
   ) {
     if (handleDate(newTask.due)) {
       try {
-        await addTaskToBackend({
-          email,
-          encryptionSecret,
-          UUID,
-          description,
-          project,
-          priority,
-          due,
-          tags,
-          backendURL: url.backendURL,
-        });
+        const tempTask: Task = {
+          ...newTask,
+          id: Math.floor(Math.random() * -1000000),
+          uuid: `temp-${Date.now()}`,
+          status: 'pending',
+          email: props.email,
+          entry: new Date().toISOString(),
+          modified: new Date().toISOString(),
+          urgency: 0,
+          start: '',
+          end: '',
+          wait: '',
+          depends: [],
+          recur: '',
+          rtype: '',
+        };
 
-        console.log('Task added successfully!');
+        await db.tasks.add(tempTask);
+
+        const newSet = new Set(unsyncedSet);
+        newSet.add(tempTask.uuid);
+        setUnsyncedSet(newSet);
+        saveUnsyncedToStorage(newSet);
+
+        const updatedTasks = await db.tasks
+          .where('email')
+          .equals(props.email)
+          .toArray();
+        setTasks(sortTasksById(updatedTasks, 'desc'));
+        setTempTasks(sortTasksById(updatedTasks, 'desc'));
+
         setNewTask({
           description: '',
           priority: '',
@@ -302,8 +335,30 @@ export const Tasks = (
           tags: [],
         });
         setIsAddTaskOpen(false);
-      } catch (error) {
-        console.error('Failed to add task:', error);
+
+        try {
+          await addTaskToBackend({
+            email,
+            encryptionSecret,
+            UUID,
+            description,
+            project,
+            priority,
+            due,
+            tags,
+            backendURL: url.backendURL,
+          });
+          toast.success('Task added successfully!');
+          console.log('Task added successfully!');
+        } catch (error) {
+          console.error('Failed to add task. Please try again later.');
+          toast.error(
+            'Unable to sync task to server. It’s saved locally for now.'
+          );
+        }
+      } catch (localError) {
+        console.error('Failed to save task locally');
+        toast.error('Failed to save task locally.');
       }
     }
   }
@@ -360,32 +415,93 @@ export const Tasks = (
     setEditedDescription(description);
   };
 
-  const handleSaveClick = (task: Task) => {
-    task.description = editedDescription;
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      task.tags,
-      task.id.toString(),
-      task.project
-    );
-    setIsEditing(false);
+  const handleSaveClick = async (task: Task) => {
+    try {
+      const updatedTask: Task = {
+        ...task,
+        description: editedDescription,
+        modified: new Date().toISOString(),
+      };
+
+      await db.tasks.put(updatedTask);
+
+      const newSet = new Set(unsyncedSet);
+      newSet.add(task.uuid);
+      setUnsyncedSet(newSet);
+      saveUnsyncedToStorage(newSet);
+
+      const updatedTasks = await db.tasks
+        .where('email')
+        .equals(props.email)
+        .toArray();
+      setTasks(sortTasksById(updatedTasks, 'desc'));
+      setTempTasks(sortTasksById(updatedTasks, 'desc'));
+
+      setIsEditing(false);
+
+      try {
+        await handleEditTaskOnBackend(
+          props.email,
+          props.encryptionSecret,
+          props.UUID,
+          editedDescription,
+          task.tags || [],
+          task.id.toString(),
+          task.project
+        );
+        toast.success('Description updated successfully.');
+      } catch (backendError) {
+        console.error('Backend edit-task failed.');
+        toast.error('Local save complete, but backend sync failed.');
+      }
+    } catch (localError) {
+      console.error('Failed to save description locally.');
+    }
   };
 
-  const handleProjectSaveClick = (task: Task) => {
-    task.project = editedProject;
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      task.tags,
-      task.id.toString(),
-      task.project
-    );
-    setIsEditingProject(false);
+  const handleProjectSaveClick = async (task: Task) => {
+    try {
+      const updatedTask: Task = {
+        ...task,
+        project: editedProject,
+        modified: new Date().toISOString(),
+      };
+
+      await db.tasks.put(updatedTask);
+
+      const newSet = new Set(unsyncedSet);
+      newSet.add(task.uuid);
+      setUnsyncedSet(newSet);
+      saveUnsyncedToStorage(newSet);
+
+      const updatedTasks = await db.tasks
+        .where('email')
+        .equals(props.email)
+        .toArray();
+      setTasks(sortTasksById(updatedTasks, 'desc'));
+      setTempTasks(sortTasksById(updatedTasks, 'desc'));
+
+      setIsEditingProject(false);
+
+      try {
+        await handleEditTaskOnBackend(
+          props.email,
+          props.encryptionSecret,
+          props.UUID,
+          task.description,
+          task.tags || [],
+          task.id.toString(),
+          editedProject
+        );
+        toast.success('Project updated successfully.');
+      } catch (backendError) {
+        console.error('Backend edit-task failed.');
+        toast.error('Local save complete, but backend sync failed.');
+      }
+    } catch (localError) {
+      console.error('Failed to save project locally.');
+      toast.error('Failed to save locally.');
+    }
   };
 
   const handleCancelClick = () => {
@@ -423,6 +539,8 @@ export const Tasks = (
       tags: newTask.tags.filter((tag) => tag !== tagToRemove),
     });
   };
+
+  // Master filter effect
   useEffect(() => {
     let filteredTasks = tasks;
 
@@ -448,34 +566,81 @@ export const Tasks = (
       );
     }
 
-    // Sort + set
-    setTempTasks(sortTasksById(filteredTasks, 'desc'));
-  }, [selectedProjects, selectedTags, selectedStatuses, tasks]);
+    // Fuzzy search
+    if (debouncedTerm) {
+      const fuseOptions = {
+        keys: ['description', 'project', 'tags'],
+        threshold: 0.3,
+      };
+
+      const fuse = new Fuse(filteredTasks, fuseOptions);
+      const searchResults = fuse.search(debouncedTerm);
+
+      filteredTasks = searchResults.map((res) => res.item);
+    }
+
+    if (!debouncedTerm) {
+      setTempTasks(sortTasksById(filteredTasks, 'desc'));
+    } else {
+      setTempTasks(filteredTasks);
+    }
+  }, [selectedProjects, selectedTags, selectedStatuses, tasks, debouncedTerm]);
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
     setIsEditingTags(true);
   };
 
-  const handleSaveTags = (task: Task) => {
+  const handleSaveTags = async (task: Task) => {
+    const updatedTags = editedTags.filter((tag) => tag.trim() !== ''); // Remove any empty tags
     const currentTags = task.tags || []; // Default to an empty array if tags are null
     const removedTags = currentTags.filter((tag) => !editedTags.includes(tag));
-    const updatedTags = editedTags.filter((tag) => tag.trim() !== ''); // Remove any empty tags
-    const tagsToRemove = removedTags.map((tag) => `-${tag}`); // Prefix `-` for removed tags
-    const finalTags = [...updatedTags, ...tagsToRemove]; // Combine updated and removed tags
-    console.log(finalTags);
-    // Call the backend function with updated tags
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      finalTags,
-      task.id.toString(),
-      task.project
-    );
+    const tagsForBackend = [
+      ...updatedTags,
+      ...removedTags.map((tag) => `-${tag}`),
+    ];
+    try {
+      const updatedTask: Task = {
+        ...task,
+        tags: updatedTags,
+        modified: new Date().toISOString(),
+      };
 
-    setIsEditingTags(false); // Exit editing mode
+      await db.tasks.put(updatedTask);
+
+      const newSet = new Set(unsyncedSet);
+      newSet.add(task.uuid);
+      setUnsyncedSet(newSet);
+      saveUnsyncedToStorage(newSet);
+
+      const updatedTasks = await db.tasks
+        .where('email')
+        .equals(props.email)
+        .toArray();
+      setTasks(sortTasksById(updatedTasks, 'desc'));
+      setTempTasks(sortTasksById(updatedTasks, 'desc'));
+
+      setIsEditingTags(false);
+
+      try {
+        await handleEditTaskOnBackend(
+          props.email,
+          props.encryptionSecret,
+          props.UUID,
+          task.description,
+          tagsForBackend,
+          task.id.toString(),
+          task.project
+        );
+        toast.success('Tags updated sucessfully.');
+      } catch (backendError) {
+        console.error('Backend edit-task failed.');
+        toast.error('Local save complete, but backend sync failed.');
+      }
+    } catch (localError) {
+      console.error('Failed to save tags locally');
+      toast.error('Failed to save locally.');
+    }
   };
 
   const handleCancelTags = () => {
@@ -556,7 +721,7 @@ export const Tasks = (
         </Button>
         {/* Mobile-only Sync button (desktop already shows a Sync button with filters) */}
         <Button
-          className="sm:hidden ml-2"
+          className="sm:hidden ml-2 relative"
           variant="outline"
           onClick={async () => {
             props.setIsLoading(true);
@@ -568,7 +733,14 @@ export const Tasks = (
           {props.isLoading ? (
             <Loader2 className="mx-1 size-5 animate-spin" />
           ) : (
-            'Sync'
+            <>
+              Sync
+              {unsyncedCount > 0 && (
+                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
+                  {unsyncedCount}
+                </span>
+              )}
+            </>
           )}
         </Button>
       </div>
@@ -805,8 +977,28 @@ export const Tasks = (
                       </Dialog>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <Button variant="outline" onClick={syncTasksWithTwAndDb}>
-                        Sync
+                      <Button
+                        variant="outline"
+                        className="relative"
+                        onClick={async () => {
+                          props.setIsLoading(true);
+                          await syncTasksWithTwAndDb();
+                          props.setIsLoading(false);
+                        }}
+                        disabled={props.isLoading}
+                      >
+                        {props.isLoading ? (
+                          <Loader2 className="mx-1 size-5 animate-spin" />
+                        ) : (
+                          <>
+                            Sync
+                            {unsyncedCount > 0 && (
+                              <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
+                                {unsyncedCount}
+                              </span>
+                            )}
+                          </>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -864,7 +1056,7 @@ export const Tasks = (
                               {/* Display task details */}
                               <TableCell className="py-2">
                                 <span className="text-s text-foreground">
-                                  {task.id}
+                                  {task.id < 0 ? '-' : task.id}
                                 </span>
                               </TableCell>
                               <TableCell className="flex items-center space-x-2 py-2">
@@ -885,6 +1077,14 @@ export const Tasks = (
                                   <Badge variant={'secondary'}>
                                     <Folder className="pr-2" />
                                     {task.project === '' ? '' : task.project}
+                                  </Badge>
+                                )}
+                                {unsyncedSet.has(task.uuid) && (
+                                  <Badge
+                                    variant={'destructive'}
+                                    className="animate-pulse"
+                                  >
+                                    Unsynced
                                   </Badge>
                                 )}
                               </TableCell>
@@ -1254,14 +1454,69 @@ export const Tasks = (
                                       <DialogClose asChild>
                                         <Button
                                           className="mr-5"
-                                          onClick={() =>
-                                            markTaskAsCompleted(
-                                              props.email,
-                                              props.encryptionSecret,
-                                              props.UUID,
-                                              task.uuid
-                                            )
-                                          }
+                                          onClick={async () => {
+                                            try {
+                                              const updatedTask: Task = {
+                                                ...task,
+                                                status: 'completed',
+                                                modified:
+                                                  new Date().toISOString(),
+                                              };
+
+                                              await db.tasks.put(updatedTask);
+
+                                              const newSet = new Set(
+                                                unsyncedSet
+                                              );
+                                              newSet.add(task.uuid);
+                                              setUnsyncedSet(newSet);
+                                              saveUnsyncedToStorage(newSet);
+
+                                              const updatedTasks =
+                                                await db.tasks
+                                                  .where('email')
+                                                  .equals(props.email)
+                                                  .toArray();
+                                              setTasks(
+                                                sortTasksById(
+                                                  updatedTasks,
+                                                  'desc'
+                                                )
+                                              );
+                                              setTempTasks(
+                                                sortTasksById(
+                                                  updatedTasks,
+                                                  'desc'
+                                                )
+                                              );
+
+                                              try {
+                                                await markTaskAsCompleted(
+                                                  props.email,
+                                                  props.encryptionSecret,
+                                                  props.UUID,
+                                                  task.uuid
+                                                );
+                                                toast.success(
+                                                  'Task completed successfully.'
+                                                );
+                                              } catch (backendError) {
+                                                console.error(
+                                                  'Backend mark-completed failed.'
+                                                );
+                                                toast.error(
+                                                  'Local update complete, but backend sync failed.'
+                                                );
+                                              }
+                                            } catch (localError) {
+                                              console.error(
+                                                'Failed to update task locally.'
+                                              );
+                                              toast.error(
+                                                'Failed to update task locally.'
+                                              );
+                                            }
+                                          }}
                                         >
                                           Yes
                                         </Button>
@@ -1299,14 +1554,69 @@ export const Tasks = (
                                       <DialogClose asChild>
                                         <Button
                                           className="mr-5"
-                                          onClick={() =>
-                                            markTaskAsDeleted(
-                                              props.email,
-                                              props.encryptionSecret,
-                                              props.UUID,
-                                              task.uuid
-                                            )
-                                          }
+                                          onClick={async () => {
+                                            try {
+                                              const updatedTask: Task = {
+                                                ...task,
+                                                status: 'deleted',
+                                                modified:
+                                                  new Date().toISOString(),
+                                              };
+
+                                              await db.tasks.put(updatedTask);
+
+                                              const newSet = new Set(
+                                                unsyncedSet
+                                              );
+                                              newSet.add(task.uuid);
+                                              setUnsyncedSet(newSet);
+                                              saveUnsyncedToStorage(newSet);
+
+                                              const updatedTasks =
+                                                await db.tasks
+                                                  .where('email')
+                                                  .equals(props.email)
+                                                  .toArray();
+                                              setTasks(
+                                                sortTasksById(
+                                                  updatedTasks,
+                                                  'desc'
+                                                )
+                                              );
+                                              setTempTasks(
+                                                sortTasksById(
+                                                  updatedTasks,
+                                                  'desc'
+                                                )
+                                              );
+
+                                              try {
+                                                await markTaskAsDeleted(
+                                                  props.email,
+                                                  props.encryptionSecret,
+                                                  props.UUID,
+                                                  task.uuid
+                                                );
+                                                toast.success(
+                                                  'Task deleted successfully.'
+                                                );
+                                              } catch (backendError) {
+                                                console.error(
+                                                  'Backend mark-deleted failed.'
+                                                );
+                                                toast.error(
+                                                  'Local update complete, but backend sync failed.'
+                                                );
+                                              }
+                                            } catch (localError) {
+                                              console.error(
+                                                'Failed to update task locally.'
+                                              );
+                                              toast.error(
+                                                'Failed to update task locally.'
+                                              );
+                                            }
+                                          }}
                                         >
                                           Yes
                                         </Button>

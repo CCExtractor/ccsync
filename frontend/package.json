@@ -129,6 +129,7 @@
     "framer-motion": "^11.3.8",
     "fs.realpath": "^1.0.0",
     "function-bind": "^1.1.2",
+    "fuse.js": "^7.1.0",
     "gensync": "^1.0.0-beta.2",
     "get-caller-file": "^2.0.5",
     "get-nonce": "^1.0.1",
