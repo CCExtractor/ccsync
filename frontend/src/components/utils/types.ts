@@ -35,3 +35,26 @@ export interface Task {
   recur: string;
   email: string;
 }
+
+export type ReportsViewProps = {
+  tasks: Task[];
+};
+
+export type ReportChartProps = {
+  data: ReportData[];
+  title: string;
+  chartId: string;
+};
+
+export type ReportData = {
+  name: string;
+  completed: number;
+  ongoing: number;
+};
+
+export type AutoSyncProps = {
+  isLoading: boolean;
+  setIsLoading: (val: boolean) => void;
+  isAutoSyncEnabled: boolean;
+  syncInterval: number; // <-- This prop controls the timer
+};

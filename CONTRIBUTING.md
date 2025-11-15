@@ -48,8 +48,18 @@ Please follow these rules or conventions while committing any new changes:
 - `refactor`: refactoring production code, eg. renaming a variable
 - `test`: adding missing tests, refactoring tests
 - `chore`: updating grunt tasks, etc., no production code change
-- Run `npx prettier --write .` before commiting so as to adhere to the linting scheme of the project's frontend
-- Run `gofmt -w .` before commiting so as to adhere to the linting scheme of the project's backend
+
+**Note:** This project uses Git pre-commit hooks to automatically format code before committing.
+
+The hooks are set up automatically when you run `npm install` in the frontend directory. When you commit changes:
+
+- Frontend files (JS/TS/JSON/CSS/MD) will be automatically formatted with Prettier
+- Backend Go files will be automatically formatted with gofmt (if Go is installed)
+
+If you need to manually format files:
+
+- Run `npm run pre-commit` for frontend formatting (from frontend directory)
+- Run `gofmt -w .` for backend formatting
 
 ### Pull Request
 

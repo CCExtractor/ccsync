@@ -16,3 +16,7 @@ export function debounce<T extends (...args: any[]) => void>(
     timeout = setTimeout(() => func.apply(this, args), wait);
   } as T;
 }
+
+export const getStartOfDay = (date: Date) => {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+};

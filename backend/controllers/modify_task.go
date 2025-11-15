@@ -63,10 +63,18 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		// 	return
 		// }
 
+		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Modify Task",
 			Execute: func() error {
-				return tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID, tags)
+				logStore.AddLog("INFO", fmt.Sprintf("Modifying task ID: %s", taskID), uuid, "Modify Task")
+				err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID, tags)
+				if err != nil {
+					logStore.AddLog("ERROR", fmt.Sprintf("Failed to modify task ID %s: %v", taskID, err), uuid, "Modify Task")
+					return err
+				}
+				logStore.AddLog("INFO", fmt.Sprintf("Successfully modified task ID: %s", taskID), uuid, "Modify Task")
+				return nil
 			},
 		}
 		GlobalJobQueue.AddJob(job)

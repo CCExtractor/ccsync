@@ -1,0 +1,43 @@
+#!/bin/sh
+
+echo "Running pre-commit checks..."
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+FRONTEND_FILES=$(echo "$STAGED_FILES" | grep -E '^frontend/.*\.(js|jsx|ts|tsx|json|css|scss|md)$' || true)
+BACKEND_FILES=$(echo "$STAGED_FILES" | grep -E '^backend/.*\.go$' || true)
+
+if [ -n "$FRONTEND_FILES" ]; then
+    echo "This runs before the commit to test frontend linting!"
+    cd frontend
+    npm run pre-commit
+    if [ $? -ne 0 ]; then
+        echo "Error: Frontend formatting failed"
+        cd ..
+        exit 1
+    fi
+    cd ..
+    git add $FRONTEND_FILES
+fi
+
+if [ -n "$BACKEND_FILES" ]; then
+    if command -v gofmt >/dev/null 2>&1; then
+        echo "Formatting backend Go files with gofmt..."
+        echo "$BACKEND_FILES" | xargs gofmt -w
+        if [ $? -ne 0 ]; then
+            echo "Error: gofmt formatting failed"
+            exit 1
+        fi
+        echo "$BACKEND_FILES" | xargs git add
+    else
+        echo "Warning: gofmt not found. Skipping Go file formatting."
+        echo "Install Go to enable automatic Go formatting."
+    fi
+fi
+
+echo "Pre-commit checks completed successfully!"
+exit 0

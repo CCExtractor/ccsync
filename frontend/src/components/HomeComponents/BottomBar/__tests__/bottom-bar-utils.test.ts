@@ -9,17 +9,28 @@ describe('RouteProps interface', () => {
 });
 
 describe('BottomBarProps interface', () => {
-  it('should have project and status properties', () => {
+  it('should have all filter props: projects, selectedProjects, setSelectedProject, status, selectedStatuses, setSelectedStatus, tags, selectedTags, setSelectedTag', () => {
+    const mockSetter = jest.fn();
     const example: BottomBarProps = {
-      projects: [''],
-      setSelectedProject: jest.fn(),
-      status: [''],
-      setSelectedStatus: jest.fn(),
+      projects: ['P1'],
+      selectedProjects: ['P1'],
+      setSelectedProject: mockSetter,
+      status: ['S1'],
+      selectedStatuses: ['S1'],
+      setSelectedStatus: mockSetter,
+      tags: ['T1'],
+      selectedTags: ['T1'],
+      setSelectedTag: mockSetter,
     };
     expect(example).toHaveProperty('projects');
+    expect(example).toHaveProperty('selectedProjects');
     expect(example).toHaveProperty('setSelectedProject');
     expect(example).toHaveProperty('status');
+    expect(example).toHaveProperty('selectedStatuses');
     expect(example).toHaveProperty('setSelectedStatus');
+    expect(example).toHaveProperty('tags');
+    expect(example).toHaveProperty('selectedTags');
+    expect(example).toHaveProperty('setSelectedTag');
   });
 });
 

@@ -45,6 +45,7 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		taskID := requestBody.TaskID
 		description := requestBody.Description
 		tags := requestBody.Tags
+		project := requestBody.Project
 
 		if taskID == "" {
 			http.Error(w, "taskID is required", http.StatusBadRequest)
@@ -56,10 +57,18 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		// return
 		// }
 
+		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Edit Task",
 			Execute: func() error {
-				return tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID, tags)
+				logStore.AddLog("INFO", fmt.Sprintf("Editing task ID: %s", taskID), uuid, "Edit Task")
+				err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID, tags, project)
+				if err != nil {
+					logStore.AddLog("ERROR", fmt.Sprintf("Failed to edit task ID %s: %v", taskID, err), uuid, "Edit Task")
+					return err
+				}
+				logStore.AddLog("INFO", fmt.Sprintf("Successfully edited task ID: %s", taskID), uuid, "Edit Task")
+				return nil
 			},
 		}
 		GlobalJobQueue.AddJob(job)
