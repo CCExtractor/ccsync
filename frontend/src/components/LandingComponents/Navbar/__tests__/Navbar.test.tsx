@@ -30,3 +30,10 @@ describe('Navbar component', () => {
     expect(faqLink).toBeInTheDocument();
   });
 });
+
+describe('Navbar component using snapshot', () => {
+  it('renders correctly', () => {
+    const { asFragment } = render(<Navbar />);
+    expect(asFragment()).toMatchSnapshot();
+  });
+});
