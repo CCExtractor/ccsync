@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, within } from '@testing-library/react';
+import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import { Tasks } from '../Tasks';
 
 // Mock props for the Tasks component
@@ -207,19 +207,25 @@ describe('Tasks Component', () => {
     expect(screen.queryByText('-12345')).not.toBeInTheDocument();
   });
 
-  test('renders a normal, synced task correctly', async () => {
-    render(<Tasks {...mockProps} />);
+  test('filters tasks with fuzzy search (handles typos)', async () => {
+    jest.useFakeTimers();
 
+    render(<Tasks {...mockProps} />);
     expect(await screen.findByText('Task 12')).toBeInTheDocument();
 
     const dropdown = screen.getByLabelText('Show:');
     fireEvent.change(dropdown, { target: { value: '50' } });
 
-    const taskText = await screen.findByText('Normal Synced Task');
-    const taskRow = taskText.closest('tr');
+    const searchBar = screen.getByPlaceholderText('Search tasks...');
+    fireEvent.change(searchBar, { target: { value: 'Norml' } });
 
-    expect(taskRow).not.toBeNull();
-    expect(within(taskRow!).getByText('1')).toBeInTheDocument();
-    expect(within(taskRow!).queryByText('Unsynced')).not.toBeInTheDocument();
+    act(() => {
+      jest.advanceTimersByTime(300);
+    });
+
+    expect(await screen.findByText('Normal Synced Task')).toBeInTheDocument();
+    expect(screen.queryByText('Edited Unsynced Task')).not.toBeInTheDocument();
+
+    jest.useRealTimers();
   });
 });

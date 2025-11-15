@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
+import Fuse from 'fuse.js';
 import {
   Table,
   TableBody,
@@ -130,29 +131,12 @@ export const Tasks = (
     _selectedTask?.project || ''
   );
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
   // Debounced search handler
   const debouncedSearch = debounce((value: string) => {
-    if (!value) {
-      setTempTasks(
-        selectedProjects.length === 0 &&
-          selectedStatuses.length === 0 &&
-          selectedTags.length === 0
-          ? tasks
-          : tempTasks
-      );
-      return;
-    }
-    const lowerValue = value.toLowerCase();
-    const filtered = tasks.filter(
-      (task) =>
-        task.description.toLowerCase().includes(lowerValue) ||
-        (task.project && task.project.toLowerCase().includes(lowerValue)) ||
-        (task.tags &&
-          task.tags.some((tag) => tag.toLowerCase().includes(lowerValue)))
-    );
-    setTempTasks(filtered);
+    setDebouncedTerm(value);
     setCurrentPage(1);
   }, 300);
 
@@ -538,6 +522,8 @@ export const Tasks = (
       tags: newTask.tags.filter((tag) => tag !== tagToRemove),
     });
   };
+
+  // Master filter effect
   useEffect(() => {
     let filteredTasks = tasks;
 
@@ -563,9 +549,25 @@ export const Tasks = (
       );
     }
 
-    // Sort + set
-    setTempTasks(sortTasksById(filteredTasks, 'desc'));
-  }, [selectedProjects, selectedTags, selectedStatuses, tasks]);
+    // Fuzzy search
+    if (debouncedTerm) {
+      const fuseOptions = {
+        keys: ['description', 'project', 'tags'],
+        threshold: 0.3,
+      };
+
+      const fuse = new Fuse(filteredTasks, fuseOptions);
+      const searchResults = fuse.search(debouncedTerm);
+
+      filteredTasks = searchResults.map((res) => res.item);
+    }
+
+    if (!debouncedTerm) {
+      setTempTasks(sortTasksById(filteredTasks, 'desc'));
+    } else {
+      setTempTasks(filteredTasks);
+    }
+  }, [selectedProjects, selectedTags, selectedStatuses, tasks, debouncedTerm]);
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
