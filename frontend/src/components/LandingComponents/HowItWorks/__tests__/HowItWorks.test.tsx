@@ -8,14 +8,14 @@ jest.mock('react-intersection-observer', () => ({
   useInView: jest.fn(),
 }));
 
-describe('HowItWorks Component', () => {
-  beforeEach(() => {
-    (useInView as jest.Mock).mockReturnValue({
-      ref: jest.fn(),
-      inView: true, // Set inView to true to simulate the element being in view
-    });
+beforeEach(() => {
+  (useInView as jest.Mock).mockReturnValue({
+    ref: jest.fn(),
+    inView: true, // Set inView to true to simulate the element being in view
   });
+});
 
+describe('HowItWorks Component', () => {
   test('renders the How It Works section', () => {
     render(<HowItWorks />);
 
@@ -48,5 +48,12 @@ describe('HowItWorks Component', () => {
       const featureDescription = screen.getByText(description);
       expect(featureDescription).toBeInTheDocument();
     });
+  });
+});
+
+describe('HowItWorks component using snapshot', () => {
+  it('renders correctly', () => {
+    const { asFragment } = render(<HowItWorks />);
+    expect(asFragment()).toMatchSnapshot();
   });
 });
