@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"ccsync_backend/utils"
-	
+
 	"context"
 	"encoding/json"
 	"net/http"

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	
 	"sync"
 )
 
