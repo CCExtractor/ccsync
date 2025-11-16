@@ -99,7 +99,7 @@ export const editTaskOnBackend = async ({
   taskID: string;
   backendURL: string;
   project: string;
-  start?: string;
+  start: string;
 }) => {
   const response = await fetch(`${backendURL}edit-task`, {
     method: 'POST',

@@ -118,8 +118,8 @@ export const Tasks = (
   const [editedProject, setEditedProject] = useState(
     _selectedTask?.project || ''
   );
-  const [isEditingStart, setIsEditingStart] = useState(false);
-  const [editedStart, setEditedStart] = useState<Date | undefined>(undefined);
+  const [isEditingStartDate, setIsEditingStartDate] = useState(false);
+  const [editedStartDate, setEditedStartDate] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
@@ -321,7 +321,7 @@ export const Tasks = (
     tags: string[],
     taskID: string,
     project: string,
-    start?: string
+    start: string
   ) {
     try {
       await editTaskOnBackend({
@@ -376,7 +376,8 @@ export const Tasks = (
       task.description,
       task.tags,
       task.id.toString(),
-      task.project
+      task.project,
+      task.start
     );
     setIsEditing(false);
   };
@@ -390,9 +391,27 @@ export const Tasks = (
       task.description,
       task.tags,
       task.id.toString(),
-      task.project
+      task.project,
+      task.start
     );
     setIsEditingProject(false);
+  };
+
+  const handleStartDateSaveClick = (task: Task) => {
+    task.start = editedStartDate;
+
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start
+    );
+
+    setIsEditingStartDate(false);
   };
 
   const handleCancelClick = () => {
@@ -479,7 +498,8 @@ export const Tasks = (
       task.description,
       finalTags,
       task.id.toString(),
-      task.project
+      task.project,
+      task.start
     );
 
     setIsEditingTags(false); // Exit editing mode
@@ -489,42 +509,6 @@ export const Tasks = (
     setIsEditingTags(false);
     setEditedTags([]);
   };
-
-  const handleEditStartClick = (start: string) => {
-    if (start && start.trim() !== '') {
-      try {
-        const parsedDate = parseISO(start);
-        setEditedStart(isNaN(parsedDate.getTime()) ? undefined : parsedDate);
-      } catch {
-        setEditedStart(undefined);
-      }
-    } else {
-      setEditedStart(undefined);
-    }
-    setIsEditingStart(true);
-  };
-
-  const handleSaveStart = async (task: Task) => {
-    const startDate = editedStart ? format(editedStart, 'yyyy-MM-dd') : '';
-    await handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      task.tags || [],
-      task.uuid,
-      task.project,
-      startDate
-    );
-    setIsEditingStart(false);
-    await syncTasksWithTwAndDb();
-  };
-
-  const handleCancelStart = () => {
-    setIsEditingStart(false);
-    setEditedStart(undefined);
-  };
-
   const handleEditPriorityClick = (task: Task) => {
     // Convert empty priority to "NONE" for the select component
     setEditedPriority(task.priority || 'NONE');
@@ -561,48 +545,6 @@ export const Tasks = (
 
   const handleCancelPriority = () => {
     setIsEditingPriority(false);
-    if (_selectedTask) {
-      setEditedPriority(_selectedTask.priority || 'NONE');
-    }
-  };
-
-  const handleEditPriorityClick = (task: Task) => {
-    // Convert empty priority to "NONE" for the select component
-    setEditedPriority(task.priority || 'NONE');
-    setIsEditingPriority(true);
-  };
-
-  const handleSavePriority = async (task: Task) => {
-    try {
-      // Convert "NONE" to empty string for backend
-      const priorityValue = editedPriority === 'NONE' ? '' : editedPriority;
-
-      await modifyTaskOnBackend({
-        email: props.email,
-        encryptionSecret: props.encryptionSecret,
-        UUID: props.UUID,
-        taskID: task.id.toString(),
-        description: task.description,
-        project: task.project || '',
-        priority: priorityValue,
-        status: task.status,
-        due: task.due || '',
-        tags: task.tags || [],
-        backendURL: url.backendURL,
-      });
-
-      console.log('Priority updated successfully!');
-      toast.success('Priority updated successfully!');
-      setIsEditingPriority(false);
-    } catch (error) {
-      console.error('Failed to update priority:', error);
-      toast.error('Failed to update priority. Please try again.');
-    }
-  };
-
-  const handleCancelPriority = () => {
-    setIsEditingPriority(false);
-    // Reset to the task's original priority
     if (_selectedTask) {
       setEditedPriority(_selectedTask.priority || 'NONE');
     }
@@ -1083,7 +1025,94 @@ export const Tasks = (
                                       <TableRow>
                                         <TableCell>Start:</TableCell>
                                         <TableCell>
-                                          {formattedDate(task.start)}
+                                          {isEditingStartDate ? (
+                                            <div className="flex items-center gap-2">
+                                              <DatePicker
+                                                date={
+                                                  editedStartDate &&
+                                                  editedStartDate !== ''
+                                                    ? (() => {
+                                                        try {
+                                                          // Handle YYYY-MM-DD format
+                                                          const dateStr =
+                                                            editedStartDate.includes(
+                                                              'T'
+                                                            )
+                                                              ? editedStartDate.split(
+                                                                  'T'
+                                                                )[0]
+                                                              : editedStartDate;
+                                                          const parsed =
+                                                            new Date(
+                                                              dateStr +
+                                                                'T00:00:00'
+                                                            );
+                                                          return isNaN(
+                                                            parsed.getTime()
+                                                          )
+                                                            ? undefined
+                                                            : parsed;
+                                                        } catch {
+                                                          return undefined;
+                                                        }
+                                                      })()
+                                                    : undefined
+                                                }
+                                                onDateChange={(date) =>
+                                                  setEditedStartDate(
+                                                    date
+                                                      ? format(
+                                                          date,
+                                                          'yyyy-MM-dd'
+                                                        )
+                                                      : ''
+                                                  )
+                                                }
+                                              />
+
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleStartDateSaveClick(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  setIsEditingStartDate(false)
+                                                }
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <>
+                                              <span>
+                                                {formattedDate(task.start)}
+                                              </span>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                  setIsEditingStartDate(true);
+                                                  // Extract just the date part if it's in ISO format
+                                                  const startDate = task.start
+                                                    ? task.start.includes('T')
+                                                      ? task.start.split('T')[0]
+                                                      : task.start
+                                                    : '';
+                                                  setEditedStartDate(startDate);
+                                                }}
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </>
+                                          )}
                                         </TableCell>
                                       </TableRow>
                                       <TableRow>
