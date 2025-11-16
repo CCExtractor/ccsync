@@ -99,6 +99,7 @@ export const Tasks = (
     priority: '',
     project: '',
     due: '',
+    start: '',
     tags: [] as string[],
   });
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
@@ -280,6 +281,7 @@ export const Tasks = (
     project: string,
     priority: string,
     due: string,
+    start: string,
     tags: string[]
   ) {
     if (handleDate(newTask.due)) {
@@ -292,6 +294,7 @@ export const Tasks = (
           project,
           priority,
           due,
+          start,
           tags,
           backendURL: url.backendURL,
         });
@@ -302,6 +305,7 @@ export const Tasks = (
           priority: '',
           project: '',
           due: '',
+          start: '',
           tags: [],
         });
         setIsAddTaskOpen(false);
@@ -739,6 +743,29 @@ export const Tasks = (
                               </div>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="start" className="text-right">
+                                Start
+                              </Label>
+                              <div className="col-span-3">
+                                <DatePicker
+                                  date={
+                                    newTask.start
+                                      ? new Date(newTask.start)
+                                      : undefined
+                                  }
+                                  onDateChange={(date) => {
+                                    setNewTask({
+                                      ...newTask,
+                                      start: date
+                                        ? format(date, 'yyyy-MM-dd')
+                                        : '',
+                                    });
+                                  }}
+                                  placeholder="Select a start date"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
                               <Label
                                 htmlFor="description"
                                 className="text-right"
@@ -797,6 +824,7 @@ export const Tasks = (
                                   newTask.project,
                                   newTask.priority,
                                   newTask.due,
+                                  newTask.start,
                                   newTask.tags
                                 )
                               }
@@ -1524,6 +1552,29 @@ export const Tasks = (
                                 />
                               </div>
                             </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="start" className="text-right">
+                                Start
+                              </Label>
+                              <div className="col-span-3">
+                                <DatePicker
+                                  date={
+                                    newTask.start
+                                      ? new Date(newTask.start)
+                                      : undefined
+                                  }
+                                  onDateChange={(date) => {
+                                    setNewTask({
+                                      ...newTask,
+                                      start: date
+                                        ? format(date, 'yyyy-MM-dd')
+                                        : '',
+                                    });
+                                  }}
+                                  placeholder="Select a start date"
+                                />
+                              </div>
+                            </div>
                           </div>
                           <DialogFooter>
                             <Button
@@ -1544,6 +1595,7 @@ export const Tasks = (
                                   newTask.project,
                                   newTask.priority,
                                   newTask.due,
+                                  newTask.start,
                                   newTask.tags
                                 )
                               }
