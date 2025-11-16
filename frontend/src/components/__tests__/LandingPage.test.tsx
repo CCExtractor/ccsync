@@ -27,8 +27,8 @@ jest.mock('../../components/utils/ScrollToTop', () => ({
   ScrollToTop: () => <div>Mocked ScrollToTop</div>,
 }));
 
-describe('LandingPage', () => {
-  it('renders all components correctly', () => {
+describe('LandingPage Component', () => {
+  it('renders all landing page sections', () => {
     render(<LandingPage />);
 
     expect(screen.getByText('Mocked Navbar')).toBeInTheDocument();

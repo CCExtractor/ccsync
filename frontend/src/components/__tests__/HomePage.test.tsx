@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { HomePage } from '../HomePage';
 
-// Mock dependencies
+// Mock components
 jest.mock('../HomeComponents/Navbar/Navbar', () => ({
   Navbar: () => <div>Mocked Navbar</div>,
 }));
@@ -21,10 +21,13 @@ jest.mock('../HomeComponents/Tasks/Tasks', () => ({
   Tasks: () => <div>Mocked Tasks</div>,
 }));
 
+// Mock navigate
 const mockedNavigate = jest.fn();
 jest.mock('react-router', () => ({
   useNavigate: () => mockedNavigate,
 }));
+
+// Mock URLs
 jest.mock('@/components/utils/URLs', () => ({
   url: {
     backendURL: 'http://mocked-backend-url/',
@@ -33,7 +36,7 @@ jest.mock('@/components/utils/URLs', () => ({
   },
 }));
 
-// Mock fetch
+// Default fetch mock (successful)
 global.fetch = jest.fn(() =>
   Promise.resolve({
     ok: true,
@@ -48,12 +51,12 @@ global.fetch = jest.fn(() =>
   })
 ) as jest.Mock;
 
-describe('HomePage', () => {
+describe('HomePage Component', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders correctly when user info is fetched successfully', async () => {
+  it('renders all components after successful user fetch', async () => {
     render(<HomePage />);
 
     await waitFor(() => {
@@ -66,7 +69,7 @@ describe('HomePage', () => {
     });
   });
 
-  it('renders session expired message when user info fetch fails', async () => {
+  it('shows session expired message when fetch returns ok: false', async () => {
     (fetch as jest.Mock).mockImplementationOnce(() =>
       Promise.resolve({
         ok: false,
@@ -80,7 +83,7 @@ describe('HomePage', () => {
     });
   });
 
-  it('navigates to home page on fetch error', async () => {
+  it('navigates to home page when fetch throws error', async () => {
     (fetch as jest.Mock).mockImplementationOnce(() =>
       Promise.reject('Fetch error')
     );
