@@ -118,6 +118,8 @@ export const Tasks = (
   const [editedProject, setEditedProject] = useState(
     _selectedTask?.project || ''
   );
+  const [isEditingWaitDate, setIsEditingWaitDate] = useState(false);
+  const [editedWaitDate, setEditedWaitDate] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
@@ -318,7 +320,8 @@ export const Tasks = (
     description: string,
     tags: string[],
     taskID: string,
-    project: string
+    project: string,
+    wait: string
   ) {
     try {
       await editTaskOnBackend({
@@ -330,6 +333,7 @@ export const Tasks = (
         taskID,
         backendURL: url.backendURL,
         project,
+        wait,
       });
 
       console.log('Task edited successfully!');
@@ -372,7 +376,8 @@ export const Tasks = (
       task.description,
       task.tags,
       task.id.toString(),
-      task.project
+      task.project,
+      task.end
     );
     setIsEditing(false);
   };
@@ -386,9 +391,27 @@ export const Tasks = (
       task.description,
       task.tags,
       task.id.toString(),
-      task.project
+      task.project,
+      task.end
     );
     setIsEditingProject(false);
+  };
+
+  const handleWaitDateSaveClick = (task: Task) => {
+    task.wait = editedWaitDate;
+
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.wait
+    );
+
+    setIsEditingWaitDate(false);
   };
 
   const handleCancelClick = () => {
@@ -475,7 +498,8 @@ export const Tasks = (
       task.description,
       finalTags,
       task.id.toString(),
-      task.project
+      task.project,
+      task.end
     );
 
     setIsEditingTags(false); // Exit editing mode
@@ -1015,7 +1039,65 @@ export const Tasks = (
                                       <TableRow>
                                         <TableCell>Wait:</TableCell>
                                         <TableCell>
-                                          {formattedDate(task.wait)}
+                                          {isEditingWaitDate ? (
+                                            <div className="flex items-center gap-2">
+                                              <DatePicker
+                                                date={
+                                                  editedWaitDate
+                                                    ? new Date(editedWaitDate)
+                                                    : undefined
+                                                }
+                                                onDateChange={(date) =>
+                                                  setEditedWaitDate(
+                                                    date
+                                                      ? format(
+                                                          date,
+                                                          'yyyy-MM-dd'
+                                                        )
+                                                      : ''
+                                                  )
+                                                }
+                                              />
+
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleWaitDateSaveClick(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  setIsEditingWaitDate(false)
+                                                }
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <>
+                                              <span>
+                                                {formattedDate(task.wait)}
+                                              </span>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                  setIsEditingWaitDate(true);
+                                                  setEditedWaitDate(
+                                                    task?.wait ?? ''
+                                                  );
+                                                }}
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </>
+                                          )}
                                         </TableCell>
                                       </TableRow>
                                       <TableRow>

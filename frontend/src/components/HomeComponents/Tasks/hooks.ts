@@ -89,6 +89,7 @@ export const editTaskOnBackend = async ({
   taskID,
   backendURL,
   project,
+  wait,
 }: {
   email: string;
   encryptionSecret: string;
@@ -98,6 +99,7 @@ export const editTaskOnBackend = async ({
   taskID: string;
   backendURL: string;
   project: string;
+  wait: string;
 }) => {
   const response = await fetch(`${backendURL}edit-task`, {
     method: 'POST',
@@ -109,6 +111,7 @@ export const editTaskOnBackend = async ({
       description,
       tags,
       project,
+      wait,
     }),
     headers: {
       'Content-Type': 'application/json',

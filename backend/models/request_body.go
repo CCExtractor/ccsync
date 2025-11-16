@@ -31,6 +31,7 @@ type EditTaskRequestBody struct {
 	Description      string   `json:"description"`
 	Tags             []string `json:"tags"`
 	Project          string   `json:"project"`
+	Wait             string   `json:"wait"`
 }
 type CompleteTaskRequestBody struct {
 	Email            string `json:"email"`
