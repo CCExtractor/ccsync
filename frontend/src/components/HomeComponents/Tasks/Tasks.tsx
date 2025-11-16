@@ -69,7 +69,8 @@ import {
 } from './hooks';
 import { debounce } from '@/components/utils/utils';
 import { DatePicker } from '@/components/ui/date-picker';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
+import { Taskskeleton } from './Task-Skeleton';
 
 const db = new TasksDatabase();
 export let syncTasksWithTwAndDb: () => any;
@@ -268,6 +269,8 @@ export const Tasks = (
     } catch (error) {
       console.error('Error syncing tasks:', error);
       toast.error(`Failed to sync tasks. Please try again.`);
+    } finally {
+      props.setIsLoading(false);
     }
   }, [props.email, props.encryptionSecret, props.UUID]); // Add dependencies
 
@@ -563,6 +566,48 @@ export const Tasks = (
     }
   };
 
+  const handleEditPriorityClick = (task: Task) => {
+    // Convert empty priority to "NONE" for the select component
+    setEditedPriority(task.priority || 'NONE');
+    setIsEditingPriority(true);
+  };
+
+  const handleSavePriority = async (task: Task) => {
+    try {
+      // Convert "NONE" to empty string for backend
+      const priorityValue = editedPriority === 'NONE' ? '' : editedPriority;
+
+      await modifyTaskOnBackend({
+        email: props.email,
+        encryptionSecret: props.encryptionSecret,
+        UUID: props.UUID,
+        taskID: task.id.toString(),
+        description: task.description,
+        project: task.project || '',
+        priority: priorityValue,
+        status: task.status,
+        due: task.due || '',
+        tags: task.tags || [],
+        backendURL: url.backendURL,
+      });
+
+      console.log('Priority updated successfully!');
+      toast.success('Priority updated successfully!');
+      setIsEditingPriority(false);
+    } catch (error) {
+      console.error('Failed to update priority:', error);
+      toast.error('Failed to update priority. Please try again.');
+    }
+  };
+
+  const handleCancelPriority = () => {
+    setIsEditingPriority(false);
+    // Reset to the task's original priority
+    if (_selectedTask) {
+      setEditedPriority(_selectedTask.priority || 'NONE');
+    }
+  };
+
   return (
     <section
       id="tasks"
@@ -843,7 +888,13 @@ export const Tasks = (
                       </Dialog>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <Button variant="outline" onClick={syncTasksWithTwAndDb}>
+                      <Button
+                        variant="outline"
+                        onClick={() => (
+                          props.setIsLoading(true),
+                          syncTasksWithTwAndDb()
+                        )}
+                      >
                         Sync
                       </Button>
                     </div>
@@ -890,524 +941,494 @@ export const Tasks = (
                     </TableHeader>
                     <TableBody>
                       {/* Display tasks */}
-                      {currentTasks.map((task: Task, index: number) => (
-                        <Dialog
-                          onOpenChange={(_isDialogOpen) =>
-                            handleDialogOpenChange(_isDialogOpen, task)
-                          }
-                          key={index}
-                        >
-                          <DialogTrigger asChild>
-                            <TableRow key={index} className="border-b">
-                              {/* Display task details */}
-                              <TableCell className="py-2">
-                                <span className="text-s text-foreground">
-                                  {task.id}
-                                </span>
-                              </TableCell>
-                              <TableCell className="flex items-center space-x-2 py-2">
-                                {task.priority === 'H' && (
-                                  <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3"></div>
-                                )}
-                                {task.priority === 'M' && (
-                                  <div className="flex items-center justify-center w-3 h-3 bg-yellow-500 rounded-full border-0 min-w-3"></div>
-                                )}
-                                {task.priority != 'H' &&
-                                  task.priority != 'M' && (
-                                    <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
-                                  )}
-                                <span className="text-s text-foreground">
-                                  {task.description}
-                                </span>
-                                {task.project != '' && (
-                                  <Badge variant={'secondary'}>
-                                    <Folder className="pr-2" />
-                                    {task.project === '' ? '' : task.project}
-                                  </Badge>
-                                )}
-                              </TableCell>
-                              <TableCell className="py-2">
-                                <Badge
-                                  variant={
-                                    task.status === 'pending'
-                                      ? 'secondary'
-                                      : task.status === 'deleted'
-                                        ? 'destructive'
-                                        : 'default'
-                                  }
-                                >
-                                  {task.status === 'completed'
-                                    ? 'C'
-                                    : task.status === 'deleted'
-                                      ? 'D'
-                                      : 'P'}
-                                </Badge>
-                              </TableCell>
-                            </TableRow>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-[625px] max-h-[90vh] flex flex-col">
-                            <DialogHeader>
-                              <DialogTitle>
-                                <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-                                  <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                    Task{' '}
+                      {props.isLoading ? (
+                        <Taskskeleton count={tasksPerPage} />
+                      ) : (
+                        currentTasks.map((task: Task, index: number) => (
+                          <Dialog
+                            onOpenChange={(_isDialogOpen) =>
+                              handleDialogOpenChange(_isDialogOpen, task)
+                            }
+                            key={index}
+                          >
+                            <DialogTrigger asChild>
+                              <TableRow key={index} className="border-b">
+                                {/* Display task details */}
+                                <TableCell className="py-2">
+                                  <span className="text-s text-foreground">
+                                    {task.id}
                                   </span>
-                                  Details
-                                </span>
-                              </DialogTitle>
-                            </DialogHeader>
+                                </TableCell>
+                                <TableCell className="flex items-center space-x-2 py-2">
+                                  {task.priority === 'H' && (
+                                    <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3"></div>
+                                  )}
+                                  {task.priority === 'M' && (
+                                    <div className="flex items-center justify-center w-3 h-3 bg-yellow-500 rounded-full border-0 min-w-3"></div>
+                                  )}
+                                  {task.priority != 'H' &&
+                                    task.priority != 'M' && (
+                                      <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
+                                    )}
+                                  <span className="text-s text-foreground">
+                                    {task.description}
+                                  </span>
+                                  {task.project != '' && (
+                                    <Badge variant={'secondary'}>
+                                      <Folder className="pr-2" />
+                                      {task.project === '' ? '' : task.project}
+                                    </Badge>
+                                  )}
+                                </TableCell>
+                                <TableCell className="py-2">
+                                  <Badge
+                                    variant={
+                                      task.status === 'pending'
+                                        ? 'secondary'
+                                        : task.status === 'deleted'
+                                          ? 'destructive'
+                                          : 'default'
+                                    }
+                                  >
+                                    {task.status === 'completed'
+                                      ? 'C'
+                                      : task.status === 'deleted'
+                                        ? 'D'
+                                        : 'P'}
+                                  </Badge>
+                                </TableCell>
+                              </TableRow>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[625px] max-h-[90vh] flex flex-col">
+                              <DialogHeader>
+                                <DialogTitle>
+                                  <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                    <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                      Task{' '}
+                                    </span>
+                                    Details
+                                  </span>
+                                </DialogTitle>
+                              </DialogHeader>
 
-                            {/* Scrollable content */}
-                            <div className="overflow-y-auto flex-1">
-                              <DialogDescription asChild>
-                                <Table>
-                                  <TableBody>
-                                    <TableRow>
-                                      <TableCell>ID:</TableCell>
-                                      <TableCell>{task.id}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Description:</TableCell>
-                                      <TableCell>
-                                        {isEditing ? (
-                                          <>
-                                            <div className="flex items-center">
-                                              <Input
-                                                id={`description-${task.id}`}
-                                                name={`description-${task.id}`}
-                                                type="text"
-                                                value={editedDescription}
-                                                onChange={(e) =>
-                                                  setEditedDescription(
-                                                    e.target.value
-                                                  )
-                                                }
-                                                className="flex-grow mr-2"
-                                              />
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleSaveClick(task)
-                                                }
-                                              >
-                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={handleCancelClick}
-                                              >
-                                                <XIcon className="h-4 w-4 text-red-500" />
-                                              </Button>
-                                            </div>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <span>{task.description}</span>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={() =>
-                                                handleEditClick(
-                                                  task.description
-                                                )
-                                              }
-                                            >
-                                              <PencilIcon className="h-4 w-4 text-gray-500" />
-                                            </Button>
-                                          </>
-                                        )}
-                                      </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Due:</TableCell>
-                                      <TableCell>
-                                        {formattedDate(task.due)}
-                                      </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Start:</TableCell>
-                                      <TableCell>
-                                        {isEditingStart ? (
-                                          <div className="flex items-center gap-2">
-                                            <DatePicker
-                                              date={editedStart}
-                                              onDateChange={setEditedStart}
-                                              placeholder="Select start date"
-                                              className="flex-grow"
-                                            />
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={() =>
-                                                handleSaveStart(task)
-                                              }
-                                            >
-                                              <CheckIcon className="h-4 w-4 text-green-500" />
-                                            </Button>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={handleCancelStart}
-                                            >
-                                              <XIcon className="h-4 w-4 text-red-500" />
-                                            </Button>
-                                          </div>
-                                        ) : (
-                                          <div className="flex items-center">
-                                            <span>
-                                              {formattedDate(task.start)}
-                                            </span>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={() =>
-                                                handleEditStartClick(task.start)
-                                              }
-                                            >
-                                              <PencilIcon className="h-4 w-4 text-gray-500" />
-                                            </Button>
-                                          </div>
-                                        )}
-                                      </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>End:</TableCell>
-                                      <TableCell>
-                                        {formattedDate(task.end)}
-                                      </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Wait:</TableCell>
-                                      <TableCell>
-                                        {formattedDate(task.wait)}
-                                      </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Depends:</TableCell>
-                                      <TableCell>{task.depends}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Recur:</TableCell>
-                                      <TableCell>{task.recur}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>RType:</TableCell>
-                                      <TableCell>{task.rtype}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Priority:</TableCell>
-                                      <TableCell>
-                                        {isEditingPriority ? (
-                                          <div className="flex items-center">
-                                            <Select
-                                              value={editedPriority}
-                                              onValueChange={setEditedPriority}
-                                            >
-                                              <SelectTrigger className="flex-grow mr-2">
-                                                <SelectValue placeholder="Select priority" />
-                                              </SelectTrigger>
-                                              <SelectContent>
-                                                <SelectItem value="NONE">
-                                                  None
-                                                </SelectItem>
-                                                <SelectItem value="H">
-                                                  High (H)
-                                                </SelectItem>
-                                                <SelectItem value="M">
-                                                  Medium (M)
-                                                </SelectItem>
-                                                <SelectItem value="L">
-                                                  Low (L)
-                                                </SelectItem>
-                                              </SelectContent>
-                                            </Select>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={() =>
-                                                handleSavePriority(task)
-                                              }
-                                            >
-                                              <CheckIcon className="h-4 w-4 text-green-500" />
-                                            </Button>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={handleCancelPriority}
-                                            >
-                                              <XIcon className="h-4 w-4 text-red-500" />
-                                            </Button>
-                                          </div>
-                                        ) : (
-                                          <div className="flex items-center">
-                                            <span>
-                                              {task.priority
-                                                ? task.priority === 'H'
-                                                  ? 'High (H)'
-                                                  : task.priority === 'M'
-                                                    ? 'Medium (M)'
-                                                    : task.priority === 'L'
-                                                      ? 'Low (L)'
-                                                      : task.priority
-                                                : 'None'}
-                                            </span>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={() =>
-                                                handleEditPriorityClick(task)
-                                              }
-                                            >
-                                              <PencilIcon className="h-4 w-4 text-gray-500" />
-                                            </Button>
-                                          </div>
-                                        )}
-                                      </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Project:</TableCell>
-                                      <TableCell>
-                                        {isEditingProject ? (
-                                          <>
-                                            <div className="flex items-center">
-                                              <Input
-                                                id={`project-${task.id}`}
-                                                name={`project-${task.id}`}
-                                                type="text"
-                                                value={editedProject}
-                                                onChange={(e) =>
-                                                  setEditedProject(
-                                                    e.target.value
-                                                  )
-                                                }
-                                                className="flex-grow mr-2"
-                                              />
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleProjectSaveClick(task)
-                                                }
-                                              >
-                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  setIsEditingProject(false)
-                                                }
-                                              >
-                                                <XIcon className="h-4 w-4 text-red-500" />
-                                              </Button>
-                                            </div>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <span>{task.project}</span>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={() => {
-                                                setIsEditingProject(true);
-                                                setEditedProject(task.project);
-                                              }}
-                                            >
-                                              <PencilIcon className="h-4 w-4 text-gray-500" />
-                                            </Button>
-                                          </>
-                                        )}
-                                      </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Status:</TableCell>
-                                      <TableCell>{task.status}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Tags:</TableCell>
-                                      <TableCell>
-                                        {isEditingTags ? (
-                                          <div className="flex items-center">
-                                            <Input
-                                              type="text"
-                                              value={editedTags.join(', ')}
-                                              onChange={(e) =>
-                                                setEditedTags(
-                                                  e.target.value
-                                                    .split(',')
-                                                    .map((tag) => tag.trim())
-                                                )
-                                              }
-                                              className="flex-grow mr-2"
-                                            />
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={() =>
-                                                handleSaveTags(task)
-                                              }
-                                            >
-                                              <CheckIcon className="h-4 w-4 text-green-500" />
-                                            </Button>
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={handleCancelTags}
-                                            >
-                                              <XIcon className="h-4 w-4 text-red-500" />
-                                            </Button>
-                                          </div>
-                                        ) : (
-                                          <div className="flex items-center">
-                                            {task.tags !== null &&
-                                            task.tags.length >= 1 ? (
-                                              task.tags.map((tag, index) => (
-                                                <Badge
-                                                  key={index}
-                                                  variant="secondary"
-                                                  className="mr-2"
+                              {/* Scrollable content */}
+                              <div className="overflow-y-auto flex-1">
+                                <DialogDescription asChild>
+                                  <Table>
+                                    <TableBody>
+                                      <TableRow>
+                                        <TableCell>ID:</TableCell>
+                                        <TableCell>{task.id}</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Description:</TableCell>
+                                        <TableCell>
+                                          {isEditing ? (
+                                            <>
+                                              <div className="flex items-center">
+                                                <Input
+                                                  id={`description-${task.id}`}
+                                                  name={`description-${task.id}`}
+                                                  type="text"
+                                                  value={editedDescription}
+                                                  onChange={(e) =>
+                                                    setEditedDescription(
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  className="flex-grow mr-2"
+                                                />
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={() =>
+                                                    handleSaveClick(task)
+                                                  }
                                                 >
-                                                  <Tag className="pr-3" />
-                                                  {tag}
-                                                </Badge>
-                                              ))
-                                            ) : (
-                                              <span>No Tags</span>
-                                            )}
-                                            <Button
-                                              variant="ghost"
-                                              size="icon"
-                                              onClick={() =>
-                                                handleEditTagsClick(task)
-                                              }
-                                            >
-                                              <PencilIcon className="h-4 w-4 text-gray-500" />
-                                            </Button>
-                                          </div>
-                                        )}
-                                      </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>Urgency:</TableCell>
-                                      <TableCell>{task.urgency}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                      <TableCell>UUID:</TableCell>
-                                      <TableCell className="flex items-center">
-                                        <span>{task.uuid}</span>
-                                        <CopyToClipboard
-                                          text={task.uuid}
-                                          onCopy={() => handleCopy('Task UUID')}
-                                        >
-                                          <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-2 px-2 rounded ml-2">
-                                            <CopyIcon />
-                                          </button>
-                                        </CopyToClipboard>
-                                      </TableCell>
-                                    </TableRow>
-                                  </TableBody>
-                                </Table>
-                              </DialogDescription>
-                            </div>
+                                                  <CheckIcon className="h-4 w-4 text-green-500" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={handleCancelClick}
+                                                >
+                                                  <XIcon className="h-4 w-4 text-red-500" />
+                                                </Button>
+                                              </div>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <span>{task.description}</span>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleEditClick(
+                                                    task.description
+                                                  )
+                                                }
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </>
+                                          )}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Due:</TableCell>
+                                        <TableCell>
+                                          {formattedDate(task.due)}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Start:</TableCell>
+                                        <TableCell>
+                                          {formattedDate(task.start)}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>End:</TableCell>
+                                        <TableCell>
+                                          {formattedDate(task.end)}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Wait:</TableCell>
+                                        <TableCell>
+                                          {formattedDate(task.wait)}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Depends:</TableCell>
+                                        <TableCell>{task.depends}</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Recur:</TableCell>
+                                        <TableCell>{task.recur}</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>RType:</TableCell>
+                                        <TableCell>{task.rtype}</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Priority:</TableCell>
+                                        <TableCell>
+                                          {isEditingPriority ? (
+                                            <div className="flex items-center">
+                                              <Select
+                                                value={editedPriority}
+                                                onValueChange={
+                                                  setEditedPriority
+                                                }
+                                              >
+                                                <SelectTrigger className="flex-grow mr-2">
+                                                  <SelectValue placeholder="Select priority" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem value="NONE">
+                                                    None
+                                                  </SelectItem>
+                                                  <SelectItem value="H">
+                                                    High (H)
+                                                  </SelectItem>
+                                                  <SelectItem value="M">
+                                                    Medium (M)
+                                                  </SelectItem>
+                                                  <SelectItem value="L">
+                                                    Low (L)
+                                                  </SelectItem>
+                                                </SelectContent>
+                                              </Select>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleSavePriority(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={handleCancelPriority}
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <div className="flex items-center">
+                                              <span>
+                                                {task.priority
+                                                  ? task.priority === 'H'
+                                                    ? 'High (H)'
+                                                    : task.priority === 'M'
+                                                      ? 'Medium (M)'
+                                                      : task.priority === 'L'
+                                                        ? 'Low (L)'
+                                                        : task.priority
+                                                  : 'None'}
+                                              </span>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleEditPriorityClick(task)
+                                                }
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </div>
+                                          )}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Project:</TableCell>
+                                        <TableCell>
+                                          {isEditingProject ? (
+                                            <>
+                                              <div className="flex items-center">
+                                                <Input
+                                                  id={`project-${task.id}`}
+                                                  name={`project-${task.id}`}
+                                                  type="text"
+                                                  value={editedProject}
+                                                  onChange={(e) =>
+                                                    setEditedProject(
+                                                      e.target.value
+                                                    )
+                                                  }
+                                                  className="flex-grow mr-2"
+                                                />
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={() =>
+                                                    handleProjectSaveClick(task)
+                                                  }
+                                                >
+                                                  <CheckIcon className="h-4 w-4 text-green-500" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={() =>
+                                                    setIsEditingProject(false)
+                                                  }
+                                                >
+                                                  <XIcon className="h-4 w-4 text-red-500" />
+                                                </Button>
+                                              </div>
+                                            </>
+                                          ) : (
+                                            <>
+                                              <span>{task.project}</span>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                  setIsEditingProject(true);
+                                                  setEditedProject(
+                                                    task.project
+                                                  );
+                                                }}
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </>
+                                          )}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Status:</TableCell>
+                                        <TableCell>{task.status}</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Tags:</TableCell>
+                                        <TableCell>
+                                          {isEditingTags ? (
+                                            <div className="flex items-center">
+                                              <Input
+                                                type="text"
+                                                value={editedTags.join(', ')}
+                                                onChange={(e) =>
+                                                  setEditedTags(
+                                                    e.target.value
+                                                      .split(',')
+                                                      .map((tag) => tag.trim())
+                                                  )
+                                                }
+                                                className="flex-grow mr-2"
+                                              />
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleSaveTags(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={handleCancelTags}
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <div className="flex items-center">
+                                              {task.tags !== null &&
+                                              task.tags.length >= 1 ? (
+                                                task.tags.map((tag, index) => (
+                                                  <Badge
+                                                    key={index}
+                                                    variant="secondary"
+                                                    className="mr-2"
+                                                  >
+                                                    <Tag className="pr-3" />
+                                                    {tag}
+                                                  </Badge>
+                                                ))
+                                              ) : (
+                                                <span>No Tags</span>
+                                              )}
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleEditTagsClick(task)
+                                                }
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </div>
+                                          )}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Urgency:</TableCell>
+                                        <TableCell>{task.urgency}</TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>UUID:</TableCell>
+                                        <TableCell className="flex items-center">
+                                          <span>{task.uuid}</span>
+                                          <CopyToClipboard
+                                            text={task.uuid}
+                                            onCopy={() =>
+                                              handleCopy('Task UUID')
+                                            }
+                                          >
+                                            <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-2 px-2 rounded ml-2">
+                                              <CopyIcon />
+                                            </button>
+                                          </CopyToClipboard>
+                                        </TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </DialogDescription>
+                              </div>
 
-                            {/* Non-scrollable footer */}
-                            <DialogFooter className="flex flex-row justify-end pt-4">
-                              {task.status == 'pending' ? (
-                                <Dialog>
-                                  <DialogTrigger asChild className="mr-5">
-                                    <Button>Mark As Completed</Button>
-                                  </DialogTrigger>
-                                  <DialogContent>
-                                    <DialogTitle>
-                                      <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-                                        <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                          Are you{' '}
+                              {/* Non-scrollable footer */}
+                              <DialogFooter className="flex flex-row justify-end pt-4">
+                                {task.status == 'pending' ? (
+                                  <Dialog>
+                                    <DialogTrigger asChild className="mr-5">
+                                      <Button>Mark As Completed</Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                      <DialogTitle>
+                                        <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                          <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                            Are you{' '}
+                                          </span>
+                                          sure?
                                         </span>
-                                        sure?
-                                      </span>
-                                    </DialogTitle>
-                                    <DialogFooter className="flex flex-row justify-center">
-                                      <DialogClose asChild>
-                                        <Button
-                                          className="mr-5"
-                                          onClick={() =>
-                                            markTaskAsCompleted(
-                                              props.email,
-                                              props.encryptionSecret,
-                                              props.UUID,
-                                              task.uuid
-                                            )
-                                          }
-                                        >
-                                          Yes
-                                        </Button>
-                                      </DialogClose>
-                                      <DialogClose asChild>
-                                        <Button variant={'destructive'}>
-                                          No
-                                        </Button>
-                                      </DialogClose>
-                                    </DialogFooter>
-                                  </DialogContent>
-                                </Dialog>
-                              ) : null}
+                                      </DialogTitle>
+                                      <DialogFooter className="flex flex-row justify-center">
+                                        <DialogClose asChild>
+                                          <Button
+                                            className="mr-5"
+                                            onClick={() =>
+                                              markTaskAsCompleted(
+                                                props.email,
+                                                props.encryptionSecret,
+                                                props.UUID,
+                                                task.uuid
+                                              )
+                                            }
+                                          >
+                                            Yes
+                                          </Button>
+                                        </DialogClose>
+                                        <DialogClose asChild>
+                                          <Button variant={'destructive'}>
+                                            No
+                                          </Button>
+                                        </DialogClose>
+                                      </DialogFooter>
+                                    </DialogContent>
+                                  </Dialog>
+                                ) : null}
 
-                              {task.status != 'deleted' ? (
-                                <Dialog>
-                                  <DialogTrigger asChild>
-                                    <Button
-                                      className="mr-4"
-                                      variant={'destructive'}
-                                    >
-                                      <Trash2Icon />
-                                    </Button>
-                                  </DialogTrigger>
-                                  <DialogContent>
-                                    <DialogTitle>
-                                      <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-                                        <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                          Are you{' '}
+                                {task.status != 'deleted' ? (
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button
+                                        className="mr-4"
+                                        variant={'destructive'}
+                                      >
+                                        <Trash2Icon />
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                      <DialogTitle>
+                                        <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+                                          <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                                            Are you{' '}
+                                          </span>
+                                          sure?
                                         </span>
-                                        sure?
-                                      </span>
-                                    </DialogTitle>
-                                    <DialogFooter className="flex flex-row justify-center">
-                                      <DialogClose asChild>
-                                        <Button
-                                          className="mr-5"
-                                          onClick={() =>
-                                            markTaskAsDeleted(
-                                              props.email,
-                                              props.encryptionSecret,
-                                              props.UUID,
-                                              task.uuid
-                                            )
-                                          }
-                                        >
-                                          Yes
-                                        </Button>
-                                      </DialogClose>
-                                      <DialogClose asChild>
-                                        <Button variant={'destructive'}>
-                                          No
-                                        </Button>
-                                      </DialogClose>
-                                    </DialogFooter>
-                                  </DialogContent>
-                                </Dialog>
-                              ) : null}
-                              <DialogClose asChild>
-                                <Button className="bg-white">Close</Button>
-                              </DialogClose>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-                      ))}
+                                      </DialogTitle>
+                                      <DialogFooter className="flex flex-row justify-center">
+                                        <DialogClose asChild>
+                                          <Button
+                                            className="mr-5"
+                                            onClick={() =>
+                                              markTaskAsDeleted(
+                                                props.email,
+                                                props.encryptionSecret,
+                                                props.UUID,
+                                                task.uuid
+                                              )
+                                            }
+                                          >
+                                            Yes
+                                          </Button>
+                                        </DialogClose>
+                                        <DialogClose asChild>
+                                          <Button variant={'destructive'}>
+                                            No
+                                          </Button>
+                                        </DialogClose>
+                                      </DialogFooter>
+                                    </DialogContent>
+                                  </Dialog>
+                                ) : null}
+                                <DialogClose asChild>
+                                  <Button className="bg-white">Close</Button>
+                                </DialogClose>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        ))
+                      )}
 
                       {/* Display empty rows */}
-                      {emptyRows > 0 && (
+                      {!props.isLoading && emptyRows > 0 && (
                         <TableRow style={{ height: 52 * emptyRows }}>
                           <TableCell colSpan={6} />
                         </TableRow>
