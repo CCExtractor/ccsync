@@ -100,6 +100,7 @@ export const Tasks = (
     project: '',
     due: '',
     start: '',
+    end: '',
     tags: [] as string[],
   });
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
@@ -282,6 +283,7 @@ export const Tasks = (
     priority: string,
     due: string,
     start: string,
+    end: string,
     tags: string[]
   ) {
     if (handleDate(newTask.due)) {
@@ -295,6 +297,7 @@ export const Tasks = (
           priority,
           due,
           start,
+          end,
           tags,
           backendURL: url.backendURL,
         });
@@ -306,6 +309,7 @@ export const Tasks = (
           project: '',
           due: '',
           start: '',
+          end: '',
           tags: [],
         });
         setIsAddTaskOpen(false);
@@ -766,6 +770,29 @@ export const Tasks = (
                               </div>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="end" className="text-right">
+                                End
+                              </Label>
+                              <div className="col-span-3">
+                                <DatePicker
+                                  date={
+                                    newTask.end
+                                      ? new Date(newTask.end)
+                                      : undefined
+                                  }
+                                  onDateChange={(date) => {
+                                    setNewTask({
+                                      ...newTask,
+                                      end: date
+                                        ? format(date, 'yyyy-MM-dd')
+                                        : '',
+                                    });
+                                  }}
+                                  placeholder="Select an end date"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
                               <Label
                                 htmlFor="description"
                                 className="text-right"
@@ -825,6 +852,7 @@ export const Tasks = (
                                   newTask.priority,
                                   newTask.due,
                                   newTask.start,
+                                  newTask.end,
                                   newTask.tags
                                 )
                               }
@@ -1575,6 +1603,67 @@ export const Tasks = (
                                 />
                               </div>
                             </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="end" className="text-right">
+                                End
+                              </Label>
+                              <div className="col-span-3">
+                                <DatePicker
+                                  date={
+                                    newTask.end
+                                      ? new Date(newTask.end)
+                                      : undefined
+                                  }
+                                  onDateChange={(date) => {
+                                    setNewTask({
+                                      ...newTask,
+                                      end: date
+                                        ? format(date, 'yyyy-MM-dd')
+                                        : '',
+                                    });
+                                  }}
+                                  placeholder="Select an end date"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label
+                                htmlFor="description"
+                                className="text-right"
+                              >
+                                Tags
+                              </Label>
+                              <Input
+                                id="tags"
+                                name="tags"
+                                placeholder="Add a tag"
+                                value={tagInput}
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyDown={(e) =>
+                                  e.key === 'Enter' && handleAddTag()
+                                } // Allow adding tag on pressing Enter
+                                className="col-span-3"
+                              />
+                            </div>
+
+                            <div className="mt-2">
+                              {newTask.tags.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                  {newTask.tags.map((tag, index) => (
+                                    <Badge key={index}>
+                                      <span>{tag}</span>
+                                      <button
+                                        type="button"
+                                        className="ml-2 text-red-500"
+                                        onClick={() => handleRemoveTag(tag)}
+                                      >
+                                        ✖
+                                      </button>
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           </div>
                           <DialogFooter>
                             <Button
@@ -1596,6 +1685,7 @@ export const Tasks = (
                                   newTask.priority,
                                   newTask.due,
                                   newTask.start,
+                                  newTask.end,
                                   newTask.tags
                                 )
                               }
