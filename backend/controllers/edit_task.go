@@ -46,9 +46,9 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		description := requestBody.Description
 		tags := requestBody.Tags
 		project := requestBody.Project
-		wait := requestBody.Wait
 		start := requestBody.Start
 		entry := requestBody.Entry
+		wait := requestBody.Wait
 
 		if taskID == "" {
 			http.Error(w, "taskID is required", http.StatusBadRequest)

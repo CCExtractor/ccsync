@@ -23,7 +23,7 @@ func TestSyncTaskwarrior(t *testing.T) {
 }
 
 func TestEditTaskInATaskwarrior(t *testing.T) {
-	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", nil, "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", , "2025-11-29T18:30:00.000Z")
+	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", nil, "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z")
 	if err != nil {
 		t.Errorf("EditTaskInTaskwarrior() failed: %v", err)
 	} else {

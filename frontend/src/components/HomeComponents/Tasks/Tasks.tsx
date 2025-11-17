@@ -341,7 +341,7 @@ export const Tasks = (
         project,
         start,
         entry,
-        wait
+        wait,
       });
 
       console.log('Task edited successfully!');
@@ -387,7 +387,6 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry || '',
-      task.end,
       task.wait
     );
     setIsEditing(false);
@@ -412,7 +411,7 @@ export const Tasks = (
 
   const handleWaitDateSaveClick = (task: Task) => {
     task.wait = editedWaitDate;
-    
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -425,11 +424,10 @@ export const Tasks = (
       task.entry || '',
       task.wait
     );
-    
+
     setIsEditingWaitDate(false);
-    
-  }
-    
+  };
+
   const handleStartDateSaveClick = (task: Task) => {
     task.start = editedStartDate;
 
@@ -446,13 +444,8 @@ export const Tasks = (
       task.wait
     );
 
-    
     setIsEditingStartDate(false);
-      
-    );
-
-    
- 
+  };
 
   const handleEntryDateSaveClick = (task: Task) => {
     task.entry = editedEntryDate;
