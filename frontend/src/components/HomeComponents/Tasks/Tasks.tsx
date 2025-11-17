@@ -89,7 +89,7 @@ export const Tasks = (
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [tempTasks, setTempTasks] = useState<Task[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const status = ['pending', 'completed', 'deleted'];
+  const status = ['pending', 'completed', 'deleted', 'overdue'];
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -559,7 +559,7 @@ export const Tasks = (
         projects={uniqueProjects}
         selectedProjects={selectedProjects}
         setSelectedProject={setSelectedProjects}
-        status={['pending', 'completed', 'deleted']}
+        status={['pending', 'completed', 'deleted', 'overdue']}
         selectedStatuses={selectedStatuses}
         setSelectedStatus={setSelectedStatuses}
         selectedTags={selectedTags}
@@ -931,12 +931,19 @@ export const Tasks = (
                                           ? 'destructive'
                                           : 'default'
                                     }
+                                    className={
+                                      task.status === 'overdue'
+                                        ? 'bg-orange-500 border-transparent'
+                                        : undefined
+                                    }
                                   >
-                                    {task.status === 'completed'
-                                      ? 'C'
-                                      : task.status === 'deleted'
-                                        ? 'D'
-                                        : 'P'}
+                                    {task.status === 'overdue'
+                                      ? 'O'
+                                      : task.status === 'completed'
+                                        ? 'C'
+                                        : task.status === 'deleted'
+                                          ? 'D'
+                                          : 'P'}
                                   </Badge>
                                 </TableCell>
                               </TableRow>
