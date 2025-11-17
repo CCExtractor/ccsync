@@ -33,6 +33,7 @@ type EditTaskRequestBody struct {
 	Project          string   `json:"project"`
 	Start            string   `json:"start"`
 	Entry            string   `json:"entry"`
+	End              string   `json:"end"`
 }
 type CompleteTaskRequestBody struct {
 	Email            string `json:"email"`
