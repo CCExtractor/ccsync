@@ -475,7 +475,7 @@ export const Tasks = (
     }
 
     // Sort + set
-    setTempTasks(sortTasksById(filteredTasks, 'desc'));
+    setTempTasks(filteredTasks);
   }, [selectedProjects, selectedTags, selectedStatuses, tasks]);
 
   const handleEditTagsClick = (task: Task) => {
