@@ -120,6 +120,8 @@ export const Tasks = (
   );
   const [isEditingStartDate, setIsEditingStartDate] = useState(false);
   const [editedStartDate, setEditedStartDate] = useState('');
+  const [isEditingEntryDate, setIsEditingEntryDate] = useState(false);
+  const [editedEntryDate, setEditedEntryDate] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
@@ -321,7 +323,8 @@ export const Tasks = (
     tags: string[],
     taskID: string,
     project: string,
-    start: string
+    start: string,
+    entry: string
   ) {
     try {
       await editTaskOnBackend({
@@ -334,6 +337,7 @@ export const Tasks = (
         backendURL: url.backendURL,
         project,
         start,
+        entry,
       });
 
       console.log('Task edited successfully!');
@@ -377,7 +381,8 @@ export const Tasks = (
       task.tags,
       task.id.toString(),
       task.project,
-      task.start
+      task.start,
+      task.entry || ''
     );
     setIsEditing(false);
   };
@@ -392,7 +397,8 @@ export const Tasks = (
       task.tags,
       task.id.toString(),
       task.project,
-      task.start
+      task.start,
+      task.entry || ''
     );
     setIsEditingProject(false);
   };
@@ -408,10 +414,29 @@ export const Tasks = (
       task.tags,
       task.id.toString(),
       task.project,
-      task.start
+      task.start,
+      task.entry || ''
     );
 
     setIsEditingStartDate(false);
+  };
+
+  const handleEntryDateSaveClick = (task: Task) => {
+    task.entry = editedEntryDate;
+
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start,
+      task.entry
+    );
+
+    setIsEditingEntryDate(false);
   };
 
   const handleCancelClick = () => {
@@ -427,6 +452,10 @@ export const Tasks = (
       setEditedTags([]);
       setIsEditingPriority(false);
       setEditedPriority('NONE');
+      setIsEditingStartDate(false);
+      setEditedStartDate('');
+      setIsEditingEntryDate(false);
+      setEditedEntryDate('');
     } else {
       setSelectedTask(task);
       setEditedDescription(task?.description || '');
@@ -499,7 +528,8 @@ export const Tasks = (
       finalTags,
       task.id.toString(),
       task.project,
-      task.start
+      task.start,
+      task.entry || ''
     );
 
     setIsEditingTags(false); // Exit editing mode
@@ -1333,6 +1363,98 @@ export const Tasks = (
                                                 <PencilIcon className="h-4 w-4 text-gray-500" />
                                               </Button>
                                             </div>
+                                          )}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Entry:</TableCell>
+                                        <TableCell>
+                                          {isEditingEntryDate ? (
+                                            <div className="flex items-center gap-2">
+                                              <DatePicker
+                                                date={
+                                                  editedEntryDate &&
+                                                  editedEntryDate !== ''
+                                                    ? (() => {
+                                                        try {
+                                                          // Handle YYYY-MM-DD format
+                                                          const dateStr =
+                                                            editedEntryDate.includes(
+                                                              'T'
+                                                            )
+                                                              ? editedEntryDate.split(
+                                                                  'T'
+                                                                )[0]
+                                                              : editedEntryDate;
+                                                          const parsed =
+                                                            new Date(
+                                                              dateStr +
+                                                                'T00:00:00'
+                                                            );
+                                                          return isNaN(
+                                                            parsed.getTime()
+                                                          )
+                                                            ? undefined
+                                                            : parsed;
+                                                        } catch {
+                                                          return undefined;
+                                                        }
+                                                      })()
+                                                    : undefined
+                                                }
+                                                onDateChange={(date) =>
+                                                  setEditedEntryDate(
+                                                    date
+                                                      ? format(
+                                                          date,
+                                                          'yyyy-MM-dd'
+                                                        )
+                                                      : ''
+                                                  )
+                                                }
+                                              />
+
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleEntryDateSaveClick(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  setIsEditingEntryDate(false)
+                                                }
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <>
+                                              <span>
+                                                {formattedDate(task.entry)}
+                                              </span>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                  setIsEditingEntryDate(true);
+                                                  const entryDate = task.entry
+                                                    ? task.entry.includes('T')
+                                                      ? task.entry.split('T')[0]
+                                                      : task.entry
+                                                    : '';
+                                                  setEditedEntryDate(entryDate);
+                                                }}
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </>
                                           )}
                                         </TableCell>
                                       </TableRow>
