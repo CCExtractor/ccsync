@@ -55,6 +55,7 @@ import {
   sortTasksById,
   getTimeSinceLastSync,
   hashKey,
+  isTaskOverdue,
 } from './tasks-utils';
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
@@ -461,9 +462,16 @@ export const Tasks = (
 
     //Status filter
     if (selectedStatuses.length > 0) {
-      filteredTasks = filteredTasks.filter((task) =>
-        selectedStatuses.includes(task.status)
-      );
+      const wantsOverdue = selectedStatuses.includes('overdue');
+      const realStatuses = selectedStatuses.filter((s) => s !== 'overdue');
+
+      filteredTasks = filteredTasks.filter((task) => {
+        const isRealStatusMatch = realStatuses.includes(task.status);
+        const isOverdueMatch =
+          wantsOverdue && task.status === 'pending' && isTaskOverdue(task);
+
+        return isRealStatusMatch || isOverdueMatch;
+      });
     }
 
     // Tag filter
@@ -923,28 +931,39 @@ export const Tasks = (
                                   )}
                                 </TableCell>
                                 <TableCell className="py-2">
-                                  <Badge
-                                    variant={
-                                      task.status === 'pending'
-                                        ? 'secondary'
-                                        : task.status === 'deleted'
-                                          ? 'destructive'
-                                          : 'default'
-                                    }
-                                    className={
-                                      task.status === 'overdue'
-                                        ? 'bg-orange-500 border-transparent'
-                                        : undefined
-                                    }
-                                  >
-                                    {task.status === 'overdue'
-                                      ? 'O'
-                                      : task.status === 'completed'
-                                        ? 'C'
-                                        : task.status === 'deleted'
-                                          ? 'D'
-                                          : 'P'}
-                                  </Badge>
+                                  {(() => {
+                                    const overdue = isTaskOverdue(task);
+                                    return (
+                                      <Badge
+                                        variant={
+                                          task.status === 'pending'
+                                            ? 'secondary'
+                                            : task.status === 'deleted'
+                                              ? 'destructive'
+                                              : 'default'
+                                        }
+                                        className={
+                                          overdue
+                                            ? 'bg-orange-500 text-white border-transparent'
+                                            : task.status === 'pending'
+                                              ? 'bg-gray-500 text-white'
+                                              : task.status === 'completed'
+                                                ? 'bg-green-600 text-white'
+                                                : task.status === 'deleted'
+                                                  ? 'bg-red-600 text-white'
+                                                  : ''
+                                        }
+                                      >
+                                        {overdue
+                                          ? 'O'
+                                          : task.status === 'completed'
+                                            ? 'C'
+                                            : task.status === 'deleted'
+                                              ? 'D'
+                                              : 'P'}
+                                      </Badge>
+                                    );
+                                  })()}
                                 </TableCell>
                               </TableRow>
                             </DialogTrigger>

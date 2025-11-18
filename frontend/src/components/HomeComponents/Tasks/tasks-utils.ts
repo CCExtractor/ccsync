@@ -1,7 +1,7 @@
 import { Task } from '@/components/utils/types';
 import { url } from '@/components/utils/URLs';
-import { format, parseISO } from 'date-fns';
 import { toast } from 'react-toastify';
+import { format, parseISO, isBefore } from 'date-fns';
 
 export type Props = {
   email: string;
@@ -182,4 +182,14 @@ export const hashKey = (key: string, email: string): string => {
     hash = hash & hash; // Convert to 32-bit integer
   }
   return Math.abs(hash).toString(36);
+};
+
+export const isTaskOverdue = (task: Task) => {
+  if (task.status !== 'pending' || !task.due) return false;
+
+  try {
+    return isBefore(parseISO(task.due), new Date());
+  } catch {
+    return false; // ignore malformed due dates
+  }
 };
