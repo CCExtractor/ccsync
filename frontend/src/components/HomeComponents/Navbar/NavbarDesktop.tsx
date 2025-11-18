@@ -38,7 +38,7 @@ import { url } from '@/components/utils/URLs';
 import { exportTasksAsJSON, exportTasksAsTXT } from '@/exports-tasks';
 import { useState } from 'react';
 import { DevLogs } from '../DevLogs/DevLogs';
-import { useTaskAutoSync } from '@/Task-AutoSync';
+import { useTaskAutoSync } from '@/components/utils/Task-AutoSync';
 import { Label } from '@/components/ui/label';
 
 export const NavbarDesktop = (
