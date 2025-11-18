@@ -137,6 +137,7 @@ export const Tasks = (
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
+  const [unsyncedTaskUuids, setUnsyncedTaskUuids] = useState<string[]>([]);
   const tableRef = useRef<HTMLDivElement>(null);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -316,6 +317,8 @@ export const Tasks = (
       localStorage.setItem(hashedKey, currentTime.toString());
       setLastSyncTime(currentTime);
 
+      setUnsyncedTaskUuids([]);
+
       toast.success(`Tasks synced successfully!`);
     } catch (error) {
       console.error('Error syncing tasks:', error);
@@ -337,6 +340,39 @@ export const Tasks = (
   ) {
     if (handleDate(newTask.due)) {
       try {
+        const tempTask: Task = {
+          ...newTask,
+          id: Math.floor(Math.random() * -1000000),
+          uuid: `temp-${Date.now()}`,
+          status: 'pending',
+          email: props.email,
+          entry: new Date().toISOString(),
+          modified: new Date().toISOString(),
+          urgency: 0,
+          start: '',
+          end: '',
+          wait: '',
+          depends: [],
+          recur: '',
+          rtype: '',
+        };
+
+        setTasks((prevTasks) => [tempTask, ...prevTasks]);
+        setUnsyncedTaskUuids((prevTasks) => {
+          if (!prevTasks.includes(tempTask.uuid))
+            return [...prevTasks, tempTask.uuid];
+          return prevTasks;
+        });
+
+        setNewTask({
+          description: '',
+          priority: '',
+          project: '',
+          due: '',
+          tags: [],
+        });
+        setIsAddTaskOpen(false);
+
         await addTaskToBackend({
           email,
           encryptionSecret,
@@ -348,16 +384,8 @@ export const Tasks = (
           tags,
           backendURL: url.backendURL,
         });
-
+        toast.success('Task added successfully!');
         console.log('Task added successfully!');
-        setNewTask({
-          description: '',
-          priority: '',
-          project: '',
-          due: '',
-          tags: [],
-        });
-        setIsAddTaskOpen(false);
       } catch (error) {
         console.error('Failed to add task:', error);
       }
@@ -420,33 +448,83 @@ export const Tasks = (
     setCurrentPage(1);
   };
 
+  const handleMarkTaskCompleted = async (task: Task) => {
+    try {
+      setTasks((prevTasks) =>
+        prevTasks.map((t) =>
+          t.uuid === task.uuid ? { ...t, status: 'completed' } : t
+        )
+      );
+      setUnsyncedTaskUuids((prevTasks) => {
+        if (!prevTasks.includes(task.uuid)) return [...prevTasks, task.uuid];
+        return prevTasks;
+      });
+
+      await markTaskAsCompleted(
+        props.email,
+        props.encryptionSecret,
+        props.UUID,
+        task.uuid
+      );
+      toast.success('Task completed successfully.');
+    } catch (error) {
+      console.error('Failed to complete task.');
+      toast.error('Failed to mark task as completed.');
+
+      setTasks((prevTasks) =>
+        prevTasks.map((t) =>
+          t.uuid === task.uuid ? { ...t, status: 'pending' } : t
+        )
+      );
+    }
+  };
+
+  const handleMarkTaskDeleted = async (task: Task) => {
+    try {
+      setTasks((prevTasks) =>
+        prevTasks.map((t) =>
+          t.uuid === task.uuid ? { ...t, status: 'deleted' } : t
+        )
+      );
+      setUnsyncedTaskUuids((prevTasks) => {
+        if (!prevTasks.includes(task.uuid)) return [...prevTasks, task.uuid];
+        return prevTasks;
+      });
+
+      await markTaskAsDeleted(
+        props.email,
+        props.encryptionSecret,
+        props.UUID,
+        task.uuid
+      );
+      toast.success('Task Deleted successfully.');
+    } catch (error) {
+      console.error('Failed to delete task.');
+      toast.error('Failed to delete task.');
+
+      setTasks((prevTasks) =>
+        prevTasks.map((t) =>
+          t.uuid === task.uuid ? { ...t, status: 'pending' } : t
+        )
+      );
+    }
+  };
+
   const handleEditClick = (description: string) => {
     setIsEditing(true);
     setEditedDescription(description);
   };
 
-  const handleSaveClick = (task: Task) => {
+  const handleSaveClick = async (task: Task) => {
     task.description = editedDescription;
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      task.tags,
-      task.id.toString(),
-      task.project,
-      task.start,
-      task.entry || '',
-      task.wait || '',
-      task.end || '',
-      task.depends || []
-    );
+
+    setUnsyncedTaskUuids((prev) => {
+      if (!prev.includes(task.uuid)) return [...prev, task.uuid];
+      return prev;
+    });
     setIsEditing(false);
-  };
 
-  const handleProjectSaveClick = (task: Task) => {
-    task.project = editedProject;
-    handleEditTaskOnBackend(
+    await handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
       props.UUID,
@@ -460,10 +538,41 @@ export const Tasks = (
       task.end || '',
       task.depends || []
     );
-    setIsEditingProject(false);
+    toast.success('Description updated successfully.');
   };
 
-  const handleWaitDateSaveClick = (task: Task) => {
+  const handleProjectSaveClick = async (task: Task) => {
+    task.project = editedProject;
+
+    setUnsyncedTaskUuids((prev) => {
+      if (!prev.includes(task.uuid)) return [...prev, task.uuid];
+      return prev;
+    });
+    setIsEditingProject(false);
+
+    try {
+      await handleEditTaskOnBackend(
+        props.email,
+        props.encryptionSecret,
+        props.UUID,
+        task.description,
+        task.tags,
+        task.id.toString(),
+        task.project,
+        task.start,
+        task.entry || '',
+        task.wait || '',
+        task.end || '',
+        task.depends || []
+      );
+      toast.success('Project updated successfully.');
+    } catch (error) {
+      console.error('Failed to save project');
+      toast.error('Failed to save project');
+    }
+  };
+
+  const handleWaitDateSaveClick = async (task: Task) => {
     task.wait = editedWaitDate;
 
     handleEditTaskOnBackend(
@@ -484,46 +593,66 @@ export const Tasks = (
     setIsEditingWaitDate(false);
   };
 
-  const handleStartDateSaveClick = (task: Task) => {
+  const handleStartDateSaveClick = async (task: Task) => {
     task.start = editedStartDate;
 
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      task.tags,
-      task.id.toString(),
-      task.project,
-      task.start,
-      task.entry || '',
-      task.wait || '',
-      task.end || '',
-      task.depends || []
-    );
-
+    setUnsyncedTaskUuids((prev) => {
+      if (!prev.includes(task.uuid)) return [...prev, task.uuid];
+      return prev;
+    });
     setIsEditingStartDate(false);
+
+    try {
+      await handleEditTaskOnBackend(
+        props.email,
+        props.encryptionSecret,
+        props.UUID,
+        task.description,
+        task.tags,
+        task.id.toString(),
+        task.project,
+        task.start,
+        task.entry || '',
+        task.wait || '',
+        task.end || '',
+        task.depends || []
+      );
+      toast.success('Start date updated successfully.');
+    } catch (error) {
+      console.error('Failed to update start date.');
+      toast.error('Failed to update start date.');
+    }
   };
 
-  const handleEntryDateSaveClick = (task: Task) => {
+  const handleEntryDateSaveClick = async (task: Task) => {
     task.entry = editedEntryDate;
 
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      task.tags,
-      task.id.toString(),
-      task.project,
-      task.start,
-      task.entry,
-      task.wait,
-      task.end,
-      task.depends || []
-    );
+    setUnsyncedTaskUuids((prev) => {
+      if (!prev.includes(task.uuid)) return [...prev, task.uuid];
+      return prev;
+    });
 
     setIsEditingEntryDate(false);
+    try {
+      await handleEditTaskOnBackend(
+        props.email,
+        props.encryptionSecret,
+        props.UUID,
+        task.description,
+        task.tags,
+        task.id.toString(),
+        task.project,
+        task.start,
+        task.entry || '',
+        task.wait,
+        task.end,
+        task.depends || []
+      );
+      toast.success('Entry date updated successfully.');
+    } catch (error) {
+      console.error('Failed to update entry date');
+      toast.error('Failed to update entry date.');
+    }
   };
 
   const handleEndDateSaveClick = (task: Task) => {
@@ -708,23 +837,33 @@ export const Tasks = (
     const tagsToRemove = removedTags.map((tag) => `-${tag}`);
     const finalTags = [...updatedTags, ...tagsToRemove];
     console.log(finalTags);
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      finalTags,
-      task.id.toString(),
-      task.project,
-      task.start,
-      task.entry || '',
-      task.wait || '',
-      task.end || '',
-      task.depends || []
-    );
 
+    setUnsyncedTaskUuids((prev) => {
+      if (!prev.includes(task.uuid)) return [...prev, task.uuid];
+      return prev;
+    });
     setIsEditingTags(false);
-    setEditTagInput('');
+    try {
+      // Call the backend function with updated tags
+      handleEditTaskOnBackend(
+        props.email,
+        props.encryptionSecret,
+        props.UUID,
+        task.description,
+        finalTags,
+        task.id.toString(),
+        task.project,
+        task.start,
+        task.entry || '',
+        task.wait || '',
+        task.end || '',
+        task.depends || []
+      );
+      toast.success('Tags updated successfully.');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to update tags');
+    }
   };
 
   const handleCancelTags = () => {
@@ -739,6 +878,11 @@ export const Tasks = (
   const handleSavePriority = async (task: Task) => {
     try {
       const priorityValue = editedPriority === 'NONE' ? '' : editedPriority;
+
+      setUnsyncedTaskUuids((prev) => {
+        if (!prev.includes(task.uuid)) return [...prev, task.uuid];
+        return prev;
+      });
 
       await modifyTaskOnBackend({
         email: props.email,
@@ -868,7 +1012,7 @@ export const Tasks = (
         </Button>
         {/* Mobile-only Sync button (desktop already shows a Sync button with filters) */}
         <Button
-          className="sm:hidden ml-2"
+          className="sm:hidden ml-2 relative"
           variant="outline"
           onClick={async () => {
             props.setIsLoading(true);
@@ -880,7 +1024,14 @@ export const Tasks = (
           {props.isLoading ? (
             <Loader2 className="mx-1 size-5 animate-spin" />
           ) : (
-            'Sync'
+            <div className="flex items-center">
+              Sync
+              {unsyncedTaskUuids.length > 0 && (
+                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
+                  {unsyncedTaskUuids.length}
+                </span>
+              )}
+            </div>
           )}
         </Button>
       </div>
@@ -1131,13 +1282,20 @@ export const Tasks = (
                       <Button
                         id="sync-task"
                         variant="outline"
-                        onClick={() => (
-                          props.setIsLoading(true),
-                          syncTasksWithTwAndDb()
-                        )}
+                        className="relative"
+                        onClick={async () => {
+                          props.setIsLoading(true);
+                          await syncTasksWithTwAndDb();
+                          props.setIsLoading(false);
+                        }}
                       >
                         Sync
                         <Key lable="r" />
+                        {unsyncedTaskUuids.length > 0 && (
+                          <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
+                            {unsyncedTaskUuids.length}
+                          </span>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -1212,7 +1370,7 @@ export const Tasks = (
                                         : ''
                                     }`}
                                   >
-                                    {task.id}
+                                    {task.id < 0 ? '-' : task.id}
                                   </span>
                                 </TableCell>
                                 <TableCell className="flex items-center space-x-2 py-2">
@@ -1233,6 +1391,14 @@ export const Tasks = (
                                     <Badge variant={'secondary'}>
                                       <Folder className="pr-2" />
                                       {task.project === '' ? '' : task.project}
+                                    </Badge>
+                                  )}
+                                  {unsyncedTaskUuids.includes(task.uuid) && (
+                                    <Badge
+                                      variant={'destructive'}
+                                      className="animate-pulse"
+                                    >
+                                      Unsynced
                                     </Badge>
                                   )}
                                 </TableCell>
@@ -2176,15 +2342,9 @@ export const Tasks = (
                                         <DialogClose asChild>
                                           <Button
                                             className="mr-5"
-                                            onClick={() => {
-                                              markTaskAsCompleted(
-                                                props.email,
-                                                props.encryptionSecret,
-                                                props.UUID,
-                                                task.uuid
-                                              );
-                                              setIsDialogOpen(false);
-                                            }}
+                                            onClick={() =>
+                                              handleMarkTaskCompleted(task)
+                                            }
                                           >
                                             Yes
                                           </Button>
@@ -2224,15 +2384,9 @@ export const Tasks = (
                                         <DialogClose asChild>
                                           <Button
                                             className="mr-5"
-                                            onClick={() => {
-                                              markTaskAsDeleted(
-                                                props.email,
-                                                props.encryptionSecret,
-                                                props.UUID,
-                                                task.uuid
-                                              );
-                                              setIsDialogOpen(false);
-                                            }}
+                                            onClick={() =>
+                                              handleMarkTaskDeleted(task)
+                                            }
                                           >
                                             Yes
                                           </Button>
