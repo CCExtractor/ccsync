@@ -111,6 +111,7 @@ export const Tasks = (
   const [editedTags, setEditedTags] = useState<string[]>(
     _selectedTask?.tags || []
   );
+  const [editTagInput, setEditTagInput] = useState<string>('');
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [isEditingPriority, setIsEditingPriority] = useState(false);
   const [editedPriority, setEditedPriority] = useState('NONE');
@@ -529,6 +530,14 @@ export const Tasks = (
     }
   };
 
+  // Handle adding a tag while editing
+  const handleAddEditTag = () => {
+    if (editTagInput && !editedTags.includes(editTagInput, 0)) {
+      setEditedTags([...editedTags, editTagInput]);
+      setEditTagInput('');
+    }
+  };
+
   // Handle removing a tag
   const handleRemoveTag = (tagToRemove: string) => {
     setNewTask({
@@ -536,6 +545,12 @@ export const Tasks = (
       tags: newTask.tags.filter((tag) => tag !== tagToRemove),
     });
   };
+
+  // Handle removing a tag while editing task
+  const handleRemoveEditTag = (tagToRemove: string) => {
+    setEditedTags(editedTags.filter((tag) => tag !== tagToRemove));
+  };
+
   useEffect(() => {
     let filteredTasks = tasks;
 
@@ -593,6 +608,7 @@ export const Tasks = (
     );
 
     setIsEditingTags(false); // Exit editing mode
+    setEditTagInput(''); // Reset edit tag input
   };
 
   const handleCancelTags = () => {
@@ -873,19 +889,22 @@ export const Tasks = (
 
                             <div className="mt-2">
                               {newTask.tags.length > 0 && (
-                                <div className="flex flex-wrap gap-2">
-                                  {newTask.tags.map((tag, index) => (
-                                    <Badge key={index}>
-                                      <span>{tag}</span>
-                                      <button
-                                        type="button"
-                                        className="ml-2 text-red-500"
-                                        onClick={() => handleRemoveTag(tag)}
-                                      >
-                                        ✖
-                                      </button>
-                                    </Badge>
-                                  ))}
+                                <div className="grid grid-cols-4 items-center">
+                                  <div> </div>
+                                  <div className="flex flex-wrap gap-2 col-span-3">
+                                    {newTask.tags.map((tag, index) => (
+                                      <Badge key={index}>
+                                        <span>{tag}</span>
+                                        <button
+                                          type="button"
+                                          className="ml-2 text-red-500"
+                                          onClick={() => handleRemoveTag(tag)}
+                                        >
+                                          ✖
+                                        </button>
+                                      </Badge>
+                                    ))}
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -1508,45 +1527,94 @@ export const Tasks = (
                                         <TableCell>Tags:</TableCell>
                                         <TableCell>
                                           {isEditingTags ? (
-                                            <div className="flex items-center">
-                                              <Input
-                                                type="text"
-                                                value={editedTags.join(', ')}
-                                                onChange={(e) =>
-                                                  setEditedTags(
-                                                    e.target.value
-                                                      .split(',')
-                                                      .map((tag) => tag.trim())
-                                                  )
-                                                }
-                                                className="flex-grow mr-2"
-                                              />
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleSaveTags(task)
-                                                }
-                                              >
-                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={handleCancelTags}
-                                              >
-                                                <XIcon className="h-4 w-4 text-red-500" />
-                                              </Button>
+                                            <div>
+                                              <div className="flex items-center w-full">
+                                                <Input
+                                                  type="text"
+                                                  value={editTagInput}
+                                                  onChange={(e) => {
+                                                    // For allowing only alphanumeric characters
+                                                    if (
+                                                      e.target.value.length > 1
+                                                    ) {
+                                                      /^[a-zA-Z0-9]*$/.test(
+                                                        e.target.value.trim()
+                                                      )
+                                                        ? setEditTagInput(
+                                                            e.target.value.trim()
+                                                          )
+                                                        : '';
+                                                    } else {
+                                                      /^[a-zA-Z]*$/.test(
+                                                        e.target.value.trim()
+                                                      )
+                                                        ? setEditTagInput(
+                                                            e.target.value.trim()
+                                                          )
+                                                        : '';
+                                                    }
+                                                  }}
+                                                  placeholder="Add a tag (press enter to add)"
+                                                  className="flex-grow mr-2"
+                                                  onKeyDown={(e) =>
+                                                    e.key === 'Enter' &&
+                                                    handleAddEditTag()
+                                                  }
+                                                />
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={() =>
+                                                    handleSaveTags(task)
+                                                  }
+                                                >
+                                                  <CheckIcon className="h-4 w-4 text-green-500" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={handleCancelTags}
+                                                >
+                                                  <XIcon className="h-4 w-4 text-red-500" />
+                                                </Button>
+                                              </div>
+                                              <div className="mt-2">
+                                                {editedTags != null &&
+                                                  editedTags.length > 0 && (
+                                                    <div>
+                                                      <div className="flex flex-wrap gap-2 col-span-3">
+                                                        {editedTags.map(
+                                                          (tag, index) => (
+                                                            <Badge key={index}>
+                                                              <span>{tag}</span>
+                                                              <button
+                                                                type="button"
+                                                                className="ml-2 text-red-500"
+                                                                onClick={() =>
+                                                                  handleRemoveEditTag(
+                                                                    tag
+                                                                  )
+                                                                }
+                                                              >
+                                                                ✖
+                                                              </button>
+                                                            </Badge>
+                                                          )
+                                                        )}
+                                                      </div>
+                                                    </div>
+                                                  )}
+                                              </div>
                                             </div>
                                           ) : (
-                                            <div className="flex items-center">
+                                            <div className="flex items-center flex-wrap">
                                               {task.tags !== null &&
                                               task.tags.length >= 1 ? (
                                                 task.tags.map((tag, index) => (
                                                   <Badge
                                                     key={index}
                                                     variant="secondary"
-                                                    className="mr-2"
+                                                    className="mr-2 mt-1"
                                                   >
                                                     <Tag className="pr-3" />
                                                     {tag}
