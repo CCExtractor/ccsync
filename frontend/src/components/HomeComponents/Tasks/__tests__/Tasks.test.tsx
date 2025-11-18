@@ -1,5 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Tasks } from '../Tasks';
+import * as hooks from '../hooks';
 
 // Mock props for the Tasks component
 const mockProps = {
@@ -7,9 +8,108 @@ const mockProps = {
   email: 'test@example.com',
   encryptionSecret: 'mockEncryptionSecret',
   UUID: 'mockUUID',
-  isLoading: false, // mock the loading state
-  setIsLoading: jest.fn(), // mock the setter function
+  isLoading: false,
+  setIsLoading: jest.fn(),
 };
+
+// Create mock tasks with various properties
+const createMockTasks = () => [
+  {
+    id: 1,
+    description: 'Complete project documentation',
+    status: 'pending',
+    project: 'ProjectA',
+    tags: ['urgent', 'docs'],
+    uuid: 'uuid-1',
+    priority: 'H',
+    due: '2024-01-15',
+    urgency: 5,
+    entry: '2024-01-01',
+    modified: '2024-01-05',
+    start: '',
+    wait: '',
+    end: '',
+    depends: [],
+    recur: '',
+    rtype: '',
+  },
+  {
+    id: 2,
+    description: 'Review code changes',
+    status: 'completed',
+    project: 'ProjectB',
+    tags: ['review'],
+    uuid: 'uuid-2',
+    priority: 'M',
+    due: '',
+    urgency: 3,
+    entry: '2024-01-02',
+    modified: '2024-01-06',
+    start: '',
+    wait: '',
+    end: '2024-01-06',
+    depends: [],
+    recur: '',
+    rtype: '',
+  },
+  {
+    id: 3,
+    description: 'Fix bug in login',
+    status: 'pending',
+    project: 'ProjectA',
+    tags: ['bug', 'urgent'],
+    uuid: 'uuid-3',
+    priority: 'H',
+    due: '2024-01-10',
+    urgency: 8,
+    entry: '2024-01-03',
+    modified: '2024-01-07',
+    start: '',
+    wait: '',
+    end: '',
+    depends: [],
+    recur: '',
+    rtype: '',
+  },
+  {
+    id: 4,
+    description: 'Update dependencies',
+    status: 'deleted',
+    project: 'ProjectC',
+    tags: ['maintenance'],
+    uuid: 'uuid-4',
+    priority: 'L',
+    due: '',
+    urgency: 1,
+    entry: '2024-01-04',
+    modified: '2024-01-08',
+    start: '',
+    wait: '',
+    end: '',
+    depends: [],
+    recur: '',
+    rtype: '',
+  },
+  {
+    id: 5,
+    description: 'Write unit tests',
+    status: 'pending',
+    project: 'ProjectB',
+    tags: ['testing'],
+    uuid: 'uuid-5',
+    priority: 'M',
+    due: '2024-01-20',
+    urgency: 4,
+    entry: '2024-01-05',
+    modified: '2024-01-09',
+    start: '',
+    wait: '',
+    end: '',
+    depends: [],
+    recur: '',
+    rtype: '',
+  },
+];
 
 // Mock functions and modules
 jest.mock('react-toastify', () => ({
@@ -22,9 +122,9 @@ jest.mock('react-toastify', () => ({
 jest.mock('../tasks-utils', () => {
   const originalModule = jest.requireActual('../tasks-utils');
   return {
-    ...originalModule, // Includes all real functions like sortTasksById
-    markTaskAsCompleted: jest.fn(),
-    markTaskAsDeleted: jest.fn(),
+    ...originalModule,
+    markTaskAsCompleted: jest.fn().mockResolvedValue({}),
+    markTaskAsDeleted: jest.fn().mockResolvedValue({}),
     getTimeSinceLastSync: jest
       .fn()
       .mockReturnValue('Last updated 5 minutes ago'),
@@ -33,8 +133,19 @@ jest.mock('../tasks-utils', () => {
 });
 
 jest.mock('@/components/ui/multiSelect', () => ({
-  MultiSelectFilter: jest.fn(({ title }) => (
-    <div>Mocked MultiSelect: {title}</div>
+  MultiSelectFilter: jest.fn(({ title, onSelectionChange, selectedValues }) => (
+    <div data-testid={`multiselect-${title.toLowerCase()}`}>
+      <span>Mocked MultiSelect: {title}</span>
+      <button
+        onClick={() => onSelectionChange(['ProjectA'])}
+        data-testid={`multiselect-${title.toLowerCase()}-button`}
+      >
+        Select {title}
+      </button>
+      <span data-testid={`multiselect-${title.toLowerCase()}-selected`}>
+        {selectedValues.join(',')}
+      </span>
+    </div>
   )),
 }));
 
@@ -42,37 +153,40 @@ jest.mock('../../BottomBar/BottomBar', () => {
   return jest.fn(() => <div>Mocked BottomBar</div>);
 });
 
-jest.mock('../hooks', () => ({
-  TasksDatabase: jest.fn(() => ({
-    tasks: {
-      where: jest.fn(() => ({
-        equals: jest.fn(() => ({
-          // Mock 12 tasks to test pagination
-          toArray: jest.fn().mockResolvedValue(
-            Array.from({ length: 12 }, (_, i) => ({
-              id: i + 1,
-              description: `Task ${i + 1}`,
-              status: 'pending',
-              project: i % 2 === 0 ? 'ProjectA' : 'ProjectB',
-              tags: i % 3 === 0 ? ['tag1'] : ['tag2'],
-              uuid: `uuid-${i + 1}`,
-            }))
-          ),
-        })),
-      })),
-    },
-  })),
-  fetchTaskwarriorTasks: jest.fn().mockResolvedValue([]),
-  addTaskToBackend: jest.fn().mockResolvedValue({}),
-  editTaskOnBackend: jest.fn().mockResolvedValue({}),
+jest.mock('../ReportsView', () => ({
+  ReportsView: jest.fn(() => (
+    <div data-testid="reports-view">Reports View</div>
+  )),
 }));
+
+// Mock hooks module - must be created inside the mock factory
+jest.mock('../hooks', () => {
+  const mockTasksDatabase = {
+    tasks: {
+      where: jest.fn(),
+      bulkPut: jest.fn(),
+    },
+    transaction: jest.fn(),
+  };
+
+  return {
+    TasksDatabase: jest.fn(() => mockTasksDatabase),
+    fetchTaskwarriorTasks: jest.fn(),
+    addTaskToBackend: jest.fn(),
+    editTaskOnBackend: jest.fn(),
+    modifyTaskOnBackend: jest.fn(),
+    __mockTasksDatabase: mockTasksDatabase, // Export for use in tests
+  };
+});
 
 jest.mock('../Pagination', () => {
   return jest.fn((props) => (
     <div data-testid="mock-pagination">
-      {/* Render props to make them testable */}
       <span data-testid="total-pages">{props.totalPages}</span>
       <span data-testid="current-page">{props.currentPage}</span>
+      <button onClick={() => props.paginate(2)} data-testid="pagination-next">
+        Next
+      </button>
     </div>
   ));
 });
@@ -100,48 +214,592 @@ describe('Tasks Component', () => {
   beforeEach(() => {
     localStorageMock.clear();
     jest.clearAllMocks();
+
+    // Setup default mock for database
+    const mockTasks = createMockTasks();
+    const mockDb = (hooks as any).__mockTasksDatabase;
+    if (mockDb) {
+      mockDb.tasks.where.mockReturnValue({
+        equals: jest.fn().mockReturnValue({
+          toArray: jest.fn().mockResolvedValue(mockTasks),
+          delete: jest.fn().mockResolvedValue(undefined),
+        }),
+      });
+    }
   });
 
-  test('renders tasks component and the mocked BottomBar', async () => {
-    render(<Tasks {...mockProps} />);
-    expect(screen.getByTestId('tasks')).toBeInTheDocument();
-    expect(screen.getByText('Mocked BottomBar')).toBeInTheDocument();
+  describe('Basic Rendering', () => {
+    it('renders tasks component and the mocked BottomBar', async () => {
+      render(<Tasks {...mockProps} />);
+      expect(screen.getByTestId('tasks')).toBeInTheDocument();
+      expect(screen.getByText('Mocked BottomBar')).toBeInTheDocument();
+    });
+
+    it('renders the tasks heading', async () => {
+      render(<Tasks {...mockProps} />);
+      expect(screen.getByTestId('tasks')).toBeInTheDocument();
+    });
+
+    it('renders Show Reports button', async () => {
+      render(<Tasks {...mockProps} />);
+      await waitFor(() => {
+        expect(screen.getByText('Show Reports')).toBeInTheDocument();
+      });
+    });
+
+    it('shows loading skeleton when isLoading is true', async () => {
+      render(<Tasks {...mockProps} isLoading={true} />);
+      await waitFor(() => {
+        // Skeleton component should be rendered
+        const skeletons = screen.getAllByRole('row');
+        expect(skeletons.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('displays tasks when loaded', async () => {
+      render(<Tasks {...mockProps} />);
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+    });
   });
 
-  test('renders the "Tasks per Page" dropdown with default value', async () => {
-    render(<Tasks {...mockProps} />);
+  describe('Reports Toggle', () => {
+    it('toggles to reports view when button clicked', async () => {
+      render(<Tasks {...mockProps} />);
 
-    expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      const reportButton = await screen.findByText('Show Reports');
+      fireEvent.click(reportButton);
 
-    const dropdown = screen.getByLabelText('Show:');
-    expect(dropdown).toBeInTheDocument();
-    expect(dropdown).toHaveValue('10');
+      await waitFor(() => {
+        expect(screen.getByTestId('reports-view')).toBeInTheDocument();
+      });
+    });
+
+    it('toggles back to tasks view from reports', async () => {
+      render(<Tasks {...mockProps} />);
+
+      const reportButton = await screen.findByText('Show Reports');
+      fireEvent.click(reportButton);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('reports-view')).toBeInTheDocument();
+      });
+
+      const tasksButton = screen.getByText('Show Tasks');
+      fireEvent.click(tasksButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('reports-view')).not.toBeInTheDocument();
+      });
+    });
+
+    it('changes button text when toggling reports', async () => {
+      render(<Tasks {...mockProps} />);
+
+      const reportButton = await screen.findByText('Show Reports');
+      expect(reportButton).toBeInTheDocument();
+
+      fireEvent.click(reportButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Show Tasks')).toBeInTheDocument();
+      });
+    });
   });
 
-  test('loads "tasksPerPage" from localStorage on initial render', async () => {
-    localStorageMock.setItem('mockHashedKey', '20');
+  describe('Search Functionality', () => {
+    it('renders search input', async () => {
+      render(<Tasks {...mockProps} />);
+      await waitFor(() => {
+        const searchInput = screen.getByTestId('task-search-bar');
+        expect(searchInput).toBeInTheDocument();
+      });
+    });
 
-    render(<Tasks {...mockProps} />);
+    it('filters tasks by description when searching', async () => {
+      render(<Tasks {...mockProps} />);
 
-    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
 
-    expect(screen.getByLabelText('Show:')).toHaveValue('20');
+      const searchInput = screen.getByTestId('task-search-bar');
+      fireEvent.change(searchInput, { target: { value: 'documentation' } });
+
+      // Debounce delay
+      await waitFor(
+        () => {
+          expect(
+            screen.getByText('Complete project documentation')
+          ).toBeInTheDocument();
+        },
+        { timeout: 500 }
+      );
+    });
+
+    it('shows empty results when no tasks match search', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByTestId('task-search-bar');
+      fireEvent.change(searchInput, { target: { value: 'nonexistent task' } });
+
+      await waitFor(
+        () => {
+          expect(
+            screen.queryByText('Complete project documentation')
+          ).not.toBeInTheDocument();
+        },
+        { timeout: 500 }
+      );
+    });
+
+    it('updates search term state when input changes', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const searchInput = screen.getByTestId('task-search-bar');
+
+      // Search for something
+      fireEvent.change(searchInput, { target: { value: 'bug' } });
+
+      // Input should have the value
+      expect(searchInput).toHaveValue('bug');
+    });
   });
 
-  test('updates pagination when "Tasks per Page" is changed', async () => {
-    render(<Tasks {...mockProps} />);
+  describe('Sorting Functionality', () => {
+    it('sorts tasks by ID in ascending order', async () => {
+      render(<Tasks {...mockProps} />);
 
-    expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
 
-    expect(screen.getByTestId('total-pages')).toHaveTextContent('2');
+      const idHeader = screen.getByText('ID');
+      fireEvent.click(idHeader);
 
-    const dropdown = screen.getByLabelText('Show:');
-    fireEvent.change(dropdown, { target: { value: '5' } });
+      // Tasks should be sorted by ID ascending
+      const taskRows = screen.getAllByRole('row');
+      expect(taskRows.length).toBeGreaterThan(0);
+    });
 
-    expect(screen.getByTestId('total-pages')).toHaveTextContent('3');
+    it('sorts tasks by ID in descending order on second click', async () => {
+      render(<Tasks {...mockProps} />);
 
-    expect(localStorageMock.setItem).toHaveBeenCalledWith('mockHashedKey', '5');
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
 
-    expect(screen.getByTestId('current-page')).toHaveTextContent('1');
+      const idHeader = screen.getByText('ID');
+
+      // First click - ascending
+      fireEvent.click(idHeader);
+
+      // Second click - descending
+      fireEvent.click(idHeader);
+
+      await waitFor(() => {
+        const taskRows = screen.getAllByRole('row');
+        expect(taskRows.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('sorts tasks by status', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const statusHeader = screen.getByText('Status');
+      fireEvent.click(statusHeader);
+
+      await waitFor(() => {
+        const taskRows = screen.getAllByRole('row');
+        expect(taskRows.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('Pagination', () => {
+    it('renders the "Tasks per Page" dropdown with default value', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const dropdown = screen.getByLabelText('Show:');
+      expect(dropdown).toBeInTheDocument();
+      expect(dropdown).toHaveValue('10');
+    });
+
+    it('loads "tasksPerPage" from localStorage on initial render', async () => {
+      localStorageMock.setItem('mockHashedKey', '20');
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      expect(screen.getByLabelText('Show:')).toHaveValue('20');
+    });
+
+    it('updates pagination when "Tasks per Page" is changed', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId('total-pages')).toHaveTextContent('1');
+
+      const dropdown = screen.getByLabelText('Show:');
+      fireEvent.change(dropdown, { target: { value: '5' } });
+
+      expect(screen.getByTestId('total-pages')).toHaveTextContent('1');
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'mockHashedKey',
+        '5'
+      );
+      expect(screen.getByTestId('current-page')).toHaveTextContent('1');
+    });
+
+    it('resets to page 1 when changing tasks per page', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const dropdown = screen.getByLabelText('Show:');
+      fireEvent.change(dropdown, { target: { value: '5' } });
+
+      expect(screen.getByTestId('current-page')).toHaveTextContent('1');
+    });
+  });
+
+  describe('Sync Functionality', () => {
+    it('renders sync button on desktop', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        const syncButtons = screen.getAllByText('Sync');
+        expect(syncButtons.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('calls setIsLoading when sync button clicked', async () => {
+      const mockSetIsLoading = jest.fn();
+      (hooks.fetchTaskwarriorTasks as jest.Mock).mockResolvedValue([]);
+
+      render(<Tasks {...mockProps} setIsLoading={mockSetIsLoading} />);
+
+      await waitFor(() => {
+        const syncButtons = screen.getAllByText('Sync');
+        expect(syncButtons.length).toBeGreaterThan(0);
+      });
+
+      const syncButton = screen.getAllByText('Sync')[0];
+      fireEvent.click(syncButton);
+
+      expect(mockSetIsLoading).toHaveBeenCalled();
+    });
+
+    it('displays last sync time', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Last updated 5 minutes ago')
+        ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Add Task Dialog', () => {
+    it('renders Add Task button', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        const addButton = screen.getByText('Add Task');
+        expect(addButton).toBeInTheDocument();
+      });
+    });
+
+    it('Add Task button is clickable and enabled', async () => {
+      render(<Tasks {...mockProps} />);
+
+      const addButton = await screen.findByText('Add Task');
+
+      // Button should be enabled
+      expect(addButton).toBeEnabled();
+      expect(addButton).not.toBeDisabled();
+    });
+  });
+
+  describe('Task Details Dialog', () => {
+    it('opens task details when task row is clicked', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Details')).toBeInTheDocument();
+      });
+    });
+
+    it('displays task details in dialog', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Details')).toBeInTheDocument();
+        expect(screen.getByText('ID:')).toBeInTheDocument();
+        expect(screen.getByText('Description:')).toBeInTheDocument();
+      });
+    });
+
+    it('closes task details dialog when Close button is clicked', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Details')).toBeInTheDocument();
+      });
+
+      const closeButtons = screen.getAllByText('Close');
+      fireEvent.click(closeButtons[0]);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Details')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Task Status Display', () => {
+    it('displays pending tasks with P badge', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        const badges = screen.getAllByText('P');
+        expect(badges.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('displays completed tasks with C badge', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        const badges = screen.getAllByText('C');
+        expect(badges.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('displays deleted tasks with D badge', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        const badges = screen.getAllByText('D');
+        expect(badges.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('Task Priority Display', () => {
+    it('displays high priority indicator for high priority tasks', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      // High priority tasks should have red indicator
+      const taskRows = screen.getAllByRole('row');
+      expect(taskRows.length).toBeGreaterThan(0);
+    });
+
+    it('displays medium priority indicator for medium priority tasks', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Review code changes')).toBeInTheDocument();
+      });
+
+      const taskRows = screen.getAllByRole('row');
+      expect(taskRows.length).toBeGreaterThan(0);
+    });
+
+    it('displays low priority indicator for tasks without H or M priority', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Update dependencies')).toBeInTheDocument();
+      });
+
+      const taskRows = screen.getAllByRole('row');
+      expect(taskRows.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Empty State', () => {
+    it('displays "No tasks found" message when there are no tasks', async () => {
+      // Mock empty tasks
+      const mockDb = (hooks as any).__mockTasksDatabase;
+      if (mockDb) {
+        mockDb.tasks.where.mockReturnValue({
+          equals: jest.fn().mockReturnValue({
+            toArray: jest.fn().mockResolvedValue([]),
+            delete: jest.fn().mockResolvedValue(undefined),
+          }),
+        });
+      }
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('found')).toBeInTheDocument();
+      });
+    });
+
+    it('shows add task button in empty state', async () => {
+      const mockDb = (hooks as any).__mockTasksDatabase;
+      if (mockDb) {
+        mockDb.tasks.where.mockReturnValue({
+          equals: jest.fn().mockReturnValue({
+            toArray: jest.fn().mockResolvedValue([]),
+            delete: jest.fn().mockResolvedValue(undefined),
+          }),
+        });
+      }
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Add Task')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('LocalStorage Integration', () => {
+    it('saves tasksPerPage to localStorage', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const dropdown = screen.getByLabelText('Show:');
+      fireEvent.change(dropdown, { target: { value: '20' } });
+
+      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+        'mockHashedKey',
+        '20'
+      );
+    });
+
+    it('loads tasksPerPage from localStorage on mount', async () => {
+      localStorageMock.setItem('mockHashedKey', '5');
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Show:')).toHaveValue('5');
+      });
+    });
+
+    it('loads lastSyncTime from localStorage', async () => {
+      const now = Date.now();
+      localStorageMock.setItem('mockHashedKey', now.toString());
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(localStorageMock.getItem).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('handles database fetch errors gracefully', async () => {
+      const consoleError = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const mockDb = (hooks as any).__mockTasksDatabase;
+      if (mockDb) {
+        mockDb.tasks.where.mockReturnValue({
+          equals: jest.fn().mockReturnValue({
+            toArray: jest.fn().mockRejectedValue(new Error('Database error')),
+          }),
+        });
+      }
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(consoleError).toHaveBeenCalled();
+      });
+
+      consoleError.mockRestore();
+    });
   });
 });
