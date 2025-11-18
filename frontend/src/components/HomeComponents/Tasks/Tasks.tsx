@@ -118,6 +118,8 @@ export const Tasks = (
   const [editedProject, setEditedProject] = useState(
     _selectedTask?.project || ''
   );
+  const [isEditingWaitDate, setIsEditingWaitDate] = useState(false);
+  const [editedWaitDate, setEditedWaitDate] = useState('');
   const [isEditingStartDate, setIsEditingStartDate] = useState(false);
   const [editedStartDate, setEditedStartDate] = useState('');
   const [isEditingEntryDate, setIsEditingEntryDate] = useState(false);
@@ -327,6 +329,7 @@ export const Tasks = (
     project: string,
     start: string,
     entry: string,
+    wait: string,
     end: string
   ) {
     try {
@@ -341,6 +344,7 @@ export const Tasks = (
         project,
         start,
         entry,
+        wait,
         end,
       });
 
@@ -387,6 +391,7 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry || '',
+      task.wait || '',
       task.end || ''
     );
     setIsEditing(false);
@@ -404,9 +409,30 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry || '',
+      task.wait || '',
       task.end || ''
     );
     setIsEditingProject(false);
+  };
+
+  const handleWaitDateSaveClick = (task: Task) => {
+    task.wait = editedWaitDate;
+
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start,
+      task.entry || '',
+      task.wait,
+      task.end || ''
+    );
+
+    setIsEditingWaitDate(false);
   };
 
   const handleStartDateSaveClick = (task: Task) => {
@@ -422,6 +448,7 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry || '',
+      task.wait || '',
       task.end || ''
     );
 
@@ -441,6 +468,7 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry,
+      task.wait,
       task.end
     );
 
@@ -460,6 +488,7 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry,
+      task.wait,
       task.end
     );
 
@@ -559,6 +588,7 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry || '',
+      task.wait || '',
       task.end || ''
     );
 
@@ -1268,7 +1298,65 @@ export const Tasks = (
                                       <TableRow>
                                         <TableCell>Wait:</TableCell>
                                         <TableCell>
-                                          {formattedDate(task.wait)}
+                                          {isEditingWaitDate ? (
+                                            <div className="flex items-center gap-2">
+                                              <DatePicker
+                                                date={
+                                                  editedWaitDate
+                                                    ? new Date(editedWaitDate)
+                                                    : undefined
+                                                }
+                                                onDateChange={(date) =>
+                                                  setEditedWaitDate(
+                                                    date
+                                                      ? format(
+                                                          date,
+                                                          'yyyy-MM-dd'
+                                                        )
+                                                      : ''
+                                                  )
+                                                }
+                                              />
+
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleWaitDateSaveClick(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  setIsEditingWaitDate(false)
+                                                }
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <>
+                                              <span>
+                                                {formattedDate(task.wait)}
+                                              </span>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                  setIsEditingWaitDate(true);
+                                                  setEditedWaitDate(
+                                                    task?.wait ?? ''
+                                                  );
+                                                }}
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </>
+                                          )}
                                         </TableCell>
                                       </TableRow>
                                       <TableRow>
