@@ -124,6 +124,8 @@ export const Tasks = (
   const [editedStartDate, setEditedStartDate] = useState('');
   const [isEditingEntryDate, setIsEditingEntryDate] = useState(false);
   const [editedEntryDate, setEditedEntryDate] = useState('');
+  const [isEditingEndDate, setIsEditingEndDate] = useState(false);
+  const [editedEndDate, setEditedEndDate] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
@@ -327,7 +329,8 @@ export const Tasks = (
     project: string,
     start: string,
     entry: string,
-    wait: string
+    wait: string,
+    end: string
   ) {
     try {
       await editTaskOnBackend({
@@ -342,6 +345,7 @@ export const Tasks = (
         start,
         entry,
         wait,
+        end,
       });
 
       console.log('Task edited successfully!');
@@ -387,7 +391,8 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry || '',
-      task.wait
+      task.wait || '',
+      task.end || ''
     );
     setIsEditing(false);
   };
@@ -404,7 +409,8 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry || '',
-      task.wait
+      task.wait || '',
+      task.end || ''
     );
     setIsEditingProject(false);
   };
@@ -422,7 +428,8 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry || '',
-      task.wait
+      task.wait,
+      task.end || ''
     );
 
     setIsEditingWaitDate(false);
@@ -441,7 +448,8 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry || '',
-      task.wait
+      task.wait || '',
+      task.end || ''
     );
 
     setIsEditingStartDate(false);
@@ -460,10 +468,31 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry,
-      task.wait
+      task.wait,
+      task.end
     );
 
     setIsEditingEntryDate(false);
+  };
+
+  const handleEndDateSaveClick = (task: Task) => {
+    task.end = editedEndDate;
+
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start,
+      task.entry,
+      task.wait,
+      task.end
+    );
+
+    setIsEditingEndDate(false);
   };
 
   const handleCancelClick = () => {
@@ -483,6 +512,8 @@ export const Tasks = (
       setEditedStartDate('');
       setIsEditingEntryDate(false);
       setEditedEntryDate('');
+      setIsEditingEndDate(false);
+      setEditedEndDate('');
     } else {
       setSelectedTask(task);
       setEditedDescription(task?.description || '');
@@ -557,7 +588,8 @@ export const Tasks = (
       task.project,
       task.start,
       task.entry || '',
-      task.wait
+      task.wait || '',
+      task.end || ''
     );
 
     setIsEditingTags(false); // Exit editing mode
@@ -1176,7 +1208,91 @@ export const Tasks = (
                                       <TableRow>
                                         <TableCell>End:</TableCell>
                                         <TableCell>
-                                          {formattedDate(task.end)}
+                                          {isEditingEndDate ? (
+                                            <div className="flex items-center gap-2">
+                                              <DatePicker
+                                                date={
+                                                  editedEndDate &&
+                                                  editedEndDate !== ''
+                                                    ? (() => {
+                                                        try {
+                                                          const dateStr =
+                                                            editedEndDate.includes(
+                                                              'T'
+                                                            )
+                                                              ? editedEndDate.split(
+                                                                  'T'
+                                                                )[0]
+                                                              : editedEndDate;
+                                                          const parsed =
+                                                            new Date(
+                                                              dateStr +
+                                                                'T00:00:00'
+                                                            );
+                                                          return isNaN(
+                                                            parsed.getTime()
+                                                          )
+                                                            ? undefined
+                                                            : parsed;
+                                                        } catch {
+                                                          return undefined;
+                                                        }
+                                                      })()
+                                                    : undefined
+                                                }
+                                                onDateChange={(date) =>
+                                                  setEditedEndDate(
+                                                    date
+                                                      ? format(
+                                                          date,
+                                                          'yyyy-MM-dd'
+                                                        )
+                                                      : ''
+                                                  )
+                                                }
+                                                placeholder="Select end date"
+                                              />
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleEndDateSaveClick(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  setIsEditingEndDate(false)
+                                                }
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <div className="flex items-center">
+                                              <span>
+                                                {formattedDate(task.end)}
+                                              </span>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                  setIsEditingEndDate(true);
+                                                  const endDate = task.end
+                                                    ? task.end.includes('T')
+                                                      ? task.end.split('T')[0]
+                                                      : task.end
+                                                    : '';
+                                                  setEditedEndDate(endDate);
+                                                }}
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </div>
+                                          )}
                                         </TableCell>
                                       </TableRow>
                                       <TableRow>
