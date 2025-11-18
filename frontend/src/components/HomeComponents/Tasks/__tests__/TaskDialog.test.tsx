@@ -95,6 +95,7 @@ describe('TaskDialog Component', () => {
     onMarkComplete: jest.fn(),
     onMarkDeleted: jest.fn(),
     isOverdue: jest.fn(() => false),
+    isUnsynced: false,
   };
 
   beforeEach(() => {
@@ -120,6 +121,32 @@ describe('TaskDialog Component', () => {
 
       const statusBadge = screen.getByText('O');
       expect(statusBadge).toBeInTheDocument();
+    });
+
+    test('should display Unsynced badge when isUnsynced is true', () => {
+      const unsyncedProps = {
+        ...defaultProps,
+        isUnsynced: true,
+      };
+
+      render(<TaskDialog {...unsyncedProps} />);
+
+      const unsyncedBadge = screen.getByText('Unsynced');
+      expect(unsyncedBadge).toBeInTheDocument();
+      expect(unsyncedBadge).toHaveClass('animate-pulse');
+    });
+
+    test('should display Unsynced badge when isUnsynced is true', () => {
+      const unsyncedProps = {
+        ...defaultProps,
+        isUnsynced: true,
+      };
+
+      render(<TaskDialog {...unsyncedProps} />);
+
+      const unsyncedBadge = screen.getByText('Unsynced');
+      expect(unsyncedBadge).toBeInTheDocument();
+      expect(unsyncedBadge).toHaveClass('animate-pulse');
     });
 
     test('should display correct priority indicator', () => {

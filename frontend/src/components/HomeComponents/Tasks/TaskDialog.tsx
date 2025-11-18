@@ -59,6 +59,7 @@ export const TaskDialog = ({
   onMarkComplete,
   onMarkDeleted,
   isOverdue,
+  isUnsynced,
 }: EditTaskDialogProps) => {
   const handleDialogOpenChange = (open: boolean) => {
     if (open) {
@@ -107,7 +108,7 @@ export const TaskDialog = ({
                   : 'dark:text-white text-black'
               }`}
             >
-              {task.id}
+              {task.id < 0 ? '-' : task.id}
             </span>
           </TableCell>
           <TableCell className="flex items-center space-x-2 py-2">
@@ -125,6 +126,11 @@ export const TaskDialog = ({
               <Badge variant={'secondary'}>
                 <Folder className="pr-2" />
                 {task.project === '' ? '' : task.project}
+              </Badge>
+            )}
+            {isUnsynced && (
+              <Badge variant={'destructive'} className="animate-pulse">
+                Unsynced
               </Badge>
             )}
           </TableCell>
@@ -174,7 +180,7 @@ export const TaskDialog = ({
                 <TableRow>
                   <TableCell>ID:</TableCell>
                   <TableCell className="flex items-center gap-3">
-                    {task.id}
+                    {task.id < 0 ? '-' : task.id}
                     {task.status === 'pending' && isOverdue(task.due) && (
                       <Badge className="bg-red-600 text-white shadow-lg shadow-red-700/40 animate-pulse">
                         Overdue
@@ -275,6 +281,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSaveDueDate(task, editState.editedDueDate);
                             onUpdateState({ isEditingDueDate: false });
@@ -285,6 +292,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               editedDueDate: task.due || '',
@@ -360,6 +368,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSaveStartDate(task, editState.editedStartDate);
                             onUpdateState({ isEditingStartDate: false });
@@ -371,6 +380,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               editedStartDate: task.start || '',
@@ -443,6 +453,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSaveEndDate(task, editState.editedEndDate);
                             onUpdateState({ isEditingEndDate: false });
@@ -453,6 +464,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               editedEndDate: task.end || '',
@@ -525,6 +537,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSaveWaitDate(task, editState.editedWaitDate);
                             onUpdateState({ isEditingWaitDate: false });
@@ -536,6 +549,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               editedWaitDate: task.wait || '',
@@ -657,7 +671,10 @@ export const TaskDialog = ({
                               Add Dependency
                             </Button>
                             {editState.dependsDropdownOpen && (
-                              <div className="absolute left-0 top-full mt-1 z-50 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                              <div
+                                data-testid="dependency-dropdown"
+                                className="absolute left-0 top-full mt-1 z-50 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto"
+                              >
                                 <Input
                                   type="text"
                                   placeholder="Search tasks..."
@@ -715,6 +732,7 @@ export const TaskDialog = ({
                           <Button
                             variant="ghost"
                             size="icon"
+                            aria-label="save"
                             onClick={() => {
                               onSaveDepends(task, editState.editedDepends);
                               onUpdateState({
@@ -728,6 +746,7 @@ export const TaskDialog = ({
                           <Button
                             variant="ghost"
                             size="icon"
+                            aria-label="cancel"
                             onClick={() => {
                               onUpdateState({
                                 isEditingDepends: false,
@@ -769,6 +788,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSavePriority(task, editState.editedPriority);
                             onUpdateState({ isEditingPriority: false });
@@ -779,6 +799,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() => {
                             onUpdateState({
                               editedPriority: task.priority || 'NONE',
@@ -1058,6 +1079,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSaveEntryDate(task, editState.editedEntryDate);
                             onUpdateState({ isEditingEntryDate: false });
@@ -1069,6 +1091,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               isEditingEntryDate: false,
@@ -1158,6 +1181,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() =>
                             onSaveRecur(task, editState.editedRecur)
                           }
@@ -1167,6 +1191,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               isEditingRecur: false,

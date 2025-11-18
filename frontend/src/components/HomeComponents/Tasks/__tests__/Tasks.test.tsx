@@ -90,6 +90,16 @@ jest.mock('../hooks', () => ({
               tags: i % 3 === 0 ? ['tag1'] : ['tag2'],
               uuid: `uuid-${i + 1}`,
               due: i === 0 ? '20200101T120000Z' : undefined,
+              entry: '',
+              modified: '',
+              urgency: 0,
+              priority: '',
+              start: '',
+              end: '',
+              wait: '',
+              depends: [],
+              recur: '',
+              rtype: '',
             })),
             {
               id: 13,
@@ -118,9 +128,15 @@ jest.mock('../hooks', () => ({
               uuid: 'uuid-corp-3',
             },
           ]),
+          delete: jest.fn().mockResolvedValue(undefined),
         })),
       })),
+      bulkPut: jest.fn().mockResolvedValue(undefined),
     },
+    transaction: jest.fn(async (_mode, _table, callback) => {
+      await callback();
+      return Promise.resolve();
+    }),
   })),
   fetchTaskwarriorTasks: jest.fn().mockResolvedValue([]),
   addTaskToBackend: jest.fn().mockResolvedValue({}),
@@ -346,6 +362,7 @@ describe('Tasks Component', () => {
     const overdueBadge = await screen.findByText('Overdue');
     expect(overdueBadge).toBeInTheDocument();
   });
+
   test('filters tasks with fuzzy search (handles typos)', async () => {
     jest.useFakeTimers();
 
@@ -492,5 +509,398 @@ describe('Tasks Component', () => {
     });
 
     expect(newProjectInput).toHaveValue('My Fresh Project');
+  });
+
+  // NEW TESTS FOR UNSYNCED FEATURE
+  test('shows "Unsynced" badge when task is marked as completed', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      const completeButton = screen.getByText('Mark As Completed');
+      fireEvent.click(completeButton);
+    });
+
+    const yesButton = screen.getAllByText('Yes')[0];
+    fireEvent.click(yesButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsynced')).toBeInTheDocument();
+    });
+  });
+
+  test('shows "Unsynced" badge when task is deleted', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      const buttons = screen.getAllByRole('button');
+      const deleteButton = buttons.find((btn) =>
+        btn.className.includes('destructive')
+      );
+      if (deleteButton) fireEvent.click(deleteButton);
+    });
+
+    await waitFor(() => {
+      const yesButtons = screen.getAllByText('Yes');
+      if (yesButtons.length > 0) fireEvent.click(yesButtons[0]);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsynced')).toBeInTheDocument();
+    });
+  });
+
+  test('shows "Unsynced" badge when task description is edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Description:')).toBeInTheDocument();
+    });
+
+    const descriptionLabel = screen.getByText('Description:');
+    const descRow = descriptionLabel.closest('tr') as HTMLElement;
+    const editButton = within(descRow).getByRole('button');
+
+    fireEvent.click(editButton);
+
+    const input = await screen.findByDisplayValue('Task 12');
+
+    fireEvent.change(input, { target: { value: 'Updated Task 12' } });
+
+    const saveButton = within(descRow).getAllByRole('button')[0];
+
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsynced')).toBeInTheDocument();
+    });
+  });
+
+  test('shows "Unsynced" badge when task project is edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Project:')).toBeInTheDocument();
+    });
+
+    const projectLabel = screen.getByText('Project:');
+    const projectRow = projectLabel.closest('tr') as HTMLElement;
+    const editButton = within(projectRow).getByRole('button');
+
+    fireEvent.click(editButton);
+
+    const input = await screen.findByDisplayValue('ProjectB');
+
+    fireEvent.change(input, { target: { value: 'UpdatedProject' } });
+
+    const saveButton = within(projectRow).getAllByRole('button')[0];
+
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsynced')).toBeInTheDocument();
+    });
+  });
+
+  test.each([
+    ['Wait', 'Wait:', 'Pick a date'],
+    ['End', 'End:', 'Select end date'],
+    ['Due', 'Due:', 'Select due date'],
+    ['Start', 'Start:', 'Pick a date'],
+    ['Entry', 'Entry:', 'Pick a date'],
+  ])(
+    'shows "Unsynced" badge when task %s date is edited',
+    async (_, label, placeholder) => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
+
+      const task12 = screen.getByText('Task 12');
+      fireEvent.click(task12);
+
+      await waitFor(() => {
+        expect(screen.getByText(label)).toBeInTheDocument();
+      });
+
+      const dateLabel = screen.getByText(label);
+      const dateRow = dateLabel.closest('tr') as HTMLElement;
+
+      const editButton = within(dateRow).getByRole('button');
+      fireEvent.click(editButton);
+
+      const dateButton = within(dateRow)
+        .getByText(placeholder)
+        .closest('button');
+      fireEvent.click(dateButton!);
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      const dialog = screen.getByRole('dialog');
+      const day15 = within(dialog).getByText('15');
+      fireEvent.click(day15);
+
+      const saveButton = screen.getByLabelText('save');
+      fireEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Unsynced')).toBeInTheDocument();
+      });
+    }
+  );
+
+  test('shows "Unsynced" badge when task priority is edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Priority:')).toBeInTheDocument();
+    });
+
+    const priorityLabel = screen.getByText('Priority:');
+    const priorityRow = priorityLabel.closest('tr') as HTMLElement;
+
+    const editButton = within(priorityRow).getByRole('button');
+    fireEvent.click(editButton);
+
+    const select = within(priorityRow).getByTestId('project-select');
+    fireEvent.change(select, { target: { value: 'H' } });
+
+    const saveButton = screen.getByLabelText('save');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsynced')).toBeInTheDocument();
+    });
+  });
+
+  test('shows "Unsynced" badge when task dependencies are edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Depends:')).toBeInTheDocument();
+    });
+
+    const dependsLabel = screen.getByText('Depends:');
+    const dependsRow = dependsLabel.closest('tr') as HTMLElement;
+
+    const editButton = within(dependsRow).getByRole('button');
+    fireEvent.click(editButton);
+
+    const addDependecyButton = within(dependsRow)
+      .getByText('Add Dependency')
+      .closest('button');
+    fireEvent.click(addDependecyButton!);
+
+    const dropdown = within(dependsRow).getByTestId('dependency-dropdown');
+
+    fireEvent.click(within(dropdown).getByText('Task 11'));
+    fireEvent.click(within(dropdown).getByText('Task 10'));
+
+    const saveButton = screen.getByLabelText('save');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsynced')).toBeInTheDocument();
+    });
+  });
+
+  test('shows "Unsynced" badge when task tags are edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Tags:')).toBeInTheDocument();
+    });
+
+    const tagsLabel = screen.getByText('Tags:');
+    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
+
+    const editButton = within(tagsRow).getByRole('button');
+    fireEvent.click(editButton);
+
+    const editInput = await screen.findByPlaceholderText(
+      'Add a tag (press enter to add)'
+    );
+
+    fireEvent.change(editInput, { target: { value: 'unsyncedtag' } });
+    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
+
+    const saveButton = screen.getByLabelText('Save tags');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsynced')).toBeInTheDocument();
+    });
+  });
+
+  test('shows "Unsynced" badge when task recur is edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Recur:')).toBeInTheDocument();
+    });
+
+    const recurLabel = screen.getByText('Recur:');
+    const recurRow = recurLabel.closest('tr') as HTMLElement;
+
+    const editButton = within(recurRow).getByRole('button');
+    fireEvent.click(editButton);
+
+    const select = within(recurRow).getByTestId('project-select');
+    fireEvent.change(select, { target: { value: 'weekly' } });
+
+    const saveButton = screen.getByLabelText('save');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsynced')).toBeInTheDocument();
+    });
+  });
+
+  test('shows and updates notification badge count on Sync button', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      const completeButton = screen.getByText('Mark As Completed');
+      fireEvent.click(completeButton);
+    });
+
+    const yesButton = screen.getAllByText('Yes')[0];
+    fireEvent.click(yesButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsynced')).toBeInTheDocument();
+    });
+
+    const syncButtons = screen.getAllByText('Sync');
+    const syncBtnContainer = syncButtons[0].closest('button');
+
+    if (syncBtnContainer) {
+      expect(within(syncBtnContainer).getByText('1')).toBeInTheDocument();
+    } else {
+      throw new Error('Sync button not found');
+    }
+  });
+
+  test('clears "Unsynced" badges after sync', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      const completeButton = screen.getByText('Mark As Completed');
+      fireEvent.click(completeButton);
+    });
+
+    const yesButton = screen.getAllByText('Yes')[0];
+    fireEvent.click(yesButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unsynced')).toBeInTheDocument();
+    });
+
+    const hooks = require('../hooks');
+    hooks.fetchTaskwarriorTasks.mockResolvedValueOnce([
+      {
+        id: 12,
+        description: 'Task 12',
+        status: 'completed',
+        project: 'ProjectA',
+        tags: ['tag1'],
+        uuid: 'uuid-12',
+        entry: '',
+        modified: '',
+        urgency: 0,
+        priority: '',
+        due: '',
+        start: '',
+        end: '',
+        wait: '',
+        depends: [],
+        recur: '',
+        rtype: '',
+      },
+    ]);
+
+    const syncButtons = screen.getAllByText('Sync');
+    fireEvent.click(syncButtons[0]);
+
+    await waitFor(
+      () => {
+        expect(screen.queryByText('Unsynced')).not.toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
   });
 });
