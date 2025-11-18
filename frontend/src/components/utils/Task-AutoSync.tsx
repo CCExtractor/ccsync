@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react';
-// We still don't need 'Props'
-import { syncTasksWithTwAndDb } from './components/HomeComponents/Tasks/Tasks';
-import { AutoSyncProps } from './components/utils/types';
+import { syncTasksWithTwAndDb } from '../HomeComponents/Tasks/Tasks';
+import { AutoSyncProps } from './types';
 
 export const useTaskAutoSync = (props: AutoSyncProps) => {
   const { isLoading, setIsLoading, isAutoSyncEnabled, syncInterval } = props;

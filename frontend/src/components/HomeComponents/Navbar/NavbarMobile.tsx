@@ -37,7 +37,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { exportTasksAsJSON, exportTasksAsTXT } from '@/exports-tasks';
 import { DevLogs } from '../DevLogs/DevLogs';
-import { useTaskAutoSync } from '@/Task-AutoSync';
+import { useTaskAutoSync } from '@/components/utils/Task-AutoSync';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
