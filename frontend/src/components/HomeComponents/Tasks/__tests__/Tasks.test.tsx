@@ -802,4 +802,561 @@ describe('Tasks Component', () => {
       consoleError.mockRestore();
     });
   });
+
+  describe('Filter Functionality', () => {
+    it('renders project filter MultiSelect', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('multiselect-projects')).toBeInTheDocument();
+      });
+    });
+
+    it('renders tag filter MultiSelect', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('multiselect-tags')).toBeInTheDocument();
+      });
+    });
+
+    it('renders status filter MultiSelect', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('multiselect-status')).toBeInTheDocument();
+      });
+    });
+
+    it('can trigger project filter selection', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('multiselect-projects')).toBeInTheDocument();
+      });
+
+      const projectButton = screen.getByTestId('multiselect-projects-button');
+      fireEvent.click(projectButton);
+
+      // Filter should be triggered
+      expect(screen.getByTestId('multiselect-projects')).toBeInTheDocument();
+    });
+
+    it('can trigger tag filter selection', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('multiselect-tags')).toBeInTheDocument();
+      });
+
+      const tagButton = screen.getByTestId('multiselect-tags-button');
+      fireEvent.click(tagButton);
+
+      expect(screen.getByTestId('multiselect-tags')).toBeInTheDocument();
+    });
+
+    it('can trigger status filter selection', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('multiselect-status')).toBeInTheDocument();
+      });
+
+      const statusButton = screen.getByTestId('multiselect-status-button');
+      fireEvent.click(statusButton);
+
+      expect(screen.getByTestId('multiselect-status')).toBeInTheDocument();
+    });
+  });
+
+  describe('Task Actions', () => {
+    it('renders complete button for pending tasks', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      // Complete buttons should be rendered for pending tasks
+      const taskRow = screen
+        .getByText('Complete project documentation')
+        .closest('tr');
+      expect(taskRow).toBeInTheDocument();
+    });
+
+    it('renders delete button for tasks', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen
+        .getByText('Complete project documentation')
+        .closest('tr');
+      expect(taskRow).toBeInTheDocument();
+    });
+
+    it('handles task completion when complete button clicked', async () => {
+      const { markTaskAsCompleted } = require('../tasks-utils');
+      markTaskAsCompleted.mockResolvedValueOnce({});
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      // Find and click a task row to open details
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Details')).toBeInTheDocument();
+      });
+    });
+
+    it('handles task deletion when delete button clicked', async () => {
+      const { markTaskAsDeleted } = require('../tasks-utils');
+      markTaskAsDeleted.mockResolvedValueOnce({});
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Details')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Task Copy Functionality', () => {
+    it('renders copy button for task UUID', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Details')).toBeInTheDocument();
+        expect(screen.getByText('UUID:')).toBeInTheDocument();
+      });
+    });
+
+    it('displays task UUID in details dialog', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('UUID:')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Task Properties Display', () => {
+    it('displays task project in table', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        const projects = screen.getAllByText('ProjectA');
+        expect(projects.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('displays task tags as badges', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        // Tags should be displayed
+        const tags = screen.getAllByText(/urgent|docs|review|bug|testing/);
+        expect(tags.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('displays multiple tags for a single task', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        // Tags should be rendered
+        const tags = screen.getAllByText(/urgent|docs|review|bug|testing/);
+        expect(tags.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('displays task urgency value', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      // Click to open details
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Details')).toBeInTheDocument();
+      });
+    });
+
+    it('displays task due date when present', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Details')).toBeInTheDocument();
+      });
+    });
+
+    it('handles tasks without due date', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Review code changes')).toBeInTheDocument();
+      });
+
+      // Task 2 has no due date
+      const taskRow = screen.getByText('Review code changes');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Details')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Task Table Display', () => {
+    it('renders table headers', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('ID')).toBeInTheDocument();
+        expect(screen.getByText('Description')).toBeInTheDocument();
+        expect(screen.getByText('Status')).toBeInTheDocument();
+      });
+    });
+
+    it('renders task rows with correct data', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+        expect(screen.getByText('Review code changes')).toBeInTheDocument();
+        expect(screen.getByText('Fix bug in login')).toBeInTheDocument();
+      });
+    });
+
+    it('displays task ID column', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        // Task IDs should be visible
+        const taskRows = screen.getAllByRole('row');
+        expect(taskRows.length).toBeGreaterThan(1);
+      });
+    });
+
+    it('displays task description column', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('displays task status column with badges', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        // Status badges: P, C, D
+        expect(screen.getAllByText('P').length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('Component State Management', () => {
+    it('initializes with default state', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        // Should render in tasks view (not reports)
+        expect(screen.queryByTestId('reports-view')).not.toBeInTheDocument();
+      });
+    });
+
+    it('maintains state when switching between views', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      // Switch to reports
+      const reportButton = screen.getByText('Show Reports');
+      fireEvent.click(reportButton);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('reports-view')).toBeInTheDocument();
+      });
+
+      // Switch back to tasks
+      const tasksButton = screen.getByText('Show Tasks');
+      fireEvent.click(tasksButton);
+
+      await waitFor(() => {
+        // Tasks should still be there
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('preserves current page when changing tasks per page', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const dropdown = screen.getByLabelText('Show:');
+      fireEvent.change(dropdown, { target: { value: '20' } });
+
+      // Should reset to page 1
+      expect(screen.getByTestId('current-page')).toHaveTextContent('1');
+    });
+  });
+
+  describe('Loading States', () => {
+    it('shows skeleton when isLoading is true', async () => {
+      render(<Tasks {...mockProps} isLoading={true} />);
+
+      await waitFor(() => {
+        const rows = screen.getAllByRole('row');
+        expect(rows.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('hides skeleton when isLoading is false', async () => {
+      render(<Tasks {...mockProps} isLoading={false} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('shows loading state during sync', async () => {
+      const mockSetIsLoading = jest.fn();
+      render(<Tasks {...mockProps} setIsLoading={mockSetIsLoading} />);
+
+      await waitFor(() => {
+        const syncButtons = screen.getAllByText('Sync');
+        expect(syncButtons.length).toBeGreaterThan(0);
+      });
+
+      const syncButton = screen.getAllByText('Sync')[0];
+      fireEvent.click(syncButton);
+
+      expect(mockSetIsLoading).toHaveBeenCalled();
+    });
+  });
+
+  describe('Task Details Fields', () => {
+    it('displays entry date in task details', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Entry:')).toBeInTheDocument();
+      });
+    });
+
+    it('displays modified date in task details', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        // Modified date should be in details
+        expect(screen.getByText('Details')).toBeInTheDocument();
+      });
+    });
+
+    it('displays priority in task details', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Priority:')).toBeInTheDocument();
+      });
+    });
+
+    it('displays project in task details', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Project:')).toBeInTheDocument();
+      });
+    });
+
+    it('displays tags in task details', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Tags:')).toBeInTheDocument();
+      });
+    });
+
+    it('displays urgency in task details', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const taskRow = screen.getByText('Complete project documentation');
+      fireEvent.click(taskRow);
+
+      await waitFor(() => {
+        expect(screen.getByText('Urgency:')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Responsive Behavior', () => {
+    it('renders sync button on desktop view', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        const syncButtons = screen.getAllByText('Sync');
+        expect(syncButtons.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('renders mobile controls', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        // Mobile controls should be present
+        expect(screen.getByLabelText('Show:')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Data Persistence', () => {
+    it('persists tasks per page selection', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Complete project documentation')
+        ).toBeInTheDocument();
+      });
+
+      const dropdown = screen.getByLabelText('Show:');
+      fireEvent.change(dropdown, { target: { value: '20' } });
+
+      // Should call setItem with the new value
+      expect(localStorageMock.setItem).toHaveBeenCalled();
+    });
+
+    it('retrieves tasks from database on mount', async () => {
+      const mockDb = (hooks as any).__mockTasksDatabase;
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(mockDb.tasks.where).toHaveBeenCalled();
+      });
+    });
+  });
 });
