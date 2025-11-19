@@ -126,6 +126,10 @@ export const Tasks = (
   const [editedEntryDate, setEditedEntryDate] = useState('');
   const [isEditingEndDate, setIsEditingEndDate] = useState(false);
   const [editedEndDate, setEditedEndDate] = useState('');
+  const [isEditingDepends, setIsEditingDepends] = useState(false);
+  const [editedDepends, setEditedDepends] = useState<string[]>([]);
+  const [dependsDropdownOpen, setDependsDropdownOpen] = useState(false);
+  const [dependsSearchTerm, setDependsSearchTerm] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
@@ -351,7 +355,8 @@ export const Tasks = (
     start: string,
     entry: string,
     wait: string,
-    end: string
+    end: string,
+    depends: string[]
   ) {
     try {
       await editTaskOnBackend({
@@ -367,6 +372,7 @@ export const Tasks = (
         entry,
         wait,
         end,
+        depends,
       });
 
       console.log('Task edited successfully!');
@@ -413,7 +419,8 @@ export const Tasks = (
       task.start,
       task.entry || '',
       task.wait || '',
-      task.end || ''
+      task.end || '',
+      task.depends || []
     );
     setIsEditing(false);
   };
@@ -431,7 +438,8 @@ export const Tasks = (
       task.start,
       task.entry || '',
       task.wait || '',
-      task.end || ''
+      task.end || '',
+      task.depends || []
     );
     setIsEditingProject(false);
   };
@@ -450,7 +458,8 @@ export const Tasks = (
       task.start,
       task.entry || '',
       task.wait,
-      task.end || ''
+      task.end || '',
+      task.depends || []
     );
 
     setIsEditingWaitDate(false);
@@ -470,7 +479,8 @@ export const Tasks = (
       task.start,
       task.entry || '',
       task.wait || '',
-      task.end || ''
+      task.end || '',
+      task.depends || []
     );
 
     setIsEditingStartDate(false);
@@ -490,7 +500,8 @@ export const Tasks = (
       task.start,
       task.entry,
       task.wait,
-      task.end
+      task.end,
+      task.depends || []
     );
 
     setIsEditingEntryDate(false);
@@ -510,10 +521,43 @@ export const Tasks = (
       task.start,
       task.entry,
       task.wait,
-      task.end
+      task.end,
+      task.depends || []
     );
 
     setIsEditingEndDate(false);
+  };
+
+  const handleDependsSaveClick = (task: Task) => {
+    task.depends = editedDepends;
+
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start,
+      task.entry || '',
+      task.wait || '',
+      task.end || '',
+      task.depends
+    );
+
+    setIsEditingDepends(false);
+    setDependsDropdownOpen(false);
+  };
+
+  const handleAddDependency = (uuid: string) => {
+    if (!editedDepends.includes(uuid)) {
+      setEditedDepends([...editedDepends, uuid]);
+    }
+  };
+
+  const handleRemoveDependency = (uuid: string) => {
+    setEditedDepends(editedDepends.filter((dep) => dep !== uuid));
   };
 
   const handleCancelClick = () => {
@@ -535,6 +579,10 @@ export const Tasks = (
       setEditedEntryDate('');
       setIsEditingEndDate(false);
       setEditedEndDate('');
+      setIsEditingDepends(false);
+      setEditedDepends([]);
+      setDependsDropdownOpen(false);
+      setDependsSearchTerm('');
     } else {
       setSelectedTask(task);
       setEditedDescription(task?.description || '');
@@ -627,7 +675,8 @@ export const Tasks = (
       task.start,
       task.entry || '',
       task.wait || '',
-      task.end || ''
+      task.end || '',
+      task.depends || []
     );
 
     setIsEditingTags(false); // Exit editing mode
@@ -1016,6 +1065,9 @@ export const Tasks = (
                       ) : (
                         currentTasks.map((task: Task, index: number) => (
                           <Dialog
+                            open={
+                              _isDialogOpen && _selectedTask?.id === task.id
+                            }
                             onOpenChange={(_isDialogOpen) =>
                               handleDialogOpenChange(_isDialogOpen, task)
                             }
@@ -1414,7 +1466,191 @@ export const Tasks = (
                                       </TableRow>
                                       <TableRow>
                                         <TableCell>Depends:</TableCell>
-                                        <TableCell>{task.depends}</TableCell>
+                                        <TableCell>
+                                          {!isEditingDepends ? (
+                                            <div className="flex flex-wrap items-center gap-2">
+                                              {(task.depends || []).map(
+                                                (depUuid) => {
+                                                  const depTask = tasks.find(
+                                                    (t) => t.uuid === depUuid
+                                                  );
+                                                  return (
+                                                    <Badge
+                                                      key={depUuid}
+                                                      variant="secondary"
+                                                      className="cursor-pointer"
+                                                      onClick={() => {
+                                                        if (depTask) {
+                                                          setIsDialogOpen(
+                                                            false
+                                                          );
+                                                          setTimeout(() => {
+                                                            setSelectedTask(
+                                                              depTask
+                                                            );
+                                                            setIsDialogOpen(
+                                                              true
+                                                            );
+                                                          }, 100);
+                                                        }
+                                                      }}
+                                                    >
+                                                      {depTask?.description ||
+                                                        depUuid.substring(0, 8)}
+                                                    </Badge>
+                                                  );
+                                                }
+                                              )}
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                  setIsEditingDepends(true);
+                                                  setEditedDepends(
+                                                    task.depends || []
+                                                  );
+                                                }}
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <div className="space-y-2">
+                                              <div className="flex flex-wrap items-center gap-2">
+                                                {editedDepends.map(
+                                                  (depUuid) => {
+                                                    const depTask = tasks.find(
+                                                      (t) => t.uuid === depUuid
+                                                    );
+                                                    return (
+                                                      <Badge
+                                                        key={depUuid}
+                                                        variant="secondary"
+                                                      >
+                                                        <span>
+                                                          {depTask?.description ||
+                                                            depUuid.substring(
+                                                              0,
+                                                              8
+                                                            )}
+                                                        </span>
+                                                        <button
+                                                          type="button"
+                                                          className="ml-2 text-red-500"
+                                                          onClick={() =>
+                                                            handleRemoveDependency(
+                                                              depUuid
+                                                            )
+                                                          }
+                                                        >
+                                                          ✖
+                                                        </button>
+                                                      </Badge>
+                                                    );
+                                                  }
+                                                )}
+                                              </div>
+                                              <div className="flex items-center gap-2">
+                                                <div className="relative flex-1">
+                                                  <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                      setDependsDropdownOpen(
+                                                        !dependsDropdownOpen
+                                                      )
+                                                    }
+                                                    className="w-full justify-start"
+                                                  >
+                                                    <span className="text-lg mr-2">
+                                                      +
+                                                    </span>
+                                                    Add Dependency
+                                                  </Button>
+                                                  {dependsDropdownOpen && (
+                                                    <div className="absolute left-0 top-full mt-1 z-50 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                      <Input
+                                                        type="text"
+                                                        placeholder="Search tasks..."
+                                                        value={
+                                                          dependsSearchTerm
+                                                        }
+                                                        onChange={(e) =>
+                                                          setDependsSearchTerm(
+                                                            e.target.value
+                                                          )
+                                                        }
+                                                        className="m-2 w-[calc(100%-1rem)]"
+                                                      />
+                                                      {tasks
+                                                        .filter(
+                                                          (t) =>
+                                                            t.uuid !==
+                                                              task.uuid &&
+                                                            t.status ===
+                                                              'pending' &&
+                                                            !editedDepends.includes(
+                                                              t.uuid
+                                                            ) &&
+                                                            t.description
+                                                              .toLowerCase()
+                                                              .includes(
+                                                                dependsSearchTerm.toLowerCase()
+                                                              )
+                                                        )
+                                                        .map((t) => (
+                                                          <div
+                                                            key={t.uuid}
+                                                            className="flex items-center gap-2 p-2 hover:bg-accent cursor-pointer"
+                                                            onClick={() => {
+                                                              handleAddDependency(
+                                                                t.uuid
+                                                              );
+                                                              setDependsSearchTerm(
+                                                                ''
+                                                              );
+                                                            }}
+                                                          >
+                                                            <input
+                                                              type="checkbox"
+                                                              checked={editedDepends.includes(
+                                                                t.uuid
+                                                              )}
+                                                              readOnly
+                                                            />
+                                                            <span className="text-sm">
+                                                              {t.description}
+                                                            </span>
+                                                          </div>
+                                                        ))}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={() =>
+                                                    handleDependsSaveClick(task)
+                                                  }
+                                                >
+                                                  <CheckIcon className="h-4 w-4 text-green-500" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={() => {
+                                                    setIsEditingDepends(false);
+                                                    setDependsDropdownOpen(
+                                                      false
+                                                    );
+                                                  }}
+                                                >
+                                                  <XIcon className="h-4 w-4 text-red-500" />
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </TableCell>
                                       </TableRow>
                                       <TableRow>
                                         <TableCell>Recur:</TableCell>
