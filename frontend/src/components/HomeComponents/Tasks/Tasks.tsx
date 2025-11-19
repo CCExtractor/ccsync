@@ -130,6 +130,27 @@ export const Tasks = (
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
+  const isOverdue = (due?: string) => {
+    if (!due) return false;
+
+    // Taskwarrior format: 20251115T183000Z
+    const parsed = new Date(
+      due.replace(
+        /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/,
+        '$1-$2-$3T$4:$5:$6Z'
+      )
+    );
+
+    // Convert to local date (ignore time)
+    const dueDate = new Date(parsed);
+    dueDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return dueDate < today;
+  };
+
   // Debounced search handler
   const debouncedSearch = debounce((value: string) => {
     if (!value) {
@@ -150,7 +171,7 @@ export const Tasks = (
         (task.tags &&
           task.tags.some((tag) => tag.toLowerCase().includes(lowerValue)))
     );
-    setTempTasks(filtered);
+    setTempTasks(sortWithOverdueOnTop(filtered));
     setCurrentPage(1);
   }, 300);
 
@@ -549,6 +570,20 @@ export const Tasks = (
   // Handle removing a tag while editing task
   const handleRemoveEditTag = (tagToRemove: string) => {
     setEditedTags(editedTags.filter((tag) => tag !== tagToRemove));
+  }
+  
+  const sortWithOverdueOnTop = (tasks: Task[]) => {
+    return [...tasks].sort((a, b) => {
+      const aOverdue = a.status === 'pending' && isOverdue(a.due);
+      const bOverdue = b.status === 'pending' && isOverdue(b.due);
+
+      // Overdue always on top
+      if (aOverdue && !bOverdue) return -1;
+      if (!aOverdue && bOverdue) return 1;
+
+      // Otherwise fall back to ID sort DESC (latest first)
+      return b.id - a.id;
+    });
   };
 
   useEffect(() => {
@@ -575,6 +610,8 @@ export const Tasks = (
           task.tags && task.tags.some((tag) => selectedTags.includes(tag))
       );
     }
+
+    filteredTasks = sortWithOverdueOnTop(filteredTasks);
 
     // Sort + set
     setTempTasks(filteredTasks);
@@ -1006,7 +1043,14 @@ export const Tasks = (
                               <TableRow key={index} className="border-b">
                                 {/* Display task details */}
                                 <TableCell className="py-2">
-                                  <span className="text-s text-foreground">
+                                  <span
+                                    className={`px-3 py-1 rounded-md font-semibold ${
+                                      task.status === 'pending' &&
+                                      isOverdue(task.due)
+                                        ? 'bg-red-600/80 text-white'
+                                        : ''
+                                    }`}
+                                  >
                                     {task.id}
                                   </span>
                                 </TableCell>
@@ -1069,7 +1113,15 @@ export const Tasks = (
                                     <TableBody>
                                       <TableRow>
                                         <TableCell>ID:</TableCell>
-                                        <TableCell>{task.id}</TableCell>
+                                        <TableCell className="flex items-center gap-3">
+                                          {task.id}
+                                          {task.status === 'pending' &&
+                                            isOverdue(task.due) && (
+                                              <Badge className="bg-red-600 text-white shadow-lg shadow-red-700/40 animate-pulse">
+                                                Overdue
+                                              </Badge>
+                                            )}
+                                        </TableCell>
                                       </TableRow>
                                       <TableRow>
                                         <TableCell>Description:</TableCell>
