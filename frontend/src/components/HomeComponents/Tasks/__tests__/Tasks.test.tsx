@@ -56,6 +56,7 @@ jest.mock('../hooks', () => ({
               project: i % 2 === 0 ? 'ProjectA' : 'ProjectB',
               tags: i % 3 === 0 ? ['tag1'] : ['tag2'],
               uuid: `uuid-${i + 1}`,
+              due: i === 0 ? '20200101T120000Z' : undefined,
             }))
           ),
         })),
@@ -143,5 +144,24 @@ describe('Tasks Component', () => {
     expect(localStorageMock.setItem).toHaveBeenCalledWith('mockHashedKey', '5');
 
     expect(screen.getByTestId('current-page')).toHaveTextContent('1');
+  });
+
+  test('shows red background on task ID and Overdue badge for overdue tasks', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await screen.findByText('Task 12');
+
+    const dropdown = screen.getByLabelText('Show:');
+    fireEvent.change(dropdown, { target: { value: '20' } });
+
+    const task1Description = screen.getByText('Task 1');
+    const row = task1Description.closest('tr');
+    const idElement = row?.querySelector('span');
+
+    expect(idElement).toHaveClass('bg-red-600/80');
+    fireEvent.click(idElement!);
+
+    const overdueBadge = await screen.findByText('Overdue');
+    expect(overdueBadge).toBeInTheDocument();
   });
 });
