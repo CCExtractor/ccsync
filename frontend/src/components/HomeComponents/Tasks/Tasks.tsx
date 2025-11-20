@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
+import { useHotkeys } from '@/hooks/useHotkeys';
 import {
   Table,
   TableBody,
@@ -128,6 +129,9 @@ export const Tasks = (
   const [editedEndDate, setEditedEndDate] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const isOverdue = (due?: string) => {
     if (!due) return false;
@@ -195,6 +199,41 @@ export const Tasks = (
   const emptyRows = tasksPerPage - currentTasks.length;
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   const totalPages = Math.ceil(tempTasks.length / tasksPerPage) || 1;
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSelectedIndex((prev) => Math.min(prev + 1, currentTasks.length - 1));
+      }
+
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSelectedIndex((prev) => Math.max(prev - 1, 0));
+      }
+
+      if (e.key === 'e') {
+        e.preventDefault();
+        const task = currentTasks[selectedIndex];
+        if (task) {
+          document.getElementById(`task-row-${task.id}`)?.click();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handler, true);
+    return () => window.removeEventListener('keydown', handler, true);
+  }, [hotkeysEnabled, selectedIndex, currentTasks]);
 
   useEffect(() => {
     const hashedKey = hashKey('tasksPerPage', props.email);
@@ -678,6 +717,54 @@ export const Tasks = (
     }
   };
 
+  useHotkeys(['f'], () => {
+    if (!showReports) {
+      document.getElementById('search')?.focus();
+    }
+  });
+  useHotkeys(['a'], () => {
+    if (!showReports) {
+      document.getElementById('add-new-task')?.click();
+    }
+  });
+  useHotkeys(['r'], () => {
+    if (!showReports) {
+      document.getElementById('sync-task')?.click();
+    }
+  });
+  useHotkeys(['c'], () => {
+    if (!showReports) {
+      const task = currentTasks[selectedIndex];
+      if (!task) return;
+      // Step 1
+      const openBtn = document.getElementById(`task-row-${task.id}`);
+      openBtn?.click();
+      // Step 2
+      setTimeout(() => {
+        const confirmBtn = document.getElementById(
+          `mark-task-complete-${task.id}`
+        );
+        confirmBtn?.click();
+      }, 150);
+    }
+  });
+  useHotkeys(['d'], () => {
+    if (!showReports) {
+      const task = currentTasks[selectedIndex];
+      if (!task) return;
+      // Step 1
+      const openBtn = document.getElementById(`task-row-${task.id}`);
+      openBtn?.click();
+      // Step 2
+      setTimeout(() => {
+        const confirmBtn = document.getElementById(
+          `mark-task-as-deleted-${task.id}`
+        );
+        confirmBtn?.click();
+      }, 150);
+    }
+  });
+
   return (
     <section
       id="tasks"
@@ -728,7 +815,11 @@ export const Tasks = (
       {showReports ? (
         <ReportsView tasks={tasks} />
       ) : (
-        <>
+        <div
+          ref={tableRef}
+          onMouseEnter={() => setHotkeysEnabled(true)}
+          onMouseLeave={() => setHotkeysEnabled(false)}
+        >
           {tasks.length != 0 ? (
             <>
               <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full pt-12 pb-6">
@@ -742,6 +833,7 @@ export const Tasks = (
                   </h3>
                   <div className="hidden sm:flex flex-row w-full items-center gap-2 md:gap-4">
                     <Input
+                      id="search"
                       type="text"
                       placeholder="Search tasks..."
                       value={searchTerm}
@@ -777,6 +869,7 @@ export const Tasks = (
                       >
                         <DialogTrigger asChild>
                           <Button
+                            id="add-new-task"
                             variant="outline"
                             onClick={() => setIsAddTaskOpen(true)}
                           >
@@ -959,6 +1052,7 @@ export const Tasks = (
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <Button
+                        id="sync-task"
                         variant="outline"
                         onClick={() => (
                           props.setIsLoading(true),
@@ -1022,7 +1116,11 @@ export const Tasks = (
                             key={index}
                           >
                             <DialogTrigger asChild>
-                              <TableRow key={index} className="border-b">
+                              <TableRow
+                                id={`task-row-${task.id}`}
+                                key={index}
+                                className={`border-b cursor-pointer ${selectedIndex === index ? 'bg-muted/50' : ''}`}
+                              >
                                 {/* Display task details */}
                                 <TableCell className="py-2">
                                   <span
@@ -1743,7 +1841,11 @@ export const Tasks = (
                                 {task.status == 'pending' ? (
                                   <Dialog>
                                     <DialogTrigger asChild className="mr-5">
-                                      <Button>Mark As Completed</Button>
+                                      <Button
+                                        id={`mark-task-complete-${task.id}`}
+                                      >
+                                        Mark As Completed
+                                      </Button>
                                     </DialogTrigger>
                                     <DialogContent>
                                       <DialogTitle>
@@ -1784,6 +1886,7 @@ export const Tasks = (
                                   <Dialog>
                                     <DialogTrigger asChild>
                                       <Button
+                                        id={`mark-task-as-deleted-${task.id}`}
                                         className="mr-4"
                                         variant={'destructive'}
                                       >
@@ -2068,7 +2171,7 @@ export const Tasks = (
               </div>
             </>
           )}
-        </>
+        </div>
       )}
     </section>
   );
