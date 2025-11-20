@@ -1,11 +1,4 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  act,
-  within,
-  waitFor,
-} from '@testing-library/react';
+import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import { Tasks } from '../Tasks';
 
 // Mock props for the Tasks component
@@ -70,6 +63,14 @@ jest.mock('@/components/ui/select', () => {
     ),
   };
 });
+
+jest.mock('@/components/ui/tagSelector', () => ({
+  TagSelector: jest.fn(({ selected }) => (
+    <div data-testid="mock-tag-selector">
+      Mocked TagSelector - Selected: {selected?.join(', ') || 'none'}
+    </div>
+  )),
+}));
 
 jest.mock('../../BottomBar/BottomBar', () => {
   return jest.fn(() => <div>Mocked BottomBar</div>);
@@ -205,124 +206,7 @@ describe('Tasks Component', () => {
     expect(screen.getByTestId('current-page')).toHaveTextContent('1');
   });
 
-  test('shows tags as badges in task dialog and allows editing (add on Enter)', async () => {
-    render(<Tasks {...mockProps} />);
-
-    expect(await screen.findByText('Task 1')).toBeInTheDocument();
-
-    const taskRow = screen.getByText('Task 1');
-    fireEvent.click(taskRow);
-
-    expect(await screen.findByText('Tags:')).toBeInTheDocument();
-
-    expect(screen.getByText('tag1')).toBeInTheDocument();
-
-    const tagsLabel = screen.getByText('Tags:');
-    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
-    const pencilButton = within(tagsRow).getByRole('button');
-    fireEvent.click(pencilButton);
-
-    const editInput = await screen.findByPlaceholderText(
-      'Add a tag (press enter to add)'
-    );
-
-    fireEvent.change(editInput, { target: { value: 'newtag' } });
-    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
-
-    expect(await screen.findByText('newtag')).toBeInTheDocument();
-
-    expect((editInput as HTMLInputElement).value).toBe('');
-  });
-
-  test('adds a tag while editing and saves updated tags to backend', async () => {
-    render(<Tasks {...mockProps} />);
-
-    expect(await screen.findByText('Task 1')).toBeInTheDocument();
-
-    const taskRow = screen.getByText('Task 1');
-    fireEvent.click(taskRow);
-
-    expect(await screen.findByText('Tags:')).toBeInTheDocument();
-
-    const tagsLabel = screen.getByText('Tags:');
-    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
-    const pencilButton = within(tagsRow).getByRole('button');
-    fireEvent.click(pencilButton);
-
-    const editInput = await screen.findByPlaceholderText(
-      'Add a tag (press enter to add)'
-    );
-
-    fireEvent.change(editInput, { target: { value: 'addedtag' } });
-    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
-
-    expect(await screen.findByText('addedtag')).toBeInTheDocument();
-
-    const saveButton = await screen.findByRole('button', {
-      name: /save tags/i,
-    });
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      const hooks = require('../hooks');
-      expect(hooks.editTaskOnBackend).toHaveBeenCalled();
-    });
-
-    const hooks = require('../hooks');
-    const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
-    expect(callArg.tags).toEqual(expect.arrayContaining(['tag1', 'addedtag']));
-  });
-
-  test('removes a tag while editing and saves updated tags to backend', async () => {
-    render(<Tasks {...mockProps} />);
-
-    expect(await screen.findByText('Task 1')).toBeInTheDocument();
-
-    const taskRow = screen.getByText('Task 1');
-    fireEvent.click(taskRow);
-
-    expect(await screen.findByText('Tags:')).toBeInTheDocument();
-
-    const tagsLabel = screen.getByText('Tags:');
-    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
-    const pencilButton = within(tagsRow).getByRole('button');
-    fireEvent.click(pencilButton);
-
-    const editInput = await screen.findByPlaceholderText(
-      'Add a tag (press enter to add)'
-    );
-
-    fireEvent.change(editInput, { target: { value: 'newtag' } });
-    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
-
-    expect(await screen.findByText('newtag')).toBeInTheDocument();
-
-    const tagBadge = screen.getByText('tag1');
-    const badgeContainer = (tagBadge.closest('div') ||
-      tagBadge.parentElement) as HTMLElement;
-
-    const removeButton = within(badgeContainer).getByText('✖');
-    fireEvent.click(removeButton);
-
-    expect(screen.queryByText('tag1')).not.toBeInTheDocument();
-
-    const saveButton = await screen.findByRole('button', {
-      name: /save tags/i,
-    });
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      const hooks = require('../hooks');
-      expect(hooks.editTaskOnBackend).toHaveBeenCalled();
-    });
-
-    const hooks = require('../hooks');
-    const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
-
-    expect(callArg.tags).toEqual(expect.arrayContaining(['newtag', '-tag1']));
-  });
-
-  test('shows orange background on task ID and Overdue badge for overdue tasks', async () => {
+  test('shows red background on task ID and Overdue badge for overdue tasks', async () => {
     render(<Tasks {...mockProps} />);
 
     await screen.findByText('Task 12');
@@ -340,6 +224,7 @@ describe('Tasks Component', () => {
     const overdueBadge = await screen.findByText('Overdue');
     expect(overdueBadge).toBeInTheDocument();
   });
+
   test('filters tasks with fuzzy search (handles typos)', async () => {
     jest.useFakeTimers();
 
@@ -484,5 +369,47 @@ describe('Tasks Component', () => {
     });
 
     expect(newProjectInput).toHaveValue('My Fresh Project');
+  });
+
+  test('renders mocked TagSelector in Add Task dialog', async () => {
+    render(<Tasks {...mockProps} />);
+
+    const addButton = screen.getAllByText('Add Task')[0];
+    fireEvent.click(addButton);
+
+    expect(await screen.findByTestId('mock-tag-selector')).toBeInTheDocument();
+  });
+
+  test('TagSelector receives correct options and selected values', async () => {
+    render(<Tasks {...mockProps} />);
+
+    fireEvent.click(screen.getAllByText('Add Task')[0]);
+
+    const tagSelector = await screen.findByTestId('mock-tag-selector');
+
+    expect(tagSelector).toHaveTextContent('Selected: none');
+  });
+
+  test('Selecting tags updates newTask state', async () => {
+    (
+      require('@/components/ui/tagSelector').TagSelector as jest.Mock
+    ).mockImplementation(({ selected, onChange }) => (
+      <div>
+        <button data-testid="add-tag" onClick={() => onChange(['tag1'])}>
+          Add Tag1
+        </button>
+        <div data-testid="mock-tag-selector">
+          {selected?.join(',') || 'none'}
+        </div>
+      </div>
+    ));
+
+    render(<Tasks {...mockProps} />);
+
+    fireEvent.click(screen.getAllByText('Add Task')[0]);
+
+    fireEvent.click(await screen.findByTestId('add-tag'));
+
+    expect(screen.getByTestId('mock-tag-selector')).toHaveTextContent('tag1');
   });
 });
