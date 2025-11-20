@@ -570,8 +570,8 @@ export const Tasks = (
   // Handle removing a tag while editing task
   const handleRemoveEditTag = (tagToRemove: string) => {
     setEditedTags(editedTags.filter((tag) => tag !== tagToRemove));
-  }
-  
+  };
+
   const sortWithOverdueOnTop = (tasks: Task[]) => {
     return [...tasks].sort((a, b) => {
       const aOverdue = a.status === 'pending' && isOverdue(a.due);
