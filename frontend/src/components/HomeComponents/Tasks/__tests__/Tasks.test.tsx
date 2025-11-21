@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import { Tasks } from '../Tasks';
 
 // Mock props for the Tasks component
@@ -144,6 +144,117 @@ describe('Tasks Component', () => {
     expect(localStorageMock.setItem).toHaveBeenCalledWith('mockHashedKey', '5');
 
     expect(screen.getByTestId('current-page')).toHaveTextContent('1');
+  });
+
+  test('shows tags as badges in task dialog and allows editing (add on Enter)', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+    const taskRow = screen.getByText('Task 1');
+    fireEvent.click(taskRow);
+
+    expect(await screen.findByText('Tags:')).toBeInTheDocument();
+
+    expect(screen.getByText('tag1')).toBeInTheDocument();
+
+    const tagsLabel = screen.getByText('Tags:');
+    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
+    const pencilButton = within(tagsRow).getByRole('button');
+    fireEvent.click(pencilButton);
+
+    const editInput = await screen.findByPlaceholderText(
+      'Add a tag (press enter to add)'
+    );
+
+    fireEvent.change(editInput, { target: { value: 'newtag' } });
+    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
+
+    expect(await screen.findByText('newtag')).toBeInTheDocument();
+
+    expect((editInput as HTMLInputElement).value).toBe('');
+  });
+
+  test('adds a tag while editing and saves updated tags to backend', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+    const taskRow = screen.getByText('Task 1');
+    fireEvent.click(taskRow);
+
+    expect(await screen.findByText('Tags:')).toBeInTheDocument();
+
+    const tagsLabel = screen.getByText('Tags:');
+    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
+    const pencilButton = within(tagsRow).getByRole('button');
+    fireEvent.click(pencilButton);
+
+    const editInput = await screen.findByPlaceholderText(
+      'Add a tag (press enter to add)'
+    );
+
+    fireEvent.change(editInput, { target: { value: 'addedtag' } });
+    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
+
+    expect(await screen.findByText('addedtag')).toBeInTheDocument();
+
+    const actionContainer = editInput.parentElement as HTMLElement;
+    const actionButtons = within(actionContainer).getAllByRole('button');
+    fireEvent.click(actionButtons[0]);
+
+    const hooks = require('../hooks');
+    expect(hooks.editTaskOnBackend).toHaveBeenCalled();
+
+    const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
+    expect(callArg.tags).toEqual(expect.arrayContaining(['tag1', 'addedtag']));
+  });
+
+  test('removes a tag while editing and saves updated tags to backend', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+    const taskRow = screen.getByText('Task 1');
+    fireEvent.click(taskRow);
+
+    expect(await screen.findByText('Tags:')).toBeInTheDocument();
+
+    const tagsLabel = screen.getByText('Tags:');
+    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
+    const pencilButton = within(tagsRow).getByRole('button');
+    fireEvent.click(pencilButton);
+
+    const editInput = await screen.findByPlaceholderText(
+      'Add a tag (press enter to add)'
+    );
+
+    fireEvent.change(editInput, { target: { value: 'newtag' } });
+    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
+
+    expect(await screen.findByText('newtag')).toBeInTheDocument();
+
+    const tagBadge = screen.getByText('tag1');
+    const badgeContainer = (tagBadge.closest('div') ||
+      tagBadge.parentElement) as HTMLElement;
+
+    const removeButton = within(badgeContainer).getByText('✖');
+    fireEvent.click(removeButton);
+
+    expect(screen.queryByText('tag2')).not.toBeInTheDocument();
+
+    const actionContainer = editInput.parentElement as HTMLElement;
+
+    const actionButtons = within(actionContainer).getAllByRole('button');
+
+    fireEvent.click(actionButtons[0]);
+
+    const hooks = require('../hooks');
+    expect(hooks.editTaskOnBackend).toHaveBeenCalled();
+
+    const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
+
+    expect(callArg.tags).toEqual(expect.arrayContaining(['newtag', '-tag1']));
   });
 
   test('shows red background on task ID and Overdue badge for overdue tasks', async () => {
