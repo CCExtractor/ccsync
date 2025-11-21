@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
+import Fuse from 'fuse.js';
 import {
   Table,
   TableBody,
@@ -128,6 +129,7 @@ export const Tasks = (
   const [isEditingEndDate, setIsEditingEndDate] = useState(false);
   const [editedEndDate, setEditedEndDate] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
 
   const isOverdue = (due?: string) => {
@@ -153,25 +155,7 @@ export const Tasks = (
 
   // Debounced search handler
   const debouncedSearch = debounce((value: string) => {
-    if (!value) {
-      setTempTasks(
-        selectedProjects.length === 0 &&
-          selectedStatuses.length === 0 &&
-          selectedTags.length === 0
-          ? tasks
-          : tempTasks
-      );
-      return;
-    }
-    const lowerValue = value.toLowerCase();
-    const filtered = tasks.filter(
-      (task) =>
-        task.description.toLowerCase().includes(lowerValue) ||
-        (task.project && task.project.toLowerCase().includes(lowerValue)) ||
-        (task.tags &&
-          task.tags.some((tag) => tag.toLowerCase().includes(lowerValue)))
-    );
-    setTempTasks(sortWithOverdueOnTop(filtered));
+    setDebouncedTerm(value);
     setCurrentPage(1);
   }, 300);
 
@@ -586,6 +570,7 @@ export const Tasks = (
     });
   };
 
+  // Master filter
   useEffect(() => {
     let filteredTasks = tasks;
 
@@ -596,7 +581,7 @@ export const Tasks = (
       );
     }
 
-    //Status filter
+    // Status filter
     if (selectedStatuses.length > 0) {
       filteredTasks = filteredTasks.filter((task) =>
         selectedStatuses.includes(task.status)
@@ -611,11 +596,25 @@ export const Tasks = (
       );
     }
 
-    filteredTasks = sortWithOverdueOnTop(filteredTasks);
+    // Fuzzy search
+    if (debouncedTerm.trim() !== '') {
+      const fuseOptions = {
+        keys: ['description', 'project', 'tags'],
+        threshold: 0.4,
+        ignoreLocation: true,
+        includeScore: false,
+      };
 
-    // Sort + set
+      const fuse = new Fuse(filteredTasks, fuseOptions);
+      const results = fuse.search(debouncedTerm);
+
+      filteredTasks = results.map((r) => r.item);
+    }
+
+    // Keep overdue tasks always on top
+    filteredTasks = sortWithOverdueOnTop(filteredTasks);
     setTempTasks(filteredTasks);
-  }, [selectedProjects, selectedTags, selectedStatuses, tasks]);
+  }, [selectedProjects, selectedTags, selectedStatuses, tasks, debouncedTerm]);
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
