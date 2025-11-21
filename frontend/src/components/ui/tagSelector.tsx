@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Check, ChevronsUpDown, Plus } from 'lucide-react';
+import { Check, ChevronsUpDown, Plus, X } from 'lucide-react';
 
 import { cn } from '@/components/utils/utils';
 import { Button } from '@/components/ui/button';
@@ -53,6 +53,13 @@ export function TagSelector({
       onChange([...selected, tag]);
     }
   };
+
+  // Remove a tag when X inside the chip is clicked
+  const removeTagInsideChip = (tag: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    onChange(selected.filter((t) => t !== tag));
+  };
+
   return (
     <>
       <Popover open={open} onOpenChange={setOpen}>
@@ -61,7 +68,7 @@ export function TagSelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between h-auto min-h-[40px]"
+            className="w-full justify-between h-auto min-h-[40px] group"
           >
             <div className="flex flex-wrap gap-2 items-center">
               {selected.length === 0 ? (
@@ -70,9 +77,14 @@ export function TagSelector({
                 selected.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-1 rounded-md bg-muted text-sm"
+                    className="px-2 py-1 rounded-md bg-muted text-sm flex items-center gap-1 hover:text-neutral-300
+                                group-hover:bg-black group-hover:text-muted-foreground transition-colors"
                   >
                     {tag}
+                    <X
+                      className="w-3 h-3 cursor-pointer hover:text-red-500"
+                      onClick={(e) => removeTagInsideChip(tag, e)}
+                    />
                   </span>
                 ))
               )}

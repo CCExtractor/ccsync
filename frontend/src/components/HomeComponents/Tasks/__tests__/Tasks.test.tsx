@@ -374,7 +374,8 @@ describe('Tasks Component', () => {
   test('renders mocked TagSelector in Add Task dialog', async () => {
     render(<Tasks {...mockProps} />);
 
-    const addButton = screen.getAllByText('Add Task')[0];
+    const addButton = screen.getByRole('button', { name: /add task/i });
+
     fireEvent.click(addButton);
 
     expect(await screen.findByTestId('mock-tag-selector')).toBeInTheDocument();

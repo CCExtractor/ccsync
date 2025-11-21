@@ -707,14 +707,6 @@ export const Tasks = (
     }
   };
 
-  // Handle removing a tag
-  const handleRemoveTag = (tagToRemove: string) => {
-    setNewTask({
-      ...newTask,
-      tags: newTask.tags.filter((tag) => tag !== tagToRemove),
-    });
-  };
-
   const sortWithOverdueOnTop = (tasks: Task[]) => {
     return [...tasks].sort((a, b) => {
       const aOverdue = a.status === 'pending' && isOverdue(a.due);
@@ -1231,28 +1223,6 @@ export const Tasks = (
                                   placeholder="Select or Create Tags"
                                 />
                               </div>
-                            </div>
-
-                            <div className="mt-2">
-                              {newTask.tags.length > 0 && (
-                                <div className="grid grid-cols-4 items-center">
-                                  <div> </div>
-                                  <div className="flex flex-wrap gap-2 col-span-3">
-                                    {newTask.tags.map((tag, index) => (
-                                      <Badge key={index}>
-                                        <span>{tag}</span>
-                                        <button
-                                          type="button"
-                                          className="ml-2 text-red-500"
-                                          onClick={() => handleRemoveTag(tag)}
-                                        >
-                                          ✖
-                                        </button>
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
                             </div>
                           </div>
                           <DialogFooter>
