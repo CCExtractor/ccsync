@@ -133,7 +133,6 @@ export const HomePage: React.FC = () => {
           });
         }
       } catch (error) {
-        // else if (data.status === 'success') {
         console.error('Failed to parse message data:', error);
       }
     };

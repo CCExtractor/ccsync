@@ -139,7 +139,6 @@ export const Tasks = (
   const isOverdue = (due?: string) => {
     if (!due) return false;
 
-    // Taskwarrior format: 20251115T183000Z
     const parsed = new Date(
       due.replace(
         /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/,
@@ -147,7 +146,6 @@ export const Tasks = (
       )
     );
 
-    // Convert to local date (ignore time)
     const dueDate = new Date(parsed);
     dueDate.setHours(0, 0, 0, 0);
 
@@ -157,7 +155,6 @@ export const Tasks = (
     return dueDate < today;
   };
 
-  // Debounced search handler
   const debouncedSearch = debounce((value: string) => {
     setDebouncedTerm(value);
     setCurrentPage(1);
@@ -198,7 +195,6 @@ export const Tasks = (
     }
   }, [_selectedTask]);
 
-  // Load last sync time from localStorage on mount
   useEffect(() => {
     const hashedKey = hashKey('lastSyncTime', props.email);
     const storedLastSyncTime = localStorage.getItem(hashedKey);
@@ -210,10 +206,8 @@ export const Tasks = (
   // Update the displayed time every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      // Force re-render by updating the state
       setLastSyncTime((prevTime) => prevTime);
-    }, 10000); // Update every 10 seconds
-
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -380,7 +374,6 @@ export const Tasks = (
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     setSortOrder(newOrder);
     const sorted = sortTasks([...tasks], newOrder);
-    // Keep both states in sync so the table (which renders from tempTasks) reflects the new order
     setTasks(sorted);
     setTempTasks(sorted);
     setCurrentPage(1);
@@ -618,7 +611,6 @@ export const Tasks = (
     });
   };
 
-  // Master filter
   useEffect(() => {
     let filteredTasks = [...tasks];
 
@@ -659,7 +651,6 @@ export const Tasks = (
       filteredTasks = results.map((r) => r.item);
     }
 
-    // Keep overdue tasks always on top
     filteredTasks = sortWithOverdueOnTop(filteredTasks);
     setTempTasks(filteredTasks);
   }, [selectedProjects, selectedTags, selectedStatuses, tasks, debouncedTerm]);
@@ -670,13 +661,12 @@ export const Tasks = (
   };
 
   const handleSaveTags = (task: Task) => {
-    const currentTags = task.tags || []; // Default to an empty array if tags are null
+    const currentTags = task.tags || [];
     const removedTags = currentTags.filter((tag) => !editedTags.includes(tag));
-    const updatedTags = editedTags.filter((tag) => tag.trim() !== ''); // Remove any empty tags
-    const tagsToRemove = removedTags.map((tag) => `-${tag}`); // Prefix `-` for removed tags
-    const finalTags = [...updatedTags, ...tagsToRemove]; // Combine updated and removed tags
+    const updatedTags = editedTags.filter((tag) => tag.trim() !== '');
+    const tagsToRemove = removedTags.map((tag) => `-${tag}`);
+    const finalTags = [...updatedTags, ...tagsToRemove];
     console.log(finalTags);
-    // Call the backend function with updated tags
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -692,8 +682,8 @@ export const Tasks = (
       task.depends || []
     );
 
-    setIsEditingTags(false); // Exit editing mode
-    setEditTagInput(''); // Reset edit tag input
+    setIsEditingTags(false);
+    setEditTagInput('');
   };
 
   const handleCancelTags = () => {
@@ -701,14 +691,12 @@ export const Tasks = (
     setEditedTags([]);
   };
   const handleEditPriorityClick = (task: Task) => {
-    // Convert empty priority to "NONE" for the select component
     setEditedPriority(task.priority || 'NONE');
     setIsEditingPriority(true);
   };
 
   const handleSavePriority = async (task: Task) => {
     try {
-      // Convert "NONE" to empty string for backend
       const priorityValue = editedPriority === 'NONE' ? '' : editedPriority;
 
       await modifyTaskOnBackend({
