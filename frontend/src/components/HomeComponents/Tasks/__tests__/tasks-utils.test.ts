@@ -36,7 +36,7 @@ const createTask = (
   email: '',
   start: '',
   wait: '',
-  depends: [''],
+  depends: [],
   rtype: '',
   recur: '',
 });
