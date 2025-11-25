@@ -38,6 +38,17 @@ jest.mock('@/components/ui/multiSelect', () => ({
   )),
 }));
 
+jest.mock('../StatsMultiSelectFilter', () => ({
+  StatsMultiSelectFilter: jest.fn(({ title, options }) => (
+    <div data-testid={`stats-multiselect-${title.toLowerCase()}`}>
+      Mocked Stats MultiSelect: {title}
+      <div data-testid={`options-${title.toLowerCase()}`}>
+        {JSON.stringify(options)}
+      </div>
+    </div>
+  )),
+}));
+
 jest.mock('../../BottomBar/BottomBar', () => {
   return jest.fn(() => <div>Mocked BottomBar</div>);
 });
@@ -133,6 +144,37 @@ describe('Tasks Component', () => {
     render(<Tasks {...mockProps} />);
     expect(screen.getByTestId('tasks')).toBeInTheDocument();
     expect(screen.getByText('Mocked BottomBar')).toBeInTheDocument();
+  });
+
+  test('displays completion stats inside filter dropdown options', async () => {
+    const { StatsMultiSelectFilter } = require('../StatsMultiSelectFilter');
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+    const projectCall = StatsMultiSelectFilter.mock.calls.find(
+      ([props]: [{ title: string }]) => props.title === 'Projects'
+    );
+    expect(projectCall).toBeTruthy();
+    const projectOptions = projectCall![0].options;
+    expect(
+      projectOptions.some(
+        (opt: string) =>
+          opt.includes('ProjectA') && opt.includes('0/6') && opt.includes('0%')
+      )
+    ).toBe(true);
+
+    const tagCall = StatsMultiSelectFilter.mock.calls.find(
+      ([props]: [{ title: string }]) => props.title === 'Tags'
+    );
+    expect(tagCall).toBeTruthy();
+    const tagOptions = tagCall![0].options;
+    expect(
+      tagOptions.some(
+        (opt: string) =>
+          opt.includes('tag1') && opt.includes('0/4') && opt.includes('0%')
+      )
+    ).toBe(true);
   });
 
   test('renders the "Tasks per Page" dropdown with default value', async () => {

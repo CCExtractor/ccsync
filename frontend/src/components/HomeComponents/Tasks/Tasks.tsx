@@ -1,4 +1,11 @@
-import { useEffect, useState, useCallback } from 'react';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  Dispatch,
+  SetStateAction,
+} from 'react';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
 import Fuse from 'fuse.js';
@@ -60,6 +67,7 @@ import {
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
 import { MultiSelectFilter } from '@/components/ui/multiSelect';
+import { StatsMultiSelectFilter } from './StatsMultiSelectFilter';
 import BottomBar from '../BottomBar/BottomBar';
 import {
   addTaskToBackend,
@@ -74,6 +82,67 @@ import { format } from 'date-fns';
 import { Taskskeleton } from './Task-Skeleton';
 
 const db = new TasksDatabase();
+type CompletionSummary = Record<string, { total: number; completed: number }>;
+
+const COMPLETED_STATUS = 'completed';
+
+const roundPercentage = (completed: number, total: number) =>
+  total === 0 ? 0 : Math.round((completed / total) * 100);
+
+const aggregateProjectStats = (tasks: Task[]): CompletionSummary =>
+  tasks.reduce((acc, task) => {
+    if (!task.project) {
+      return acc;
+    }
+    if (!acc[task.project]) {
+      acc[task.project] = { total: 0, completed: 0 };
+    }
+    acc[task.project].total += 1;
+    if (task.status === COMPLETED_STATUS) {
+      acc[task.project].completed += 1;
+    }
+    return acc;
+  }, {} as CompletionSummary);
+
+const aggregateTagStats = (tasks: Task[]): CompletionSummary =>
+  tasks.reduce((acc, task) => {
+    (task.tags || []).forEach((tag) => {
+      if (!tag) {
+        return;
+      }
+      if (!acc[tag]) {
+        acc[tag] = { total: 0, completed: 0 };
+      }
+      acc[tag].total += 1;
+      if (task.status === COMPLETED_STATUS) {
+        acc[tag].completed += 1;
+      }
+    });
+    return acc;
+  }, {} as CompletionSummary);
+
+type LabelMaps = {
+  options: string[];
+  valueToDisplay: Record<string, string>;
+  displayToValue: Record<string, string>;
+};
+
+const buildLabelMaps = (keys: string[], stats: CompletionSummary): LabelMaps =>
+  keys.reduce(
+    (acc, key) => {
+      const { total = 0, completed = 0 } = stats[key] ?? {
+        total: 0,
+        completed: 0,
+      };
+      const percentage = roundPercentage(completed, total);
+      const label = `${key}    ${completed}/${total}    ${percentage}%`;
+      acc.options.push(label);
+      acc.valueToDisplay[key] = label;
+      acc.displayToValue[label] = key;
+      return acc;
+    },
+    { options: [], valueToDisplay: {}, displayToValue: {} } as LabelMaps
+  );
 export let syncTasksWithTwAndDb: () => any;
 
 export const Tasks = (
@@ -135,6 +204,75 @@ export const Tasks = (
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
+
+  const projectStats = useMemo(() => aggregateProjectStats(tasks), [tasks]);
+  const tagStats = useMemo(() => aggregateTagStats(tasks), [tasks]);
+
+  const {
+    options: projectDisplayOptions,
+    valueToDisplay: projectValueToDisplay,
+    displayToValue: projectDisplayToValue,
+  } = useMemo(
+    () => buildLabelMaps(uniqueProjects, projectStats),
+    [uniqueProjects, projectStats]
+  );
+
+  const {
+    options: tagDisplayOptions,
+    valueToDisplay: tagValueToDisplay,
+    displayToValue: tagDisplayToValue,
+  } = useMemo(
+    () => buildLabelMaps(uniqueTags, tagStats),
+    [uniqueTags, tagStats]
+  );
+
+  const selectedProjectDisplayValues = useMemo(
+    () =>
+      selectedProjects
+        .map((project) => projectValueToDisplay[project])
+        .filter((label): label is string => Boolean(label)),
+    [selectedProjects, projectValueToDisplay]
+  );
+
+  const selectedTagDisplayValues = useMemo(
+    () =>
+      selectedTags
+        .map((tag) => tagValueToDisplay[tag])
+        .filter((label): label is string => Boolean(label)),
+    [selectedTags, tagValueToDisplay]
+  );
+
+  const handleProjectSelectionChange = useCallback<
+    Dispatch<SetStateAction<string[]>>
+  >(
+    (valueOrUpdater) => {
+      if (typeof valueOrUpdater === 'function') {
+        setSelectedProjects(valueOrUpdater);
+        return;
+      }
+      const rawValues = valueOrUpdater
+        .map((label) => projectDisplayToValue[label])
+        .filter((value): value is string => Boolean(value));
+      setSelectedProjects(rawValues);
+    },
+    [projectDisplayToValue, setSelectedProjects]
+  );
+
+  const handleTagSelectionChange = useCallback<
+    Dispatch<SetStateAction<string[]>>
+  >(
+    (valueOrUpdater) => {
+      if (typeof valueOrUpdater === 'function') {
+        setSelectedTags(valueOrUpdater);
+        return;
+      }
+      const rawValues = valueOrUpdater
+        .map((label) => tagDisplayToValue[label])
+        .filter((value): value is string => Boolean(value));
+      setSelectedTags(rawValues);
+    },
+    [tagDisplayToValue, setSelectedTags]
+  );
 
   const isOverdue = (due?: string) => {
     if (!due) return false;
@@ -735,15 +873,15 @@ export const Tasks = (
       className="container py-24 pl-1 pr-1 md:pr-4 md:pl-4 sm:py-32"
     >
       <BottomBar
-        projects={uniqueProjects}
-        selectedProjects={selectedProjects}
-        setSelectedProject={setSelectedProjects}
+        projects={projectDisplayOptions}
+        selectedProjects={selectedProjectDisplayValues}
+        setSelectedProject={handleProjectSelectionChange}
         status={['pending', 'completed', 'deleted']}
         selectedStatuses={selectedStatuses}
         setSelectedStatus={setSelectedStatuses}
-        selectedTags={selectedTags}
-        tags={uniqueTags}
-        setSelectedTag={setSelectedTags}
+        selectedTags={selectedTagDisplayValues}
+        tags={tagDisplayOptions}
+        setSelectedTag={handleTagSelectionChange}
       />
 
       <h2
@@ -800,11 +938,13 @@ export const Tasks = (
                       className="flex-1 min-w-[150px]"
                       data-testid="task-search-bar"
                     />
-                    <MultiSelectFilter
+                    <StatsMultiSelectFilter
                       title="Projects"
-                      options={uniqueProjects}
-                      selectedValues={selectedProjects}
-                      onSelectionChange={setSelectedProjects}
+                      options={projectDisplayOptions}
+                      selectedValues={selectedProjectDisplayValues}
+                      onSelectionChange={(values) =>
+                        handleProjectSelectionChange(values)
+                      }
                       className="flex-1 min-w-[140px]"
                     />
                     <MultiSelectFilter
@@ -814,11 +954,13 @@ export const Tasks = (
                       onSelectionChange={setSelectedStatuses}
                       className="flex-1 min-w-[140px]"
                     />
-                    <MultiSelectFilter
+                    <StatsMultiSelectFilter
                       title="Tags"
-                      options={uniqueTags}
-                      selectedValues={selectedTags}
-                      onSelectionChange={setSelectedTags}
+                      options={tagDisplayOptions}
+                      selectedValues={selectedTagDisplayValues}
+                      onSelectionChange={(values) =>
+                        handleTagSelectionChange(values)
+                      }
                       className="flex-1 min-w-[140px]"
                     />
                     <div className="pr-2">
