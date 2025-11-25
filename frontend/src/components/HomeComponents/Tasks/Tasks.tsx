@@ -51,7 +51,9 @@ import {
   handleCopy,
   handleDate,
   markTaskAsCompleted,
+  bulkMarkTasksAsCompleted,
   markTaskAsDeleted,
+  bulkMarkTasksAsDeleted,
   Props,
   sortTasks,
   sortTasksById,
@@ -139,6 +141,7 @@ export const Tasks = (
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
+  const [selectedTaskUUIDs, setSelectedTaskUUIDs] = useState<string[]>([]);
   const tableRef = useRef<HTMLDivElement>(null);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -405,6 +408,36 @@ export const Tasks = (
       console.error('Failed to edit task:', error);
     }
   }
+
+  const handleBulkComplete = async () => {
+    if (selectedTaskUUIDs.length === 0) return;
+
+    const success = await bulkMarkTasksAsCompleted(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      selectedTaskUUIDs
+    );
+
+    if (success) {
+      setSelectedTaskUUIDs([]);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedTaskUUIDs.length === 0) return;
+
+    const success = await bulkMarkTasksAsDeleted(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      selectedTaskUUIDs
+    );
+
+    if (success) {
+      setSelectedTaskUUIDs([]);
+    }
+  };
 
   const handleIdSort = () => {
     const newOrder = idSortOrder === 'asc' ? 'desc' : 'asc';
@@ -951,7 +984,7 @@ export const Tasks = (
         >
           {tasks.length != 0 ? (
             <>
-              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full pt-12 pb-6">
+              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full pt-12 pb-6 relative overflow-y-auto">
                 {/* Table for displaying tasks */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <h3 className="ml-4 mb-4 mr-4 text-2xl mt-0 md:text-2xl font-bold">
@@ -1212,6 +1245,30 @@ export const Tasks = (
                   <Table className="w-full text-white">
                     <TableHeader>
                       <TableRow>
+                        <TableHead>
+                          <input
+                            type="checkbox"
+                            checked={
+                              currentTasks.filter((t) => t.status !== 'deleted')
+                                .length > 0 &&
+                              selectedTaskUUIDs.length ===
+                                currentTasks.filter(
+                                  (t) => t.status !== 'deleted'
+                                ).length
+                            }
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedTaskUUIDs(
+                                  currentTasks
+                                    .filter((task) => task.status !== 'deleted')
+                                    .map((task) => task.uuid)
+                                );
+                              } else {
+                                setSelectedTaskUUIDs([]);
+                              }
+                            }}
+                          />
+                        </TableHead>
                         <TableHead
                           className="py-2 w-0.20/6"
                           onClick={handleIdSort}
@@ -1267,6 +1324,28 @@ export const Tasks = (
                                   selectedIndex === index ? 'bg-muted/50' : ''
                                 }`}
                               >
+                                <TableCell className="w-[40px]">
+                                  <input
+                                    type="checkbox"
+                                    disabled={task.status === 'deleted'}
+                                    checked={selectedTaskUUIDs.includes(
+                                      task.uuid
+                                    )}
+                                    onClick={(e) => e.stopPropagation()}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedTaskUUIDs((prev) => [
+                                          ...prev,
+                                          task.uuid,
+                                        ]);
+                                      } else {
+                                        setSelectedTaskUUIDs((prev) =>
+                                          prev.filter((id) => id !== task.uuid)
+                                        );
+                                      }
+                                    }}
+                                  />
+                                </TableCell>
                                 {/* Display task details */}
                                 <TableCell className="py-2">
                                   <span
@@ -2460,6 +2539,96 @@ export const Tasks = (
                     {/* Intentionally empty for spacing */}
                   </div>
                 </div>
+                {selectedTaskUUIDs.length > 0 && (
+                  <div
+                    className="sticky bottom-0 left-1/2 -translate-x-1/2 w-fit bg-black border border-white rounded-lg shadow-xl p-1.5 mt-4 flex gap-4 z-50"
+                    data-testid="bulk-action-bar"
+                  >
+                    {/* Bulk Complete Dialog */}
+                    {!selectedTaskUUIDs.some((uuid) => {
+                      const task = currentTasks.find((t) => t.uuid === uuid);
+                      return task?.status === 'completed';
+                    }) && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="default"
+                            data-testid="bulk-complete-btn"
+                          >
+                            Mark {selectedTaskUUIDs.length}{' '}
+                            {selectedTaskUUIDs.length === 1 ? 'Task' : 'Tasks'}{' '}
+                            Completed
+                          </Button>
+                        </DialogTrigger>
+
+                        <DialogContent>
+                          <DialogTitle className="text-2xl font-bold">
+                            <span className="bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
+                              Are you
+                            </span>{' '}
+                            sure?
+                          </DialogTitle>
+
+                          <DialogFooter className="flex flex-row justify-center">
+                            <DialogClose asChild>
+                              <Button
+                                className="mr-5"
+                                onClick={async () => {
+                                  await handleBulkComplete();
+                                }}
+                              >
+                                Yes
+                              </Button>
+                            </DialogClose>
+
+                            <DialogClose asChild>
+                              <Button variant="destructive">No</Button>
+                            </DialogClose>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+
+                    {/* Bulk Delete Dialog */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          data-testid="bulk-delete-btn"
+                        >
+                          Delete {selectedTaskUUIDs.length}{' '}
+                          {selectedTaskUUIDs.length === 1 ? 'Task' : 'Tasks'}
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent>
+                        <DialogTitle className="text-2xl font-bold">
+                          <span className="bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
+                            Are you
+                          </span>{' '}
+                          sure?
+                        </DialogTitle>
+
+                        <DialogFooter className="flex flex-row justify-center">
+                          <DialogClose asChild>
+                            <Button
+                              className="mr-5"
+                              onClick={async () => {
+                                await handleBulkDelete();
+                              }}
+                            >
+                              Yes
+                            </Button>
+                          </DialogClose>
+
+                          <DialogClose asChild>
+                            <Button variant="destructive">No</Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                )}
               </div>
             </>
           ) : (
