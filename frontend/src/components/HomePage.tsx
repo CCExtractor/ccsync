@@ -77,7 +77,6 @@ export const HomePage: React.FC = () => {
         const data = JSON.parse(event.data);
         if (data.status === 'success') {
           getTasks(userInfo.email, userInfo.encryption_secret, userInfo.uuid);
-        } else if (data.status === 'success') {
           if (data.job === 'Add Task') {
             console.log('Task added successfully');
             toast.success('Task added successfully!', {
@@ -156,6 +155,7 @@ export const HomePage: React.FC = () => {
       return;
     }
 
+    /* istanbul ignore if */
     if (typeof window === 'undefined') {
       return;
     }

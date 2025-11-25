@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import { Tasks } from '../Tasks';
 
 // Mock props for the Tasks component
@@ -48,8 +48,8 @@ jest.mock('../hooks', () => ({
       where: jest.fn(() => ({
         equals: jest.fn(() => ({
           // Mock 12 tasks to test pagination
-          toArray: jest.fn().mockResolvedValue(
-            Array.from({ length: 12 }, (_, i) => ({
+          toArray: jest.fn().mockResolvedValue([
+            ...Array.from({ length: 12 }, (_, i) => ({
               id: i + 1,
               description: `Task ${i + 1}`,
               status: 'pending',
@@ -57,8 +57,34 @@ jest.mock('../hooks', () => ({
               tags: i % 3 === 0 ? ['tag1'] : ['tag2'],
               uuid: `uuid-${i + 1}`,
               due: i === 0 ? '20200101T120000Z' : undefined,
-            }))
-          ),
+            })),
+            {
+              id: 13,
+              description:
+                'Prepare quarterly financial analysis report for review',
+              status: 'pending',
+              project: 'Finance',
+              tags: ['report', 'analysis'],
+              uuid: 'uuid-corp-1',
+            },
+            {
+              id: 14,
+              description: 'Schedule client onboarding meeting with Sales team',
+              status: 'pending',
+              project: 'Sales',
+              tags: ['meeting', 'client'],
+              uuid: 'uuid-corp-2',
+            },
+            {
+              id: 15,
+              description:
+                'Draft technical documentation for API integration module',
+              status: 'pending',
+              project: 'Engineering',
+              tags: ['documentation', 'api'],
+              uuid: 'uuid-corp-3',
+            },
+          ]),
         })),
       })),
     },
@@ -146,6 +172,117 @@ describe('Tasks Component', () => {
     expect(screen.getByTestId('current-page')).toHaveTextContent('1');
   });
 
+  test('shows tags as badges in task dialog and allows editing (add on Enter)', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+    const taskRow = screen.getByText('Task 1');
+    fireEvent.click(taskRow);
+
+    expect(await screen.findByText('Tags:')).toBeInTheDocument();
+
+    expect(screen.getByText('tag1')).toBeInTheDocument();
+
+    const tagsLabel = screen.getByText('Tags:');
+    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
+    const pencilButton = within(tagsRow).getByRole('button');
+    fireEvent.click(pencilButton);
+
+    const editInput = await screen.findByPlaceholderText(
+      'Add a tag (press enter to add)'
+    );
+
+    fireEvent.change(editInput, { target: { value: 'newtag' } });
+    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
+
+    expect(await screen.findByText('newtag')).toBeInTheDocument();
+
+    expect((editInput as HTMLInputElement).value).toBe('');
+  });
+
+  test('adds a tag while editing and saves updated tags to backend', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+    const taskRow = screen.getByText('Task 1');
+    fireEvent.click(taskRow);
+
+    expect(await screen.findByText('Tags:')).toBeInTheDocument();
+
+    const tagsLabel = screen.getByText('Tags:');
+    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
+    const pencilButton = within(tagsRow).getByRole('button');
+    fireEvent.click(pencilButton);
+
+    const editInput = await screen.findByPlaceholderText(
+      'Add a tag (press enter to add)'
+    );
+
+    fireEvent.change(editInput, { target: { value: 'addedtag' } });
+    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
+
+    expect(await screen.findByText('addedtag')).toBeInTheDocument();
+
+    const actionContainer = editInput.parentElement as HTMLElement;
+    const actionButtons = within(actionContainer).getAllByRole('button');
+    fireEvent.click(actionButtons[0]);
+
+    const hooks = require('../hooks');
+    expect(hooks.editTaskOnBackend).toHaveBeenCalled();
+
+    const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
+    expect(callArg.tags).toEqual(expect.arrayContaining(['tag1', 'addedtag']));
+  });
+
+  test('removes a tag while editing and saves updated tags to backend', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+    const taskRow = screen.getByText('Task 1');
+    fireEvent.click(taskRow);
+
+    expect(await screen.findByText('Tags:')).toBeInTheDocument();
+
+    const tagsLabel = screen.getByText('Tags:');
+    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
+    const pencilButton = within(tagsRow).getByRole('button');
+    fireEvent.click(pencilButton);
+
+    const editInput = await screen.findByPlaceholderText(
+      'Add a tag (press enter to add)'
+    );
+
+    fireEvent.change(editInput, { target: { value: 'newtag' } });
+    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
+
+    expect(await screen.findByText('newtag')).toBeInTheDocument();
+
+    const tagBadge = screen.getByText('tag1');
+    const badgeContainer = (tagBadge.closest('div') ||
+      tagBadge.parentElement) as HTMLElement;
+
+    const removeButton = within(badgeContainer).getByText('✖');
+    fireEvent.click(removeButton);
+
+    expect(screen.queryByText('tag2')).not.toBeInTheDocument();
+
+    const actionContainer = editInput.parentElement as HTMLElement;
+
+    const actionButtons = within(actionContainer).getAllByRole('button');
+
+    fireEvent.click(actionButtons[0]);
+
+    const hooks = require('../hooks');
+    expect(hooks.editTaskOnBackend).toHaveBeenCalled();
+
+    const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
+
+    expect(callArg.tags).toEqual(expect.arrayContaining(['newtag', '-tag1']));
+  });
+
   test('shows red background on task ID and Overdue badge for overdue tasks', async () => {
     render(<Tasks {...mockProps} />);
 
@@ -163,5 +300,27 @@ describe('Tasks Component', () => {
 
     const overdueBadge = await screen.findByText('Overdue');
     expect(overdueBadge).toBeInTheDocument();
+  });
+  test('filters tasks with fuzzy search (handles typos)', async () => {
+    jest.useFakeTimers();
+
+    render(<Tasks {...mockProps} />);
+    expect(await screen.findByText('Task 12')).toBeInTheDocument();
+
+    const dropdown = screen.getByLabelText('Show:');
+    fireEvent.change(dropdown, { target: { value: '50' } });
+
+    const searchBar = screen.getByPlaceholderText('Search tasks...');
+    fireEvent.change(searchBar, { target: { value: 'fiace' } });
+
+    act(() => {
+      jest.advanceTimersByTime(300);
+    });
+
+    expect(await screen.findByText('Finance')).toBeInTheDocument();
+    expect(screen.queryByText('Engineering')).not.toBeInTheDocument();
+    expect(screen.queryByText('Sales')).not.toBeInTheDocument();
+
+    jest.useRealTimers();
   });
 });

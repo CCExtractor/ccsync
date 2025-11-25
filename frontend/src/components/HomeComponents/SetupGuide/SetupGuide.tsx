@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 
 export const SetupGuide = (props: Props) => {
   const downloadConfigFile = () => {
-    const configContent = exportConfigSetup(props); // already a string
+    const configContent = exportConfigSetup(props);
     const blob = new Blob([configContent], {
       type: 'text/plain;charset=utf-8',
     });

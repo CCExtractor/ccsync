@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
+import Fuse from 'fuse.js';
 import { useHotkeys } from '@/hooks/useHotkeys';
 import {
   Table,
@@ -113,6 +114,7 @@ export const Tasks = (
   const [editedTags, setEditedTags] = useState<string[]>(
     _selectedTask?.tags || []
   );
+  const [editTagInput, setEditTagInput] = useState<string>('');
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [isEditingPriority, setIsEditingPriority] = useState(false);
   const [editedPriority, setEditedPriority] = useState('NONE');
@@ -128,7 +130,12 @@ export const Tasks = (
   const [editedEntryDate, setEditedEntryDate] = useState('');
   const [isEditingEndDate, setIsEditingEndDate] = useState(false);
   const [editedEndDate, setEditedEndDate] = useState('');
+  const [isEditingDepends, setIsEditingDepends] = useState(false);
+  const [editedDepends, setEditedDepends] = useState<string[]>([]);
+  const [dependsDropdownOpen, setDependsDropdownOpen] = useState(false);
+  const [dependsSearchTerm, setDependsSearchTerm] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
   const tableRef = useRef<HTMLDivElement>(null);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
@@ -137,7 +144,6 @@ export const Tasks = (
   const isOverdue = (due?: string) => {
     if (!due) return false;
 
-    // Taskwarrior format: 20251115T183000Z
     const parsed = new Date(
       due.replace(
         /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/,
@@ -145,7 +151,6 @@ export const Tasks = (
       )
     );
 
-    // Convert to local date (ignore time)
     const dueDate = new Date(parsed);
     dueDate.setHours(0, 0, 0, 0);
 
@@ -155,27 +160,8 @@ export const Tasks = (
     return dueDate < today;
   };
 
-  // Debounced search handler
   const debouncedSearch = debounce((value: string) => {
-    if (!value) {
-      setTempTasks(
-        selectedProjects.length === 0 &&
-          selectedStatuses.length === 0 &&
-          selectedTags.length === 0
-          ? tasks
-          : tempTasks
-      );
-      return;
-    }
-    const lowerValue = value.toLowerCase();
-    const filtered = tasks.filter(
-      (task) =>
-        task.description.toLowerCase().includes(lowerValue) ||
-        (task.project && task.project.toLowerCase().includes(lowerValue)) ||
-        (task.tags &&
-          task.tags.some((tag) => tag.toLowerCase().includes(lowerValue)))
-    );
-    setTempTasks(sortWithOverdueOnTop(filtered));
+    setDebouncedTerm(value);
     setCurrentPage(1);
   }, 300);
 
@@ -250,7 +236,6 @@ export const Tasks = (
     }
   }, [_selectedTask]);
 
-  // Load last sync time from localStorage on mount
   useEffect(() => {
     const hashedKey = hashKey('lastSyncTime', props.email);
     const storedLastSyncTime = localStorage.getItem(hashedKey);
@@ -262,10 +247,8 @@ export const Tasks = (
   // Update the displayed time every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      // Force re-render by updating the state
       setLastSyncTime((prevTime) => prevTime);
-    }, 10000); // Update every 10 seconds
-
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
@@ -392,7 +375,8 @@ export const Tasks = (
     start: string,
     entry: string,
     wait: string,
-    end: string
+    end: string,
+    depends: string[]
   ) {
     try {
       await editTaskOnBackend({
@@ -408,6 +392,7 @@ export const Tasks = (
         entry,
         wait,
         end,
+        depends,
       });
 
       console.log('Task edited successfully!');
@@ -430,7 +415,6 @@ export const Tasks = (
     const newOrder = sortOrder === 'asc' ? 'desc' : 'asc';
     setSortOrder(newOrder);
     const sorted = sortTasks([...tasks], newOrder);
-    // Keep both states in sync so the table (which renders from tempTasks) reflects the new order
     setTasks(sorted);
     setTempTasks(sorted);
     setCurrentPage(1);
@@ -454,7 +438,8 @@ export const Tasks = (
       task.start,
       task.entry || '',
       task.wait || '',
-      task.end || ''
+      task.end || '',
+      task.depends || []
     );
     setIsEditing(false);
   };
@@ -472,7 +457,8 @@ export const Tasks = (
       task.start,
       task.entry || '',
       task.wait || '',
-      task.end || ''
+      task.end || '',
+      task.depends || []
     );
     setIsEditingProject(false);
   };
@@ -491,7 +477,8 @@ export const Tasks = (
       task.start,
       task.entry || '',
       task.wait,
-      task.end || ''
+      task.end || '',
+      task.depends || []
     );
 
     setIsEditingWaitDate(false);
@@ -511,7 +498,8 @@ export const Tasks = (
       task.start,
       task.entry || '',
       task.wait || '',
-      task.end || ''
+      task.end || '',
+      task.depends || []
     );
 
     setIsEditingStartDate(false);
@@ -531,7 +519,8 @@ export const Tasks = (
       task.start,
       task.entry,
       task.wait,
-      task.end
+      task.end,
+      task.depends || []
     );
 
     setIsEditingEntryDate(false);
@@ -551,10 +540,43 @@ export const Tasks = (
       task.start,
       task.entry,
       task.wait,
-      task.end
+      task.end,
+      task.depends || []
     );
 
     setIsEditingEndDate(false);
+  };
+
+  const handleDependsSaveClick = (task: Task) => {
+    task.depends = editedDepends;
+
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start,
+      task.entry || '',
+      task.wait || '',
+      task.end || '',
+      task.depends
+    );
+
+    setIsEditingDepends(false);
+    setDependsDropdownOpen(false);
+  };
+
+  const handleAddDependency = (uuid: string) => {
+    if (!editedDepends.includes(uuid)) {
+      setEditedDepends([...editedDepends, uuid]);
+    }
+  };
+
+  const handleRemoveDependency = (uuid: string) => {
+    setEditedDepends(editedDepends.filter((dep) => dep !== uuid));
   };
 
   const handleCancelClick = () => {
@@ -576,6 +598,10 @@ export const Tasks = (
       setEditedEntryDate('');
       setIsEditingEndDate(false);
       setEditedEndDate('');
+      setIsEditingDepends(false);
+      setEditedDepends([]);
+      setDependsDropdownOpen(false);
+      setDependsSearchTerm('');
     } else {
       setSelectedTask(task);
       setEditedDescription(task?.description || '');
@@ -591,12 +617,25 @@ export const Tasks = (
     }
   };
 
+  // Handle adding a tag while editing
+  const handleAddEditTag = () => {
+    if (editTagInput && !editedTags.includes(editTagInput, 0)) {
+      setEditedTags([...editedTags, editTagInput]);
+      setEditTagInput('');
+    }
+  };
+
   // Handle removing a tag
   const handleRemoveTag = (tagToRemove: string) => {
     setNewTask({
       ...newTask,
       tags: newTask.tags.filter((tag) => tag !== tagToRemove),
     });
+  };
+
+  // Handle removing a tag while editing task
+  const handleRemoveEditTag = (tagToRemove: string) => {
+    setEditedTags(editedTags.filter((tag) => tag !== tagToRemove));
   };
 
   const sortWithOverdueOnTop = (tasks: Task[]) => {
@@ -608,13 +647,13 @@ export const Tasks = (
       if (aOverdue && !bOverdue) return -1;
       if (!aOverdue && bOverdue) return 1;
 
-      // Otherwise fall back to ID sort DESC (latest first)
-      return b.id - a.id;
+      // Otherwise fall back to ID sort and status sort
+      return 0;
     });
   };
 
   useEffect(() => {
-    let filteredTasks = tasks;
+    let filteredTasks = [...tasks];
 
     // Project filter
     if (selectedProjects.length > 0) {
@@ -623,7 +662,7 @@ export const Tasks = (
       );
     }
 
-    //Status filter
+    // Status filter
     if (selectedStatuses.length > 0) {
       filteredTasks = filteredTasks.filter((task) =>
         selectedStatuses.includes(task.status)
@@ -638,11 +677,24 @@ export const Tasks = (
       );
     }
 
-    filteredTasks = sortWithOverdueOnTop(filteredTasks);
+    // Fuzzy search
+    if (debouncedTerm.trim() !== '') {
+      const fuseOptions = {
+        keys: ['description', 'project', 'tags'],
+        threshold: 0.4,
+        ignoreLocation: true,
+        includeScore: false,
+      };
 
-    // Sort + set
+      const fuse = new Fuse(filteredTasks, fuseOptions);
+      const results = fuse.search(debouncedTerm);
+
+      filteredTasks = results.map((r) => r.item);
+    }
+
+    filteredTasks = sortWithOverdueOnTop(filteredTasks);
     setTempTasks(filteredTasks);
-  }, [selectedProjects, selectedTags, selectedStatuses, tasks]);
+  }, [selectedProjects, selectedTags, selectedStatuses, tasks, debouncedTerm]);
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
@@ -650,13 +702,12 @@ export const Tasks = (
   };
 
   const handleSaveTags = (task: Task) => {
-    const currentTags = task.tags || []; // Default to an empty array if tags are null
+    const currentTags = task.tags || [];
     const removedTags = currentTags.filter((tag) => !editedTags.includes(tag));
-    const updatedTags = editedTags.filter((tag) => tag.trim() !== ''); // Remove any empty tags
-    const tagsToRemove = removedTags.map((tag) => `-${tag}`); // Prefix `-` for removed tags
-    const finalTags = [...updatedTags, ...tagsToRemove]; // Combine updated and removed tags
+    const updatedTags = editedTags.filter((tag) => tag.trim() !== '');
+    const tagsToRemove = removedTags.map((tag) => `-${tag}`);
+    const finalTags = [...updatedTags, ...tagsToRemove];
     console.log(finalTags);
-    // Call the backend function with updated tags
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -668,10 +719,12 @@ export const Tasks = (
       task.start,
       task.entry || '',
       task.wait || '',
-      task.end || ''
+      task.end || '',
+      task.depends || []
     );
 
-    setIsEditingTags(false); // Exit editing mode
+    setIsEditingTags(false);
+    setEditTagInput('');
   };
 
   const handleCancelTags = () => {
@@ -679,14 +732,12 @@ export const Tasks = (
     setEditedTags([]);
   };
   const handleEditPriorityClick = (task: Task) => {
-    // Convert empty priority to "NONE" for the select component
     setEditedPriority(task.priority || 'NONE');
     setIsEditingPriority(true);
   };
 
   const handleSavePriority = async (task: Task) => {
     try {
-      // Convert "NONE" to empty string for backend
       const priorityValue = editedPriority === 'NONE' ? '' : editedPriority;
 
       await modifyTaskOnBackend({
@@ -955,7 +1006,7 @@ export const Tasks = (
                                       priority: e.target.value,
                                     })
                                   }
-                                  className="border rounded-md px-2 py-1 w-full bg-black text-white"
+                                  className="border rounded-md px-2 py-1 w-full bg-white text-black dark:bg-black dark:text-white transition-colors"
                                 >
                                   <option value="H">H</option>
                                   <option value="M">M</option>
@@ -1031,19 +1082,22 @@ export const Tasks = (
 
                             <div className="mt-2">
                               {newTask.tags.length > 0 && (
-                                <div className="flex flex-wrap gap-2">
-                                  {newTask.tags.map((tag, index) => (
-                                    <Badge key={index}>
-                                      <span>{tag}</span>
-                                      <button
-                                        type="button"
-                                        className="ml-2 text-red-500"
-                                        onClick={() => handleRemoveTag(tag)}
-                                      >
-                                        ✖
-                                      </button>
-                                    </Badge>
-                                  ))}
+                                <div className="grid grid-cols-4 items-center">
+                                  <div> </div>
+                                  <div className="flex flex-wrap gap-2 col-span-3">
+                                    {newTask.tags.map((tag, index) => (
+                                      <Badge key={index}>
+                                        <span>{tag}</span>
+                                        <button
+                                          type="button"
+                                          className="ml-2 text-red-500"
+                                          onClick={() => handleRemoveTag(tag)}
+                                        >
+                                          ✖
+                                        </button>
+                                      </Badge>
+                                    ))}
+                                  </div>
                                 </div>
                               )}
                             </div>
@@ -1138,6 +1192,9 @@ export const Tasks = (
                       ) : (
                         currentTasks.map((task: Task, index: number) => (
                           <Dialog
+                            open={
+                              _isDialogOpen && _selectedTask?.id === task.id
+                            }
                             onOpenChange={(_isDialogOpen) =>
                               handleDialogOpenChange(_isDialogOpen, task)
                             }
@@ -1540,7 +1597,191 @@ export const Tasks = (
                                       </TableRow>
                                       <TableRow>
                                         <TableCell>Depends:</TableCell>
-                                        <TableCell>{task.depends}</TableCell>
+                                        <TableCell>
+                                          {!isEditingDepends ? (
+                                            <div className="flex flex-wrap items-center gap-2">
+                                              {(task.depends || []).map(
+                                                (depUuid) => {
+                                                  const depTask = tasks.find(
+                                                    (t) => t.uuid === depUuid
+                                                  );
+                                                  return (
+                                                    <Badge
+                                                      key={depUuid}
+                                                      variant="secondary"
+                                                      className="cursor-pointer"
+                                                      onClick={() => {
+                                                        if (depTask) {
+                                                          setIsDialogOpen(
+                                                            false
+                                                          );
+                                                          setTimeout(() => {
+                                                            setSelectedTask(
+                                                              depTask
+                                                            );
+                                                            setIsDialogOpen(
+                                                              true
+                                                            );
+                                                          }, 100);
+                                                        }
+                                                      }}
+                                                    >
+                                                      {depTask?.description ||
+                                                        depUuid.substring(0, 8)}
+                                                    </Badge>
+                                                  );
+                                                }
+                                              )}
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                  setIsEditingDepends(true);
+                                                  setEditedDepends(
+                                                    task.depends || []
+                                                  );
+                                                }}
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <div className="space-y-2">
+                                              <div className="flex flex-wrap items-center gap-2">
+                                                {editedDepends.map(
+                                                  (depUuid) => {
+                                                    const depTask = tasks.find(
+                                                      (t) => t.uuid === depUuid
+                                                    );
+                                                    return (
+                                                      <Badge
+                                                        key={depUuid}
+                                                        variant="secondary"
+                                                      >
+                                                        <span>
+                                                          {depTask?.description ||
+                                                            depUuid.substring(
+                                                              0,
+                                                              8
+                                                            )}
+                                                        </span>
+                                                        <button
+                                                          type="button"
+                                                          className="ml-2 text-red-500"
+                                                          onClick={() =>
+                                                            handleRemoveDependency(
+                                                              depUuid
+                                                            )
+                                                          }
+                                                        >
+                                                          ✖
+                                                        </button>
+                                                      </Badge>
+                                                    );
+                                                  }
+                                                )}
+                                              </div>
+                                              <div className="flex items-center gap-2">
+                                                <div className="relative flex-1">
+                                                  <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() =>
+                                                      setDependsDropdownOpen(
+                                                        !dependsDropdownOpen
+                                                      )
+                                                    }
+                                                    className="w-full justify-start"
+                                                  >
+                                                    <span className="text-lg mr-2">
+                                                      +
+                                                    </span>
+                                                    Add Dependency
+                                                  </Button>
+                                                  {dependsDropdownOpen && (
+                                                    <div className="absolute left-0 top-full mt-1 z-50 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                      <Input
+                                                        type="text"
+                                                        placeholder="Search tasks..."
+                                                        value={
+                                                          dependsSearchTerm
+                                                        }
+                                                        onChange={(e) =>
+                                                          setDependsSearchTerm(
+                                                            e.target.value
+                                                          )
+                                                        }
+                                                        className="m-2 w-[calc(100%-1rem)]"
+                                                      />
+                                                      {tasks
+                                                        .filter(
+                                                          (t) =>
+                                                            t.uuid !==
+                                                              task.uuid &&
+                                                            t.status ===
+                                                              'pending' &&
+                                                            !editedDepends.includes(
+                                                              t.uuid
+                                                            ) &&
+                                                            t.description
+                                                              .toLowerCase()
+                                                              .includes(
+                                                                dependsSearchTerm.toLowerCase()
+                                                              )
+                                                        )
+                                                        .map((t) => (
+                                                          <div
+                                                            key={t.uuid}
+                                                            className="flex items-center gap-2 p-2 hover:bg-accent cursor-pointer"
+                                                            onClick={() => {
+                                                              handleAddDependency(
+                                                                t.uuid
+                                                              );
+                                                              setDependsSearchTerm(
+                                                                ''
+                                                              );
+                                                            }}
+                                                          >
+                                                            <input
+                                                              type="checkbox"
+                                                              checked={editedDepends.includes(
+                                                                t.uuid
+                                                              )}
+                                                              readOnly
+                                                            />
+                                                            <span className="text-sm">
+                                                              {t.description}
+                                                            </span>
+                                                          </div>
+                                                        ))}
+                                                    </div>
+                                                  )}
+                                                </div>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={() =>
+                                                    handleDependsSaveClick(task)
+                                                  }
+                                                >
+                                                  <CheckIcon className="h-4 w-4 text-green-500" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={() => {
+                                                    setIsEditingDepends(false);
+                                                    setDependsDropdownOpen(
+                                                      false
+                                                    );
+                                                  }}
+                                                >
+                                                  <XIcon className="h-4 w-4 text-red-500" />
+                                                </Button>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </TableCell>
                                       </TableRow>
                                       <TableRow>
                                         <TableCell>Recur:</TableCell>
@@ -1687,45 +1928,94 @@ export const Tasks = (
                                         <TableCell>Tags:</TableCell>
                                         <TableCell>
                                           {isEditingTags ? (
-                                            <div className="flex items-center">
-                                              <Input
-                                                type="text"
-                                                value={editedTags.join(', ')}
-                                                onChange={(e) =>
-                                                  setEditedTags(
-                                                    e.target.value
-                                                      .split(',')
-                                                      .map((tag) => tag.trim())
-                                                  )
-                                                }
-                                                className="flex-grow mr-2"
-                                              />
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleSaveTags(task)
-                                                }
-                                              >
-                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={handleCancelTags}
-                                              >
-                                                <XIcon className="h-4 w-4 text-red-500" />
-                                              </Button>
+                                            <div>
+                                              <div className="flex items-center w-full">
+                                                <Input
+                                                  type="text"
+                                                  value={editTagInput}
+                                                  onChange={(e) => {
+                                                    // For allowing only alphanumeric characters
+                                                    if (
+                                                      e.target.value.length > 1
+                                                    ) {
+                                                      /^[a-zA-Z0-9]*$/.test(
+                                                        e.target.value.trim()
+                                                      )
+                                                        ? setEditTagInput(
+                                                            e.target.value.trim()
+                                                          )
+                                                        : '';
+                                                    } else {
+                                                      /^[a-zA-Z]*$/.test(
+                                                        e.target.value.trim()
+                                                      )
+                                                        ? setEditTagInput(
+                                                            e.target.value.trim()
+                                                          )
+                                                        : '';
+                                                    }
+                                                  }}
+                                                  placeholder="Add a tag (press enter to add)"
+                                                  className="flex-grow mr-2"
+                                                  onKeyDown={(e) =>
+                                                    e.key === 'Enter' &&
+                                                    handleAddEditTag()
+                                                  }
+                                                />
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={() =>
+                                                    handleSaveTags(task)
+                                                  }
+                                                >
+                                                  <CheckIcon className="h-4 w-4 text-green-500" />
+                                                </Button>
+                                                <Button
+                                                  variant="ghost"
+                                                  size="icon"
+                                                  onClick={handleCancelTags}
+                                                >
+                                                  <XIcon className="h-4 w-4 text-red-500" />
+                                                </Button>
+                                              </div>
+                                              <div className="mt-2">
+                                                {editedTags != null &&
+                                                  editedTags.length > 0 && (
+                                                    <div>
+                                                      <div className="flex flex-wrap gap-2 col-span-3">
+                                                        {editedTags.map(
+                                                          (tag, index) => (
+                                                            <Badge key={index}>
+                                                              <span>{tag}</span>
+                                                              <button
+                                                                type="button"
+                                                                className="ml-2 text-red-500"
+                                                                onClick={() =>
+                                                                  handleRemoveEditTag(
+                                                                    tag
+                                                                  )
+                                                                }
+                                                              >
+                                                                ✖
+                                                              </button>
+                                                            </Badge>
+                                                          )
+                                                        )}
+                                                      </div>
+                                                    </div>
+                                                  )}
+                                              </div>
                                             </div>
                                           ) : (
-                                            <div className="flex items-center">
+                                            <div className="flex items-center flex-wrap">
                                               {task.tags !== null &&
                                               task.tags.length >= 1 ? (
                                                 task.tags.map((tag, index) => (
                                                   <Badge
                                                     key={index}
                                                     variant="secondary"
-                                                    className="mr-2"
+                                                    className="mr-2 mt-1"
                                                   >
                                                     <Tag className="pr-3" />
                                                     {tag}
