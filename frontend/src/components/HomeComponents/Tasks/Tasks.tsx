@@ -581,13 +581,13 @@ export const Tasks = (
       if (aOverdue && !bOverdue) return -1;
       if (!aOverdue && bOverdue) return 1;
 
-      // Otherwise fall back to ID sort DESC (latest first)
-      return b.id - a.id;
+      // Otherwise fall back to ID sort and status sort
+      return 0;
     });
   };
 
   useEffect(() => {
-    let filteredTasks = tasks;
+    let filteredTasks = [...tasks];
 
     // Project filter
     if (selectedProjects.length > 0) {
