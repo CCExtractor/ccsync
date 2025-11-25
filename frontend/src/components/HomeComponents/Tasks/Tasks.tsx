@@ -72,6 +72,7 @@ import { debounce } from '@/components/utils/utils';
 import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
 import { Taskskeleton } from './Task-Skeleton';
+import { Key } from '@/components/ui/key-button';
 
 const db = new TasksDatabase();
 export let syncTasksWithTwAndDb: () => any;
@@ -207,6 +208,7 @@ export const Tasks = (
         target instanceof HTMLInputElement ||
         target instanceof HTMLTextAreaElement ||
         target instanceof HTMLSelectElement ||
+        _isDialogOpen ||
         target.isContentEditable
       ) {
         return;
@@ -733,7 +735,7 @@ export const Tasks = (
     }
   });
   useHotkeys(['c'], () => {
-    if (!showReports) {
+    if (!showReports && !_isDialogOpen) {
       const task = currentTasks[selectedIndex];
       if (!task) return;
       // Step 1
@@ -745,11 +747,23 @@ export const Tasks = (
           `mark-task-complete-${task.id}`
         );
         confirmBtn?.click();
+        setIsDialogOpen(false);
       }, 150);
+    } else {
+      if (_isDialogOpen) {
+        const task = currentTasks[selectedIndex];
+        if (!task) return;
+        const confirmBtn = document.getElementById(
+          `mark-task-complete-${task.id}`
+        );
+        confirmBtn?.click();
+        setIsDialogOpen(false);
+      }
     }
   });
+
   useHotkeys(['d'], () => {
-    if (!showReports) {
+    if (!showReports && !_isDialogOpen) {
       const task = currentTasks[selectedIndex];
       if (!task) return;
       // Step 1
@@ -761,7 +775,18 @@ export const Tasks = (
           `mark-task-as-deleted-${task.id}`
         );
         confirmBtn?.click();
+        setIsDialogOpen(false);
       }, 150);
+    } else {
+      if (_isDialogOpen) {
+        const task = currentTasks[selectedIndex];
+        if (!task) return;
+        const confirmBtn = document.getElementById(
+          `mark-task-as-deleted-${task.id}`
+        );
+        confirmBtn?.click();
+        setIsDialogOpen(false);
+      }
     }
   });
 
@@ -840,6 +865,7 @@ export const Tasks = (
                       onChange={handleSearchChange}
                       className="flex-1 min-w-[150px]"
                       data-testid="task-search-bar"
+                      icon={<Key lable="f" />}
                     />
                     <MultiSelectFilter
                       title="Projects"
@@ -874,6 +900,7 @@ export const Tasks = (
                             onClick={() => setIsAddTaskOpen(true)}
                           >
                             Add Task
+                            <Key lable="a" />
                           </Button>
                         </DialogTrigger>
                         <DialogContent>
@@ -1060,6 +1087,7 @@ export const Tasks = (
                         )}
                       >
                         Sync
+                        <Key lable="r" />
                       </Button>
                     </div>
                   </div>
@@ -1844,7 +1872,7 @@ export const Tasks = (
                                       <Button
                                         id={`mark-task-complete-${task.id}`}
                                       >
-                                        Mark As Completed
+                                        Mark As Completed <Key lable="c" />
                                       </Button>
                                     </DialogTrigger>
                                     <DialogContent>
@@ -1891,6 +1919,7 @@ export const Tasks = (
                                         variant={'destructive'}
                                       >
                                         <Trash2Icon />
+                                        <Key lable="d" />
                                       </Button>
                                     </DialogTrigger>
                                     <DialogContent>
