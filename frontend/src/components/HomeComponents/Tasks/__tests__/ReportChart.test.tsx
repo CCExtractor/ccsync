@@ -179,17 +179,6 @@ describe('ReportChart', () => {
         expect(pngButton).not.toBeDisabled();
       });
     });
-
-    it('re-enables button after export completes', async () => {
-      render(<ReportChart {...defaultProps} />);
-      const pngButton = screen.getByTitle('Download as PNG');
-
-      fireEvent.click(pngButton);
-
-      await waitFor(() => {
-        expect(pngButton).not.toBeDisabled();
-      });
-    });
   });
 
   describe('Multiple Data Points', () => {
