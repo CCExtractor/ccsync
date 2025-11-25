@@ -42,6 +42,8 @@ export const TaskDialog = ({
   selectedIndex,
   onOpenChange,
   onSelectTask,
+  selectedTaskUUIDs,
+  onCheckboxChange,
   editState,
   onUpdateState,
   allTasks,
@@ -98,6 +100,17 @@ export const TaskDialog = ({
             onSelectTask(task, index);
           }}
         >
+          <TableCell className="py-2" onClick={(e) => e.stopPropagation()}>
+            <input
+              type="checkbox"
+              checked={selectedTaskUUIDs.includes(task.uuid)}
+              disabled={task.status === 'deleted'}
+              onChange={(e) => {
+                e.stopPropagation();
+                onCheckboxChange(task.uuid, e.target.checked);
+              }}
+            />
+          </TableCell>
           {/* Display task details */}
           <TableCell className="py-2">
             <span

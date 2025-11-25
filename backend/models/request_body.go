@@ -51,3 +51,15 @@ type DeleteTaskRequestBody struct {
 	UUID             string `json:"UUID"`
 	TaskUUID         string `json:"taskuuid"`
 }
+type BulkCompleteTaskRequestBody struct {
+	Email            string   `json:"email"`
+	EncryptionSecret string   `json:"encryptionSecret"`
+	UUID             string   `json:"UUID"`
+	TaskUUIDs        []string `json:"taskuuids"`
+}
+type BulkDeleteTaskRequestBody struct {
+	Email            string   `json:"email"`
+	EncryptionSecret string   `json:"encryptionSecret"`
+	UUID             string   `json:"UUID"`
+	TaskUUIDs        []string `json:"taskuuids"`
+}

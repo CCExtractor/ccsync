@@ -116,6 +116,8 @@ export interface EditTaskDialogProps {
   selectedIndex: number;
   onOpenChange: (open: boolean) => void;
   onSelectTask: (task: Task, index: number) => void;
+  selectedTaskUUIDs: string[];
+  onCheckboxChange: (uuid: string, checked: boolean) => void;
   editState: EditTaskState;
   onUpdateState: (updates: Partial<EditTaskState>) => void;
   allTasks: Task[];
