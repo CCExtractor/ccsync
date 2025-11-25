@@ -886,7 +886,7 @@ export const Tasks = (
                                       priority: e.target.value,
                                     })
                                   }
-                                  className="border rounded-md px-2 py-1 w-full bg-black text-white"
+                                  className="border rounded-md px-2 py-1 w-full bg-white text-black dark:bg-black dark:text-white transition-colors"
                                 >
                                   <option value="H">H</option>
                                   <option value="M">M</option>
