@@ -798,8 +798,7 @@ export const Tasks = (
           `mark-task-complete-${task.id}`
         );
         confirmBtn?.click();
-        setIsDialogOpen(false);
-      }, 150);
+      }, 200);
     } else {
       if (_isDialogOpen) {
         const task = currentTasks[selectedIndex];
@@ -808,7 +807,6 @@ export const Tasks = (
           `mark-task-complete-${task.id}`
         );
         confirmBtn?.click();
-        setIsDialogOpen(false);
       }
     }
   });
@@ -826,8 +824,7 @@ export const Tasks = (
           `mark-task-as-deleted-${task.id}`
         );
         confirmBtn?.click();
-        setIsDialogOpen(false);
-      }, 150);
+      }, 200);
     } else {
       if (_isDialogOpen) {
         const task = currentTasks[selectedIndex];
@@ -836,7 +833,6 @@ export const Tasks = (
           `mark-task-as-deleted-${task.id}`
         );
         confirmBtn?.click();
-        setIsDialogOpen(false);
       }
     }
   });
@@ -1968,6 +1964,7 @@ export const Tasks = (
                                                   onClick={() =>
                                                     handleSaveTags(task)
                                                   }
+                                                  aria-label="Save tags"
                                                 >
                                                   <CheckIcon className="h-4 w-4 text-green-500" />
                                                 </Button>
@@ -1975,6 +1972,7 @@ export const Tasks = (
                                                   variant="ghost"
                                                   size="icon"
                                                   onClick={handleCancelTags}
+                                                  aria-label="Cancel editing tags"
                                                 >
                                                   <XIcon className="h-4 w-4 text-red-500" />
                                                 </Button>
@@ -2178,14 +2176,15 @@ export const Tasks = (
                                         <DialogClose asChild>
                                           <Button
                                             className="mr-5"
-                                            onClick={() =>
+                                            onClick={() => {
                                               markTaskAsCompleted(
                                                 props.email,
                                                 props.encryptionSecret,
                                                 props.UUID,
                                                 task.uuid
-                                              )
-                                            }
+                                              );
+                                              setIsDialogOpen(false);
+                                            }}
                                           >
                                             Yes
                                           </Button>
@@ -2225,14 +2224,15 @@ export const Tasks = (
                                         <DialogClose asChild>
                                           <Button
                                             className="mr-5"
-                                            onClick={() =>
+                                            onClick={() => {
                                               markTaskAsDeleted(
                                                 props.email,
                                                 props.encryptionSecret,
                                                 props.UUID,
                                                 task.uuid
-                                              )
-                                            }
+                                              );
+                                              setIsDialogOpen(false);
+                                            }}
                                           >
                                             Yes
                                           </Button>

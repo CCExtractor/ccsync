@@ -1,4 +1,11 @@
-import { render, screen, fireEvent, act, within } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  act,
+  within,
+  waitFor,
+} from '@testing-library/react';
 import { Tasks } from '../Tasks';
 
 // Mock props for the Tasks component
@@ -225,13 +232,17 @@ describe('Tasks Component', () => {
 
     expect(await screen.findByText('addedtag')).toBeInTheDocument();
 
-    const actionContainer = editInput.parentElement as HTMLElement;
-    const actionButtons = within(actionContainer).getAllByRole('button');
-    fireEvent.click(actionButtons[0]);
+    const saveButton = await screen.findByRole('button', {
+      name: /save tags/i,
+    });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      const hooks = require('../hooks');
+      expect(hooks.editTaskOnBackend).toHaveBeenCalled();
+    });
 
     const hooks = require('../hooks');
-    expect(hooks.editTaskOnBackend).toHaveBeenCalled();
-
     const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
     expect(callArg.tags).toEqual(expect.arrayContaining(['tag1', 'addedtag']));
   });
@@ -267,17 +278,19 @@ describe('Tasks Component', () => {
     const removeButton = within(badgeContainer).getByText('✖');
     fireEvent.click(removeButton);
 
-    expect(screen.queryByText('tag2')).not.toBeInTheDocument();
+    expect(screen.queryByText('tag1')).not.toBeInTheDocument();
 
-    const actionContainer = editInput.parentElement as HTMLElement;
+    const saveButton = await screen.findByRole('button', {
+      name: /save tags/i,
+    });
+    fireEvent.click(saveButton);
 
-    const actionButtons = within(actionContainer).getAllByRole('button');
-
-    fireEvent.click(actionButtons[0]);
+    await waitFor(() => {
+      const hooks = require('../hooks');
+      expect(hooks.editTaskOnBackend).toHaveBeenCalled();
+    });
 
     const hooks = require('../hooks');
-    expect(hooks.editTaskOnBackend).toHaveBeenCalled();
-
     const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
 
     expect(callArg.tags).toEqual(expect.arrayContaining(['newtag', '-tag1']));
