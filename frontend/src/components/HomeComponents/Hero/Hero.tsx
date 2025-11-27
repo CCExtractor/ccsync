@@ -51,13 +51,13 @@ export const Hero = (props: Props) => {
             </div>
             <button
               onClick={() => setShowUuid(!showUuid)}
-              className="text-white font-bold p-2 rounded-full m-2"
+              className="text-white font-bold m-2 bg-gray-700 hover:bg-gray-600 p-3 sm:p-4 rounded flex-shrink-0"
               aria-label={showUuid ? 'Hide UUID' : 'Show UUID'}
             >
               {showUuid ? (
-                <EyeOff className="size-5" />
+                <EyeOff className="size-5 m-0.5" />
               ) : (
-                <Eye className="size-5" />
+                <Eye className="size-5 m-0.5" />
               )}
             </button>
             <CopyButton text={props.uuid} label="UUID" />
@@ -77,13 +77,13 @@ export const Hero = (props: Props) => {
             </div>
             <button
               onClick={() => setShowSecret(!showSecret)}
-              className="text-white font-bold p-2 rounded-full m-2"
+              className="text-white font-bold m-2 bg-gray-700 hover:bg-gray-600 p-3 sm:p-4 rounded flex-shrink-0"
               aria-label={showSecret ? 'Hide secret' : 'Show secret'}
             >
               {showSecret ? (
-                <EyeOff className="size-5" />
+                <EyeOff className="size-5 m-0.5" />
               ) : (
-                <Eye className="size-5" />
+                <Eye className="size-5 m-0.5" />
               )}
             </button>
             <CopyButton
