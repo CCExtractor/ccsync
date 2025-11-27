@@ -1,7 +1,7 @@
 import { Accordion } from '@/components/ui/accordion';
 import { FAQItem } from './FAQItem';
 import { FAQList } from './faq-utils';
-import { BlueHeading } from '@/lib/utils';
+import { BlueHeading } from '@/lib/Utils';
 import { HighlightLink } from '@/components/ui/link-highlight';
 
 export const FAQ = () => {

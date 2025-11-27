@@ -39,7 +39,7 @@ jest.mock('../tasks-utils', () => {
   };
 });
 
-jest.mock('@/components/ui/multiSelect', () => ({
+jest.mock('@/components/ui/multi-select', () => ({
   MultiSelectFilter: jest.fn(({ title }) => (
     <div>Mocked MultiSelect: {title}</div>
   )),

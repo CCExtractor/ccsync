@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { Taskskeleton } from '../Task-Skeleton';
+import { Taskskeleton } from '../TaskSkeleton';
 
 // Mock des composants UI
 jest.mock('@/components/ui/table', () => ({

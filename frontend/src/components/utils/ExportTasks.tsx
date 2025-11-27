@@ -1,4 +1,5 @@
-import { Task } from './components/utils/types';
+import { Task } from './types';
+
 export function exportTasksAsJSON(tasks: Task[]) {
   if (!tasks || tasks.length === 0) {
     console.warn('No tasks to export.');

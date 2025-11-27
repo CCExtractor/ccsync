@@ -4,7 +4,7 @@ import BottomBar from '../BottomBar';
 import { BottomBarProps } from '../bottom-bar-utils';
 
 // Mock the MultiSelectFilter component
-jest.mock('@/components/ui/multiSelect', () => ({
+jest.mock('@/components/ui/multi-select', () => ({
   MultiSelectFilter: jest.fn(({ title, selectedValues }) => (
     <div data-testid={`multiselect-${title.toLowerCase()}`}>
       <span data-testid={`multiselect-title-${title.toLowerCase()}`}>
