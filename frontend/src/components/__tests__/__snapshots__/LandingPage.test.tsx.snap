@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LandingPage Component using Snapshot renders landing page correctly: landing-page 1`] = `
+<DocumentFragment>
+  <div>
+    Mocked Navbar
+  </div>
+  <div>
+    Mocked Hero
+  </div>
+  <div>
+    Mocked About
+  </div>
+  <div>
+    Mocked HowItWorks
+  </div>
+  <div>
+    Mocked Contact
+  </div>
+  <div>
+    Mocked FAQ
+  </div>
+  <div>
+    Mocked Footer
+  </div>
+  <div>
+    Mocked ScrollToTop
+  </div>
+</DocumentFragment>
+`;

@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Navbar component using snapshot renders correctly 1`] = `
+<DocumentFragment>
+  <header
+    class="sticky border-b-[1px] top-0 z-40 w-full bg-white dark:border-b-slate-700 dark:bg-background"
+  >
+    <nav
+      aria-label="Main"
+      class="relative z-10 flex max-w-max flex-1 items-center justify-center mx-auto"
+      data-orientation="horizontal"
+      dir="ltr"
+    >
+      <div
+        style="position: relative;"
+      >
+        <ul
+          class="group flex-1 list-none space-x-1 container h-14 px-4 w-screen flex justify-between items-center"
+          data-orientation="horizontal"
+          dir="ltr"
+        >
+          <li
+            class="font-bold flex"
+          >
+            <a
+              class="ml-2 font-bold text-xl flex items-center dark:hidden"
+              href="/"
+              rel="noreferrer noopener"
+            >
+              <img
+                alt="Light-Logo"
+                class="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light"
+                src="logo_light.png"
+              />
+            </a>
+            <a
+              class="ml-2 font-bold text-xl hidden dark:flex items-center"
+              href="/"
+              rel="noreferrer noopener"
+            >
+              <img
+                alt="Logo"
+                class="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light"
+                src="logo.png"
+              />
+            </a>
+          </li>
+          <div
+            data-testid="navbar-desktop"
+          />
+          <div
+            data-isopen="false"
+            data-testid="navbar-mobile"
+          />
+        </ul>
+      </div>
+      <div
+        class="absolute left-0 top-full flex justify-center"
+      />
+    </nav>
+  </header>
+</DocumentFragment>
+`;

@@ -18,27 +18,29 @@ jest.mock('../navbar-utils', () => ({
   ],
 }));
 
-describe('NavbarMobile', () => {
-  const mockSetIsOpen = jest.fn();
-  const mockSetIsLoading = jest.fn();
-  const mockProps: Props & {
-    setIsOpen: (isOpen: boolean) => void;
-    isOpen: boolean;
-    isLoading: boolean;
-    setIsLoading: (val: boolean) => void;
-  } = {
-    imgurl: 'http://example.com/image.png',
-    email: 'test@example.com',
-    encryptionSecret: 'secret',
-    origin: 'http://localhost:3000',
-    UUID: '1234-5678',
-    tasks: [],
-    setIsOpen: mockSetIsOpen,
-    isOpen: false,
-    isLoading: false,
-    setIsLoading: mockSetIsLoading,
-  };
+const mockSetIsOpen = jest.fn();
+const mockSetIsLoading = jest.fn();
+const mockProps: Props & {
+  setIsOpen: (isOpen: boolean) => void;
+  isOpen: boolean;
+  isLoading: boolean;
+  setIsLoading: (val: boolean) => void;
+} = {
+  imgurl: 'http://example.com/image.png',
+  email: 'test@example.com',
+  encryptionSecret: 'secret',
+  origin: 'http://localhost:3000',
+  UUID: '1234-5678',
+  tasks: [],
+  setIsOpen: mockSetIsOpen,
+  isOpen: false,
+  isLoading: false,
+  setIsLoading: mockSetIsLoading,
+};
 
+const openProps = { ...mockProps, isOpen: true };
+
+describe('NavbarMobile', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -56,7 +58,6 @@ describe('NavbarMobile', () => {
   });
 
   it('displays the navigation links and buttons correctly when menu is open', () => {
-    const openProps = { ...mockProps, isOpen: true };
     render(<NavbarMobile {...openProps} />);
 
     routeList.forEach((route) => {
@@ -68,7 +69,6 @@ describe('NavbarMobile', () => {
   });
 
   it('closes the menu when a navigation link is clicked', () => {
-    const openProps = { ...mockProps, isOpen: true };
     render(<NavbarMobile {...openProps} />);
 
     const homeLink = screen.getByText('Home');
@@ -76,8 +76,7 @@ describe('NavbarMobile', () => {
     expect(mockProps.setIsOpen).toHaveBeenCalledWith(false);
   });
 
-  it("opens confirmation modal when 'Delete All Tasks' is clicked", () => {
-    const openProps = { ...mockProps, isOpen: true };
+  it("calls deleteAllTasks when 'Delete All Tasks' is clicked", () => {
     render(<NavbarMobile {...openProps} />);
     const deleteButton = screen.getByText('Delete All Tasks');
 
@@ -109,11 +108,24 @@ describe('NavbarMobile', () => {
   });
 
   it("calls handleLogout when 'Log out' is clicked", () => {
-    const openProps = { ...mockProps, isOpen: true };
     render(<NavbarMobile {...openProps} />);
     const logoutButton = screen.getByText('Log out');
 
     fireEvent.click(logoutButton);
     expect(handleLogout).toHaveBeenCalled();
+  });
+});
+
+describe('NavbarMobile component using snapshot', () => {
+  test('renders correctly when closed', () => {
+    const { asFragment } = render(<NavbarMobile {...mockProps} />);
+    expect(asFragment()).toMatchSnapshot('prop isOpen is set to false');
+  });
+});
+
+describe('NavbarMobile component using snapshot', () => {
+  test('renders correctly when open', () => {
+    const { asFragment } = render(<NavbarMobile {...mockProps} />);
+    expect(asFragment()).toMatchSnapshot('prop isOpen is set to true');
   });
 });

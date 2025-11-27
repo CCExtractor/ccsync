@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FAQ component using snapshot renders correctly 1`] = `
+<DocumentFragment>
+  <section
+    class="container py-24 sm:py-32"
+    id="faq"
+  >
+    <h2
+      class="text-3xl md:text-4xl font-bold mb-4"
+    >
+      Frequently Asked 
+      <span
+        class="inline bg-gradient-to-r from-[#61DAFB] to-[#1fc0f1] text-transparent bg-clip-text"
+      >
+        Questions
+      </span>
+    </h2>
+    <div>
+      <div>
+        <h3>
+          What is React?
+        </h3>
+        <p>
+          A JavaScript library for building user interfaces.
+        </p>
+      </div>
+      <div>
+        <h3>
+          What is TypeScript?
+        </h3>
+        <p>
+          A typed superset of JavaScript that compiles to plain JavaScript.
+        </p>
+      </div>
+    </div>
+    <h3
+      class="font-medium mt-4"
+    >
+      Still have questions? 
+      <a
+        class="opacity-60 hover:opacity-100 relative inline-block"
+        href="#contact"
+        rel="noreferrer noopener"
+      >
+        Contact us
+        <span
+          class="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#E776CB] via-[#FFFFFF] to-[#5FD9FA] rounded"
+          style="width: 0px;"
+        />
+      </a>
+    </h3>
+  </section>
+</DocumentFragment>
+`;

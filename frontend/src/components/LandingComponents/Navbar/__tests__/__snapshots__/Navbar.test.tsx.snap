@@ -1,0 +1,310 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Navbar component using snapshot renders correctly 1`] = `
+<DocumentFragment>
+  <header
+    class="sticky border-b-[1px] top-0 z-40 w-full bg-white dark:border-b-slate-700 dark:bg-background"
+  >
+    <nav
+      aria-label="Main"
+      class="relative z-10 flex max-w-max flex-1 items-center justify-center mx-auto"
+      data-orientation="horizontal"
+      dir="ltr"
+    >
+      <div
+        style="position: relative;"
+      >
+        <ul
+          class="group flex-1 list-none space-x-1 container h-14 px-4 w-screen flex justify-between items-center"
+          data-orientation="horizontal"
+          dir="ltr"
+        >
+          <li
+            class="font-bold flex"
+          >
+            <a
+              class="ml-2 font-bold text-xl flex items-center dark:hidden"
+              href="/"
+              rel="noreferrer noopener"
+            >
+              <img
+                alt="Logo-Light"
+                class="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light"
+                src="mocked-logo-light.png"
+              />
+            </a>
+            <a
+              class="ml-2 font-bold text-xl hidden dark:flex items-center"
+              href="/"
+              rel="noreferrer noopener"
+            >
+              <img
+                alt="Logo"
+                class="h-12 min-h-12 min-w-48 mr-0 mt-2 bg-blend-soft-light"
+                src="mocked-logo.png"
+              />
+            </a>
+          </li>
+          <nav
+            class="hidden md:flex gap-2 justify-center flex-1 mr-20"
+          >
+            <a
+              class="text-[17px] inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              href="#"
+              rel="noreferrer noopener"
+            >
+              Home
+            </a>
+            <a
+              class="text-[17px] inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              href="#about"
+              rel="noreferrer noopener"
+            >
+              About
+            </a>
+            <a
+              class="text-[17px] inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              href="#howItWorks"
+              rel="noreferrer noopener"
+            >
+              How it works
+            </a>
+            <a
+              class="text-[17px] inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              href="#contact"
+              rel="noreferrer noopener"
+            >
+              Contact Us
+            </a>
+            <a
+              class="text-[17px] inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              href="#faq"
+              rel="noreferrer noopener"
+            >
+              FAQ
+            </a>
+          </nav>
+          <div
+            class="pl-20 hidden md:flex gap-2"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="menu"
+              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 ghost"
+              data-state="closed"
+              id="radix-:ID:"
+              type="button"
+            >
+              <svg
+                class="lucide lucide-sun h-[1.1rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                data-testid="sun-icon"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="4"
+                />
+                <path
+                  d="M12 2v2"
+                />
+                <path
+                  d="M12 20v2"
+                />
+                <path
+                  d="m4.93 4.93 1.41 1.41"
+                />
+                <path
+                  d="m17.66 17.66 1.41 1.41"
+                />
+                <path
+                  d="M2 12h2"
+                />
+                <path
+                  d="M20 12h2"
+                />
+                <path
+                  d="m6.34 17.66-1.41 1.41"
+                />
+                <path
+                  d="m19.07 4.93-1.41 1.41"
+                />
+              </svg>
+              <svg
+                class="lucide lucide-moon absolute h-[1.1rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                data-testid="moon-icon"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"
+                />
+              </svg>
+              <span
+                class="sr-only"
+              >
+                Toggle theme
+              </span>
+            </button>
+          </div>
+          <a
+            href="https://its-me-abhishek.github.io/ccsync-docs/"
+            target="_blank"
+          >
+            <div
+              class="hidden md:flex"
+            >
+              <button
+                class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+              >
+                Docs
+              </button>
+            </div>
+          </a>
+          <span
+            class="flex md:hidden"
+          >
+            <button
+              aria-expanded="false"
+              aria-haspopup="menu"
+              class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 ghost"
+              data-state="closed"
+              id="radix-:ID:"
+              type="button"
+            >
+              <svg
+                class="lucide lucide-sun h-[1.1rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                data-testid="sun-icon"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="4"
+                />
+                <path
+                  d="M12 2v2"
+                />
+                <path
+                  d="M12 20v2"
+                />
+                <path
+                  d="m4.93 4.93 1.41 1.41"
+                />
+                <path
+                  d="m17.66 17.66 1.41 1.41"
+                />
+                <path
+                  d="M2 12h2"
+                />
+                <path
+                  d="M20 12h2"
+                />
+                <path
+                  d="m6.34 17.66-1.41 1.41"
+                />
+                <path
+                  d="m19.07 4.93-1.41 1.41"
+                />
+              </svg>
+              <svg
+                class="lucide lucide-moon absolute h-[1.1rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                data-testid="moon-icon"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"
+                />
+              </svg>
+              <span
+                class="sr-only"
+              >
+                Toggle theme
+              </span>
+            </button>
+            <button
+              aria-controls="radix-:ID:"
+              aria-expanded="false"
+              aria-haspopup="dialog"
+              class="px-2"
+              data-state="closed"
+              type="button"
+            >
+              <svg
+                class="lucide lucide-menu flex md:hidden h-5 w-5"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <line
+                  x1="4"
+                  x2="20"
+                  y1="12"
+                  y2="12"
+                />
+                <line
+                  x1="4"
+                  x2="20"
+                  y1="6"
+                  y2="6"
+                />
+                <line
+                  x1="4"
+                  x2="20"
+                  y1="18"
+                  y2="18"
+                />
+              </svg>
+              <span
+                class="sr-only"
+              >
+                Menu Icon
+              </span>
+            </button>
+          </span>
+        </ul>
+      </div>
+      <div
+        class="absolute left-0 top-full flex justify-center"
+      />
+    </nav>
+  </header>
+</DocumentFragment>
+`;

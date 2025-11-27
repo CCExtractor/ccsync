@@ -1,0 +1,155 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SetupGuide component using snapshot renders correctly 1`] = `
+<DocumentFragment>
+  <section
+    class="container mx-auto px-4 py-12 sm:py-24 md:py-32 max-w-7xl"
+    id="setup-guide"
+  >
+    <h2
+      class="text-2xl sm:text-3xl md:text-4xl font-bold text-center"
+    >
+      <span
+        class="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text"
+      >
+        Setup 
+      </span>
+      Guide
+    </h2>
+    <div
+      class="bg-muted/50 border mt-6 sm:mt-8 md:mt-10 rounded-lg py-8 sm:py-10 md:py-12 px-none sm:px-6 md:px-8 xl:px-12"
+    >
+      <div
+        class="px-4 sm:px-6 flex flex-col-reverse md:flex-row gap-6 sm:gap-8 md:gap-12"
+      >
+        <div
+          class="w-full flex flex-col justify-between"
+        >
+          <div
+            class="space-y-6 sm:space-y-8 md:space-y-10"
+          >
+            <div>
+              <h3
+                class="text-xl sm:text-2xl font-bold"
+              >
+                <span
+                  class="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text"
+                >
+                  1. 
+                </span>
+                PREREQUISITES
+              </h3>
+              <div
+                class="text-base sm:text-lg md:text-xl text-muted-foreground mt-4 sm:mt-6 md:mt-8"
+              >
+                Ensure that Taskwarrior 3.0 or greater is installed on your system
+                <div
+                  data-copytext="task --version"
+                  data-testid="copyable-code"
+                  data-text="task --version"
+                >
+                  task --version
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3
+                class="text-xl sm:text-2xl font-bold"
+              >
+                <span
+                  class="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text"
+                >
+                  2. 
+                </span>
+                CONFIGURATION
+              </h3>
+              <div
+                class="text-base sm:text-lg md:text-xl text-muted-foreground mt-4 sm:mt-6 md:mt-8"
+              >
+                You will need an encryption secret used to encrypt and decrypt your tasks. This can be any secret string, and must match for all replicas sharing tasks. For most of these, you will need an encryption secret used to encrypt and decrypt your tasks.
+                <div
+                  data-copytext="task config sync.encryption_secret test-encryption-secret"
+                  data-issensitive="true"
+                  data-testid="copyable-code"
+                  data-text="task config sync.encryption_secret test-encryption-secret"
+                >
+                  task config sync.encryption_secret test-encryption-secret
+                </div>
+                <div
+                  class="my-4"
+                >
+                  Configure Taskwarrior with these commands, run these commands one block at a time
+                </div>
+                <div
+                  data-copytext="task config sync.server.origin http://localhost:8080/"
+                  data-testid="copyable-code"
+                  data-text="task config sync.server.origin http://localhost:8080/"
+                >
+                  task config sync.server.origin http://localhost:8080/
+                </div>
+                <div
+                  data-copytext="task config sync.server.client_id test-uuid"
+                  data-issensitive="true"
+                  data-testid="copyable-code"
+                  data-text="task config sync.server.client_id test-uuid"
+                >
+                  task config sync.server.client_id test-uuid
+                </div>
+                <div
+                  class="mt-4"
+                >
+                  For more information about how this works, refer to the 
+                  <b>
+                    task-sync(5)
+                  </b>
+                   manpage for details on how to configure the new sync implementation.
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3
+                class="text-xl sm:text-2xl font-bold"
+              >
+                <span
+                  class="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text"
+                >
+                  3. 
+                </span>
+                SYNC
+              </h3>
+              <div
+                class="text-base sm:text-lg md:text-xl text-muted-foreground mt-4 sm:mt-6 md:mt-8"
+              >
+                Finally, setup the sync for your Taskwarrior client!
+                <div
+                  data-copytext="task sync init"
+                  data-testid="copyable-code"
+                  data-text="task sync init"
+                >
+                  task sync init
+                </div>
+              </div>
+            </div>
+            <div>
+              <h3
+                class="text-xl sm:text-2xl font-bold"
+              >
+                <button
+                  class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 text-primary underline-offset-4 hover:underline h-10 px-4 py-2"
+                >
+                   
+                  <span
+                    class="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text"
+                  >
+                    DOWNLOAD CONFIGURATION
+                  </span>
+                </button>
+              </h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</DocumentFragment>
+`;
