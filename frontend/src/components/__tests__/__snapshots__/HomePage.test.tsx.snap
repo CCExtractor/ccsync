@@ -1,0 +1,71 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HomePage Component using Snapshot renders correctly when session is expired: homepage-session-expired 1`] = `
+<DocumentFragment>
+  <div>
+    <div>
+      <p>
+        Session has been expired.
+      </p>
+      <p>
+        Please to go back to the
+        <a
+          color="red"
+          href="http://mocked-frontend-url/"
+        >
+           home page 
+        </a>
+        and sign in again
+      </p>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`HomePage Component using Snapshot renders correctly with user info loaded: homepage-with-user-info 1`] = `
+<DocumentFragment>
+  <div>
+    <div>
+      <div
+        id="home-navbar"
+      >
+        <div>
+          Mocked Navbar
+        </div>
+      </div>
+      <div
+        id="home-hero"
+        style="will-change: transform; transform: translateX(-1000px);"
+      >
+        <div>
+          Mocked Hero
+        </div>
+      </div>
+      <section
+        id="home-tasks"
+      >
+        <div>
+          Mocked Tasks
+        </div>
+      </section>
+      <section
+        id="home-setup-guide"
+      >
+        <div>
+          Mocked SetupGuide
+        </div>
+      </section>
+      <section
+        id="home-faq"
+      >
+        <div>
+          Mocked FAQ
+        </div>
+      </section>
+      <div>
+        Mocked Footer
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

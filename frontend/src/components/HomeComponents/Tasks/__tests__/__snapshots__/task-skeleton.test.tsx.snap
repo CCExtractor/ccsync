@@ -1,0 +1,412 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TaskSkeleton Component using Snapshot renders correctly with count of 0: count 0 1`] = `
+<DocumentFragment>
+  <table>
+    <tbody />
+  </table>
+</DocumentFragment>
+`;
+
+exports[`TaskSkeleton Component using Snapshot renders correctly with count of 1: count 1 1`] = `
+<DocumentFragment>
+  <table>
+    <tbody>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</DocumentFragment>
+`;
+
+exports[`TaskSkeleton Component using Snapshot renders correctly with count of 10: count 10 1`] = `
+<DocumentFragment>
+  <table>
+    <tbody>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+      <tr
+        class="animate-pulse"
+      >
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="h-4 w-4 bg-[#252528] rounded-full"
+            />
+            <div
+              class="h-5 w-16 md:w-48 bg-[#252528] rounded-xl"
+            />
+            <div
+              class="h-5 w-12 md:w-16 bg-[#252528] rounded-xl"
+            />
+          </div>
+        </td>
+        <td
+          class="py-3"
+        >
+          <div
+            class="h-5 w-6 bg-[#252528] rounded-md"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</DocumentFragment>
+`;

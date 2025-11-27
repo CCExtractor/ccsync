@@ -59,3 +59,10 @@ describe('FAQ component', () => {
     expect(contactLink).toBeInTheDocument();
   });
 });
+
+describe('FAQ component using snapshot', () => {
+  test('renders correctly', () => {
+    const { asFragment } = render(<FAQ />);
+    expect(asFragment()).toMatchSnapshot();
+  });
+});

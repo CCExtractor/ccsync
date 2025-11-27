@@ -207,3 +207,51 @@ describe('ReportChart', () => {
     });
   });
 });
+
+describe('ReportChart Component using Snapshot', () => {
+  const mockReportDataOne = {
+    name: 'Project A',
+    completed: 5,
+    ongoing: 3,
+  };
+
+  const mockReportDataTwo = {
+    name: 'Project B',
+    completed: 10,
+    ongoing: 7,
+  };
+
+  const mockReportDataThree = {
+    name: 'Project C',
+    completed: 2,
+    ongoing: 1,
+  };
+
+  const mockDataWithOneEntry = [mockReportDataOne];
+  const mockDataWithSeveralEntries = [
+    mockReportDataOne,
+    mockReportDataTwo,
+    mockReportDataThree,
+  ];
+  test('renders correctly with one data entry', () => {
+    const { asFragment } = render(
+      <ReportChart
+        data={mockDataWithOneEntry}
+        title="One project"
+        chartId="chart-1"
+      />
+    );
+    expect(asFragment()).toMatchSnapshot('one data entry');
+  });
+
+  test('renders correctly with several data entries', () => {
+    const { asFragment } = render(
+      <ReportChart
+        data={mockDataWithSeveralEntries}
+        title="Multiple projects"
+        chartId="chart-2"
+      />
+    );
+    expect(asFragment()).toMatchSnapshot('several data entries');
+  });
+});
