@@ -22,7 +22,7 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
-    "ignoreDeprecations": "6.0",
+    // "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["./src/*"]
     }
