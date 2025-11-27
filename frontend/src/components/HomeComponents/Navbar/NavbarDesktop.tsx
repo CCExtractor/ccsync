@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
-import { ModeToggle } from '../../utils/theme-mode-toggle';
+import { ModeToggle } from '../../utils/ThemeModeToggle';
 import { buttonVariants } from '@/components/ui/button';
 import {
   routeList,
@@ -35,10 +35,13 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { url } from '@/components/utils/URLs';
-import { exportTasksAsJSON, exportTasksAsTXT } from '@/exports-tasks';
+import {
+  exportTasksAsJSON,
+  exportTasksAsTXT,
+} from '@/components/utils/ExportTasks';
 import { useState } from 'react';
 import { DevLogs } from '../DevLogs/DevLogs';
-import { useTaskAutoSync } from '@/components/utils/Task-AutoSync';
+import { useTaskAutoSync } from '@/components/utils/TaskAutoSync';
 import { Label } from '@/components/ui/label';
 
 export const NavbarDesktop = (

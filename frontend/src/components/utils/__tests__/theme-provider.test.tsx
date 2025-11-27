@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
-import { ThemeProvider, useTheme } from '../theme-provider';
+import { ThemeProvider, useTheme } from '../ThemeProvider';
 
 describe('ThemeProvider', () => {
   let originalMatchMedia: ((query: string) => MediaQueryList) &
