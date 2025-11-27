@@ -3,7 +3,7 @@
 exports[`CopyButton Component using snapshot renders correctly 1`] = `
 <DocumentFragment>
   <button
-    class="bg-blue-500 hover:bg-gray-900 text-white font-bold py-4 px-2 rounded ml-2"
+    class="bg-blue-500 hover:bg-gray-900 text-white font-bold py-3 md:py-4 px-3 md:px-4 rounded ml-2"
   >
     <svg
       class="lucide lucide-copy "
