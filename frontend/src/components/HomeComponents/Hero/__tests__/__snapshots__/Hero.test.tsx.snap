@@ -70,10 +70,10 @@ exports[`Hero component using snapshot renders correctly 1`] = `
           </div>
           <button
             aria-label="Hide UUID"
-            class="text-white font-bold p-2 rounded-full m-2"
+            class="text-white font-bold m-2 bg-gray-700 hover:bg-gray-600 p-3 sm:p-4 rounded flex-shrink-0"
           >
             <svg
-              class="lucide lucide-eye-off size-5"
+              class="lucide lucide-eye-off size-5 m-0.5"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -127,10 +127,10 @@ exports[`Hero component using snapshot renders correctly 1`] = `
           </div>
           <button
             aria-label="Hide secret"
-            class="text-white font-bold p-2 rounded-full m-2"
+            class="text-white font-bold m-2 bg-gray-700 hover:bg-gray-600 p-3 sm:p-4 rounded flex-shrink-0"
           >
             <svg
-              class="lucide lucide-eye-off size-5"
+              class="lucide lucide-eye-off size-5 m-0.5"
               fill="none"
               height="24"
               stroke="currentColor"
