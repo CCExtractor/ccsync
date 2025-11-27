@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
 import Fuse from 'fuse.js';
-import { useHotkeys } from '@/hooks/useHotkeys';
+import { useHotkeys } from '@/components/utils/use-hotkeys';
 import {
   Table,
   TableBody,
@@ -60,7 +60,7 @@ import {
 } from './tasks-utils';
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
-import { MultiSelectFilter } from '@/components/ui/multiSelect';
+import { MultiSelectFilter } from '@/components/ui/multi-select';
 import BottomBar from '../BottomBar/BottomBar';
 import {
   addTaskToBackend,
@@ -72,7 +72,7 @@ import {
 import { debounce } from '@/components/utils/utils';
 import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
-import { Taskskeleton } from './Task-Skeleton';
+import { Taskskeleton } from './TaskSkeleton';
 import { Key } from '@/components/ui/key-button';
 
 const db = new TasksDatabase();
