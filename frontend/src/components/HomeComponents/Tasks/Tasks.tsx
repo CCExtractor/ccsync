@@ -335,7 +335,8 @@ export const Tasks = (
     entry: string,
     wait: string,
     end: string,
-    depends: string[]
+    depends: string[],
+    rtype: string
   ) {
     try {
       await editTaskOnBackend({
@@ -352,6 +353,7 @@ export const Tasks = (
         wait,
         end,
         depends,
+        rtype,
       });
 
       console.log('Task edited successfully!');
@@ -398,7 +400,8 @@ export const Tasks = (
       task.entry || '',
       task.wait || '',
       task.end || '',
-      task.depends || []
+      task.depends || [],
+      task.rtype || ''
     );
     setIsEditing(false);
   };
@@ -417,7 +420,8 @@ export const Tasks = (
       task.entry || '',
       task.wait || '',
       task.end || '',
-      task.depends || []
+      task.depends || [],
+      task.rtype || ''
     );
     setIsEditingProject(false);
   };
@@ -437,7 +441,8 @@ export const Tasks = (
       task.entry || '',
       task.wait,
       task.end || '',
-      task.depends || []
+      task.depends || [],
+      task.rtype || ''
     );
 
     setIsEditingWaitDate(false);
@@ -458,7 +463,8 @@ export const Tasks = (
       task.entry || '',
       task.wait || '',
       task.end || '',
-      task.depends || []
+      task.depends || [],
+      task.rtype || ''
     );
 
     setIsEditingStartDate(false);
@@ -479,7 +485,8 @@ export const Tasks = (
       task.entry,
       task.wait,
       task.end,
-      task.depends || []
+      task.depends || [],
+      task.rtype || ''
     );
 
     setIsEditingEntryDate(false);
@@ -500,7 +507,8 @@ export const Tasks = (
       task.entry,
       task.wait,
       task.end,
-      task.depends || []
+      task.depends || [],
+      task.rtype || ''
     );
 
     setIsEditingEndDate(false);
@@ -521,7 +529,8 @@ export const Tasks = (
       task.entry || '',
       task.wait || '',
       task.end || '',
-      task.depends
+      task.depends,
+      task.rtype || ''
     );
 
     setIsEditingDepends(false);
@@ -679,7 +688,8 @@ export const Tasks = (
       task.entry || '',
       task.wait || '',
       task.end || '',
-      task.depends || []
+      task.depends || [],
+      task.rtype || ''
     );
 
     setIsEditingTags(false);

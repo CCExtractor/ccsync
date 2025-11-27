@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string, project string, start string, entry string, wait string, end string, depends []string) error {
+func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string, project string, start string, entry string, wait string, end string, depends []string, rtype string) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
@@ -101,6 +101,10 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 			return fmt.Errorf("failed to set depends %s: %v", dependsStr, err)
 		}
 	}
+
+	// Note: rtype is read-only and automatically set by taskwarrior when recur field is set
+	// We accept it in the API for completeness but don't modify it directly
+	// If rtype needs to be changed, modify the recur field instead
 
 	// Sync Taskwarrior again
 	if err := SyncTaskwarrior(tempDir); err != nil {
