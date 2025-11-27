@@ -20,23 +20,23 @@ jest.mock('../NavbarDesktop', () => ({
 jest.mock('../../../../assets/logo.png', () => 'logo.png');
 jest.mock('../../../../assets/logo_light.png', () => 'logo_light.png');
 
+const mockSetIsLoading = jest.fn();
+
+const props: Props & {
+  isLoading: boolean;
+  setIsLoading: (val: boolean) => void;
+} = {
+  imgurl: '',
+  email: '',
+  encryptionSecret: '',
+  origin: '',
+  UUID: '',
+  isLoading: false,
+  tasks: [],
+  setIsLoading: mockSetIsLoading,
+};
+
 describe('Navbar Component', () => {
-  const mockSetIsLoading = jest.fn();
-
-  const props: Props & {
-    isLoading: boolean;
-    setIsLoading: (val: boolean) => void;
-  } = {
-    imgurl: '',
-    email: '',
-    encryptionSecret: '',
-    origin: '',
-    UUID: '',
-    isLoading: false,
-    tasks: [],
-    setIsLoading: mockSetIsLoading,
-  };
-
   test('renders Navbar component with correct elements', () => {
     render(<Navbar {...props} />);
 
@@ -56,5 +56,12 @@ describe('Navbar Component', () => {
 
     const navbarMobile = screen.getByTestId('navbar-mobile');
     expect(navbarMobile).toHaveAttribute('data-isopen', 'false');
+  });
+});
+
+describe('Navbar component using snapshot', () => {
+  test('renders correctly', () => {
+    const { asFragment } = render(<Navbar {...props} />);
+    expect(asFragment()).toMatchSnapshot();
   });
 });

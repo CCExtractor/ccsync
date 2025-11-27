@@ -33,3 +33,39 @@
   docker-compose build frontend
   docker-compose up
   ```
+
+## Guide for Jest Testing
+
+Two kinds of tests are implemented using Jest:
+
+### Rendering Tests
+
+Run rendering tests with the following command:
+
+```bash
+npm run test:without-snapshot
+```
+
+> **Note:** The output may show yellow lines marking snapshots as obsolete. This can be safely ignored.
+
+### Snapshot Tests
+
+Run snapshot tests with:
+
+```bash
+npm run test:snapshot
+```
+
+If one of the tests fails, verify whether the component change was intentional. If so, update the snapshot using:
+
+```bash
+npm run test:update-snapshot <componentFileName>
+```
+
+### Running All Tests
+
+Both test types can be run simultaneously:
+
+```bash
+npm run test
+```
