@@ -169,14 +169,14 @@ export const NavbarDesktop = (
         </DialogHeader>
         <div className="flex justify-end gap-4 mt-4">
           <Button
-            className="bg-[#3B82F6] hover:bg-white focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
+            className="bg-[#3B82F6] hover:bg-[#3B82F6] focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
             onClick={handleExportTXT}
           >
             <FileText className="mr-2 h-4 w-4" />
             Download .txt
           </Button>
           <Button
-            className="bg-[#3B82F6]  hover:bg-white"
+            className="bg-[#3B82F6]  hover:bg-[#3B82F6]"
             onClick={handleExportJSON}
           >
             <FileJson className="mr-2 h-4 w-4" />
