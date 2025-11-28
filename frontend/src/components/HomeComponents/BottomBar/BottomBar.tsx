@@ -2,8 +2,8 @@ import React from 'react';
 import { NavigationMenu } from '@/components/ui/navigation-menu';
 import { buttonVariants } from '@/components/ui/button';
 import { BottomBarProps } from './bottom-bar-utils';
-import { Icons } from '@/components/icons';
-import { MultiSelectFilter } from '@/components/ui/multiSelect';
+import { Icons } from '@/components/ui/icons';
+import { MultiSelectFilter } from '@/components/ui/multi-select';
 import { StatsMultiSelectFilter } from '../Tasks/StatsMultiSelectFilter';
 import {
   Popover,

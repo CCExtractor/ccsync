@@ -17,7 +17,7 @@ import {
   FileText,
   Terminal,
 } from 'lucide-react';
-import { ModeToggle } from '../../utils/theme-mode-toggle';
+import { ModeToggle } from '../../utils/ThemeModeToggle';
 import { buttonVariants } from '@/components/ui/button';
 import {
   routeList,
@@ -35,9 +35,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { exportTasksAsJSON, exportTasksAsTXT } from '@/exports-tasks';
+import {
+  exportTasksAsJSON,
+  exportTasksAsTXT,
+} from '@/components/utils/ExportTasks';
 import { DevLogs } from '../DevLogs/DevLogs';
-import { useTaskAutoSync } from '@/components/utils/Task-AutoSync';
+import { useTaskAutoSync } from '@/components/utils/TaskAutoSync';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';

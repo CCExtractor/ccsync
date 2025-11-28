@@ -217,14 +217,28 @@ describe('HomePage', () => {
         { id: 1, description: 'Test task 1' },
         { id: 2, description: 'Test task 2' },
       ];
-      mockFetchTaskwarriorTasks.mockResolvedValueOnce(mockTasks);
+
+      // 1. Create a promise and keep its "resolve" function
+      let resolveTasks: ((value: any) => void) | undefined;
+
+      const tasksPromise = new Promise((resolve) => {
+        resolveTasks = resolve;
+      });
+
+      // 2. Make the mock return THIS promise instead of resolving immediately
+      mockFetchTaskwarriorTasks.mockReturnValueOnce(tasksPromise);
 
       render(<HomePage />);
 
+      // 3. While the promise is pending, isLoading should be true
       await waitFor(() => {
         expect(receivedNavbarProps.isLoading).toBe(true);
       });
 
+      // 4. Simulate the end of the request
+      resolveTasks!(mockTasks);
+
+      // 5. After the request finishes, isLoading should be false
       await waitFor(() => {
         expect(receivedNavbarProps.isLoading).toBe(false);
       });
@@ -674,5 +688,37 @@ describe('HomePage', () => {
       expect(document.getElementById('home-setup-guide')).toBeTruthy();
       expect(document.getElementById('home-faq')).toBeTruthy();
     });
+  });
+});
+
+describe('HomePage Component using Snapshot', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders correctly with user info loaded', async () => {
+    const { asFragment } = render(<HomePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Mocked Navbar')).toBeInTheDocument();
+    });
+
+    expect(asFragment()).toMatchSnapshot('homepage-with-user-info');
+  });
+
+  it('renders correctly when session is expired', async () => {
+    (fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: false,
+      })
+    );
+
+    const { asFragment } = render(<HomePage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Session has been expired.')).toBeInTheDocument();
+    });
+
+    expect(asFragment()).toMatchSnapshot('homepage-session-expired');
   });
 });

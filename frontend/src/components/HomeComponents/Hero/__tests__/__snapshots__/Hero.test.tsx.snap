@@ -1,0 +1,177 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Hero component using snapshot renders correctly 1`] = `
+<DocumentFragment>
+  <section
+    class="container py-20 md:py-32"
+    id="#"
+  >
+    <div
+      class="text-center lg:text-start space-y-6"
+    >
+      <main
+        class="text-5xl md:text-6xl font-bold"
+      >
+        <h1
+          class="inline"
+        >
+          <span
+            class="inline bg-gradient-to-r from-[#61DAFB] to-[#1fc0f1] text-transparent bg-clip-text"
+          >
+            Welcome,
+          </span>
+           
+        </h1>
+        <h2
+          class="inline"
+        >
+          <span
+            class="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text"
+          >
+            Test User!
+          </span>
+        </h2>
+      </main>
+      <p
+        class="text-xl text-muted-foreground md:w-10/12 mx-auto lg:mx-0"
+      >
+        Follow the guide below to setup sync for your Taskwarrior clients
+      </p>
+      <div>
+        <h3
+          class="text-3xl text-foreground font-semibold mb-3"
+        >
+          Here are your credentials
+        </h3>
+        <p
+          class="text-lg text-muted-foreground md:w-10/12 mx-auto lg:mx-0"
+        >
+          You may use your own as well, but make sure to use the same credentials on each client.
+          <br />
+           Also, the tasks won't be stored on our database if you do so.
+        </p>
+        <br />
+        <h3
+          class="text-xl text-foreground font-semibold"
+        >
+          UUID
+        </h3>
+        <div
+          class="mt-4 flex items-center"
+        >
+          <div
+            class="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto"
+          >
+            <code
+              class="whitespace-nowrap"
+            >
+              1234-5678-9012-3456
+            </code>
+          </div>
+          <button
+            aria-label="Hide UUID"
+            class="text-white font-bold m-2 bg-gray-700 hover:bg-gray-600 p-3 sm:p-4 rounded flex-shrink-0"
+          >
+            <svg
+              class="lucide lucide-eye-off size-5 m-0.5"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
+              />
+              <path
+                d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+              />
+              <path
+                d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+              />
+              <line
+                x1="2"
+                x2="22"
+                y1="2"
+                y2="22"
+              />
+            </svg>
+          </button>
+          <button
+            data-testid="copy-button-uuid"
+          >
+            1234-5678-9012-3456
+          </button>
+        </div>
+        <br />
+        <h3
+          class="text-xl text-foreground font-semibold"
+        >
+          Encryption Secret
+        </h3>
+        <div
+          class="mt-4 flex items-center"
+        >
+          <div
+            class="bg-gray-900 text-white p-4 rounded-lg relative flex-grow-1 overflow-x-auto"
+          >
+            <code
+              class="whitespace-nowrap"
+            >
+              s3cr3t
+            </code>
+          </div>
+          <button
+            aria-label="Hide secret"
+            class="text-white font-bold m-2 bg-gray-700 hover:bg-gray-600 p-3 sm:p-4 rounded flex-shrink-0"
+          >
+            <svg
+              class="lucide lucide-eye-off size-5 m-0.5"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
+              />
+              <path
+                d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+              />
+              <path
+                d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+              />
+              <line
+                x1="2"
+                x2="22"
+                y1="2"
+                y2="22"
+              />
+            </svg>
+          </button>
+          <button
+            data-testid="copy-button-encryption-secret"
+          >
+            s3cr3t
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      class="shadow"
+    />
+    <div
+      data-testid="toast-notification"
+    />
+  </section>
+</DocumentFragment>
+`;

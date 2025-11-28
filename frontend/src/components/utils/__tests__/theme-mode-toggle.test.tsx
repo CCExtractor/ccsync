@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import { ModeToggle } from '../theme-mode-toggle';
-import { useTheme } from '@/components/utils/theme-provider';
+import { ModeToggle } from '../ThemeModeToggle';
+import { useTheme } from '@/components/utils/ThemeProvider';
 
 // Mocking the useTheme hook
-jest.mock('@/components/utils/theme-provider');
+jest.mock('@/components/utils/ThemeProvider');
 
 describe('ModeToggle', () => {
   const setThemeMock = jest.fn();

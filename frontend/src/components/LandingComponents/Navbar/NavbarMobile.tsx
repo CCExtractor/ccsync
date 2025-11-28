@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/sheet';
 import { Button, buttonVariants } from '../../ui/button';
 import { Menu } from 'lucide-react';
-import { ModeToggle } from '../../utils/theme-mode-toggle';
+import { ModeToggle } from '../../utils/ThemeModeToggle';
 import { routeList } from './navbar-utils';
 import { url } from '@/components/utils/URLs';
 

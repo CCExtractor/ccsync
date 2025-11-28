@@ -1,3 +1,6 @@
+// Activer le serializer Radix pour tous les tests
+process.env.RADIX_SNAPSHOT = '1';
+
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',

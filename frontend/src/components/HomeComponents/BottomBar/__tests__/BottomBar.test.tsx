@@ -4,7 +4,7 @@ import BottomBar from '../BottomBar';
 import { BottomBarProps } from '../bottom-bar-utils';
 
 // Mock the MultiSelectFilter component
-jest.mock('@/components/ui/multiSelect', () => ({
+jest.mock('@/components/ui/multi-select', () => ({
   MultiSelectFilter: jest.fn(({ title, selectedValues }) => (
     <div data-testid={`multiselect-${title.toLowerCase()}`}>
       <span data-testid={`multiselect-title-${title.toLowerCase()}`}>
@@ -94,5 +94,43 @@ describe('BottomBar Component', () => {
       'Tags'
     );
     expect(screen.getByTestId('multiselect-count-tags')).toHaveTextContent('1');
+  });
+});
+
+describe('BottomBar Component using Snapshot', () => {
+  test('renders correctly without selected props', () => {
+    const mockNoSelectedProps: BottomBarProps = {
+      ...mockProps,
+      selectedProjects: [],
+      selectedStatuses: [],
+      selectedTags: [],
+    };
+    const { asFragment } = render(<BottomBar {...mockNoSelectedProps} />);
+    expect(asFragment()).toMatchSnapshot('Bottom bar without selected props');
+  });
+  test('renders correctly with only one selected props', () => {
+    const mockOnlyOneSelectedProps: BottomBarProps = {
+      ...mockProps,
+      selectedProjects: ['Project A'],
+      selectedStatuses: ['pending'],
+      selectedTags: ['tag1'],
+    };
+
+    const { asFragment } = render(<BottomBar {...mockOnlyOneSelectedProps} />);
+    expect(asFragment()).toMatchSnapshot(
+      'Bottom bar with only one selected props'
+    );
+  });
+  test('renders correctly with several selected props', () => {
+    const mockSeveralSelectedProps: BottomBarProps = {
+      ...mockProps,
+      selectedProjects: ['Project A', 'Project B'],
+      selectedStatuses: ['pending', 'completed'],
+      selectedTags: ['tag1', 'tag2', 'tag3'],
+    };
+    const { asFragment } = render(<BottomBar {...mockSeveralSelectedProps} />);
+    expect(asFragment()).toMatchSnapshot(
+      'Bottom bar with several selected props'
+    );
   });
 });

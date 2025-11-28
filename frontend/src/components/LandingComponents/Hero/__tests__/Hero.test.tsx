@@ -48,3 +48,10 @@ describe('Hero Component', () => {
     expect(screen.getByTestId('hero-cards')).toBeInTheDocument();
   });
 });
+
+describe('Hero component using snapshot', () => {
+  it('renders correctly', () => {
+    const { asFragment } = render(<Hero />);
+    expect(asFragment()).toMatchSnapshot();
+  });
+});

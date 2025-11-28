@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
-import { ModeToggle } from '../../utils/theme-mode-toggle';
+import { ModeToggle } from '../../utils/ThemeModeToggle';
 import { buttonVariants } from '@/components/ui/button';
 import {
   routeList,
@@ -35,10 +35,13 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { url } from '@/components/utils/URLs';
-import { exportTasksAsJSON, exportTasksAsTXT } from '@/exports-tasks';
+import {
+  exportTasksAsJSON,
+  exportTasksAsTXT,
+} from '@/components/utils/ExportTasks';
 import { useState } from 'react';
 import { DevLogs } from '../DevLogs/DevLogs';
-import { useTaskAutoSync } from '@/components/utils/Task-AutoSync';
+import { useTaskAutoSync } from '@/components/utils/TaskAutoSync';
 import { Label } from '@/components/ui/label';
 
 export const NavbarDesktop = (
@@ -166,14 +169,14 @@ export const NavbarDesktop = (
         </DialogHeader>
         <div className="flex justify-end gap-4 mt-4">
           <Button
-            className="bg-[#3B82F6] hover:bg-white focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
+            className="bg-[#3B82F6] hover:bg-[#3B82F6] focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
             onClick={handleExportTXT}
           >
             <FileText className="mr-2 h-4 w-4" />
             Download .txt
           </Button>
           <Button
-            className="bg-[#3B82F6]  hover:bg-white"
+            className="bg-[#3B82F6]  hover:bg-[#3B82F6]"
             onClick={handleExportJSON}
           >
             <FileJson className="mr-2 h-4 w-4" />
