@@ -61,6 +61,7 @@ import {
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
 import { MultiSelectFilter } from '@/components/ui/multi-select';
+import { TagSelector } from '@/components/ui/tagSelector';
 import BottomBar from '../BottomBar/BottomBar';
 import {
   addTaskToBackend,
@@ -106,7 +107,6 @@ export const Tasks = (
   });
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [_isDialogOpen, setIsDialogOpen] = useState(false);
-  const [tagInput, setTagInput] = useState('');
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedDescription, setEditedDescription] = useState('');
@@ -114,7 +114,6 @@ export const Tasks = (
   const [editedTags, setEditedTags] = useState<string[]>(
     _selectedTask?.tags || []
   );
-  const [editTagInput, setEditTagInput] = useState<string>('');
   const [isEditingTags, setIsEditingTags] = useState(false);
   const [isEditingPriority, setIsEditingPriority] = useState(false);
   const [editedPriority, setEditedPriority] = useState('NONE');
@@ -609,35 +608,6 @@ export const Tasks = (
     }
   };
 
-  // Handle adding a tag
-  const handleAddTag = () => {
-    if (tagInput && !newTask.tags.includes(tagInput, 0)) {
-      setNewTask({ ...newTask, tags: [...newTask.tags, tagInput] });
-      setTagInput(''); // Clear the input field
-    }
-  };
-
-  // Handle adding a tag while editing
-  const handleAddEditTag = () => {
-    if (editTagInput && !editedTags.includes(editTagInput, 0)) {
-      setEditedTags([...editedTags, editTagInput]);
-      setEditTagInput('');
-    }
-  };
-
-  // Handle removing a tag
-  const handleRemoveTag = (tagToRemove: string) => {
-    setNewTask({
-      ...newTask,
-      tags: newTask.tags.filter((tag) => tag !== tagToRemove),
-    });
-  };
-
-  // Handle removing a tag while editing task
-  const handleRemoveEditTag = (tagToRemove: string) => {
-    setEditedTags(editedTags.filter((tag) => tag !== tagToRemove));
-  };
-
   const sortWithOverdueOnTop = (tasks: Task[]) => {
     return [...tasks].sort((a, b) => {
       const aOverdue = a.status === 'pending' && isOverdue(a.due);
@@ -723,8 +693,7 @@ export const Tasks = (
       task.depends || []
     );
 
-    setIsEditingTags(false);
-    setEditTagInput('');
+    setIsEditingTags(false); // Exit editing mode
   };
 
   const handleCancelTags = () => {
@@ -1062,40 +1031,16 @@ export const Tasks = (
                               >
                                 Tags
                               </Label>
-                              <Input
-                                id="tags"
-                                name="tags"
-                                placeholder="Add a tag"
-                                value={tagInput}
-                                onChange={(e) => setTagInput(e.target.value)}
-                                onKeyDown={(e) =>
-                                  e.key === 'Enter' && handleAddTag()
-                                } // Allow adding tag on pressing Enter
-                                required
-                                className="col-span-3"
-                              />
-                            </div>
-
-                            <div className="mt-2">
-                              {newTask.tags.length > 0 && (
-                                <div className="grid grid-cols-4 items-center">
-                                  <div> </div>
-                                  <div className="flex flex-wrap gap-2 col-span-3">
-                                    {newTask.tags.map((tag, index) => (
-                                      <Badge key={index}>
-                                        <span>{tag}</span>
-                                        <button
-                                          type="button"
-                                          className="ml-2 text-red-500"
-                                          onClick={() => handleRemoveTag(tag)}
-                                        >
-                                          ✖
-                                        </button>
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
+                              <div className="col-span-3">
+                                <TagSelector
+                                  options={uniqueTags}
+                                  selected={newTask.tags}
+                                  onChange={(updated) =>
+                                    setNewTask({ ...newTask, tags: updated })
+                                  }
+                                  placeholder="Select or Create Tags"
+                                />
+                              </div>
                             </div>
                           </div>
                           <DialogFooter>
@@ -1924,86 +1869,31 @@ export const Tasks = (
                                         <TableCell>Tags:</TableCell>
                                         <TableCell>
                                           {isEditingTags ? (
-                                            <div>
-                                              <div className="flex items-center w-full">
-                                                <Input
-                                                  type="text"
-                                                  value={editTagInput}
-                                                  onChange={(e) => {
-                                                    // For allowing only alphanumeric characters
-                                                    if (
-                                                      e.target.value.length > 1
-                                                    ) {
-                                                      /^[a-zA-Z0-9]*$/.test(
-                                                        e.target.value.trim()
-                                                      )
-                                                        ? setEditTagInput(
-                                                            e.target.value.trim()
-                                                          )
-                                                        : '';
-                                                    } else {
-                                                      /^[a-zA-Z]*$/.test(
-                                                        e.target.value.trim()
-                                                      )
-                                                        ? setEditTagInput(
-                                                            e.target.value.trim()
-                                                          )
-                                                        : '';
-                                                    }
-                                                  }}
-                                                  placeholder="Add a tag (press enter to add)"
-                                                  className="flex-grow mr-2"
-                                                  onKeyDown={(e) =>
-                                                    e.key === 'Enter' &&
-                                                    handleAddEditTag()
-                                                  }
-                                                />
-                                                <Button
-                                                  variant="ghost"
-                                                  size="icon"
-                                                  onClick={() =>
-                                                    handleSaveTags(task)
-                                                  }
-                                                  aria-label="Save tags"
-                                                >
-                                                  <CheckIcon className="h-4 w-4 text-green-500" />
-                                                </Button>
-                                                <Button
-                                                  variant="ghost"
-                                                  size="icon"
-                                                  onClick={handleCancelTags}
-                                                  aria-label="Cancel editing tags"
-                                                >
-                                                  <XIcon className="h-4 w-4 text-red-500" />
-                                                </Button>
-                                              </div>
-                                              <div className="mt-2">
-                                                {editedTags != null &&
-                                                  editedTags.length > 0 && (
-                                                    <div>
-                                                      <div className="flex flex-wrap gap-2 col-span-3">
-                                                        {editedTags.map(
-                                                          (tag, index) => (
-                                                            <Badge key={index}>
-                                                              <span>{tag}</span>
-                                                              <button
-                                                                type="button"
-                                                                className="ml-2 text-red-500"
-                                                                onClick={() =>
-                                                                  handleRemoveEditTag(
-                                                                    tag
-                                                                  )
-                                                                }
-                                                              >
-                                                                ✖
-                                                              </button>
-                                                            </Badge>
-                                                          )
-                                                        )}
-                                                      </div>
-                                                    </div>
-                                                  )}
-                                              </div>
+                                            <div className="flex items-center">
+                                              <TagSelector
+                                                options={uniqueTags}
+                                                selected={editedTags}
+                                                onChange={(updated) =>
+                                                  setEditedTags(updated)
+                                                }
+                                                placeholder="Select or Create Tags"
+                                              />
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleSaveTags(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={handleCancelTags}
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
                                             </div>
                                           ) : (
                                             <div className="flex items-center flex-wrap">
