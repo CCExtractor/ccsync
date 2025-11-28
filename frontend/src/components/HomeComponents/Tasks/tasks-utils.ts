@@ -2,6 +2,8 @@ import { Task } from '@/components/utils/types';
 import { url } from '@/components/utils/URLs';
 import { format, parseISO } from 'date-fns';
 import { toast } from 'react-toastify';
+import { CompletionSummary, LabelMaps } from './types';
+import { COMPLETED_STATUS } from './constants';
 
 export type Props = {
   email: string;
@@ -183,3 +185,58 @@ export const hashKey = (key: string, email: string): string => {
   }
   return Math.abs(hash).toString(36);
 };
+
+export const roundPercentage = (completed: number, total: number) =>
+  total === 0 ? 0 : Math.round((completed / total) * 100);
+
+export const aggregateProjectStats = (tasks: Task[]): CompletionSummary =>
+  tasks.reduce((acc, task) => {
+    if (!task.project) {
+      return acc;
+    }
+    if (!acc[task.project]) {
+      acc[task.project] = { total: 0, completed: 0 };
+    }
+    acc[task.project].total += 1;
+    if (task.status === COMPLETED_STATUS) {
+      acc[task.project].completed += 1;
+    }
+    return acc;
+  }, {} as CompletionSummary);
+
+export const aggregateTagStats = (tasks: Task[]): CompletionSummary =>
+  tasks.reduce((acc, task) => {
+    (task.tags || []).forEach((tag) => {
+      if (!tag) {
+        return;
+      }
+      if (!acc[tag]) {
+        acc[tag] = { total: 0, completed: 0 };
+      }
+      acc[tag].total += 1;
+      if (task.status === COMPLETED_STATUS) {
+        acc[tag].completed += 1;
+      }
+    });
+    return acc;
+  }, {} as CompletionSummary);
+
+export const buildLabelMaps = (
+  keys: string[],
+  stats: CompletionSummary
+): LabelMaps =>
+  keys.reduce(
+    (acc, key) => {
+      const { total = 0, completed = 0 } = stats[key] ?? {
+        total: 0,
+        completed: 0,
+      };
+      const percentage = roundPercentage(completed, total);
+      const label = `${key}    ${completed}/${total}    ${percentage}%`;
+      acc.options.push(label);
+      acc.valueToDisplay[key] = label;
+      acc.displayToValue[label] = key;
+      return acc;
+    },
+    { options: [], valueToDisplay: {}, displayToValue: {} } as LabelMaps
+  );

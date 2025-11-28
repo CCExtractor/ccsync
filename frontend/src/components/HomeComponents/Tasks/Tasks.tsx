@@ -3,6 +3,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  useRef,
   Dispatch,
   SetStateAction,
 } from 'react';
@@ -64,6 +65,9 @@ import {
   sortTasksById,
   getTimeSinceLastSync,
   hashKey,
+  aggregateProjectStats,
+  aggregateTagStats,
+  buildLabelMaps,
 } from './tasks-utils';
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
@@ -84,67 +88,6 @@ import { Taskskeleton } from './TaskSkeleton';
 import { Key } from '@/components/ui/key-button';
 
 const db = new TasksDatabase();
-type CompletionSummary = Record<string, { total: number; completed: number }>;
-
-const COMPLETED_STATUS = 'completed';
-
-const roundPercentage = (completed: number, total: number) =>
-  total === 0 ? 0 : Math.round((completed / total) * 100);
-
-const aggregateProjectStats = (tasks: Task[]): CompletionSummary =>
-  tasks.reduce((acc, task) => {
-    if (!task.project) {
-      return acc;
-    }
-    if (!acc[task.project]) {
-      acc[task.project] = { total: 0, completed: 0 };
-    }
-    acc[task.project].total += 1;
-    if (task.status === COMPLETED_STATUS) {
-      acc[task.project].completed += 1;
-    }
-    return acc;
-  }, {} as CompletionSummary);
-
-const aggregateTagStats = (tasks: Task[]): CompletionSummary =>
-  tasks.reduce((acc, task) => {
-    (task.tags || []).forEach((tag) => {
-      if (!tag) {
-        return;
-      }
-      if (!acc[tag]) {
-        acc[tag] = { total: 0, completed: 0 };
-      }
-      acc[tag].total += 1;
-      if (task.status === COMPLETED_STATUS) {
-        acc[tag].completed += 1;
-      }
-    });
-    return acc;
-  }, {} as CompletionSummary);
-
-type LabelMaps = {
-  options: string[];
-  valueToDisplay: Record<string, string>;
-  displayToValue: Record<string, string>;
-};
-
-const buildLabelMaps = (keys: string[], stats: CompletionSummary): LabelMaps =>
-  keys.reduce(
-    (acc, key) => {
-      const { total = 0, completed = 0 } = stats[key] ?? {
-        total: 0,
-        completed: 0,
-      };
-      const percentage = roundPercentage(completed, total);
-      const label = `${key}    ${completed}/${total}    ${percentage}%`;
-      acc.options.push(label);
-      acc.valueToDisplay[key] = label;
-      acc.displayToValue[label] = key;
-      return acc;
-    },
-    { options: [], valueToDisplay: {}, displayToValue: {} } as LabelMaps
-  );
 export let syncTasksWithTwAndDb: () => any;
 
 export const Tasks = (
