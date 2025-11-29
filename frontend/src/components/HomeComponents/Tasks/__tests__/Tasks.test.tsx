@@ -342,7 +342,7 @@ describe('Tasks Component', () => {
 
     expect(await screen.findByText('Mocked BottomBar')).toBeInTheDocument();
 
-    const multiSelectFilter = require('@/components/ui/multiSelect');
+    const multiSelectFilter = require('@/components/ui/multi-select');
 
     expect(multiSelectFilter.MultiSelectFilter).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -355,7 +355,7 @@ describe('Tasks Component', () => {
 
   test('filters tasks to show only overdue tasks when status "overdue" is selected', async () => {
     const MultiSelectFilter =
-      require('@/components/ui/multiSelect').MultiSelectFilter;
+      require('@/components/ui/multi-select').MultiSelectFilter;
 
     MultiSelectFilter.mockImplementation(({ title }: { title: string }) => {
       return <div data-testid={`ms-${title}`}>Mocked MultiSelect: {title}</div>;
