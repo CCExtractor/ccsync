@@ -20,19 +20,23 @@ import {
 const ALL_ITEMS_VALUE = '__ALL__';
 
 interface StatsMultiSelectFilterProps {
+  id?: string;
   title: string;
   options: string[];
   selectedValues: string[];
   onSelectionChange: (values: string[]) => void;
   className?: string;
+  icon?: React.ReactNode;
 }
 
 export function StatsMultiSelectFilter({
+  id,
   title,
   options,
   selectedValues,
   onSelectionChange,
   className,
+  icon,
 }: StatsMultiSelectFilterProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -52,6 +56,7 @@ export function StatsMultiSelectFilter({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          id={id}
           variant="outline"
           role="combobox"
           aria-expanded={open}
@@ -63,7 +68,10 @@ export function StatsMultiSelectFilter({
           <div className="flex flex-wrap gap-1 items-center">
             <span className="font-medium">{title}</span>
           </div>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <div className="flex flex-wrap items-center">
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            {icon && <span>{icon}</span>}
+          </div>
         </Button>
       </PopoverTrigger>
 

@@ -1053,6 +1053,7 @@ export const Tasks = (
                       icon={<Key lable="f" />}
                     />
                     <StatsMultiSelectFilter
+                      id="projects"
                       title="Projects"
                       options={projectDisplayOptions}
                       selectedValues={selectedProjectDisplayValues}
@@ -1072,6 +1073,7 @@ export const Tasks = (
                       icon={<Key lable="s" />}
                     />
                     <StatsMultiSelectFilter
+                      id="tags"
                       title="Tags"
                       options={tagDisplayOptions}
                       selectedValues={selectedTagDisplayValues}
