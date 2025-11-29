@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string, project string, start string, entry string, wait string, end string, depends []string) error {
+func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string, project string, start string, entry string, wait string, end string, depends []string, due string) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
@@ -99,6 +99,16 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 		dependsStr := strings.Join(depends, ",")
 		if err := utils.ExecCommand("task", taskID, "modify", "depends:"+dependsStr); err != nil {
 			return fmt.Errorf("failed to set depends %s: %v", dependsStr, err)
+		}
+	}
+
+	// Handle due date
+	if due != "" {
+		// Convert `2025-11-29` -> `2025-11-29T00:00:00`
+		formattedDue := due + "T00:00:00"
+
+		if err := utils.ExecCommand("task", taskID, "modify", "due:"+formattedDue); err != nil {
+			return fmt.Errorf("failed to set due date %s: %v", formattedDue, err)
 		}
 	}
 

@@ -36,6 +36,7 @@ type EditTaskRequestBody struct {
 	Wait             string   `json:"wait"`
 	End              string   `json:"end"`
 	Depends          []string `json:"depends"`
+	Due              string   `json:"due"`
 }
 type CompleteTaskRequestBody struct {
 	Email            string `json:"email"`
