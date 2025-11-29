@@ -92,7 +92,7 @@ export const Tasks = (
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [tempTasks, setTempTasks] = useState<Task[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const status = ['pending', 'completed', 'deleted'];
+  const status = ['pending', 'completed', 'deleted', 'overdue'];
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -664,9 +664,15 @@ export const Tasks = (
 
     // Status filter
     if (selectedStatuses.length > 0) {
-      filteredTasks = filteredTasks.filter((task) =>
-        selectedStatuses.includes(task.status)
-      );
+      filteredTasks = filteredTasks.filter((task) => {
+        const isTaskOverdue = task.status === 'pending' && isOverdue(task.due);
+
+        if (selectedStatuses.includes('overdue') && isTaskOverdue) {
+          return true;
+        }
+
+        return selectedStatuses.includes(task.status);
+      });
     }
 
     // Tag filter
@@ -1238,19 +1244,28 @@ export const Tasks = (
                                 </TableCell>
                                 <TableCell className="py-2">
                                   <Badge
+                                    className={
+                                      task.status === 'pending' &&
+                                      isOverdue(task.due)
+                                        ? 'bg-orange-500 text-white'
+                                        : ''
+                                    }
                                     variant={
-                                      task.status === 'pending'
-                                        ? 'secondary'
-                                        : task.status === 'deleted'
-                                          ? 'destructive'
-                                          : 'default'
+                                      task.status === 'deleted'
+                                        ? 'destructive'
+                                        : task.status === 'completed'
+                                          ? 'default'
+                                          : 'secondary'
                                     }
                                   >
-                                    {task.status === 'completed'
-                                      ? 'C'
-                                      : task.status === 'deleted'
-                                        ? 'D'
-                                        : 'P'}
+                                    {task.status === 'pending' &&
+                                    isOverdue(task.due)
+                                      ? 'O'
+                                      : task.status === 'completed'
+                                        ? 'C'
+                                        : task.status === 'deleted'
+                                          ? 'D'
+                                          : 'P'}
                                   </Badge>
                                 </TableCell>
                               </TableRow>
