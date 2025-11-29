@@ -791,6 +791,21 @@ export const Tasks = (
       document.getElementById('sync-task')?.click();
     }
   });
+  useHotkeys(['p'], () => {
+    if (!showReports) {
+      document.getElementById('projects')?.click();
+    }
+  });
+  useHotkeys(['s'], () => {
+    if (!showReports) {
+      document.getElementById('status')?.click();
+    }
+  });
+  useHotkeys(['t'], () => {
+    if (!showReports) {
+      document.getElementById('tags')?.click();
+    }
+  });
   useHotkeys(['c'], () => {
     if (!showReports && !_isDialogOpen) {
       const task = currentTasks[selectedIndex];
@@ -921,25 +936,31 @@ export const Tasks = (
                       icon={<Key lable="f" />}
                     />
                     <MultiSelectFilter
+                      id="projects"
                       title="Projects"
                       options={uniqueProjects}
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
                       className="flex-1 min-w-[140px]"
+                      icon={<Key lable="p" />}
                     />
                     <MultiSelectFilter
+                      id="status"
                       title="Status"
                       options={status}
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
                       className="flex-1 min-w-[140px]"
+                      icon={<Key lable="s" />}
                     />
                     <MultiSelectFilter
+                      id="tags"
                       title="Tags"
                       options={uniqueTags}
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
                       className="flex-1 min-w-[140px]"
+                      icon={<Key lable="t" />}
                     />
                     <div className="pr-2">
                       <Dialog
