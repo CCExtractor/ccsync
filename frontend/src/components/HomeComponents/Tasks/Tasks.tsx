@@ -1233,7 +1233,8 @@ export const Tasks = (
                         id="sync-task"
                         variant="outline"
                         onClick={() => (
-                          props.setIsLoading(true), syncTasksWithTwAndDb()
+                          props.setIsLoading(true),
+                          syncTasksWithTwAndDb()
                         )}
                       >
                         Sync
@@ -1350,18 +1351,18 @@ export const Tasks = (
                                       task.status === 'deleted'
                                         ? 'destructive'
                                         : task.status === 'completed'
-                                        ? 'default'
-                                        : 'secondary'
+                                          ? 'default'
+                                          : 'secondary'
                                     }
                                   >
                                     {task.status === 'pending' &&
                                     isOverdue(task.due)
                                       ? 'O'
                                       : task.status === 'completed'
-                                      ? 'C'
-                                      : task.status === 'deleted'
-                                      ? 'D'
-                                      : 'P'}
+                                        ? 'C'
+                                        : task.status === 'deleted'
+                                          ? 'D'
+                                          : 'P'}
                                   </Badge>
                                 </TableCell>
                               </TableRow>
@@ -2027,10 +2028,10 @@ export const Tasks = (
                                                   ? task.priority === 'H'
                                                     ? 'High (H)'
                                                     : task.priority === 'M'
-                                                    ? 'Medium (M)'
-                                                    : task.priority === 'L'
-                                                    ? 'Low (L)'
-                                                    : task.priority
+                                                      ? 'Medium (M)'
+                                                      : task.priority === 'L'
+                                                        ? 'Low (L)'
+                                                        : task.priority
                                                   : 'None'}
                                               </span>
                                               <Button
