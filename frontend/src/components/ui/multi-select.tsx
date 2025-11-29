@@ -90,6 +90,11 @@ export function MultiSelectFilter({
               </CommandItem>
               {options.map((option) => {
                 const isSelected = selectedValues.includes(option);
+
+                // Parse option for stats formatting
+                const parts = option.split('    ');
+                const hasStats = parts.length === 3;
+
                 return (
                   <CommandItem
                     key={option}
@@ -101,7 +106,16 @@ export function MultiSelectFilter({
                         isSelected ? 'opacity-100' : 'opacity-0'
                       )}
                     />
-                    {option}
+                    {hasStats ? (
+                      <>
+                        <span>{parts[0]}</span>
+                        <span className="ml-3 text-muted-foreground text-xs">
+                          {parts[1]} {parts[2]}
+                        </span>
+                      </>
+                    ) : (
+                      option
+                    )}
                   </CommandItem>
                 );
               })}

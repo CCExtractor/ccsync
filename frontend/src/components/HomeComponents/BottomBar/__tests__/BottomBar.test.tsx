@@ -17,20 +17,6 @@ jest.mock('@/components/ui/multi-select', () => ({
   )),
 }));
 
-// Mock the StatsMultiSelectFilter component
-jest.mock('../../Tasks/StatsMultiSelectFilter', () => ({
-  StatsMultiSelectFilter: jest.fn(({ title, selectedValues }) => (
-    <div data-testid={`multiselect-${title.toLowerCase()}`}>
-      <span data-testid={`multiselect-title-${title.toLowerCase()}`}>
-        {title}
-      </span>
-      <span data-testid={`multiselect-count-${title.toLowerCase()}`}>
-        {selectedValues.length}
-      </span>
-    </div>
-  )),
-}));
-
 const mockProps: BottomBarProps = {
   projects: ['Project A', 'Project B'],
   selectedProjects: ['Project A'],

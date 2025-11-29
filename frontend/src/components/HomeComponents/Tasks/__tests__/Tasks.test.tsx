@@ -40,17 +40,11 @@ jest.mock('../tasks-utils', () => {
 });
 
 jest.mock('@/components/ui/multi-select', () => ({
-  MultiSelectFilter: jest.fn(({ title }) => (
-    <div>Mocked MultiSelect: {title}</div>
-  )),
-}));
-
-jest.mock('../StatsMultiSelectFilter', () => ({
-  StatsMultiSelectFilter: jest.fn(({ title, options }) => (
-    <div data-testid={`stats-multiselect-${title.toLowerCase()}`}>
-      Mocked Stats MultiSelect: {title}
+  MultiSelectFilter: jest.fn(({ title, options }) => (
+    <div data-testid={`multiselect-${title.toLowerCase()}`}>
+      Mocked MultiSelect: {title}
       <div data-testid={`options-${title.toLowerCase()}`}>
-        {JSON.stringify(options)}
+        {options ? JSON.stringify(options) : ''}
       </div>
     </div>
   )),
@@ -154,12 +148,12 @@ describe('Tasks Component', () => {
   });
 
   test('displays completion stats inside filter dropdown options', async () => {
-    const { StatsMultiSelectFilter } = require('../StatsMultiSelectFilter');
+    const { MultiSelectFilter } = require('@/components/ui/multi-select');
     render(<Tasks {...mockProps} />);
 
     expect(await screen.findByText('Task 1')).toBeInTheDocument();
 
-    const projectCall = StatsMultiSelectFilter.mock.calls.find(
+    const projectCall = MultiSelectFilter.mock.calls.find(
       ([props]: [{ title: string }]) => props.title === 'Projects'
     );
     expect(projectCall).toBeTruthy();
@@ -171,7 +165,7 @@ describe('Tasks Component', () => {
       )
     ).toBe(true);
 
-    const tagCall = StatsMultiSelectFilter.mock.calls.find(
+    const tagCall = MultiSelectFilter.mock.calls.find(
       ([props]: [{ title: string }]) => props.title === 'Tags'
     );
     expect(tagCall).toBeTruthy();

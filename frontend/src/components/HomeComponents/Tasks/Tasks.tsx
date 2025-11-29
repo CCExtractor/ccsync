@@ -72,7 +72,6 @@ import {
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
 import { MultiSelectFilter } from '@/components/ui/multi-select';
-import { StatsMultiSelectFilter } from './StatsMultiSelectFilter';
 import BottomBar from '../BottomBar/BottomBar';
 import {
   addTaskToBackend,
@@ -1052,7 +1051,7 @@ export const Tasks = (
                       data-testid="task-search-bar"
                       icon={<Key lable="f" />}
                     />
-                    <StatsMultiSelectFilter
+                    <MultiSelectFilter
                       id="projects"
                       title="Projects"
                       options={projectDisplayOptions}
@@ -1072,7 +1071,7 @@ export const Tasks = (
                       className="flex-1 min-w-[140px]"
                       icon={<Key lable="s" />}
                     />
-                    <StatsMultiSelectFilter
+                    <MultiSelectFilter
                       id="tags"
                       title="Tags"
                       options={tagDisplayOptions}

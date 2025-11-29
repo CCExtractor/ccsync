@@ -4,7 +4,6 @@ import { buttonVariants } from '@/components/ui/button';
 import { BottomBarProps } from './bottom-bar-utils';
 import { Icons } from '@/components/ui/icons';
 import { MultiSelectFilter } from '@/components/ui/multi-select';
-import { StatsMultiSelectFilter } from '../Tasks/StatsMultiSelectFilter';
 import {
   Popover,
   PopoverTrigger,
@@ -60,7 +59,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-4 flex flex-col gap-4 bg-background border shadow-lg rounded-lg">
-            <StatsMultiSelectFilter
+            <MultiSelectFilter
               title="Projects"
               options={projects}
               selectedValues={selectedProjects}
@@ -74,7 +73,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
               onSelectionChange={setSelectedStatus}
               className="min-w-[200px]"
             />
-            <StatsMultiSelectFilter
+            <MultiSelectFilter
               title="Tags"
               options={tags}
               selectedValues={selectedTags}
