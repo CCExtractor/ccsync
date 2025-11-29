@@ -1,0 +1,38 @@
+name: PR Self-Review Reminder
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+jobs:
+  remind-self-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR self-review reminder
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+
+            const body = `
+Thank you for opening this PR!
+
+Before a maintainer takes a look, it would be really helpful if you could walk through your changes using GitHub's review tools.
+
+Please take a moment to:
+- Check the “Files changed” tab
+- Leave comments on any lines for functions, comments, etc. that are important, non-obvious, or may need attention  
+- Clarify decisions you made or areas you might be unsure about and/or any future updates being considered.
+- Finally submit all the comments!
+
+This helps make the review process smoother and gives us a clearer understanding of your thought process.
+
+Once you've added your self-review, we'll continue from our side. Thank you!
+            `;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: body
+            });
