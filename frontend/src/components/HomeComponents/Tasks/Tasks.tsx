@@ -104,7 +104,7 @@ export const Tasks = (
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [tempTasks, setTempTasks] = useState<Task[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
-  const status = ['pending', 'completed', 'deleted'];
+  const status = ['pending', 'completed', 'deleted', 'overdue'];
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -142,6 +142,8 @@ export const Tasks = (
   const [editedEntryDate, setEditedEntryDate] = useState('');
   const [isEditingEndDate, setIsEditingEndDate] = useState(false);
   const [editedEndDate, setEditedEndDate] = useState('');
+  const [isEditingDueDate, setIsEditingDueDate] = useState(false);
+  const [editedDueDate, setEditedDueDate] = useState('');
   const [isEditingDepends, setIsEditingDepends] = useState(false);
   const [editedDepends, setEditedDepends] = useState<string[]>([]);
   const [dependsDropdownOpen, setDependsDropdownOpen] = useState(false);
@@ -457,7 +459,8 @@ export const Tasks = (
     entry: string,
     wait: string,
     end: string,
-    depends: string[]
+    depends: string[],
+    due: string
   ) {
     try {
       await editTaskOnBackend({
@@ -474,6 +477,7 @@ export const Tasks = (
         wait,
         end,
         depends,
+        due,
       });
 
       console.log('Task edited successfully!');
@@ -520,7 +524,8 @@ export const Tasks = (
       task.entry || '',
       task.wait || '',
       task.end || '',
-      task.depends || []
+      task.depends || [],
+      task.due || ''
     );
     setIsEditing(false);
   };
@@ -539,7 +544,8 @@ export const Tasks = (
       task.entry || '',
       task.wait || '',
       task.end || '',
-      task.depends || []
+      task.depends || [],
+      task.due || ''
     );
     setIsEditingProject(false);
   };
@@ -559,7 +565,8 @@ export const Tasks = (
       task.entry || '',
       task.wait,
       task.end || '',
-      task.depends || []
+      task.depends || [],
+      task.due || ''
     );
 
     setIsEditingWaitDate(false);
@@ -580,7 +587,8 @@ export const Tasks = (
       task.entry || '',
       task.wait || '',
       task.end || '',
-      task.depends || []
+      task.depends || [],
+      task.due || ''
     );
 
     setIsEditingStartDate(false);
@@ -601,7 +609,8 @@ export const Tasks = (
       task.entry,
       task.wait,
       task.end,
-      task.depends || []
+      task.depends || [],
+      task.due || ''
     );
 
     setIsEditingEntryDate(false);
@@ -622,10 +631,33 @@ export const Tasks = (
       task.entry,
       task.wait,
       task.end,
-      task.depends || []
+      task.depends || [],
+      task.due || ''
     );
 
     setIsEditingEndDate(false);
+  };
+
+  const handleDueDateSaveClick = (task: Task) => {
+    task.due = editedDueDate;
+
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start,
+      task.entry,
+      task.wait,
+      task.end,
+      task.depends || [],
+      task.due
+    );
+
+    setIsEditingDueDate(false);
   };
 
   const handleDependsSaveClick = (task: Task) => {
@@ -643,7 +675,8 @@ export const Tasks = (
       task.entry || '',
       task.wait || '',
       task.end || '',
-      task.depends
+      task.depends,
+      task.due || ''
     );
 
     setIsEditingDepends(false);
@@ -679,6 +712,8 @@ export const Tasks = (
       setEditedEntryDate('');
       setIsEditingEndDate(false);
       setEditedEndDate('');
+      setIsEditingDueDate(false);
+      setEditedDueDate('');
       setIsEditingDepends(false);
       setEditedDepends([]);
       setDependsDropdownOpen(false);
@@ -745,9 +780,15 @@ export const Tasks = (
 
     // Status filter
     if (selectedStatuses.length > 0) {
-      filteredTasks = filteredTasks.filter((task) =>
-        selectedStatuses.includes(task.status)
-      );
+      filteredTasks = filteredTasks.filter((task) => {
+        const isTaskOverdue = task.status === 'pending' && isOverdue(task.due);
+
+        if (selectedStatuses.includes('overdue') && isTaskOverdue) {
+          return true;
+        }
+
+        return selectedStatuses.includes(task.status);
+      });
     }
 
     // Tag filter
@@ -801,7 +842,8 @@ export const Tasks = (
       task.entry || '',
       task.wait || '',
       task.end || '',
-      task.depends || []
+      task.depends || [],
+      task.due || ''
     );
 
     setIsEditingTags(false);
@@ -864,6 +906,21 @@ export const Tasks = (
   useHotkeys(['r'], () => {
     if (!showReports) {
       document.getElementById('sync-task')?.click();
+    }
+  });
+  useHotkeys(['p'], () => {
+    if (!showReports) {
+      document.getElementById('projects')?.click();
+    }
+  });
+  useHotkeys(['s'], () => {
+    if (!showReports) {
+      document.getElementById('status')?.click();
+    }
+  });
+  useHotkeys(['t'], () => {
+    if (!showReports) {
+      document.getElementById('tags')?.click();
     }
   });
   useHotkeys(['c'], () => {
@@ -1003,13 +1060,16 @@ export const Tasks = (
                         handleProjectSelectionChange(values)
                       }
                       className="flex-1 min-w-[140px]"
+                      icon={<Key lable="p" />}
                     />
                     <MultiSelectFilter
+                      id="status"
                       title="Status"
                       options={status}
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
                       className="flex-1 min-w-[140px]"
+                      icon={<Key lable="s" />}
                     />
                     <StatsMultiSelectFilter
                       title="Tags"
@@ -1019,6 +1079,7 @@ export const Tasks = (
                         handleTagSelectionChange(values)
                       }
                       className="flex-1 min-w-[140px]"
+                      icon={<Key lable="t" />}
                     />
                     <div className="pr-2">
                       <Dialog
@@ -1285,7 +1346,9 @@ export const Tasks = (
                               <TableRow
                                 id={`task-row-${task.id}`}
                                 key={index}
-                                className={`border-b cursor-pointer ${selectedIndex === index ? 'bg-muted/50' : ''}`}
+                                className={`border-b cursor-pointer ${
+                                  selectedIndex === index ? 'bg-muted/50' : ''
+                                }`}
                               >
                                 {/* Display task details */}
                                 <TableCell className="py-2">
@@ -1323,19 +1386,28 @@ export const Tasks = (
                                 </TableCell>
                                 <TableCell className="py-2">
                                   <Badge
+                                    className={
+                                      task.status === 'pending' &&
+                                      isOverdue(task.due)
+                                        ? 'bg-orange-500 text-white'
+                                        : ''
+                                    }
                                     variant={
-                                      task.status === 'pending'
-                                        ? 'secondary'
-                                        : task.status === 'deleted'
-                                          ? 'destructive'
-                                          : 'default'
+                                      task.status === 'deleted'
+                                        ? 'destructive'
+                                        : task.status === 'completed'
+                                          ? 'default'
+                                          : 'secondary'
                                     }
                                   >
-                                    {task.status === 'completed'
-                                      ? 'C'
-                                      : task.status === 'deleted'
-                                        ? 'D'
-                                        : 'P'}
+                                    {task.status === 'pending' &&
+                                    isOverdue(task.due)
+                                      ? 'O'
+                                      : task.status === 'completed'
+                                        ? 'C'
+                                        : task.status === 'deleted'
+                                          ? 'D'
+                                          : 'P'}
                                   </Badge>
                                 </TableCell>
                               </TableRow>
@@ -1426,7 +1498,91 @@ export const Tasks = (
                                       <TableRow>
                                         <TableCell>Due:</TableCell>
                                         <TableCell>
-                                          {formattedDate(task.due)}
+                                          {isEditingDueDate ? (
+                                            <div className="flex items-center gap-2">
+                                              <DatePicker
+                                                date={
+                                                  editedDueDate &&
+                                                  editedDueDate !== ''
+                                                    ? (() => {
+                                                        try {
+                                                          const dateStr =
+                                                            editedDueDate.includes(
+                                                              'T'
+                                                            )
+                                                              ? editedDueDate.split(
+                                                                  'T'
+                                                                )[0]
+                                                              : editedDueDate;
+                                                          const parsed =
+                                                            new Date(
+                                                              dateStr +
+                                                                'T00:00:00'
+                                                            );
+                                                          return isNaN(
+                                                            parsed.getTime()
+                                                          )
+                                                            ? undefined
+                                                            : parsed;
+                                                        } catch {
+                                                          return undefined;
+                                                        }
+                                                      })()
+                                                    : undefined
+                                                }
+                                                onDateChange={(date) =>
+                                                  setEditedDueDate(
+                                                    date
+                                                      ? format(
+                                                          date,
+                                                          'yyyy-MM-dd'
+                                                        )
+                                                      : ''
+                                                  )
+                                                }
+                                                placeholder="Select due date"
+                                              />
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleDueDateSaveClick(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  setIsEditingDueDate(false)
+                                                }
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <>
+                                              <span>
+                                                {formattedDate(task.due)}
+                                              </span>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                  setIsEditingDueDate(true);
+                                                  const dueDate = task.due
+                                                    ? task.due.includes('T')
+                                                      ? task.due.split('T')[0]
+                                                      : task.due
+                                                    : '';
+                                                  setEditedDueDate(dueDate);
+                                                }}
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </>
+                                          )}
                                         </TableCell>
                                       </TableRow>
                                       <TableRow>

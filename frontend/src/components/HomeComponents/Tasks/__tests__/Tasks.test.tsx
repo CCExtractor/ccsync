@@ -338,7 +338,7 @@ describe('Tasks Component', () => {
     expect(callArg.tags).toEqual(expect.arrayContaining(['newtag', '-tag1']));
   });
 
-  test('shows red background on task ID and Overdue badge for overdue tasks', async () => {
+  test('shows orange background on task ID and Overdue badge for overdue tasks', async () => {
     render(<Tasks {...mockProps} />);
 
     await screen.findByText('Task 12');
@@ -377,5 +377,90 @@ describe('Tasks Component', () => {
     expect(screen.queryByText('Sales')).not.toBeInTheDocument();
 
     jest.useRealTimers();
+  });
+
+  test('shows "overdue" in status filter options', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Mocked BottomBar')).toBeInTheDocument();
+
+    const multiSelectFilter = require('@/components/ui/multi-select');
+
+    expect(multiSelectFilter.MultiSelectFilter).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Status',
+        options: expect.arrayContaining(['overdue']),
+      }),
+      {}
+    );
+  });
+
+  test('filters tasks to show only overdue tasks when status "overdue" is selected', async () => {
+    const MultiSelectFilter =
+      require('@/components/ui/multi-select').MultiSelectFilter;
+
+    MultiSelectFilter.mockImplementation(({ title }: { title: string }) => {
+      return <div data-testid={`ms-${title}`}>Mocked MultiSelect: {title}</div>;
+    });
+
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 12')).toBeInTheDocument();
+
+    const lastCall = MultiSelectFilter.mock.calls.find(
+      (call: any[]) => call[0].title === 'Status'
+    );
+
+    const onSelectionChange = lastCall[0].onSelectionChange;
+
+    act(() => {
+      onSelectionChange(['overdue']);
+    });
+
+    const overdueTask = screen.getByText('Task 1');
+    expect(overdueTask).toBeInTheDocument();
+    expect(screen.queryByText('Task 2')).not.toBeInTheDocument();
+  });
+
+  test('shows "O" badge for overdue tasks in status column', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await screen.findByText('Task 12');
+
+    const dropdown = screen.getByLabelText('Show:');
+    fireEvent.change(dropdown, { target: { value: '20' } });
+
+    const row = screen.getByText('Task 1').closest('tr')!;
+    const statusCell = within(row).getByText('O');
+
+    expect(statusCell).toBeInTheDocument();
+  });
+
+  test('does not show "O" badge for non-overdue pending tasks', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await screen.findByText('Task 12');
+
+    const dropdown = screen.getByLabelText('Show:');
+    fireEvent.change(dropdown, { target: { value: '20' } });
+
+    expect(await screen.findByText('Task 2')).toBeInTheDocument();
+
+    const row = screen.getByText('Task 2').closest('tr')!;
+    const statusCell = within(row).getByText('P');
+
+    expect(statusCell).toBeInTheDocument();
+  });
+
+  test('overdue tasks appear at the top of the list', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await screen.findByText('Task 12');
+
+    const dropdown = screen.getByLabelText('Show:');
+    fireEvent.change(dropdown, { target: { value: '20' } });
+
+    const firstRow = screen.getAllByRole('row')[1];
+    expect(within(firstRow).getByText('Task 1')).toBeInTheDocument();
   });
 });
