@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string, project string, start string, entry string, wait string, end string, depends []string, due string) error {
+func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string, project string, start string, entry string, wait string, end string, depends []string, due string, recur string) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
@@ -109,6 +109,13 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 
 		if err := utils.ExecCommand("task", taskID, "modify", "due:"+formattedDue); err != nil {
 			return fmt.Errorf("failed to set due date %s: %v", formattedDue, err)
+		}
+	}
+
+	// Handle recur - this will automatically set rtype field
+	if recur != "" {
+		if err := utils.ExecCommand("task", taskID, "modify", "recur:"+recur); err != nil {
+			return fmt.Errorf("failed to set recur %s: %v", recur, err)
 		}
 	}
 
