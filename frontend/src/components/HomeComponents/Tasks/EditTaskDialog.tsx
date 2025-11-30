@@ -1,5 +1,5 @@
 import { Task } from '../../utils/types';
-import { EditTaskState } from './useEditTask';
+import { EditTaskState } from '../../utils/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';

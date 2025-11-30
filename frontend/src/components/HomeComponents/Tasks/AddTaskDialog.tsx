@@ -13,25 +13,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Key } from '@/components/ui/key-button';
 import { Label } from '@/components/ui/label';
+import { AddTaskDialogProps } from '@/components/utils/types';
 import { format } from 'date-fns';
-
-export interface TaskFormData {
-  description: string;
-  priority: string;
-  project: string;
-  due: string;
-  tags: string[];
-}
-
-interface AddTaskDialogProps {
-  isOpen: boolean;
-  setIsOpen: (value: boolean) => void;
-  newTask: TaskFormData;
-  setNewTask: (task: TaskFormData) => void;
-  tagInput: string;
-  setTagInput: (value: string) => void;
-  onSubmit: (task: TaskFormData) => void;
-}
 
 export const AddTaskdialog = ({
   isOpen,

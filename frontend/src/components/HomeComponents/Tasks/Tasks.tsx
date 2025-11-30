@@ -42,8 +42,9 @@ import {
 import { debounce } from '@/components/utils/utils';
 import { Taskskeleton } from './TaskSkeleton';
 import { Key } from '@/components/ui/key-button';
-import { AddTaskdialog, TaskFormData } from './AddTaskDialog';
+import { AddTaskdialog } from './AddTaskDialog';
 import { EditTaskDialog } from './EditTaskDialog';
+import { TaskFormData } from '../../utils/types';
 
 const db = new TasksDatabase();
 export let syncTasksWithTwAndDb: () => any;
