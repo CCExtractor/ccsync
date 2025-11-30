@@ -6,14 +6,14 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
     class="flex flex-wrap gap-4 justify-center mt-10"
   >
     <div
-      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] relative"
+      class="flex-1 min-w-[300px] p-4 border border[1px] bg-black/15 dark:bg-[#1c1c1c] rounded-lg h-[350px] relative"
       id="daily-report-chart"
     >
       <div
         class="flex justify-between items-center mb-4"
       >
         <h3
-          class="text-center text-xl text-white flex-1"
+          class="text-center text-xl text-black dark:text-white flex-1"
         >
           Daily Report
         </h3>
@@ -21,11 +21,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
           class="flex gap-2"
         >
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as CSV"
           >
             <svg
-              class="lucide lucide-file-text h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-file-text h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white m-1"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -63,11 +63,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
             </svg>
           </button>
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as PNG"
           >
             <svg
-              class="lucide lucide-image h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-image h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -157,14 +157,14 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
       </div>
     </div>
     <div
-      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] relative"
+      class="flex-1 min-w-[300px] p-4 border border[1px] bg-black/15 dark:bg-[#1c1c1c] rounded-lg h-[350px] relative"
       id="weekly-report-chart"
     >
       <div
         class="flex justify-between items-center mb-4"
       >
         <h3
-          class="text-center text-xl text-white flex-1"
+          class="text-center text-xl text-black dark:text-white flex-1"
         >
           Weekly Report
         </h3>
@@ -172,11 +172,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
           class="flex gap-2"
         >
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as CSV"
           >
             <svg
-              class="lucide lucide-file-text h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-file-text h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white m-1"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -214,11 +214,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
             </svg>
           </button>
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as PNG"
           >
             <svg
-              class="lucide lucide-image h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-image h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -308,14 +308,14 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
       </div>
     </div>
     <div
-      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] relative"
+      class="flex-1 min-w-[300px] p-4 border border[1px] bg-black/15 dark:bg-[#1c1c1c] rounded-lg h-[350px] relative"
       id="monthly-report-chart"
     >
       <div
         class="flex justify-between items-center mb-4"
       >
         <h3
-          class="text-center text-xl text-white flex-1"
+          class="text-center text-xl text-black dark:text-white flex-1"
         >
           Monthly Report
         </h3>
@@ -323,11 +323,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
           class="flex gap-2"
         >
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as CSV"
           >
             <svg
-              class="lucide lucide-file-text h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-file-text h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white m-1"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -365,11 +365,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
             </svg>
           </button>
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as PNG"
           >
             <svg
-              class="lucide lucide-image h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-image h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -468,14 +468,14 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
     class="flex flex-wrap gap-4 justify-center mt-10"
   >
     <div
-      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] relative"
+      class="flex-1 min-w-[300px] p-4 border border[1px] bg-black/15 dark:bg-[#1c1c1c] rounded-lg h-[350px] relative"
       id="daily-report-chart"
     >
       <div
         class="flex justify-between items-center mb-4"
       >
         <h3
-          class="text-center text-xl text-white flex-1"
+          class="text-center text-xl text-black dark:text-white flex-1"
         >
           Daily Report
         </h3>
@@ -483,11 +483,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
           class="flex gap-2"
         >
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as CSV"
           >
             <svg
-              class="lucide lucide-file-text h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-file-text h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white m-1"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -525,11 +525,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
             </svg>
           </button>
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as PNG"
           >
             <svg
-              class="lucide lucide-image h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-image h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -619,14 +619,14 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
       </div>
     </div>
     <div
-      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] relative"
+      class="flex-1 min-w-[300px] p-4 border border[1px] bg-black/15 dark:bg-[#1c1c1c] rounded-lg h-[350px] relative"
       id="weekly-report-chart"
     >
       <div
         class="flex justify-between items-center mb-4"
       >
         <h3
-          class="text-center text-xl text-white flex-1"
+          class="text-center text-xl text-black dark:text-white flex-1"
         >
           Weekly Report
         </h3>
@@ -634,11 +634,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
           class="flex gap-2"
         >
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as CSV"
           >
             <svg
-              class="lucide lucide-file-text h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-file-text h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white m-1"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -676,11 +676,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
             </svg>
           </button>
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as PNG"
           >
             <svg
-              class="lucide lucide-image h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-image h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -770,14 +770,14 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
       </div>
     </div>
     <div
-      class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] relative"
+      class="flex-1 min-w-[300px] p-4 border border[1px] bg-black/15 dark:bg-[#1c1c1c] rounded-lg h-[350px] relative"
       id="monthly-report-chart"
     >
       <div
         class="flex justify-between items-center mb-4"
       >
         <h3
-          class="text-center text-xl text-white flex-1"
+          class="text-center text-xl text-black dark:text-white flex-1"
         >
           Monthly Report
         </h3>
@@ -785,11 +785,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
           class="flex gap-2"
         >
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as CSV"
           >
             <svg
-              class="lucide lucide-file-text h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-file-text h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white m-1"
               fill="none"
               height="24"
               stroke="currentColor"
@@ -827,11 +827,11 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
             </svg>
           </button>
           <button
-            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
             title="Download as PNG"
           >
             <svg
-              class="lucide lucide-image h-4 w-4 text-gray-400 hover:text-white"
+              class="lucide lucide-image h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white"
               fill="none"
               height="24"
               stroke="currentColor"
