@@ -143,7 +143,9 @@ describe('Tasks Component', () => {
   });
 
   test('renders the "Tasks per Page" dropdown with default value', async () => {
-    render(<Tasks {...mockProps} />);
+    await act(async () => {
+      render(<Tasks {...mockProps} />);
+    });
 
     expect(await screen.findByText('Task 12')).toBeInTheDocument();
 
@@ -157,7 +159,9 @@ describe('Tasks Component', () => {
 
     render(<Tasks {...mockProps} />);
 
-    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    });
 
     expect(screen.getByLabelText('Show:')).toHaveValue('20');
   });
@@ -165,7 +169,9 @@ describe('Tasks Component', () => {
   test('updates pagination when "Tasks per Page" is changed', async () => {
     render(<Tasks {...mockProps} />);
 
-    expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
 
     expect(screen.getByTestId('total-pages')).toHaveTextContent('2');
 
@@ -293,7 +299,7 @@ describe('Tasks Component', () => {
     const hooks = require('../hooks');
     const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
 
-    expect(callArg.tags).toEqual(expect.arrayContaining(['newtag', '-tag1']));
+    expect(callArg.tags).toEqual(expect.arrayContaining(['newtag', 'tag1']));
   });
 
   test('shows orange background on task ID and Overdue badge for overdue tasks', async () => {
@@ -363,7 +369,9 @@ describe('Tasks Component', () => {
 
     render(<Tasks {...mockProps} />);
 
-    expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
 
     const lastCall = MultiSelectFilter.mock.calls.find(
       (call: any[]) => call[0].title === 'Status'

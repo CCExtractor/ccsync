@@ -1,0 +1,219 @@
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/ui/date-picker';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Key } from '@/components/ui/key-button';
+import { Label } from '@/components/ui/label';
+import { format } from 'date-fns';
+
+export interface TaskFormData {
+  description: string;
+  priority: string;
+  project: string;
+  due: string;
+  tags: string[];
+}
+
+interface AddTaskDialogProps {
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+  newTask: TaskFormData;
+  setNewTask: (task: TaskFormData) => void;
+  tagInput: string;
+  setTagInput: (value: string) => void;
+  onSubmit: (task: TaskFormData) => void;
+}
+
+export const AddTaskdialog = ({
+  isOpen,
+  setIsOpen,
+  newTask,
+  setNewTask,
+  tagInput,
+  setTagInput,
+  onSubmit,
+}: AddTaskDialogProps) => {
+  // Handle adding a tag
+  const handleAddTag = () => {
+    if (tagInput && !newTask.tags.includes(tagInput, 0)) {
+      setNewTask({ ...newTask, tags: [...newTask.tags, tagInput] });
+      setTagInput(''); // Clear the input field
+    }
+  };
+
+  // Handle removing a tag
+  const handleRemoveTag = (tagToRemove: string) => {
+    setNewTask({
+      ...newTask,
+      tags: newTask.tags.filter((tag) => tag !== tagToRemove),
+    });
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button
+          id="add-new-task"
+          variant="outline"
+          onClick={() => setIsOpen(true)}
+        >
+          Add Task
+          <Key lable="a" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
+              <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
+                Add a{' '}
+              </span>
+              new task
+            </span>
+          </DialogTitle>
+          <DialogDescription>
+            Fill in the details below to add a new task.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="description" className="text-right">
+              Description
+            </Label>
+            <Input
+              id="description"
+              name="description"
+              type="text"
+              value={newTask.description}
+              onChange={(e) =>
+                setNewTask({
+                  ...newTask,
+                  description: e.target.value,
+                })
+              }
+              required
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="priority" className="text-right">
+              Priority
+            </Label>
+            <div className="col-span-1 flex items-center">
+              <select
+                id="priority"
+                name="priority"
+                value={newTask.priority}
+                onChange={(e) =>
+                  setNewTask({
+                    ...newTask,
+                    priority: e.target.value,
+                  })
+                }
+                className="border rounded-md px-2 py-1 w-full bg-white text-black dark:bg-black dark:text-white transition-colors"
+              >
+                <option value="H">H</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="description" className="text-right">
+              Project
+            </Label>
+            <Input
+              id="project"
+              name="project"
+              type=""
+              value={newTask.project}
+              onChange={(e) =>
+                setNewTask({
+                  ...newTask,
+                  project: e.target.value,
+                })
+              }
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="due" className="text-right">
+              Due
+            </Label>
+            <div className="col-span-3">
+              <DatePicker
+                date={newTask.due ? new Date(newTask.due) : undefined}
+                onDateChange={(date) => {
+                  setNewTask({
+                    ...newTask,
+                    due: date ? format(date, 'yyyy-MM-dd') : '',
+                  });
+                }}
+                placeholder="Select a due date"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="description" className="text-right">
+              Tags
+            </Label>
+            <Input
+              id="tags"
+              name="tags"
+              placeholder="Add a tag"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddTag()} // Allow adding tag on pressing Enter
+              required
+              className="col-span-3"
+            />
+          </div>
+
+          <div className="mt-2">
+            {newTask.tags.length > 0 && (
+              <div className="grid grid-cols-4 items-center">
+                <div> </div>
+                <div className="flex flex-wrap gap-2 col-span-3">
+                  {newTask.tags.map((tag, index) => (
+                    <Badge key={index}>
+                      <span>{tag}</span>
+                      <button
+                        type="button"
+                        className="ml-2 text-red-500"
+                        onClick={() => handleRemoveTag(tag)}
+                      >
+                        ✖
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="secondary" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            className="mb-1"
+            variant="default"
+            onClick={() => onSubmit(newTask)}
+          >
+            Add Task
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
