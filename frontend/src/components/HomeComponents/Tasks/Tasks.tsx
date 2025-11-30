@@ -2319,16 +2319,43 @@ export const Tasks = (
                                         <TableCell>Recur:</TableCell>
                                         <TableCell>
                                           {isEditingRecur ? (
-                                            <div className="flex items-center">
-                                              <Input
-                                                type="text"
-                                                value={editedRecur}
-                                                onChange={(e) =>
-                                                  setEditedRecur(e.target.value)
+                                            <div className="flex items-center gap-2">
+                                              <Select
+                                                value={editedRecur || ''}
+                                                onValueChange={(value) =>
+                                                  setEditedRecur(value)
                                                 }
-                                                placeholder="daily, weekly, monthly, etc."
-                                                className="flex-grow mr-2"
-                                              />
+                                              >
+                                                <SelectTrigger className="flex-grow">
+                                                  <SelectValue placeholder="Select recurrence" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  <SelectItem
+                                                    value="daily"
+                                                    className="cursor-pointer hover:bg-accent"
+                                                  >
+                                                    Daily
+                                                  </SelectItem>
+                                                  <SelectItem
+                                                    value="weekly"
+                                                    className="cursor-pointer hover:bg-accent"
+                                                  >
+                                                    Weekly
+                                                  </SelectItem>
+                                                  <SelectItem
+                                                    value="monthly"
+                                                    className="cursor-pointer hover:bg-accent"
+                                                  >
+                                                    Monthly
+                                                  </SelectItem>
+                                                  <SelectItem
+                                                    value="yearly"
+                                                    className="cursor-pointer hover:bg-accent"
+                                                  >
+                                                    Yearly
+                                                  </SelectItem>
+                                                </SelectContent>
+                                              </Select>
                                               <Button
                                                 variant="ghost"
                                                 size="icon"
