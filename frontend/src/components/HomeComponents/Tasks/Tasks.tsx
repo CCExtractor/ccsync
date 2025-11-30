@@ -1163,6 +1163,7 @@ export const Tasks = (
                           </div>
                           <DialogFooter>
                             <Button
+                              className="dark:bg-white/5 bg-black hover:bg-black text-white"
                               variant="secondary"
                               onClick={() => setIsAddTaskOpen(false)}
                             >
@@ -1274,7 +1275,7 @@ export const Tasks = (
                                       task.status === 'pending' &&
                                       isOverdue(task.due)
                                         ? 'bg-red-600/80 text-white'
-                                        : ''
+                                        : 'dark:text-white text-black'
                                     }`}
                                   >
                                     {task.id}
@@ -2405,7 +2406,9 @@ export const Tasks = (
                                   </Dialog>
                                 ) : null}
                                 <DialogClose asChild>
-                                  <Button className="bg-white">Close</Button>
+                                  <Button className="dark:bg-white bg-black ">
+                                    Close
+                                  </Button>
                                 </DialogClose>
                               </DialogFooter>
                             </DialogContent>
@@ -2437,7 +2440,7 @@ export const Tasks = (
                         onChange={(e) =>
                           handleTasksPerPageChange(parseInt(e.target.value, 10))
                         }
-                        className="border rounded-md px-2 py-1 bg-black text-white h-10 text-sm"
+                        className="border border[1px] rounded-md px-2 py-1 bg-white dark:bg-black text-black dark:text-white h-10 text-sm"
                       >
                         <option value="5">5</option>
                         <option value="10">10</option>
