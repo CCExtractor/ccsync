@@ -104,6 +104,7 @@ export const Tasks = (
     due: '',
     tags: [] as string[],
   });
+  const [isCreatingNewProject, setIsCreatingNewProject] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [_isDialogOpen, setIsDialogOpen] = useState(false);
   const [tagInput, setTagInput] = useState('');
@@ -286,6 +287,12 @@ export const Tasks = (
     fetchTasksForEmail();
   }, [props.email]);
 
+  useEffect(() => {
+    if (!isAddTaskOpen) {
+      setIsCreatingNewProject(false);
+    }
+  }, [isAddTaskOpen]);
+
   syncTasksWithTwAndDb = useCallback(async () => {
     try {
       const { email: user_email, encryptionSecret, UUID } = props;
@@ -308,8 +315,16 @@ export const Tasks = (
           .where('email')
           .equals(user_email)
           .toArray();
-        setTasks(sortTasksById(updatedTasks, 'desc'));
-        setTempTasks(sortTasksById(updatedTasks, 'desc'));
+        const sortedTasks = sortTasksById(updatedTasks, 'desc');
+        setTasks(sortedTasks);
+        setTempTasks(sortedTasks);
+
+        // Update unique projects after a successful sync so the Project dropdown is populated
+        const projectsSet = new Set(sortedTasks.map((task) => task.project));
+        const filteredProjects = Array.from(projectsSet)
+          .filter((project) => project !== '')
+          .sort((a, b) => (a > b ? 1 : -1));
+        setUniqueProjects(filteredProjects);
       });
 
       // Store last sync timestamp using hashed key
@@ -1075,25 +1090,76 @@ export const Tasks = (
                             </div>
 
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label
-                                htmlFor="description"
-                                className="text-right"
-                              >
+                              <Label htmlFor="project" className="text-right">
                                 Project
                               </Label>
-                              <Input
-                                id="project"
-                                name="project"
-                                type=""
-                                value={newTask.project}
-                                onChange={(e) =>
-                                  setNewTask({
-                                    ...newTask,
-                                    project: e.target.value,
-                                  })
-                                }
-                                className="col-span-3"
-                              />
+                              <div className="col-span-3 space-y-2">
+                                <Select
+                                  value={
+                                    isCreatingNewProject
+                                      ? ''
+                                      : newTask.project || ''
+                                  }
+                                  onValueChange={(value: string) => {
+                                    if (value === '') {
+                                      // User selected "create new project" option
+                                      setIsCreatingNewProject(true);
+                                      setNewTask({ ...newTask, project: '' });
+                                    } else {
+                                      // User selected an existing project
+                                      setIsCreatingNewProject(false);
+                                      setNewTask({
+                                        ...newTask,
+                                        project: value,
+                                      });
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger id="project">
+                                    <SelectValue
+                                      placeholder={
+                                        uniqueProjects.length
+                                          ? 'Select a project'
+                                          : 'No projects yet'
+                                      }
+                                    />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {uniqueProjects.map((project: string) => (
+                                      <SelectItem
+                                        key={project}
+                                        value={project}
+                                        data-testid={`project-option-${project}`}
+                                      >
+                                        {project}
+                                      </SelectItem>
+                                    ))}
+                                    <SelectItem
+                                      value=""
+                                      data-testid="project-option-create"
+                                    >
+                                      + Create new project…
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                {isCreatingNewProject && (
+                                  <Input
+                                    id="project-name"
+                                    name="project"
+                                    placeholder="New project name"
+                                    value={newTask.project}
+                                    autoFocus
+                                    onChange={(
+                                      e: React.ChangeEvent<HTMLInputElement>
+                                    ) =>
+                                      setNewTask({
+                                        ...newTask,
+                                        project: e.target.value,
+                                      })
+                                    }
+                                  />
+                                )}
+                              </div>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
                               <Label htmlFor="due" className="text-right">
