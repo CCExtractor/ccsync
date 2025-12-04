@@ -3,14 +3,14 @@
 exports[`ReportChart Component using Snapshot renders correctly with one data entry: one data entry 1`] = `
 <DocumentFragment>
   <div
-    class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] relative"
+    class="flex-1 min-w-[300px] p-4 border border[1px] bg-black/15 dark:bg-[#1c1c1c] rounded-lg h-[350px] relative"
     id="chart-1"
   >
     <div
       class="flex justify-between items-center mb-4"
     >
       <h3
-        class="text-center text-xl text-white flex-1"
+        class="text-center text-xl text-black dark:text-white flex-1"
       >
         One project
       </h3>
@@ -18,11 +18,11 @@ exports[`ReportChart Component using Snapshot renders correctly with one data en
         class="flex gap-2"
       >
         <button
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
           title="Download as CSV"
         >
           <svg
-            class="lucide lucide-file-text h-4 w-4 text-gray-400 hover:text-white"
+            class="lucide lucide-file-text h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white m-1"
             fill="none"
             height="24"
             stroke="currentColor"
@@ -60,11 +60,11 @@ exports[`ReportChart Component using Snapshot renders correctly with one data en
           </svg>
         </button>
         <button
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
           title="Download as PNG"
         >
           <svg
-            class="lucide lucide-image h-4 w-4 text-gray-400 hover:text-white"
+            class="lucide lucide-image h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white"
             fill="none"
             height="24"
             stroke="currentColor"
@@ -137,14 +137,14 @@ exports[`ReportChart Component using Snapshot renders correctly with one data en
 exports[`ReportChart Component using Snapshot renders correctly with several data entries: several data entries 1`] = `
 <DocumentFragment>
   <div
-    class="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] relative"
+    class="flex-1 min-w-[300px] p-4 border border[1px] bg-black/15 dark:bg-[#1c1c1c] rounded-lg h-[350px] relative"
     id="chart-2"
   >
     <div
       class="flex justify-between items-center mb-4"
     >
       <h3
-        class="text-center text-xl text-white flex-1"
+        class="text-center text-xl text-black dark:text-white flex-1"
       >
         Multiple projects
       </h3>
@@ -152,11 +152,11 @@ exports[`ReportChart Component using Snapshot renders correctly with several dat
         class="flex gap-2"
       >
         <button
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
           title="Download as CSV"
         >
           <svg
-            class="lucide lucide-file-text h-4 w-4 text-gray-400 hover:text-white"
+            class="lucide lucide-file-text h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white m-1"
             fill="none"
             height="24"
             stroke="currentColor"
@@ -194,11 +194,11 @@ exports[`ReportChart Component using Snapshot renders correctly with several dat
           </svg>
         </button>
         <button
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-gray-700"
+          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
           title="Download as PNG"
         >
           <svg
-            class="lucide lucide-image h-4 w-4 text-gray-400 hover:text-white"
+            class="lucide lucide-image h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white"
             fill="none"
             height="24"
             stroke="currentColor"
