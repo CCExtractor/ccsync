@@ -39,10 +39,12 @@ export const ReportChart: React.FC<ReportChartProps> = ({
   return (
     <div
       id={chartId}
-      className="flex-1 min-w-[300px] p-4 bg-[#1c1c1c] rounded-lg h-[350px] relative"
+      className="flex-1 min-w-[300px] p-4 border border[1px] bg-black/15 dark:bg-[#1c1c1c] rounded-lg h-[350px] relative"
     >
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-center text-xl text-white flex-1">{title}</h3>
+        <h3 className="text-center text-xl text-black dark:text-white flex-1">
+          {title}
+        </h3>
         <div className="flex gap-2">
           <Button
             variant="ghost"
@@ -50,9 +52,9 @@ export const ReportChart: React.FC<ReportChartProps> = ({
             onClick={handleCSVExport}
             disabled={isExporting}
             title="Download as CSV"
-            className="h-8 w-8 hover:bg-gray-700"
+            className="h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
           >
-            <FileText className="h-4 w-4 text-gray-400 hover:text-white" />
+            <FileText className="h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white m-1" />
           </Button>
           <Button
             variant="ghost"
@@ -60,12 +62,12 @@ export const ReportChart: React.FC<ReportChartProps> = ({
             onClick={handlePNGExport}
             disabled={isExporting}
             title="Download as PNG"
-            className="h-8 w-8 hover:bg-gray-700"
+            className="h-8 w-8 hover:bg-transparent dark:hover:bg-gray-700"
           >
             {isExporting ? (
               <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
             ) : (
-              <Image className="h-4 w-4 text-gray-400 hover:text-white" />
+              <Image className="h-4 w-4 text-black dark:text-gray-400 dark:hover:text-white" />
             )}
           </Button>
         </div>
