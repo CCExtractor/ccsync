@@ -1097,13 +1097,16 @@ export const Tasks = (
                                 <Select
                                   value={
                                     isCreatingNewProject
-                                      ? '__create__'
+                                      ? ''
                                       : newTask.project || ''
                                   }
                                   onValueChange={(value: string) => {
-                                    if (value === '__create__') {
+                                    if (value === '') {
+                                      // User selected "create new project" option
                                       setIsCreatingNewProject(true);
+                                      setNewTask({ ...newTask, project: '' });
                                     } else {
+                                      // User selected an existing project
                                       setIsCreatingNewProject(false);
                                       setNewTask({
                                         ...newTask,
@@ -1132,7 +1135,7 @@ export const Tasks = (
                                       </SelectItem>
                                     ))}
                                     <SelectItem
-                                      value="__create__"
+                                      value=""
                                       data-testid="project-option-create"
                                     >
                                       + Create new project…
