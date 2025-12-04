@@ -45,6 +45,32 @@ jest.mock('@/components/ui/multi-select', () => ({
   )),
 }));
 
+jest.mock('@/components/ui/select', () => {
+  return {
+    Select: ({ children, onValueChange, value }: any) => (
+      <select
+        data-testid="project-select"
+        value={value}
+        onChange={(e) => onValueChange?.(e.target.value)}
+      >
+        {children}
+      </select>
+    ),
+    SelectTrigger: ({ children }: any) => <>{children}</>,
+    SelectValue: ({ placeholder }: any) => (
+      <option value="" disabled hidden>
+        {placeholder}
+      </option>
+    ),
+    SelectContent: ({ children }: any) => <>{children}</>,
+    SelectItem: ({ value, children, ...props }: any) => (
+      <option value={value} {...props}>
+        {children}
+      </option>
+    ),
+  };
+});
+
 jest.mock('../../BottomBar/BottomBar', () => {
   return jest.fn(() => <div>Mocked BottomBar</div>);
 });
@@ -420,5 +446,43 @@ describe('Tasks Component', () => {
 
     const firstRow = screen.getAllByRole('row')[1];
     expect(within(firstRow).getByText('Task 1')).toBeInTheDocument();
+  });
+
+  test('project dropdown lists existing projects and create-new option', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+    const addTaskButton = screen.getByRole('button', { name: /add task/i });
+    fireEvent.click(addTaskButton);
+
+    const projectSelect = await screen.findByTestId('project-select');
+    expect(
+      within(projectSelect).getByText('Select a project')
+    ).toBeInTheDocument();
+    expect(within(projectSelect).getByText('Engineering')).toBeInTheDocument();
+    expect(within(projectSelect).getByText('ProjectA')).toBeInTheDocument();
+    expect(
+      within(projectSelect).getByText('+ Create new project…')
+    ).toBeInTheDocument();
+  });
+
+  test('selecting "+ Create new project…" reveals inline input', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /add task/i }));
+
+    const projectSelect = await screen.findByTestId('project-select');
+    fireEvent.change(projectSelect, { target: { value: '__create__' } });
+
+    const newProjectInput =
+      await screen.findByPlaceholderText('New project name');
+    fireEvent.change(newProjectInput, {
+      target: { value: 'My Fresh Project' },
+    });
+
+    expect(newProjectInput).toHaveValue('My Fresh Project');
   });
 });

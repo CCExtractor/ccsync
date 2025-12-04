@@ -1123,11 +1123,18 @@ export const Tasks = (
                                   </SelectTrigger>
                                   <SelectContent>
                                     {uniqueProjects.map((project: string) => (
-                                      <SelectItem key={project} value={project}>
+                                      <SelectItem
+                                        key={project}
+                                        value={project}
+                                        data-testid={`project-option-${project}`}
+                                      >
                                         {project}
                                       </SelectItem>
                                     ))}
-                                    <SelectItem value="__create__">
+                                    <SelectItem
+                                      value="__create__"
+                                      data-testid="project-option-create"
+                                    >
                                       + Create new project…
                                     </SelectItem>
                                   </SelectContent>
