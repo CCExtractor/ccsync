@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
 import Fuse from 'fuse.js';
@@ -74,6 +74,8 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
 import { Taskskeleton } from './TaskSkeleton';
 import { Key } from '@/components/ui/key-button';
+import { AddTaskDialog } from './AddTaskDialog';
+import { EditTaskDialog } from './EditTaskDialog';
 
 const db = new TasksDatabase();
 export let syncTasksWithTwAndDb: () => any;
@@ -999,197 +1001,20 @@ export const Tasks = (
                       icon={<Key lable="t" />}
                     />
                     <div className="pr-2">
-                      <Dialog
-                        open={isAddTaskOpen}
+                      <AddTaskDialog
+                        isOpen={isAddTaskOpen}
                         onOpenChange={setIsAddTaskOpen}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            id="add-new-task"
-                            variant="outline"
-                            onClick={() => setIsAddTaskOpen(true)}
-                          >
-                            Add Task
-                            <Key lable="a" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>
-                              <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-                                <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                  Add a{' '}
-                                </span>
-                                new task
-                              </span>
-                            </DialogTitle>
-                            <DialogDescription>
-                              Fill in the details below to add a new task.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label
-                                htmlFor="description"
-                                className="text-right"
-                              >
-                                Description
-                              </Label>
-                              <Input
-                                id="description"
-                                name="description"
-                                type="text"
-                                value={newTask.description}
-                                onChange={(e) =>
-                                  setNewTask({
-                                    ...newTask,
-                                    description: e.target.value,
-                                  })
-                                }
-                                required
-                                className="col-span-3"
-                              />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="priority" className="text-right">
-                                Priority
-                              </Label>
-                              <div className="col-span-1 flex items-center">
-                                <select
-                                  id="priority"
-                                  name="priority"
-                                  value={newTask.priority}
-                                  onChange={(e) =>
-                                    setNewTask({
-                                      ...newTask,
-                                      priority: e.target.value,
-                                    })
-                                  }
-                                  className="border rounded-md px-2 py-1 w-full bg-white text-black dark:bg-black dark:text-white transition-colors"
-                                >
-                                  <option value="H">H</option>
-                                  <option value="M">M</option>
-                                  <option value="L">L</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label
-                                htmlFor="description"
-                                className="text-right"
-                              >
-                                Project
-                              </Label>
-                              <Input
-                                id="project"
-                                name="project"
-                                type=""
-                                value={newTask.project}
-                                onChange={(e) =>
-                                  setNewTask({
-                                    ...newTask,
-                                    project: e.target.value,
-                                  })
-                                }
-                                className="col-span-3"
-                              />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="due" className="text-right">
-                                Due
-                              </Label>
-                              <div className="col-span-3">
-                                <DatePicker
-                                  date={
-                                    newTask.due
-                                      ? new Date(newTask.due)
-                                      : undefined
-                                  }
-                                  onDateChange={(date) => {
-                                    setNewTask({
-                                      ...newTask,
-                                      due: date
-                                        ? format(date, 'yyyy-MM-dd')
-                                        : '',
-                                    });
-                                  }}
-                                  placeholder="Select a due date"
-                                />
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label
-                                htmlFor="description"
-                                className="text-right"
-                              >
-                                Tags
-                              </Label>
-                              <Input
-                                id="tags"
-                                name="tags"
-                                placeholder="Add a tag"
-                                value={tagInput}
-                                onChange={(e) => setTagInput(e.target.value)}
-                                onKeyDown={(e) =>
-                                  e.key === 'Enter' && handleAddTag()
-                                } // Allow adding tag on pressing Enter
-                                required
-                                className="col-span-3"
-                              />
-                            </div>
-
-                            <div className="mt-2">
-                              {newTask.tags.length > 0 && (
-                                <div className="grid grid-cols-4 items-center">
-                                  <div> </div>
-                                  <div className="flex flex-wrap gap-2 col-span-3">
-                                    {newTask.tags.map((tag, index) => (
-                                      <Badge key={index}>
-                                        <span>{tag}</span>
-                                        <button
-                                          type="button"
-                                          className="ml-2 text-red-500"
-                                          onClick={() => handleRemoveTag(tag)}
-                                        >
-                                          ✖
-                                        </button>
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button
-                              className="dark:bg-white/5 bg-black hover:bg-black text-white"
-                              variant="secondary"
-                              onClick={() => setIsAddTaskOpen(false)}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              className="mb-1"
-                              variant="default"
-                              onClick={() =>
-                                handleAddTask(
-                                  props.email,
-                                  props.encryptionSecret,
-                                  props.UUID,
-                                  newTask.description,
-                                  newTask.project,
-                                  newTask.priority,
-                                  newTask.due,
-                                  newTask.tags
-                                )
-                              }
-                            >
-                              Add Task
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
+                        newTask={newTask}
+                        setNewTask={setNewTask}
+                        tagInput={tagInput}
+                        setTagInput={setTagInput}
+                        handleAddTag={handleAddTag}
+                        handleRemoveTag={handleRemoveTag}
+                        handleAddTask={handleAddTask}
+                        email={props.email}
+                        encryptionSecret={props.encryptionSecret}
+                        UUID={props.UUID}
+                      />
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <Button
@@ -1246,1173 +1071,172 @@ export const Tasks = (
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {/* Display tasks */}
                       {props.isLoading ? (
                         <Taskskeleton count={tasksPerPage} />
                       ) : (
                         currentTasks.map((task: Task, index: number) => (
-                          <Dialog
-                            open={
-                              _isDialogOpen && _selectedTask?.id === task.id
-                            }
-                            onOpenChange={(_isDialogOpen) =>
-                              handleDialogOpenChange(_isDialogOpen, task)
-                            }
-                            key={index}
-                          >
-                            <DialogTrigger asChild>
-                              <TableRow
-                                id={`task-row-${task.id}`}
-                                key={index}
-                                className={`border-b cursor-pointer ${
-                                  selectedIndex === index ? 'bg-muted/50' : ''
-                                }`}
-                              >
-                                {/* Display task details */}
-                                <TableCell className="py-2">
-                                  <span
-                                    className={`px-3 py-1 rounded-md font-semibold ${
-                                      task.status === 'pending' &&
-                                      isOverdue(task.due)
-                                        ? 'bg-red-600/80 text-white'
-                                        : 'dark:text-white text-black'
-                                    }`}
-                                  >
-                                    {task.id}
-                                  </span>
-                                </TableCell>
-                                <TableCell className="flex items-center space-x-2 py-2">
-                                  {task.priority === 'H' && (
-                                    <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3"></div>
-                                  )}
-                                  {task.priority === 'M' && (
-                                    <div className="flex items-center justify-center w-3 h-3 bg-yellow-500 rounded-full border-0 min-w-3"></div>
-                                  )}
-                                  {task.priority != 'H' &&
-                                    task.priority != 'M' && (
-                                      <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
-                                    )}
-                                  <span className="text-s text-foreground">
-                                    {task.description}
-                                  </span>
-                                  {task.project != '' && (
-                                    <Badge variant={'secondary'}>
-                                      <Folder className="pr-2" />
-                                      {task.project === '' ? '' : task.project}
-                                    </Badge>
-                                  )}
-                                </TableCell>
-                                <TableCell className="py-2">
-                                  <Badge
-                                    className={
-                                      task.status === 'pending' &&
-                                      isOverdue(task.due)
-                                        ? 'bg-orange-500 text-white'
-                                        : ''
-                                    }
-                                    variant={
-                                      task.status === 'deleted'
-                                        ? 'destructive'
-                                        : task.status === 'completed'
-                                          ? 'default'
-                                          : 'secondary'
-                                    }
-                                  >
-                                    {task.status === 'pending' &&
+                          <React.Fragment key={index}>
+                            <TableRow
+                              id={`task-row-${task.id}`}
+                              className={`border-b cursor-pointer ${
+                                selectedIndex === index ? 'bg-muted/50' : ''
+                              }`}
+                              onClick={() => {
+                                setSelectedTask(task);
+                                setIsDialogOpen(true);
+                                setEditedDepends(task.depends || []);
+                              }}
+                            >
+                              {/* Display task details */}
+                              <TableCell className="py-2">
+                                <span
+                                  className={`px-3 py-1 rounded-md font-semibold ${
+                                    task.status === 'pending' &&
                                     isOverdue(task.due)
-                                      ? 'O'
-                                      : task.status === 'completed'
-                                        ? 'C'
-                                        : task.status === 'deleted'
-                                          ? 'D'
-                                          : 'P'}
+                                      ? 'bg-red-600/80 text-white'
+                                      : 'dark:text-white text-black'
+                                  }`}
+                                >
+                                  {task.id}
+                                </span>
+                              </TableCell>
+                              <TableCell className="flex items-center space-x-2 py-2">
+                                {task.priority === 'H' && (
+                                  <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3"></div>
+                                )}
+                                {task.priority === 'M' && (
+                                  <div className="flex items-center justify-center w-3 h-3 bg-yellow-500 rounded-full border-0 min-w-3"></div>
+                                )}
+                                {task.priority != 'H' &&
+                                  task.priority != 'M' && (
+                                    <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
+                                  )}
+                                <span className="text-s text-foreground">
+                                  {task.description}
+                                </span>
+                                {task.project != '' && (
+                                  <Badge variant={'secondary'}>
+                                    <Folder className="pr-2" />
+                                    {task.project === '' ? '' : task.project}
                                   </Badge>
-                                </TableCell>
-                              </TableRow>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[625px] max-h-[90vh] flex flex-col">
-                              <DialogHeader>
-                                <DialogTitle>
-                                  <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-                                    <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                      Task{' '}
-                                    </span>
-                                    Details
-                                  </span>
-                                </DialogTitle>
-                              </DialogHeader>
-
-                              {/* Scrollable content */}
-                              <div className="overflow-y-auto flex-1">
-                                <DialogDescription asChild>
-                                  <Table>
-                                    <TableBody>
-                                      <TableRow>
-                                        <TableCell>ID:</TableCell>
-                                        <TableCell className="flex items-center gap-3">
-                                          {task.id}
-                                          {task.status === 'pending' &&
-                                            isOverdue(task.due) && (
-                                              <Badge className="bg-red-600 text-white shadow-lg shadow-red-700/40 animate-pulse">
-                                                Overdue
-                                              </Badge>
-                                            )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Description:</TableCell>
-                                        <TableCell>
-                                          {isEditing ? (
-                                            <>
-                                              <div className="flex items-center">
-                                                <Input
-                                                  id={`description-${task.id}`}
-                                                  name={`description-${task.id}`}
-                                                  type="text"
-                                                  value={editedDescription}
-                                                  onChange={(e) =>
-                                                    setEditedDescription(
-                                                      e.target.value
-                                                    )
-                                                  }
-                                                  className="flex-grow mr-2"
-                                                />
-                                                <Button
-                                                  variant="ghost"
-                                                  size="icon"
-                                                  onClick={() =>
-                                                    handleSaveClick(task)
-                                                  }
-                                                >
-                                                  <CheckIcon className="h-4 w-4 text-green-500" />
-                                                </Button>
-                                                <Button
-                                                  variant="ghost"
-                                                  size="icon"
-                                                  onClick={handleCancelClick}
-                                                >
-                                                  <XIcon className="h-4 w-4 text-red-500" />
-                                                </Button>
-                                              </div>
-                                            </>
-                                          ) : (
-                                            <>
-                                              <span>{task.description}</span>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleEditClick(
-                                                    task.description
-                                                  )
-                                                }
-                                              >
-                                                <PencilIcon className="h-4 w-4 text-gray-500" />
-                                              </Button>
-                                            </>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Due:</TableCell>
-                                        <TableCell>
-                                          {isEditingDueDate ? (
-                                            <div className="flex items-center gap-2">
-                                              <DatePicker
-                                                date={
-                                                  editedDueDate &&
-                                                  editedDueDate !== ''
-                                                    ? (() => {
-                                                        try {
-                                                          const dateStr =
-                                                            editedDueDate.includes(
-                                                              'T'
-                                                            )
-                                                              ? editedDueDate.split(
-                                                                  'T'
-                                                                )[0]
-                                                              : editedDueDate;
-                                                          const parsed =
-                                                            new Date(
-                                                              dateStr +
-                                                                'T00:00:00'
-                                                            );
-                                                          return isNaN(
-                                                            parsed.getTime()
-                                                          )
-                                                            ? undefined
-                                                            : parsed;
-                                                        } catch {
-                                                          return undefined;
-                                                        }
-                                                      })()
-                                                    : undefined
-                                                }
-                                                onDateChange={(date) =>
-                                                  setEditedDueDate(
-                                                    date
-                                                      ? format(
-                                                          date,
-                                                          'yyyy-MM-dd'
-                                                        )
-                                                      : ''
-                                                  )
-                                                }
-                                                placeholder="Select due date"
-                                              />
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleDueDateSaveClick(task)
-                                                }
-                                              >
-                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  setIsEditingDueDate(false)
-                                                }
-                                              >
-                                                <XIcon className="h-4 w-4 text-red-500" />
-                                              </Button>
-                                            </div>
-                                          ) : (
-                                            <>
-                                              <span>
-                                                {formattedDate(task.due)}
-                                              </span>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => {
-                                                  setIsEditingDueDate(true);
-                                                  const dueDate = task.due
-                                                    ? task.due.includes('T')
-                                                      ? task.due.split('T')[0]
-                                                      : task.due
-                                                    : '';
-                                                  setEditedDueDate(dueDate);
-                                                }}
-                                              >
-                                                <PencilIcon className="h-4 w-4 text-gray-500" />
-                                              </Button>
-                                            </>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Start:</TableCell>
-                                        <TableCell>
-                                          {isEditingStartDate ? (
-                                            <div className="flex items-center gap-2">
-                                              <DatePicker
-                                                date={
-                                                  editedStartDate &&
-                                                  editedStartDate !== ''
-                                                    ? (() => {
-                                                        try {
-                                                          // Handle YYYY-MM-DD format
-                                                          const dateStr =
-                                                            editedStartDate.includes(
-                                                              'T'
-                                                            )
-                                                              ? editedStartDate.split(
-                                                                  'T'
-                                                                )[0]
-                                                              : editedStartDate;
-                                                          const parsed =
-                                                            new Date(
-                                                              dateStr +
-                                                                'T00:00:00'
-                                                            );
-                                                          return isNaN(
-                                                            parsed.getTime()
-                                                          )
-                                                            ? undefined
-                                                            : parsed;
-                                                        } catch {
-                                                          return undefined;
-                                                        }
-                                                      })()
-                                                    : undefined
-                                                }
-                                                onDateChange={(date) =>
-                                                  setEditedStartDate(
-                                                    date
-                                                      ? format(
-                                                          date,
-                                                          'yyyy-MM-dd'
-                                                        )
-                                                      : ''
-                                                  )
-                                                }
-                                              />
-
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleStartDateSaveClick(task)
-                                                }
-                                              >
-                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                              </Button>
-
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  setIsEditingStartDate(false)
-                                                }
-                                              >
-                                                <XIcon className="h-4 w-4 text-red-500" />
-                                              </Button>
-                                            </div>
-                                          ) : (
-                                            <>
-                                              <span>
-                                                {formattedDate(task.start)}
-                                              </span>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => {
-                                                  setIsEditingStartDate(true);
-                                                  // Extract just the date part if it's in ISO format
-                                                  const startDate = task.start
-                                                    ? task.start.includes('T')
-                                                      ? task.start.split('T')[0]
-                                                      : task.start
-                                                    : '';
-                                                  setEditedStartDate(startDate);
-                                                }}
-                                              >
-                                                <PencilIcon className="h-4 w-4 text-gray-500" />
-                                              </Button>
-                                            </>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>End:</TableCell>
-                                        <TableCell>
-                                          {isEditingEndDate ? (
-                                            <div className="flex items-center gap-2">
-                                              <DatePicker
-                                                date={
-                                                  editedEndDate &&
-                                                  editedEndDate !== ''
-                                                    ? (() => {
-                                                        try {
-                                                          const dateStr =
-                                                            editedEndDate.includes(
-                                                              'T'
-                                                            )
-                                                              ? editedEndDate.split(
-                                                                  'T'
-                                                                )[0]
-                                                              : editedEndDate;
-                                                          const parsed =
-                                                            new Date(
-                                                              dateStr +
-                                                                'T00:00:00'
-                                                            );
-                                                          return isNaN(
-                                                            parsed.getTime()
-                                                          )
-                                                            ? undefined
-                                                            : parsed;
-                                                        } catch {
-                                                          return undefined;
-                                                        }
-                                                      })()
-                                                    : undefined
-                                                }
-                                                onDateChange={(date) =>
-                                                  setEditedEndDate(
-                                                    date
-                                                      ? format(
-                                                          date,
-                                                          'yyyy-MM-dd'
-                                                        )
-                                                      : ''
-                                                  )
-                                                }
-                                                placeholder="Select end date"
-                                              />
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleEndDateSaveClick(task)
-                                                }
-                                              >
-                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  setIsEditingEndDate(false)
-                                                }
-                                              >
-                                                <XIcon className="h-4 w-4 text-red-500" />
-                                              </Button>
-                                            </div>
-                                          ) : (
-                                            <div className="flex items-center">
-                                              <span>
-                                                {formattedDate(task.end)}
-                                              </span>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => {
-                                                  setIsEditingEndDate(true);
-                                                  const endDate = task.end
-                                                    ? task.end.includes('T')
-                                                      ? task.end.split('T')[0]
-                                                      : task.end
-                                                    : '';
-                                                  setEditedEndDate(endDate);
-                                                }}
-                                              >
-                                                <PencilIcon className="h-4 w-4 text-gray-500" />
-                                              </Button>
-                                            </div>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Wait:</TableCell>
-                                        <TableCell>
-                                          {isEditingWaitDate ? (
-                                            <div className="flex items-center gap-2">
-                                              <DatePicker
-                                                date={
-                                                  editedWaitDate
-                                                    ? new Date(editedWaitDate)
-                                                    : undefined
-                                                }
-                                                onDateChange={(date) =>
-                                                  setEditedWaitDate(
-                                                    date
-                                                      ? format(
-                                                          date,
-                                                          'yyyy-MM-dd'
-                                                        )
-                                                      : ''
-                                                  )
-                                                }
-                                              />
-
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleWaitDateSaveClick(task)
-                                                }
-                                              >
-                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                              </Button>
-
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  setIsEditingWaitDate(false)
-                                                }
-                                              >
-                                                <XIcon className="h-4 w-4 text-red-500" />
-                                              </Button>
-                                            </div>
-                                          ) : (
-                                            <>
-                                              <span>
-                                                {formattedDate(task.wait)}
-                                              </span>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => {
-                                                  setIsEditingWaitDate(true);
-                                                  setEditedWaitDate(
-                                                    task?.wait ?? ''
-                                                  );
-                                                }}
-                                              >
-                                                <PencilIcon className="h-4 w-4 text-gray-500" />
-                                              </Button>
-                                            </>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Depends:</TableCell>
-                                        <TableCell>
-                                          {!isEditingDepends ? (
-                                            <div className="flex flex-wrap items-center gap-2">
-                                              {(task.depends || []).map(
-                                                (depUuid) => {
-                                                  const depTask = tasks.find(
-                                                    (t) => t.uuid === depUuid
-                                                  );
-                                                  return (
-                                                    <Badge
-                                                      key={depUuid}
-                                                      variant="secondary"
-                                                      className="cursor-pointer"
-                                                      onClick={() => {
-                                                        if (depTask) {
-                                                          setIsDialogOpen(
-                                                            false
-                                                          );
-                                                          setTimeout(() => {
-                                                            setSelectedTask(
-                                                              depTask
-                                                            );
-                                                            setIsDialogOpen(
-                                                              true
-                                                            );
-                                                          }, 100);
-                                                        }
-                                                      }}
-                                                    >
-                                                      {depTask?.description ||
-                                                        depUuid.substring(0, 8)}
-                                                    </Badge>
-                                                  );
-                                                }
-                                              )}
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => {
-                                                  setIsEditingDepends(true);
-                                                  setEditedDepends(
-                                                    task.depends || []
-                                                  );
-                                                }}
-                                              >
-                                                <PencilIcon className="h-4 w-4 text-gray-500" />
-                                              </Button>
-                                            </div>
-                                          ) : (
-                                            <div className="space-y-2">
-                                              <div className="flex flex-wrap items-center gap-2">
-                                                {editedDepends.map(
-                                                  (depUuid) => {
-                                                    const depTask = tasks.find(
-                                                      (t) => t.uuid === depUuid
-                                                    );
-                                                    return (
-                                                      <Badge
-                                                        key={depUuid}
-                                                        variant="secondary"
-                                                      >
-                                                        <span>
-                                                          {depTask?.description ||
-                                                            depUuid.substring(
-                                                              0,
-                                                              8
-                                                            )}
-                                                        </span>
-                                                        <button
-                                                          type="button"
-                                                          className="ml-2 text-red-500"
-                                                          onClick={() =>
-                                                            handleRemoveDependency(
-                                                              depUuid
-                                                            )
-                                                          }
-                                                        >
-                                                          ✖
-                                                        </button>
-                                                      </Badge>
-                                                    );
-                                                  }
-                                                )}
-                                              </div>
-                                              <div className="flex items-center gap-2">
-                                                <div className="relative flex-1">
-                                                  <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() =>
-                                                      setDependsDropdownOpen(
-                                                        !dependsDropdownOpen
-                                                      )
-                                                    }
-                                                    className="w-full justify-start"
-                                                  >
-                                                    <span className="text-lg mr-2">
-                                                      +
-                                                    </span>
-                                                    Add Dependency
-                                                  </Button>
-                                                  {dependsDropdownOpen && (
-                                                    <div className="absolute left-0 top-full mt-1 z-50 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                      <Input
-                                                        type="text"
-                                                        placeholder="Search tasks..."
-                                                        value={
-                                                          dependsSearchTerm
-                                                        }
-                                                        onChange={(e) =>
-                                                          setDependsSearchTerm(
-                                                            e.target.value
-                                                          )
-                                                        }
-                                                        className="m-2 w-[calc(100%-1rem)]"
-                                                      />
-                                                      {tasks
-                                                        .filter(
-                                                          (t) =>
-                                                            t.uuid !==
-                                                              task.uuid &&
-                                                            t.status ===
-                                                              'pending' &&
-                                                            !editedDepends.includes(
-                                                              t.uuid
-                                                            ) &&
-                                                            t.description
-                                                              .toLowerCase()
-                                                              .includes(
-                                                                dependsSearchTerm.toLowerCase()
-                                                              )
-                                                        )
-                                                        .map((t) => (
-                                                          <div
-                                                            key={t.uuid}
-                                                            className="flex items-center gap-2 p-2 hover:bg-accent cursor-pointer"
-                                                            onClick={() => {
-                                                              handleAddDependency(
-                                                                t.uuid
-                                                              );
-                                                              setDependsSearchTerm(
-                                                                ''
-                                                              );
-                                                            }}
-                                                          >
-                                                            <input
-                                                              type="checkbox"
-                                                              checked={editedDepends.includes(
-                                                                t.uuid
-                                                              )}
-                                                              readOnly
-                                                            />
-                                                            <span className="text-sm">
-                                                              {t.description}
-                                                            </span>
-                                                          </div>
-                                                        ))}
-                                                    </div>
-                                                  )}
-                                                </div>
-                                                <Button
-                                                  variant="ghost"
-                                                  size="icon"
-                                                  onClick={() =>
-                                                    handleDependsSaveClick(task)
-                                                  }
-                                                >
-                                                  <CheckIcon className="h-4 w-4 text-green-500" />
-                                                </Button>
-                                                <Button
-                                                  variant="ghost"
-                                                  size="icon"
-                                                  onClick={() => {
-                                                    setIsEditingDepends(false);
-                                                    setDependsDropdownOpen(
-                                                      false
-                                                    );
-                                                  }}
-                                                >
-                                                  <XIcon className="h-4 w-4 text-red-500" />
-                                                </Button>
-                                              </div>
-                                            </div>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Recur:</TableCell>
-                                        <TableCell>{task.recur}</TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>RType:</TableCell>
-                                        <TableCell>{task.rtype}</TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Priority:</TableCell>
-                                        <TableCell>
-                                          {isEditingPriority ? (
-                                            <div className="flex items-center">
-                                              <Select
-                                                value={editedPriority}
-                                                onValueChange={
-                                                  setEditedPriority
-                                                }
-                                              >
-                                                <SelectTrigger className="flex-grow mr-2">
-                                                  <SelectValue placeholder="Select priority" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                  <SelectItem value="NONE">
-                                                    None
-                                                  </SelectItem>
-                                                  <SelectItem value="H">
-                                                    High (H)
-                                                  </SelectItem>
-                                                  <SelectItem value="M">
-                                                    Medium (M)
-                                                  </SelectItem>
-                                                  <SelectItem value="L">
-                                                    Low (L)
-                                                  </SelectItem>
-                                                </SelectContent>
-                                              </Select>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleSavePriority(task)
-                                                }
-                                              >
-                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                              </Button>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={handleCancelPriority}
-                                              >
-                                                <XIcon className="h-4 w-4 text-red-500" />
-                                              </Button>
-                                            </div>
-                                          ) : (
-                                            <div className="flex items-center">
-                                              <span>
-                                                {task.priority
-                                                  ? task.priority === 'H'
-                                                    ? 'High (H)'
-                                                    : task.priority === 'M'
-                                                      ? 'Medium (M)'
-                                                      : task.priority === 'L'
-                                                        ? 'Low (L)'
-                                                        : task.priority
-                                                  : 'None'}
-                                              </span>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleEditPriorityClick(task)
-                                                }
-                                              >
-                                                <PencilIcon className="h-4 w-4 text-gray-500" />
-                                              </Button>
-                                            </div>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Project:</TableCell>
-                                        <TableCell>
-                                          {isEditingProject ? (
-                                            <>
-                                              <div className="flex items-center">
-                                                <Input
-                                                  id={`project-${task.id}`}
-                                                  name={`project-${task.id}`}
-                                                  type="text"
-                                                  value={editedProject}
-                                                  onChange={(e) =>
-                                                    setEditedProject(
-                                                      e.target.value
-                                                    )
-                                                  }
-                                                  className="flex-grow mr-2"
-                                                />
-                                                <Button
-                                                  variant="ghost"
-                                                  size="icon"
-                                                  onClick={() =>
-                                                    handleProjectSaveClick(task)
-                                                  }
-                                                >
-                                                  <CheckIcon className="h-4 w-4 text-green-500" />
-                                                </Button>
-                                                <Button
-                                                  variant="ghost"
-                                                  size="icon"
-                                                  onClick={() =>
-                                                    setIsEditingProject(false)
-                                                  }
-                                                >
-                                                  <XIcon className="h-4 w-4 text-red-500" />
-                                                </Button>
-                                              </div>
-                                            </>
-                                          ) : (
-                                            <>
-                                              <span>{task.project}</span>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => {
-                                                  setIsEditingProject(true);
-                                                  setEditedProject(
-                                                    task.project
-                                                  );
-                                                }}
-                                              >
-                                                <PencilIcon className="h-4 w-4 text-gray-500" />
-                                              </Button>
-                                            </>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Status:</TableCell>
-                                        <TableCell>{task.status}</TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Tags:</TableCell>
-                                        <TableCell>
-                                          {isEditingTags ? (
-                                            <div>
-                                              <div className="flex items-center w-full">
-                                                <Input
-                                                  type="text"
-                                                  value={editTagInput}
-                                                  onChange={(e) => {
-                                                    // For allowing only alphanumeric characters
-                                                    if (
-                                                      e.target.value.length > 1
-                                                    ) {
-                                                      /^[a-zA-Z0-9]*$/.test(
-                                                        e.target.value.trim()
-                                                      )
-                                                        ? setEditTagInput(
-                                                            e.target.value.trim()
-                                                          )
-                                                        : '';
-                                                    } else {
-                                                      /^[a-zA-Z]*$/.test(
-                                                        e.target.value.trim()
-                                                      )
-                                                        ? setEditTagInput(
-                                                            e.target.value.trim()
-                                                          )
-                                                        : '';
-                                                    }
-                                                  }}
-                                                  placeholder="Add a tag (press enter to add)"
-                                                  className="flex-grow mr-2"
-                                                  onKeyDown={(e) =>
-                                                    e.key === 'Enter' &&
-                                                    handleAddEditTag()
-                                                  }
-                                                />
-                                                <Button
-                                                  variant="ghost"
-                                                  size="icon"
-                                                  onClick={() =>
-                                                    handleSaveTags(task)
-                                                  }
-                                                  aria-label="Save tags"
-                                                >
-                                                  <CheckIcon className="h-4 w-4 text-green-500" />
-                                                </Button>
-                                                <Button
-                                                  variant="ghost"
-                                                  size="icon"
-                                                  onClick={handleCancelTags}
-                                                  aria-label="Cancel editing tags"
-                                                >
-                                                  <XIcon className="h-4 w-4 text-red-500" />
-                                                </Button>
-                                              </div>
-                                              <div className="mt-2">
-                                                {editedTags != null &&
-                                                  editedTags.length > 0 && (
-                                                    <div>
-                                                      <div className="flex flex-wrap gap-2 col-span-3">
-                                                        {editedTags.map(
-                                                          (tag, index) => (
-                                                            <Badge key={index}>
-                                                              <span>{tag}</span>
-                                                              <button
-                                                                type="button"
-                                                                className="ml-2 text-red-500"
-                                                                onClick={() =>
-                                                                  handleRemoveEditTag(
-                                                                    tag
-                                                                  )
-                                                                }
-                                                              >
-                                                                ✖
-                                                              </button>
-                                                            </Badge>
-                                                          )
-                                                        )}
-                                                      </div>
-                                                    </div>
-                                                  )}
-                                              </div>
-                                            </div>
-                                          ) : (
-                                            <div className="flex items-center flex-wrap">
-                                              {task.tags !== null &&
-                                              task.tags.length >= 1 ? (
-                                                task.tags.map((tag, index) => (
-                                                  <Badge
-                                                    key={index}
-                                                    variant="secondary"
-                                                    className="mr-2 mt-1"
-                                                  >
-                                                    <Tag className="pr-3" />
-                                                    {tag}
-                                                  </Badge>
-                                                ))
-                                              ) : (
-                                                <span>No Tags</span>
-                                              )}
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleEditTagsClick(task)
-                                                }
-                                              >
-                                                <PencilIcon className="h-4 w-4 text-gray-500" />
-                                              </Button>
-                                            </div>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Entry:</TableCell>
-                                        <TableCell>
-                                          {isEditingEntryDate ? (
-                                            <div className="flex items-center gap-2">
-                                              <DatePicker
-                                                date={
-                                                  editedEntryDate &&
-                                                  editedEntryDate !== ''
-                                                    ? (() => {
-                                                        try {
-                                                          // Handle YYYY-MM-DD format
-                                                          const dateStr =
-                                                            editedEntryDate.includes(
-                                                              'T'
-                                                            )
-                                                              ? editedEntryDate.split(
-                                                                  'T'
-                                                                )[0]
-                                                              : editedEntryDate;
-                                                          const parsed =
-                                                            new Date(
-                                                              dateStr +
-                                                                'T00:00:00'
-                                                            );
-                                                          return isNaN(
-                                                            parsed.getTime()
-                                                          )
-                                                            ? undefined
-                                                            : parsed;
-                                                        } catch {
-                                                          return undefined;
-                                                        }
-                                                      })()
-                                                    : undefined
-                                                }
-                                                onDateChange={(date) =>
-                                                  setEditedEntryDate(
-                                                    date
-                                                      ? format(
-                                                          date,
-                                                          'yyyy-MM-dd'
-                                                        )
-                                                      : ''
-                                                  )
-                                                }
-                                              />
-
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  handleEntryDateSaveClick(task)
-                                                }
-                                              >
-                                                <CheckIcon className="h-4 w-4 text-green-500" />
-                                              </Button>
-
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() =>
-                                                  setIsEditingEntryDate(false)
-                                                }
-                                              >
-                                                <XIcon className="h-4 w-4 text-red-500" />
-                                              </Button>
-                                            </div>
-                                          ) : (
-                                            <>
-                                              <span>
-                                                {formattedDate(task.entry)}
-                                              </span>
-                                              <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => {
-                                                  setIsEditingEntryDate(true);
-                                                  const entryDate = task.entry
-                                                    ? task.entry.includes('T')
-                                                      ? task.entry.split('T')[0]
-                                                      : task.entry
-                                                    : '';
-                                                  setEditedEntryDate(entryDate);
-                                                }}
-                                              >
-                                                <PencilIcon className="h-4 w-4 text-gray-500" />
-                                              </Button>
-                                            </>
-                                          )}
-                                        </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Urgency:</TableCell>
-                                        <TableCell>{task.urgency}</TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>UUID:</TableCell>
-                                        <TableCell className="flex items-center">
-                                          <span>{task.uuid}</span>
-                                          <CopyToClipboard
-                                            text={task.uuid}
-                                            onCopy={() =>
-                                              handleCopy('Task UUID')
-                                            }
-                                          >
-                                            <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-2 px-2 rounded ml-2">
-                                              <CopyIcon />
-                                            </button>
-                                          </CopyToClipboard>
-                                        </TableCell>
-                                      </TableRow>
-                                    </TableBody>
-                                  </Table>
-                                </DialogDescription>
-                              </div>
-
-                              {/* Non-scrollable footer */}
-                              <DialogFooter className="flex flex-row justify-end pt-4">
-                                {task.status == 'pending' ? (
-                                  <Dialog>
-                                    <DialogTrigger asChild className="mr-5">
-                                      <Button
-                                        id={`mark-task-complete-${task.id}`}
-                                      >
-                                        Mark As Completed <Key lable="c" />
-                                      </Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                      <DialogTitle>
-                                        <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-                                          <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                            Are you{' '}
-                                          </span>
-                                          sure?
-                                        </span>
-                                      </DialogTitle>
-                                      <DialogFooter className="flex flex-row justify-center">
-                                        <DialogClose asChild>
-                                          <Button
-                                            className="mr-5"
-                                            onClick={() => {
-                                              markTaskAsCompleted(
-                                                props.email,
-                                                props.encryptionSecret,
-                                                props.UUID,
-                                                task.uuid
-                                              );
-                                              setIsDialogOpen(false);
-                                            }}
-                                          >
-                                            Yes
-                                          </Button>
-                                        </DialogClose>
-                                        <DialogClose asChild>
-                                          <Button variant={'destructive'}>
-                                            No
-                                          </Button>
-                                        </DialogClose>
-                                      </DialogFooter>
-                                    </DialogContent>
-                                  </Dialog>
-                                ) : null}
-
-                                {task.status != 'deleted' ? (
-                                  <Dialog>
-                                    <DialogTrigger asChild>
-                                      <Button
-                                        id={`mark-task-as-deleted-${task.id}`}
-                                        className="mr-4"
-                                        variant={'destructive'}
-                                      >
-                                        <Trash2Icon />
-                                        <Key lable="d" />
-                                      </Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                      <DialogTitle>
-                                        <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-                                          <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
-                                            Are you{' '}
-                                          </span>
-                                          sure?
-                                        </span>
-                                      </DialogTitle>
-                                      <DialogFooter className="flex flex-row justify-center">
-                                        <DialogClose asChild>
-                                          <Button
-                                            className="mr-5"
-                                            onClick={() => {
-                                              markTaskAsDeleted(
-                                                props.email,
-                                                props.encryptionSecret,
-                                                props.UUID,
-                                                task.uuid
-                                              );
-                                              setIsDialogOpen(false);
-                                            }}
-                                          >
-                                            Yes
-                                          </Button>
-                                        </DialogClose>
-                                        <DialogClose asChild>
-                                          <Button variant={'destructive'}>
-                                            No
-                                          </Button>
-                                        </DialogClose>
-                                      </DialogFooter>
-                                    </DialogContent>
-                                  </Dialog>
-                                ) : null}
-                                <DialogClose asChild>
-                                  <Button className="dark:bg-white bg-black ">
-                                    Close
-                                  </Button>
-                                </DialogClose>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
+                                )}
+                              </TableCell>
+                              <TableCell className="py-2">
+                                <Badge
+                                  className={
+                                    task.status === 'pending' &&
+                                    isOverdue(task.due)
+                                      ? 'bg-orange-500 text-white'
+                                      : ''
+                                  }
+                                  variant={
+                                    task.status === 'deleted'
+                                      ? 'destructive'
+                                      : task.status === 'completed'
+                                        ? 'default'
+                                        : 'secondary'
+                                  }
+                                >
+                                  {task.status === 'pending' &&
+                                  isOverdue(task.due)
+                                    ? 'O'
+                                    : task.status === 'completed'
+                                      ? 'C'
+                                      : task.status === 'deleted'
+                                        ? 'D'
+                                        : 'P'}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                            {_selectedTask?.id === task.id && (
+                              <EditTaskDialog
+                                task={task}
+                                isDialogOpen={_isDialogOpen}
+                                onOpenChange={(_isDialogOpen) =>
+                                  handleDialogOpenChange(_isDialogOpen, task)
+                                }
+                                tasks={tasks}
+                                isEditing={isEditing}
+                                editedDescription={editedDescription}
+                                setEditedDescription={setEditedDescription}
+                                handleEditClick={handleEditClick}
+                                handleSaveClick={handleSaveClick}
+                                handleCancelClick={handleCancelClick}
+                                isEditingDueDate={isEditingDueDate}
+                                editedDueDate={editedDueDate}
+                                setEditedDueDate={setEditedDueDate}
+                                setIsEditingDueDate={setIsEditingDueDate}
+                                handleDueDateSaveClick={handleDueDateSaveClick}
+                                isEditingStartDate={isEditingStartDate}
+                                editedStartDate={editedStartDate}
+                                setEditedStartDate={setEditedStartDate}
+                                setIsEditingStartDate={setIsEditingStartDate}
+                                handleStartDateSaveClick={
+                                  handleStartDateSaveClick
+                                }
+                                isEditingEndDate={isEditingEndDate}
+                                editedEndDate={editedEndDate}
+                                setEditedEndDate={setEditedEndDate}
+                                setIsEditingEndDate={setIsEditingEndDate}
+                                handleEndDateSaveClick={handleEndDateSaveClick}
+                                isEditingWaitDate={isEditingWaitDate}
+                                editedWaitDate={editedWaitDate}
+                                setEditedWaitDate={setEditedWaitDate}
+                                setIsEditingWaitDate={setIsEditingWaitDate}
+                                handleWaitDateSaveClick={
+                                  handleWaitDateSaveClick
+                                }
+                                isEditingEntryDate={isEditingEntryDate}
+                                editedEntryDate={editedEntryDate}
+                                setEditedEntryDate={setEditedEntryDate}
+                                setIsEditingEntryDate={setIsEditingEntryDate}
+                                handleEntryDateSaveClick={
+                                  handleEntryDateSaveClick
+                                }
+                                isEditingDepends={isEditingDepends}
+                                editedDepends={editedDepends}
+                                setIsEditingDepends={setIsEditingDepends}
+                                handleDependsSaveClick={handleDependsSaveClick}
+                                handleAddDependency={handleAddDependency}
+                                handleRemoveDependency={handleRemoveDependency}
+                                dependsDropdownOpen={dependsDropdownOpen}
+                                setDependsDropdownOpen={setDependsDropdownOpen}
+                                dependsSearchTerm={dependsSearchTerm}
+                                setDependsSearchTerm={setDependsSearchTerm}
+                                setIsDialogOpen={setIsDialogOpen}
+                                setSelectedTask={setSelectedTask}
+                                isEditingPriority={isEditingPriority}
+                                editedPriority={editedPriority}
+                                setEditedPriority={setEditedPriority}
+                                handleEditPriorityClick={
+                                  handleEditPriorityClick
+                                }
+                                handleSavePriority={handleSavePriority}
+                                handleCancelPriority={handleCancelPriority}
+                                isEditingProject={isEditingProject}
+                                editedProject={editedProject}
+                                setEditedProject={setEditedProject}
+                                setIsEditingProject={setIsEditingProject}
+                                handleProjectSaveClick={handleProjectSaveClick}
+                                isEditingTags={isEditingTags}
+                                editedTags={editedTags}
+                                editTagInput={editTagInput}
+                                setEditTagInput={setEditTagInput}
+                                handleEditTagsClick={handleEditTagsClick}
+                                handleSaveTags={handleSaveTags}
+                                handleCancelTags={handleCancelTags}
+                                handleAddEditTag={handleAddEditTag}
+                                handleRemoveEditTag={handleRemoveEditTag}
+                                isOverdue={isOverdue}
+                                handleCopy={handleCopy}
+                                markTaskAsCompleted={markTaskAsCompleted}
+                                markTaskAsDeleted={markTaskAsDeleted}
+                                email={props.email}
+                                encryptionSecret={props.encryptionSecret}
+                                UUID={props.UUID}
+                              />
+                            )}
+                          </React.Fragment>
                         ))
                       )}
 
