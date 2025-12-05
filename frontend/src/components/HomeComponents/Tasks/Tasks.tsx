@@ -975,7 +975,7 @@ export const Tasks = (
                     </span>
                     your tasks
                   </h3>
-                  <div className="hidden sm:flex flex-row w-full items-center gap-2 md:gap-4">
+                  <div className="sm:flex flex-row w-full items-center gap-2 md:gap-4">
                     <Input
                       id="search"
                       type="text"
@@ -992,7 +992,7 @@ export const Tasks = (
                       options={uniqueProjects}
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
-                      className="flex-1 min-w-[140px]"
+                      className="hidden sm:flex-1 min-w-[140px]"
                       icon={<Key lable="p" />}
                     />
                     <MultiSelectFilter
@@ -1001,7 +1001,7 @@ export const Tasks = (
                       options={status}
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
-                      className="flex-1 min-w-[140px]"
+                      className="hidden sm:flex-1 min-w-[140px]"
                       icon={<Key lable="s" />}
                     />
                     <MultiSelectFilter
@@ -1010,7 +1010,7 @@ export const Tasks = (
                       options={uniqueTags}
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
-                      className="flex-1 min-w-[140px]"
+                      className="hidden sm:flex-1 min-w-[140px]"
                       icon={<Key lable="t" />}
                     />
                     <div className="pr-2">
@@ -1257,7 +1257,7 @@ export const Tasks = (
                         </DialogContent>
                       </Dialog>
                     </div>
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="hidden sm:flex flex-col items-end gap-2">
                       <Button
                         id="sync-task"
                         variant="outline"
