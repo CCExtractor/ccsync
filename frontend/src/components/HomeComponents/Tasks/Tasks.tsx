@@ -138,6 +138,7 @@ export const Tasks = (
   const [dependsSearchTerm, setDependsSearchTerm] = useState('');
   const [isEditingRecur, setIsEditingRecur] = useState(false);
   const [editedRecur, setEditedRecur] = useState('');
+  const [originalRecur, setOriginalRecur] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
@@ -615,6 +616,16 @@ export const Tasks = (
   };
 
   const handleRecurSaveClick = (task: Task) => {
+    if (editedRecur === 'none') {
+      setIsEditingRecur(false);
+      return;
+    }
+
+    if (!editedRecur || editedRecur === '') {
+      setIsEditingRecur(false);
+      return;
+    }
+
     task.recur = editedRecur;
 
     handleEditTaskOnBackend(
@@ -674,6 +685,7 @@ export const Tasks = (
       setDependsSearchTerm('');
       setIsEditingRecur(false);
       setEditedRecur('');
+      setOriginalRecur('');
     } else {
       setSelectedTask(task);
       setEditedDescription(task?.description || '');
@@ -2321,7 +2333,7 @@ export const Tasks = (
                                           {isEditingRecur ? (
                                             <div className="flex items-center gap-2">
                                               <Select
-                                                value={editedRecur || ''}
+                                                value={editedRecur || 'none'}
                                                 onValueChange={(value) =>
                                                   setEditedRecur(value)
                                                 }
@@ -2330,6 +2342,14 @@ export const Tasks = (
                                                   <SelectValue placeholder="Select recurrence" />
                                                 </SelectTrigger>
                                                 <SelectContent>
+                                                  {!originalRecur && (
+                                                    <SelectItem
+                                                      value="none"
+                                                      className="cursor-pointer hover:bg-accent"
+                                                    >
+                                                      None
+                                                    </SelectItem>
+                                                  )}
                                                   <SelectItem
                                                     value="daily"
                                                     className="cursor-pointer hover:bg-accent"
@@ -2385,8 +2405,11 @@ export const Tasks = (
                                                 size="icon"
                                                 onClick={() => {
                                                   setIsEditingRecur(true);
-                                                  setEditedRecur(
+                                                  setOriginalRecur(
                                                     task.recur || ''
+                                                  );
+                                                  setEditedRecur(
+                                                    task.recur || 'none'
                                                   );
                                                 }}
                                               >
