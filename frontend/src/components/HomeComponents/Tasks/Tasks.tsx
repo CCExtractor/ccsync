@@ -75,6 +75,7 @@ export const Tasks = (
     due: '',
     tags: [] as string[],
   });
+  const [isCreatingNewProject, setIsCreatingNewProject] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [_isDialogOpen, setIsDialogOpen] = useState(false);
   const [tagInput, setTagInput] = useState('');
@@ -239,6 +240,12 @@ export const Tasks = (
     fetchTasksForEmail();
   }, [props.email]);
 
+  useEffect(() => {
+    if (!isAddTaskOpen) {
+      setIsCreatingNewProject(false);
+    }
+  }, [isAddTaskOpen]);
+
   syncTasksWithTwAndDb = useCallback(async () => {
     try {
       const { email: user_email, encryptionSecret, UUID } = props;
@@ -261,8 +268,16 @@ export const Tasks = (
           .where('email')
           .equals(user_email)
           .toArray();
-        setTasks(sortTasksById(updatedTasks, 'desc'));
-        setTempTasks(sortTasksById(updatedTasks, 'desc'));
+        const sortedTasks = sortTasksById(updatedTasks, 'desc');
+        setTasks(sortedTasks);
+        setTempTasks(sortedTasks);
+
+        // Update unique projects after a successful sync so the Project dropdown is populated
+        const projectsSet = new Set(sortedTasks.map((task) => task.project));
+        const filteredProjects = Array.from(projectsSet)
+          .filter((project) => project !== '')
+          .sort((a, b) => (a > b ? 1 : -1));
+        setUniqueProjects(filteredProjects);
       });
 
       // Store last sync timestamp using hashed key
@@ -822,7 +837,7 @@ export const Tasks = (
                     </span>
                     your tasks
                   </h3>
-                  <div className="hidden sm:flex flex-row w-full items-center gap-2 md:gap-4">
+                  <div className="sm:flex flex-row w-full items-center gap-2 md:gap-4">
                     <Input
                       id="search"
                       type="text"
@@ -839,7 +854,7 @@ export const Tasks = (
                       options={uniqueProjects}
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
-                      className="flex-1 min-w-[140px]"
+                      className="hidden sm:flex-1 min-w-[140px]"
                       icon={<Key lable="p" />}
                     />
                     <MultiSelectFilter
@@ -848,7 +863,7 @@ export const Tasks = (
                       options={status}
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
-                      className="flex-1 min-w-[140px]"
+                      className="hidden sm:flex-1 min-w-[140px]"
                       icon={<Key lable="s" />}
                     />
                     <MultiSelectFilter
@@ -857,7 +872,7 @@ export const Tasks = (
                       options={uniqueTags}
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
-                      className="flex-1 min-w-[140px]"
+                      className="hidden sm:flex-1 min-w-[140px]"
                       icon={<Key lable="t" />}
                     />
                     <div className="pr-2">
@@ -869,9 +884,12 @@ export const Tasks = (
                         tagInput={tagInput}
                         setTagInput={setTagInput}
                         onSubmit={handleAddTask}
+                        isCreatingNewProject={isCreatingNewProject}
+                        setIsCreatingNewProject={setIsCreatingNewProject}
+                        uniqueProjects={uniqueProjects}
                       />
                     </div>
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="hidden sm:flex flex-col items-end gap-2">
                       <Button
                         id="sync-task"
                         variant="outline"
@@ -985,7 +1003,7 @@ export const Tasks = (
                         onChange={(e) =>
                           handleTasksPerPageChange(parseInt(e.target.value, 10))
                         }
-                        className="border rounded-md px-2 py-1 bg-black text-white h-10 text-sm"
+                        className="border border[1px] rounded-md px-2 py-1 bg-white dark:bg-black text-black dark:text-white h-10 text-sm"
                       >
                         <option value="5">5</option>
                         <option value="10">10</option>
@@ -1030,6 +1048,9 @@ export const Tasks = (
                         tagInput={tagInput}
                         setTagInput={setTagInput}
                         onSubmit={handleAddTask}
+                        isCreatingNewProject={isCreatingNewProject}
+                        setIsCreatingNewProject={setIsCreatingNewProject}
+                        uniqueProjects={uniqueProjects}
                       />
                     </div>
                     <div className="flex flex-col items-end gap-2">

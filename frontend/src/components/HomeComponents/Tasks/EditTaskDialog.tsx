@@ -103,7 +103,7 @@ export const EditTaskDialog = ({
               className={`px-3 py-1 rounded-md font-semibold ${
                 task.status === 'pending' && isOverdue(task.due)
                   ? 'bg-red-600/80 text-white'
-                  : ''
+                  : 'dark:text-white text-black'
               }`}
             >
               {task.id}
@@ -1199,7 +1199,7 @@ export const EditTaskDialog = ({
             </Dialog>
           ) : null}
           <DialogClose asChild>
-            <Button className="bg-white">Close</Button>
+            <Button className="dark:bg-white bg-black">Close</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

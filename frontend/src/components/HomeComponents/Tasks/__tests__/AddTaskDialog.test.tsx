@@ -6,6 +6,38 @@ jest.mock('date-fns', () => ({
   format: jest.fn(() => '2024-12-25'),
 }));
 
+jest.mock('@/components/ui/date-picker', () => ({
+  DatePicker: ({ onDateChange, placeholder }: any) => (
+    <input
+      data-testid="date-picker"
+      placeholder={placeholder}
+      onChange={(e) => {
+        if (e.target.value) {
+          onDateChange(new Date(e.target.value));
+        }
+      }}
+    />
+  ),
+}));
+
+jest.mock('@/components/ui/select', () => ({
+  Select: ({ children, value }: any) => (
+    <div data-testid="select-wrapper" data-value={value}>
+      {children}
+    </div>
+  ),
+  SelectTrigger: ({ children, id }: any) => (
+    <div data-testid="select-trigger" id={id}>
+      {children}
+    </div>
+  ),
+  SelectValue: ({ placeholder }: any) => <div>{placeholder}</div>,
+  SelectContent: ({ children }: any) => <div>{children}</div>,
+  SelectItem: ({ children, value }: any) => (
+    <option value={value}>{children}</option>
+  ),
+}));
+
 describe('AddTaskDialog Component', () => {
   let mockProps: any;
 
@@ -24,6 +56,9 @@ describe('AddTaskDialog Component', () => {
       tagInput: '',
       setTagInput: jest.fn(),
       onSubmit: jest.fn(),
+      uniqueProjects: [],
+      isCreatingNewProject: false,
+      setIsCreatingNewProject: jest.fn(),
     };
   });
 
@@ -79,18 +114,30 @@ describe('AddTaskDialog Component', () => {
     });
   });
 
-  test('updates project when user types in project field', () => {
+  test('updates project when user types in project field', async () => {
     mockProps.isOpen = true;
+    mockProps.isCreatingNewProject = true;
+    mockProps.newTask = { ...mockProps.newTask, project: '' };
+
     render(<AddTaskdialog {...mockProps} />);
 
-    const projectInput = screen.getByLabelText(/project/i);
-
-    fireEvent.change(projectInput, { target: { value: 'Work' } });
+    const newProjectInput =
+      await screen.findByPlaceholderText('New project name');
+    fireEvent.change(newProjectInput, { target: { value: 'Work' } });
 
     expect(mockProps.setNewTask).toHaveBeenCalledWith({
       ...mockProps.newTask,
       project: 'Work',
     });
+  });
+
+  test('displays project select with unique projects', () => {
+    mockProps.isOpen = true;
+    mockProps.uniqueProjects = ['Work', 'Personal'];
+    render(<AddTaskdialog {...mockProps} />);
+
+    expect(screen.getByText('Work')).toBeInTheDocument();
+    expect(screen.getByText('Personal')).toBeInTheDocument();
   });
 
   test('adds a tag when user types and presses Enter', () => {
@@ -169,7 +216,6 @@ describe('AddTaskDialog Component', () => {
 
     const submitButton = screen.getByRole('button', {
       name: /add task/i,
-      hidden: false,
     });
 
     expect(submitButton).toBeInTheDocument();
@@ -207,5 +253,28 @@ describe('AddTaskDialog Component', () => {
     expect(prioritySelect).toContainHTML('<option value="H">H</option>');
     expect(prioritySelect).toContainHTML('<option value="M">M</option>');
     expect(prioritySelect).toContainHTML('<option value="L">L</option>');
+  });
+
+  test('shows new project input when creating new project', () => {
+    mockProps.isOpen = true;
+    mockProps.isCreatingNewProject = true;
+    render(<AddTaskdialog {...mockProps} />);
+
+    const projectInput = screen.getByPlaceholderText(/new project name/i);
+    expect(projectInput).toBeInTheDocument();
+  });
+
+  test('updates project name when typing in new project input', () => {
+    mockProps.isOpen = true;
+    mockProps.isCreatingNewProject = true;
+    render(<AddTaskdialog {...mockProps} />);
+
+    const projectInput = screen.getByPlaceholderText(/new project name/i);
+    fireEvent.change(projectInput, { target: { value: 'New Project' } });
+
+    expect(mockProps.setNewTask).toHaveBeenCalledWith({
+      ...mockProps.newTask,
+      project: 'New Project',
+    });
   });
 });

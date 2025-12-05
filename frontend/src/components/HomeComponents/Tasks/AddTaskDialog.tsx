@@ -13,6 +13,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Key } from '@/components/ui/key-button';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { AddTaskDialogProps } from '@/components/utils/types';
 import { format } from 'date-fns';
 
@@ -24,6 +31,9 @@ export const AddTaskdialog = ({
   tagInput,
   setTagInput,
   onSubmit,
+  isCreatingNewProject,
+  setIsCreatingNewProject,
+  uniqueProjects = [], // ⬅ coming from parent (Task.tsx)
 }: AddTaskDialogProps) => {
   // Handle adding a tag
   const handleAddTag = () => {
@@ -115,19 +125,60 @@ export const AddTaskdialog = ({
             <Label htmlFor="project" className="text-right">
               Project
             </Label>
-            <Input
-              id="project"
-              name="project"
-              type=""
-              value={newTask.project}
-              onChange={(e) =>
-                setNewTask({
-                  ...newTask,
-                  project: e.target.value,
-                })
-              }
-              className="col-span-3"
-            />
+            <div className="col-span-3 space-y-2">
+              <Select
+                value={
+                  isCreatingNewProject
+                    ? '__CREATE_NEW__'
+                    : newTask.project || '__NONE__'
+                }
+                onValueChange={(value) => {
+                  if (value === '__CREATE_NEW__') {
+                    setIsCreatingNewProject(true);
+                    setNewTask({ ...newTask, project: '' });
+                  } else if (value === '__NONE__') {
+                    setIsCreatingNewProject(false);
+                    setNewTask({ ...newTask, project: '' });
+                  } else {
+                    setIsCreatingNewProject(false);
+                    setNewTask({ ...newTask, project: value });
+                  }
+                }}
+              >
+                <SelectTrigger id="project" data-testid="project-select">
+                  <SelectValue
+                    placeholder={
+                      uniqueProjects.length
+                        ? 'Select a project'
+                        : 'No projects yet'
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__NONE__">No project</SelectItem>
+                  {uniqueProjects.map((project: string) => (
+                    <SelectItem key={project} value={project}>
+                      {project}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="__CREATE_NEW__">
+                    + Create new project…
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+
+              {isCreatingNewProject && (
+                <Input
+                  id="project-name"
+                  placeholder="New project name"
+                  value={newTask.project}
+                  autoFocus
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, project: e.target.value })
+                  }
+                />
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="due" className="text-right">
@@ -185,7 +236,11 @@ export const AddTaskdialog = ({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="secondary" onClick={() => setIsOpen(false)}>
+          <Button
+            className="dark:bg-white/5 bg-black hover:bg-black text-white"
+            variant="secondary"
+            onClick={() => setIsOpen(false)}
+          >
             Cancel
           </Button>
           <Button
