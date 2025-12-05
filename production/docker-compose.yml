@@ -31,18 +31,63 @@ services:
     volumes:
       - ./backend/data:/app/data
 
-  syncserver:
-    image: ghcr.io/gothenburgbitfactory/taskchampion-sync-server:latest
-    ports:
-      - "8080:8080"
+  # syncserver:
+  #   image: ghcr.io/gothenburgbitfactory/taskchampion-sync-server:latest
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - tasknetwork
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #   volumes:
+  #     - ./syncserver/data:/data
+  #   environment:
+  #     - DATA_DIR=/data
+
+  mkdir:
+    image: caddy:2-alpine
+    command: |
+      /bin/sh -c "
+      mkdir -p /data/caddy/data /data/caddy/config /data/syncserver/taskchampion-sync-server"
+    volumes:
+      - type: volume
+        source: data
+        target: /data
+        read_only: false
+        volume:
+          nocopy: true
     networks:
       - tasknetwork
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+
+  syncserver:
+    image: ghcr.io/gothenburgbitfactory/taskchampion-sync-server:0.7.1
+    restart: unless-stopped
+    networks:
+      - tasknetwork
+    ports:
+      - "8080:8080"
+    environment:
+      - "RUST_LOG=info"
+      - "DATA_DIR=/var/lib/taskchampion-sync-server/data"
+      - "LISTEN=0.0.0.0:8080"
+    volumes:
+      - type: volume
+        source: data
+        target: /var/lib/taskchampion-sync-server/data
+        read_only: false
+        volume:
+          nocopy: true
+          subpath: syncserver/taskchampion-sync-server
+    depends_on:
+      mkdir:
+        condition: service_completed_successfully
 
 networks:
   tasknetwork:
     driver: bridge
+
+volumes:
+  data:
