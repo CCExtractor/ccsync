@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { useEditTask } from './useEditTask';
+import { useEditTask } from './UseEditTask';
 import { Task } from '../../utils/types';
 import { ReportsView } from './ReportsView';
 import Fuse from 'fuse.js';
@@ -411,7 +411,7 @@ export const Tasks = (
     );
   };
 
-  const handleSaveProject = (task: Task, project: string) => {
+  const handleProjectSaveClick = (task: Task, project: string) => {
     task.project = project;
     handleEditTaskOnBackend(
       props.email,
@@ -430,7 +430,7 @@ export const Tasks = (
     );
   };
 
-  const handleSaveWaitDate = (task: Task, waitDate: string) => {
+  const handleWaitDateSaveClick = (task: Task, waitDate: string) => {
     task.wait = waitDate;
 
     handleEditTaskOnBackend(
@@ -450,7 +450,7 @@ export const Tasks = (
     );
   };
 
-  const handleSaveStartDate = (task: Task, startDate: string) => {
+  const handleStartDateSaveClick = (task: Task, startDate: string) => {
     task.start = startDate;
 
     handleEditTaskOnBackend(
@@ -470,7 +470,7 @@ export const Tasks = (
     );
   };
 
-  const handleSaveEntryDate = (task: Task, entryDate: string) => {
+  const handleEntryDateSaveClick = (task: Task, entryDate: string) => {
     task.entry = entryDate;
 
     handleEditTaskOnBackend(
@@ -490,7 +490,7 @@ export const Tasks = (
     );
   };
 
-  const handleSaveEndDate = (task: Task, endDate: string) => {
+  const handleEndDateSaveClick = (task: Task, endDate: string) => {
     task.end = endDate;
 
     handleEditTaskOnBackend(
@@ -510,7 +510,7 @@ export const Tasks = (
     );
   };
 
-  const handleSaveDueDate = (task: Task, dueDate: string) => {
+  const handleDueDateSaveClick = (task: Task, dueDate: string) => {
     task.due = dueDate;
 
     handleEditTaskOnBackend(
@@ -530,7 +530,7 @@ export const Tasks = (
     );
   };
 
-  const handleSaveDepends = (task: Task, depends: string[]) => {
+  const handleDependsSaveClick = (task: Task, depends: string[]) => {
     task.depends = depends;
 
     handleEditTaskOnBackend(
@@ -947,13 +947,13 @@ export const Tasks = (
                             onSaveDescription={handleSaveDescription}
                             onSaveTags={handleSaveTags}
                             onSavePriority={handleSavePriority}
-                            onSaveProject={handleSaveProject}
-                            onSaveWaitDate={handleSaveWaitDate}
-                            onSaveStartDate={handleSaveStartDate}
-                            onSaveEntryDate={handleSaveEntryDate}
-                            onSaveEndDate={handleSaveEndDate}
-                            onSaveDueDate={handleSaveDueDate}
-                            onSaveDepends={handleSaveDepends}
+                            onSaveProject={handleProjectSaveClick}
+                            onSaveWaitDate={handleWaitDateSaveClick}
+                            onSaveStartDate={handleStartDateSaveClick}
+                            onSaveEntryDate={handleEntryDateSaveClick}
+                            onSaveEndDate={handleEndDateSaveClick}
+                            onSaveDueDate={handleDueDateSaveClick}
+                            onSaveDepends={handleDependsSaveClick}
                             onMarkComplete={handleMarkComplete}
                             onMarkDeleted={handleMarkDelete}
                             isOverdue={isOverdue}

@@ -112,7 +112,7 @@ export const AddTaskdialog = ({
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right">
+            <Label htmlFor="project" className="text-right">
               Project
             </Label>
             <Input

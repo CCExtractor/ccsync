@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useEditTask } from '../useEditTask';
+import { useEditTask } from '../UseEditTask';
 import { Task } from '../../../utils/types';
 
 describe('useEditTask Hook', () => {

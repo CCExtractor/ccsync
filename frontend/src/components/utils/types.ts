@@ -102,3 +102,28 @@ export interface AddTaskDialogProps {
   setTagInput: (value: string) => void;
   onSubmit: (task: TaskFormData) => void;
 }
+
+export interface EditTaskDialogProps {
+  index: number;
+  task: Task;
+  isOpen: boolean;
+  selectedIndex: number;
+  onOpenChange: (open: boolean) => void;
+  onSelectTask: (task: Task, index: number) => void;
+  editState: EditTaskState;
+  onUpdateState: (updates: Partial<EditTaskState>) => void;
+  allTasks: Task[];
+  onSaveDescription: (task: Task, description: string) => void;
+  onSaveTags: (task: Task, tags: string[]) => void;
+  onSavePriority: (task: Task, priority: string) => void;
+  onSaveProject: (task: Task, project: string) => void;
+  onSaveWaitDate: (task: Task, date: string) => void;
+  onSaveStartDate: (task: Task, date: string) => void;
+  onSaveEntryDate: (task: Task, date: string) => void;
+  onSaveEndDate: (task: Task, date: string) => void;
+  onSaveDueDate: (task: Task, date: string) => void;
+  onSaveDepends: (task: Task, depends: string[]) => void;
+  onMarkComplete: (uuid: string) => void;
+  onMarkDeleted: (uuid: string) => void;
+  isOverdue: (due?: string) => boolean;
+}

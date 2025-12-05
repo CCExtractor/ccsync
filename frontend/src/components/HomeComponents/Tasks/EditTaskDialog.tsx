@@ -1,5 +1,4 @@
-import { Task } from '../../utils/types';
-import { EditTaskState } from '../../utils/types';
+import { EditTaskDialogProps } from '../../utils/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -35,31 +34,6 @@ import {
 } from 'lucide-react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { formattedDate, handleCopy } from './tasks-utils';
-
-interface EditTaskDialogProps {
-  index: number;
-  task: Task;
-  isOpen: boolean;
-  selectedIndex: number;
-  onOpenChange: (open: boolean) => void;
-  onSelectTask: (task: Task, index: number) => void;
-  editState: EditTaskState;
-  onUpdateState: (updates: Partial<EditTaskState>) => void;
-  allTasks: Task[];
-  onSaveDescription: (task: Task, description: string) => void;
-  onSaveTags: (task: Task, tags: string[]) => void;
-  onSavePriority: (task: Task, priority: string) => void;
-  onSaveProject: (task: Task, project: string) => void;
-  onSaveWaitDate: (task: Task, date: string) => void;
-  onSaveStartDate: (task: Task, date: string) => void;
-  onSaveEntryDate: (task: Task, date: string) => void;
-  onSaveEndDate: (task: Task, date: string) => void;
-  onSaveDueDate: (task: Task, date: string) => void;
-  onSaveDepends: (task: Task, depends: string[]) => void;
-  onMarkComplete: (uuid: string) => void;
-  onMarkDeleted: (uuid: string) => void;
-  isOverdue: (due?: string) => boolean;
-}
 
 export const EditTaskDialog = ({
   index,
@@ -113,6 +87,7 @@ export const EditTaskDialog = ({
     <Dialog open={isOpen} onOpenChange={handleDialogOpenChange} key={index}>
       <DialogTrigger asChild>
         <TableRow
+          data-testid={`task-row-${task.id}`}
           id={`task-row-${task.id}`}
           key={index}
           className={`border-b cursor-pointer ${
