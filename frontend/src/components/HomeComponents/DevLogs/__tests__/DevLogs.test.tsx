@@ -83,23 +83,19 @@ global.fetch = jest.fn(() =>
 ) as jest.Mock;
 
 describe('DevLogs Component using Snapshot', () => {
-  const mockOnOpenChange = jest.fn();
+  // const mockOnOpenChange = jest.fn();
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders closed dialog correctly', () => {
-    const { asFragment } = render(
-      <DevLogs isOpen={false} onOpenChange={mockOnOpenChange} />
-    );
+    const { asFragment } = render(<DevLogs isOpen={false} />);
     expect(asFragment()).toMatchSnapshot('devlogs-closed');
   });
 
   it('renders open dialog with logs correctly', async () => {
-    const { asFragment } = render(
-      <DevLogs isOpen={true} onOpenChange={mockOnOpenChange} />
-    );
+    const { asFragment } = render(<DevLogs isOpen={true} />);
 
     await waitFor(() => {
       expect(screen.queryByText('Loading logs...')).not.toBeInTheDocument();
@@ -113,9 +109,7 @@ describe('DevLogs Component using Snapshot', () => {
       () => new Promise(() => {}) // Never resolves to keep loading state
     );
 
-    const { asFragment } = render(
-      <DevLogs isOpen={true} onOpenChange={mockOnOpenChange} />
-    );
+    const { asFragment } = render(<DevLogs isOpen={true} />);
 
     expect(asFragment()).toMatchSnapshot('devlogs-loading');
   });
@@ -128,9 +122,7 @@ describe('DevLogs Component using Snapshot', () => {
       })
     );
 
-    const { asFragment } = render(
-      <DevLogs isOpen={true} onOpenChange={mockOnOpenChange} />
-    );
+    const { asFragment } = render(<DevLogs isOpen={true} />);
 
     await waitFor(() => {
       expect(screen.getByText('No logs available')).toBeInTheDocument();
