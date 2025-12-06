@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"encoding/gob"
 	"encoding/json"
 	"net/http"
@@ -121,4 +122,77 @@ func Test_LogoutHandler(t *testing.T) {
 	assert.Equal(t, http.StatusOK, rr.Code)
 	session, _ := app.SessionStore.Get(req, "session-name")
 	assert.Equal(t, -1, session.Options.MaxAge)
+}
+
+func Test_AddTaskHandler_WithDueDate(t *testing.T) {
+	// Initialize job queue
+	GlobalJobQueue = NewJobQueue()
+
+	requestBody := map[string]interface{}{
+		"email":            "test@example.com",
+		"encryptionSecret": "secret",
+		"UUID":             "test-uuid",
+		"description":      "Test task",
+		"project":          "TestProject",
+		"priority":         "H",
+		"due":              "2025-12-31",
+		"tags":             []string{"test", "important"},
+	}
+
+	body, _ := json.Marshal(requestBody)
+	req, err := http.NewRequest("POST", "/add-task", bytes.NewBuffer(body))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	AddTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusAccepted, rr.Code)
+}
+
+func Test_AddTaskHandler_WithoutDueDate(t *testing.T) {
+	// Initialize job queue
+	GlobalJobQueue = NewJobQueue()
+
+	requestBody := map[string]interface{}{
+		"email":            "test@example.com",
+		"encryptionSecret": "secret",
+		"UUID":             "test-uuid",
+		"description":      "Test task without due date",
+		"project":          "TestProject",
+		"priority":         "M",
+		"tags":             []string{"test"},
+	}
+
+	body, _ := json.Marshal(requestBody)
+	req, err := http.NewRequest("POST", "/add-task", bytes.NewBuffer(body))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	AddTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusAccepted, rr.Code)
+}
+
+func Test_AddTaskHandler_MissingDescription(t *testing.T) {
+	requestBody := map[string]interface{}{
+		"email":            "test@example.com",
+		"encryptionSecret": "secret",
+		"UUID":             "test-uuid",
+		"description":      "",
+		"project":          "TestProject",
+		"priority":         "H",
+	}
+
+	body, _ := json.Marshal(requestBody)
+	req, err := http.NewRequest("POST", "/add-task", bytes.NewBuffer(body))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	AddTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+	assert.Contains(t, rr.Body.String(), "Description is required")
 }

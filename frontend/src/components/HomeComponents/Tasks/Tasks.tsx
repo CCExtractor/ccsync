@@ -74,6 +74,7 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { format } from 'date-fns';
 import { Taskskeleton } from './TaskSkeleton';
 import { Key } from '@/components/ui/key-button';
+import { Switch } from '@/components/ui/switch';
 
 const db = new TasksDatabase();
 export let syncTasksWithTwAndDb: () => any;
@@ -104,6 +105,7 @@ export const Tasks = (
     due: '',
     tags: [] as string[],
   });
+  const [includeDueDate, setIncludeDueDate] = useState(false);
   const [isCreatingNewProject, setIsCreatingNewProject] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [_isDialogOpen, setIsDialogOpen] = useState(false);
@@ -352,32 +354,36 @@ export const Tasks = (
     due: string,
     tags: string[]
   ) {
-    if (handleDate(newTask.due)) {
-      try {
-        await addTaskToBackend({
-          email,
-          encryptionSecret,
-          UUID,
-          description,
-          project,
-          priority,
-          due,
-          tags,
-          backendURL: url.backendURL,
-        });
+    // Only validate due date if includeDueDate is checked and due is provided
+    if (includeDueDate && due && !handleDate(due)) {
+      return; // handleDate shows error toast, so just return
+    }
 
-        console.log('Task added successfully!');
-        setNewTask({
-          description: '',
-          priority: '',
-          project: '',
-          due: '',
-          tags: [],
-        });
-        setIsAddTaskOpen(false);
-      } catch (error) {
-        console.error('Failed to add task:', error);
-      }
+    try {
+      await addTaskToBackend({
+        email,
+        encryptionSecret,
+        UUID,
+        description,
+        project,
+        priority,
+        due: includeDueDate ? due : undefined,
+        tags,
+        backendURL: url.backendURL,
+      });
+
+      console.log('Task added successfully!');
+      setNewTask({
+        description: '',
+        priority: '',
+        project: '',
+        due: '',
+        tags: [],
+      });
+      setIncludeDueDate(false);
+      setIsAddTaskOpen(false);
+    } catch (error) {
+      console.error('Failed to add task:', error);
     }
   }
 
@@ -1016,7 +1022,20 @@ export const Tasks = (
                     <div className="pr-2">
                       <Dialog
                         open={isAddTaskOpen}
-                        onOpenChange={setIsAddTaskOpen}
+                        onOpenChange={(open) => {
+                          setIsAddTaskOpen(open);
+                          if (!open) {
+                            // Reset form when dialog closes
+                            setIncludeDueDate(false);
+                            setNewTask({
+                              description: '',
+                              priority: '',
+                              project: '',
+                              due: '',
+                              tags: [],
+                            });
+                          }
+                        }}
                       >
                         <DialogTrigger asChild>
                           <Button
@@ -1097,11 +1116,11 @@ export const Tasks = (
                                 <Select
                                   value={
                                     isCreatingNewProject
-                                      ? ''
-                                      : newTask.project || ''
+                                      ? '__create__'
+                                      : newTask.project || 'None'
                                   }
                                   onValueChange={(value: string) => {
-                                    if (value === '') {
+                                    if (value === '__create__') {
                                       // User selected "create new project" option
                                       setIsCreatingNewProject(true);
                                       setNewTask({ ...newTask, project: '' });
@@ -1135,7 +1154,7 @@ export const Tasks = (
                                       </SelectItem>
                                     ))}
                                     <SelectItem
-                                      value=""
+                                      value="__create__"
                                       data-testid="project-option-create"
                                     >
                                       + Create new project…
@@ -1162,28 +1181,50 @@ export const Tasks = (
                               </div>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="due" className="text-right">
-                                Due
+                              <Label
+                                htmlFor="includeDueDate"
+                                className="text-right"
+                              >
+                                Due Date
                               </Label>
-                              <div className="col-span-3">
-                                <DatePicker
-                                  date={
-                                    newTask.due
-                                      ? new Date(newTask.due)
-                                      : undefined
-                                  }
-                                  onDateChange={(date) => {
-                                    setNewTask({
-                                      ...newTask,
-                                      due: date
-                                        ? format(date, 'yyyy-MM-dd')
-                                        : '',
-                                    });
+                              <div className="col-span-3 flex items-center justify-start">
+                                <Switch
+                                  id="includeDueDate"
+                                  checked={includeDueDate}
+                                  onCheckedChange={(val: boolean) => {
+                                    setIncludeDueDate(val);
+                                    if (!val) {
+                                      setNewTask({ ...newTask, due: '' });
+                                    }
                                   }}
-                                  placeholder="Select a due date"
                                 />
                               </div>
                             </div>
+                            {includeDueDate && (
+                              <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="due" className="text-right">
+                                  Due
+                                </Label>
+                                <div className="col-span-3">
+                                  <DatePicker
+                                    date={
+                                      newTask.due
+                                        ? new Date(newTask.due)
+                                        : undefined
+                                    }
+                                    onDateChange={(date) => {
+                                      setNewTask({
+                                        ...newTask,
+                                        due: date
+                                          ? format(date, 'yyyy-MM-dd')
+                                          : '',
+                                      });
+                                    }}
+                                    placeholder="Select a due date"
+                                  />
+                                </div>
+                              </div>
+                            )}
                             <div className="grid grid-cols-4 items-center gap-4">
                               <Label
                                 htmlFor="description"

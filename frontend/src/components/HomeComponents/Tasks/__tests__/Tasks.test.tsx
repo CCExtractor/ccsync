@@ -485,4 +485,56 @@ describe('Tasks Component', () => {
 
     expect(newProjectInput).toHaveValue('My Fresh Project');
   });
+
+  test('shows Due Date switch and it is off by default', async () => {
+    render(<Tasks {...mockProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /add task/i }));
+
+    const dueDateSwitch = await screen.findByLabelText(/due/i);
+    expect(dueDateSwitch).toBeInTheDocument();
+    expect(dueDateSwitch).not.toBeChecked();
+
+    expect(screen.queryByText('Due')).not.toBeInTheDocument();
+  });
+
+  test('toggling switch shows and hides date picker', async () => {
+    render(<Tasks {...mockProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /add task/i }));
+
+    const dueDateSwitch = await screen.findByLabelText(/due/i);
+
+    act(() => {
+      fireEvent.click(dueDateSwitch);
+    });
+
+    expect(dueDateSwitch).toBeChecked();
+    expect(await screen.findByText('Due')).toBeInTheDocument();
+
+    act(() => {
+      fireEvent.click(dueDateSwitch);
+    });
+
+    expect(dueDateSwitch).not.toBeChecked();
+    expect(screen.queryByText('Due')).not.toBeInTheDocument();
+  });
+  test('submitting without toggling switch does not send due field', async () => {
+    const { addTaskToBackend } = require('../hooks');
+    addTaskToBackend.mockClear();
+
+    render(<Tasks {...mockProps} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /add task/i }));
+
+    const descriptionInput = screen.getByLabelText(/description/i);
+    fireEvent.change(descriptionInput, { target: { value: 'Test task' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /^add task$/i }));
+
+    await waitFor(() => expect(addTaskToBackend).toHaveBeenCalled());
+
+    const args = addTaskToBackend.mock.calls[0][0];
+    expect(args.due).toBeUndefined(); // switch was OFF, so no due
+  });
 });
