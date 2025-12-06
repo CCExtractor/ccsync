@@ -31,6 +31,7 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -78,7 +79,7 @@ export const NavbarDesktop = (
   };
 
   return (
-    <Dialog open={isExportDialogOpen} onOpenChange={setIsExportDialogOpen}>
+    <>
       <div className="hidden md:flex items-center justify-between w-full">
         <nav className="hidden md:flex gap-2 justify-center flex-1">
           {routeList.map((route: RouteProps, i) => (
@@ -102,29 +103,108 @@ export const NavbarDesktop = (
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
               <DropdownMenuLabel>{props.email}</DropdownMenuLabel>
-              <DropdownMenuItem
-                className="text-red-500"
-                onClick={() => setIsDeleteConfirmOpen(true)}
+              <Dialog
+                open={isDeleteConfirmOpen}
+                onOpenChange={setIsDeleteConfirmOpen}
               >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete all tasks
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setIsDevLogsOpen(true)}>
-                <Terminal className="mr-2 h-4 w-4" />
-                <span>Developer Logs</span>
-              </DropdownMenuItem>
+                <DialogTrigger>
+                  <DropdownMenuItem
+                    className="text-red-500"
+                    onClick={() => setIsDeleteConfirmOpen(true)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete all tasks
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogDescription className="text-lg font-semibold text-red-600">
+                      Delete All Tasks?
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <p className="text-base mb-2">
+                      Are you sure you want to delete all tasks for{' '}
+                      <span className="font-semibold">{props.email}</span>?
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      This action cannot be undone. All your tasks will be
+                      permanently deleted from the local database.
+                    </p>
+                  </div>
+                  <div className="flex justify-end gap-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDeleteConfirmOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button variant="destructive" onClick={handleDeleteConfirm}>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete All Tasks
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <Dialog open={isDevLogsOpen} onOpenChange={setIsDevLogsOpen}>
+                <DialogTrigger>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <Terminal className="mr-2 h-4 w-4" />
+                    <span>Developer Logs</span>
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                  <DialogHeader>
+                    <DialogTitle>Developer Logs</DialogTitle>
+                    <DialogDescription>
+                      View sync operation logs with timestamps and status
+                      information.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DevLogs isOpen={isDevLogsOpen} />
+                </DialogContent>
+              </Dialog>
               <DropdownMenuItem
                 onClick={() => window.open(url.githubRepoURL, '_blank')}
               >
                 <Github className="mr-2 h-4 w-4" />
                 <span>GitHub</span>
               </DropdownMenuItem>
-              <DialogTrigger>
-                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                  <FileDown className="mr-2 h-4 w-4" />
-                  <span>Export tasks</span>
-                </DropdownMenuItem>
-              </DialogTrigger>
+              <Dialog
+                open={isExportDialogOpen}
+                onOpenChange={setIsExportDialogOpen}
+              >
+                <DialogTrigger>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    <span>Export tasks</span>
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogDescription>
+                      Would you like to download your tasks as a JSON file or a
+                      TXT file?
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex justify-end gap-4 mt-4">
+                    <Button
+                      className="bg-[#3B82F6] hover:bg-[#3B82F6] focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
+                      onClick={handleExportTXT}
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Download .txt
+                    </Button>
+                    <Button
+                      className="bg-[#3B82F6]  hover:bg-[#3B82F6]"
+                      onClick={handleExportJSON}
+                    >
+                      <FileJson className="mr-2 h-4 w-4" />
+                      Download .json
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                 <div className="flex flex-col space-y-3 p-1 w-full">
                   <div className="flex items-center justify-between space-x-2">
@@ -161,61 +241,6 @@ export const NavbarDesktop = (
           <ModeToggle />
         </div>
       </div>
-      <DialogContent>
-        <DialogHeader>
-          <DialogDescription>
-            Would you like to download your tasks as a JSON file or a TXT file?
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex justify-end gap-4 mt-4">
-          <Button
-            className="bg-[#3B82F6] hover:bg-[#3B82F6] focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none"
-            onClick={handleExportTXT}
-          >
-            <FileText className="mr-2 h-4 w-4" />
-            Download .txt
-          </Button>
-          <Button
-            className="bg-[#3B82F6]  hover:bg-[#3B82F6]"
-            onClick={handleExportJSON}
-          >
-            <FileJson className="mr-2 h-4 w-4" />
-            Download .json
-          </Button>
-        </div>
-      </DialogContent>
-      <DevLogs isOpen={isDevLogsOpen} onOpenChange={setIsDevLogsOpen} />
-      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogDescription className="text-lg font-semibold text-red-600">
-              Delete All Tasks?
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <p className="text-base mb-2">
-              Are you sure you want to delete all tasks for{' '}
-              <span className="font-semibold">{props.email}</span>?
-            </p>
-            <p className="text-sm text-muted-foreground">
-              This action cannot be undone. All your tasks will be permanently
-              deleted from the local database.
-            </p>
-          </div>
-          <div className="flex justify-end gap-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteConfirmOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm}>
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete All Tasks
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </Dialog>
+    </>
   );
 };
