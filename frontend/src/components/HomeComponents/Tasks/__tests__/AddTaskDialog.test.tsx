@@ -20,23 +20,31 @@ jest.mock('@/components/ui/date-picker', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/select', () => ({
-  Select: ({ children, value }: any) => (
-    <div data-testid="select-wrapper" data-value={value}>
-      {children}
-    </div>
-  ),
-  SelectTrigger: ({ children, id }: any) => (
-    <div data-testid="select-trigger" id={id}>
-      {children}
-    </div>
-  ),
-  SelectValue: ({ placeholder }: any) => <div>{placeholder}</div>,
-  SelectContent: ({ children }: any) => <div>{children}</div>,
-  SelectItem: ({ children, value }: any) => (
-    <option value={value}>{children}</option>
-  ),
-}));
+jest.mock('@/components/ui/select', () => {
+  return {
+    Select: ({ children, onValueChange, value }: any) => (
+      <select
+        data-testid="project-select"
+        value={value}
+        onChange={(e) => onValueChange?.(e.target.value)}
+      >
+        {children}
+      </select>
+    ),
+    SelectTrigger: ({ children }: any) => <>{children}</>,
+    SelectValue: ({ placeholder }: any) => (
+      <option value="" disabled hidden>
+        {placeholder}
+      </option>
+    ),
+    SelectContent: ({ children }: any) => <>{children}</>,
+    SelectItem: ({ value, children, ...props }: any) => (
+      <option value={value} {...props}>
+        {children}
+      </option>
+    ),
+  };
+});
 
 describe('AddTaskDialog Component', () => {
   let mockProps: any;

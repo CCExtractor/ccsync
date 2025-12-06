@@ -33,17 +33,15 @@ export const AddTaskdialog = ({
   onSubmit,
   isCreatingNewProject,
   setIsCreatingNewProject,
-  uniqueProjects = [], // ⬅ coming from parent (Task.tsx)
+  uniqueProjects = [],
 }: AddTaskDialogProps) => {
-  // Handle adding a tag
   const handleAddTag = () => {
     if (tagInput && !newTask.tags.includes(tagInput, 0)) {
       setNewTask({ ...newTask, tags: [...newTask.tags, tagInput] });
-      setTagInput(''); // Clear the input field
+      setTagInput('');
     }
   };
 
-  // Handle removing a tag
   const handleRemoveTag = (tagToRemove: string) => {
     setNewTask({
       ...newTask,
@@ -127,17 +125,10 @@ export const AddTaskdialog = ({
             </Label>
             <div className="col-span-3 space-y-2">
               <Select
-                value={
-                  isCreatingNewProject
-                    ? '__CREATE_NEW__'
-                    : newTask.project || '__NONE__'
-                }
+                value={newTask.project}
                 onValueChange={(value) => {
-                  if (value === '__CREATE_NEW__') {
+                  if (value === '') {
                     setIsCreatingNewProject(true);
-                    setNewTask({ ...newTask, project: '' });
-                  } else if (value === '__NONE__') {
-                    setIsCreatingNewProject(false);
                     setNewTask({ ...newTask, project: '' });
                   } else {
                     setIsCreatingNewProject(false);
@@ -155,15 +146,12 @@ export const AddTaskdialog = ({
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__NONE__">No project</SelectItem>
                   {uniqueProjects.map((project: string) => (
                     <SelectItem key={project} value={project}>
                       {project}
                     </SelectItem>
                   ))}
-                  <SelectItem value="__CREATE_NEW__">
-                    + Create new project…
-                  </SelectItem>
+                  <SelectItem value="">+ Create new project…</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -207,7 +195,7 @@ export const AddTaskdialog = ({
               placeholder="Add a tag"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddTag()} // Allow adding tag on pressing Enter
+              onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
               required
               className="col-span-3"
             />
