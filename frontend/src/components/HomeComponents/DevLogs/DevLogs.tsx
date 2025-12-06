@@ -1,11 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../../ui/dialog';
 import { Button } from '../../ui/button';
 import {
   Select,
@@ -28,10 +21,9 @@ interface LogEntry {
 
 interface DevLogsProps {
   isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
 }
 
-export const DevLogs: React.FC<DevLogsProps> = ({ isOpen, onOpenChange }) => {
+export const DevLogs: React.FC<DevLogsProps> = ({ isOpen }) => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<LogEntry[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<string>('all');
@@ -116,111 +108,98 @@ export const DevLogs: React.FC<DevLogsProps> = ({ isOpen, onOpenChange }) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>Developer Logs</DialogTitle>
-          <DialogDescription>
-            View sync operation logs with timestamps and status information.
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <div className="flex justify-between items-center mb-4 gap-4">
+        <Select value={selectedLevel} onValueChange={setSelectedLevel}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by level" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Levels</SelectItem>
+            <SelectItem value="INFO">INFO</SelectItem>
+            <SelectItem value="WARN">WARN</SelectItem>
+            <SelectItem value="ERROR">ERROR</SelectItem>
+          </SelectContent>
+        </Select>
 
-        <div className="flex justify-between items-center mb-4 gap-4">
-          <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by level" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Levels</SelectItem>
-              <SelectItem value="INFO">INFO</SelectItem>
-              <SelectItem value="WARN">WARN</SelectItem>
-              <SelectItem value="ERROR">ERROR</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchLogs}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Refreshing...' : 'Refresh'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={copyAllLogs}
-              disabled={filteredLogs.length === 0}
-            >
-              Copy All
-            </Button>
-          </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchLogs}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Refreshing...' : 'Refresh'}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={copyAllLogs}
+            disabled={filteredLogs.length === 0}
+          >
+            Copy All
+          </Button>
         </div>
+      </div>
 
-        <div className="flex-1 overflow-y-auto border rounded-md p-4 bg-gray-50 dark:bg-gray-900">
-          {isLoading ? (
-            <div className="text-center py-8 text-gray-500">
-              Loading logs...
-            </div>
-          ) : filteredLogs.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No logs available
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {filteredLogs.map((log, index) => (
-                <div
-                  key={index}
-                  className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow group"
-                >
-                  <div className="flex justify-between items-start gap-2">
-                    <div className="flex-1 font-mono text-sm">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-gray-500 dark:text-gray-400">
-                          {formatTimestamp(log.timestamp)}
+      <div className="flex-1 overflow-y-auto border rounded-md p-4 bg-gray-50 dark:bg-gray-900">
+        {isLoading ? (
+          <div className="text-center py-8 text-gray-500">Loading logs...</div>
+        ) : filteredLogs.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            No logs available
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {filteredLogs.map((log, index) => (
+              <div
+                key={index}
+                className="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow group"
+              >
+                <div className="flex justify-between items-start gap-2">
+                  <div className="flex-1 font-mono text-sm">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {formatTimestamp(log.timestamp)}
+                      </span>
+                      <span
+                        className={`font-semibold ${getLevelColor(log.level)}`}
+                      >
+                        [{log.level}]
+                      </span>
+                      {log.operation && (
+                        <span className="text-purple-600 dark:text-purple-400 text-xs">
+                          {log.operation}
                         </span>
-                        <span
-                          className={`font-semibold ${getLevelColor(
-                            log.level
-                          )}`}
-                        >
-                          [{log.level}]
-                        </span>
-                        {log.operation && (
-                          <span className="text-purple-600 dark:text-purple-400 text-xs">
-                            {log.operation}
-                          </span>
-                        )}
-                      </div>
-                      <div className="text-gray-800 dark:text-gray-200 break-words">
-                        {log.message}
-                      </div>
-                      {log.syncId && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          Sync ID: {log.syncId}
-                        </div>
                       )}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyLog(log, index)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      {copiedIndex === index ? (
-                        <CheckIcon className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <CopyIcon className="h-4 w-4" />
-                      )}
-                    </Button>
+                    <div className="text-gray-800 dark:text-gray-200 break-words">
+                      {log.message}
+                    </div>
+                    {log.syncId && (
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Sync ID: {log.syncId}
+                      </div>
+                    )}
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => copyLog(log, index)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    {copiedIndex === index ? (
+                      <CheckIcon className="h-4 w-4 text-green-600" />
+                    ) : (
+                      <CopyIcon className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
