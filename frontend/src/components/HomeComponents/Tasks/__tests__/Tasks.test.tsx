@@ -475,7 +475,7 @@ describe('Tasks Component', () => {
     fireEvent.click(screen.getByRole('button', { name: /add task/i }));
 
     const projectSelect = await screen.findByTestId('project-select');
-    fireEvent.change(projectSelect, { target: { value: '' } }); // Empty string triggers "create new project" mode
+    fireEvent.change(projectSelect, { target: { value: '__create__' } });
 
     const newProjectInput =
       await screen.findByPlaceholderText('New project name');
