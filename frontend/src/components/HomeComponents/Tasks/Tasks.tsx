@@ -1042,7 +1042,7 @@ export const Tasks = (
                       options={uniqueProjects}
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
-                      className="hidden sm:flex-1 min-w-[140px]"
+                      className="hidden sm:flex min-w-[140px]"
                       icon={<Key lable="p" />}
                     />
                     <MultiSelectFilter
@@ -1051,7 +1051,7 @@ export const Tasks = (
                       options={status}
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
-                      className="hidden sm:flex-1 min-w-[140px]"
+                      className="hidden sm:flex min-w-[140px]"
                       icon={<Key lable="s" />}
                     />
                     <MultiSelectFilter
@@ -1060,7 +1060,7 @@ export const Tasks = (
                       options={uniqueTags}
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
-                      className="hidden sm:flex-1 min-w-[140px]"
+                      className="hidden sm:flex min-w-[140px]"
                       icon={<Key lable="t" />}
                     />
                     <div className="pr-2">
