@@ -1,15 +1,7 @@
 import { render, waitFor, screen } from '@testing-library/react';
 import { DevLogs } from '../DevLogs';
 
-// Mock UI components
-jest.mock('../../../ui/dialog', () => ({
-  Dialog: ({ children, open }: any) => (open ? <div>{children}</div> : null),
-  DialogContent: ({ children }: any) => <div>{children}</div>,
-  DialogDescription: ({ children }: any) => <div>{children}</div>,
-  DialogHeader: ({ children }: any) => <div>{children}</div>,
-  DialogTitle: ({ children }: any) => <div>{children}</div>,
-}));
-
+// Mock UI components - DevLogs uses Button and Select components
 jest.mock('../../../ui/button', () => ({
   Button: ({ children, ...props }: any) => (
     <button {...props}>{children}</button>
@@ -17,9 +9,15 @@ jest.mock('../../../ui/button', () => ({
 }));
 
 jest.mock('../../../ui/select', () => ({
-  Select: ({ children }: any) => <div>{children}</div>,
+  Select: ({ children, value }: any) => (
+    <div data-testid="select" data-value={value}>
+      {children}
+    </div>
+  ),
   SelectContent: ({ children }: any) => <div>{children}</div>,
-  SelectItem: ({ children }: any) => <div>{children}</div>,
+  SelectItem: ({ children, value }: any) => (
+    <div data-value={value}>{children}</div>
+  ),
   SelectTrigger: ({ children }: any) => <div>{children}</div>,
   SelectValue: ({ placeholder }: any) => <div>{placeholder}</div>,
 }));
@@ -82,35 +80,43 @@ global.fetch = jest.fn(() =>
   })
 ) as jest.Mock;
 
-describe('DevLogs Component using Snapshot', () => {
-  // const mockOnOpenChange = jest.fn();
-
+describe('DevLogs Content Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders closed dialog correctly', () => {
+  it('renders initial state without fetching logs when isOpen is false', () => {
     const { asFragment } = render(<DevLogs isOpen={false} />);
-    expect(asFragment()).toMatchSnapshot('devlogs-closed');
+
+    // Should render the UI but not fetch logs
+    expect(screen.getByText('No logs available')).toBeInTheDocument();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(asFragment()).toMatchSnapshot('devlogs-initial-state');
   });
 
-  it('renders open dialog with logs correctly', async () => {
+  it('renders with logs when isOpen is true', async () => {
     const { asFragment } = render(<DevLogs isOpen={true} />);
 
     await waitFor(() => {
       expect(screen.queryByText('Loading logs...')).not.toBeInTheDocument();
     });
 
+    // Verify logs are displayed
+    expect(screen.getByText('Sync operation started')).toBeInTheDocument();
+    expect(screen.getByText('Warning message')).toBeInTheDocument();
+    expect(screen.getByText('Error occurred')).toBeInTheDocument();
+
     expect(asFragment()).toMatchSnapshot('devlogs-with-logs');
   });
 
-  it('renders loading state correctly', () => {
+  it('renders loading state when fetching logs', () => {
     (fetch as jest.Mock).mockImplementationOnce(
       () => new Promise(() => {}) // Never resolves to keep loading state
     );
 
     const { asFragment } = render(<DevLogs isOpen={true} />);
 
+    expect(screen.getByText('Loading logs...')).toBeInTheDocument();
     expect(asFragment()).toMatchSnapshot('devlogs-loading');
   });
 
