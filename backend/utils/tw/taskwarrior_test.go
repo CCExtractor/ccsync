@@ -67,6 +67,15 @@ func TestAddTaskWithTags(t *testing.T) {
 	}
 }
 
+func TestAddTaskWithoutDueDate(t *testing.T) {
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "", nil)
+	if err != nil {
+		t.Errorf("AddTaskToTaskwarrior without due date failed: %v", err)
+	} else {
+		fmt.Println("Add task without due date passed")
+	}
+}
+
 func TestEditTaskWithTagAddition(t *testing.T) {
 	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", []string{"+urgent", "+important"}, "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-30T18:30:00.000Z", nil, "2025-12-01T18:30:00.000Z")
 	if err != nil {
