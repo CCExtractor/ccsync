@@ -1,8 +1,10 @@
+import { toast } from 'react-toastify';
 import { Task } from './types';
 
 export function exportTasksAsJSON(tasks: Task[]) {
   if (!tasks || tasks.length === 0) {
     console.warn('No tasks to export.');
+    toast.error('User does not have any task in their list');
     return;
   }
   const jsonString = JSON.stringify(tasks, null, 2);
@@ -20,6 +22,7 @@ export function exportTasksAsJSON(tasks: Task[]) {
 export function exportTasksAsTXT(tasks: Task[]) {
   if (!tasks || tasks.length === 0) {
     console.warn('No tasks to export.');
+    toast.error('User does not have any task in their list');
     return;
   }
   let txtContent = 'Your TaskWarrior Tasks\n';
