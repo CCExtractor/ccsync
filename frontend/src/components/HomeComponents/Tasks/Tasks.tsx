@@ -1812,8 +1812,32 @@ export const Tasks = (
                                             <div className="flex items-center gap-2">
                                               <DatePicker
                                                 date={
-                                                  editedWaitDate
-                                                    ? new Date(editedWaitDate)
+                                                  editedWaitDate &&
+                                                  editedWaitDate !== ''
+                                                    ? (() => {
+                                                        try {
+                                                          const dateStr =
+                                                            editedWaitDate.includes(
+                                                              'T'
+                                                            )
+                                                              ? editedWaitDate.split(
+                                                                  'T'
+                                                                )[0]
+                                                              : editedWaitDate;
+                                                          const parsed =
+                                                            new Date(
+                                                              dateStr +
+                                                                'T00:00:00'
+                                                            );
+                                                          return isNaN(
+                                                            parsed.getTime()
+                                                          )
+                                                            ? undefined
+                                                            : parsed;
+                                                        } catch {
+                                                          return undefined;
+                                                        }
+                                                      })()
                                                     : undefined
                                                 }
                                                 onDateChange={(date) =>
