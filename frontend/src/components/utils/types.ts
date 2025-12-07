@@ -83,6 +83,9 @@ export interface EditTaskState {
   editedDepends: string[];
   dependsDropdownOpen: boolean;
   dependsSearchTerm: string;
+  isEditingRecur: boolean;
+  editedRecur: string;
+  originalRecur: string;
 }
 
 export interface TaskFormData {
@@ -126,6 +129,7 @@ export interface EditTaskDialogProps {
   onSaveEndDate: (task: Task, date: string) => void;
   onSaveDueDate: (task: Task, date: string) => void;
   onSaveDepends: (task: Task, depends: string[]) => void;
+  onSaveRecur: (task: Task, recur: string) => void;
   onMarkComplete: (uuid: string) => void;
   onMarkDeleted: (uuid: string) => void;
   isOverdue: (due?: string) => boolean;

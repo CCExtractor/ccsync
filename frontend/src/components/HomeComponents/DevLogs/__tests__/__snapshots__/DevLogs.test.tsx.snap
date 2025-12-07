@@ -1,329 +1,389 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DevLogs Component using Snapshot renders closed dialog correctly: devlogs-closed 1`] = `<DocumentFragment />`;
-
-exports[`DevLogs Component using Snapshot renders empty logs state correctly: devlogs-empty 1`] = `
+exports[`DevLogs Content Component renders empty logs state correctly: devlogs-empty 1`] = `
 <DocumentFragment>
-  <div>
-    <div>
+  <div
+    class="flex justify-between items-center mb-4 gap-4"
+  >
+    <div
+      data-testid="select"
+      data-value="all"
+    >
       <div>
         <div>
-          Developer Logs
-        </div>
-        <div>
-          View sync operation logs with timestamps and status information.
+          Filter by level
         </div>
       </div>
-      <div
-        class="flex justify-between items-center mb-4 gap-4"
-      >
-        <div>
-          <div>
-            <div>
-              Filter by level
-            </div>
-          </div>
-          <div>
-            <div>
-              All Levels
-            </div>
-            <div>
-              INFO
-            </div>
-            <div>
-              WARN
-            </div>
-            <div>
-              ERROR
-            </div>
-          </div>
+      <div>
+        <div
+          data-value="all"
+        >
+          All Levels
         </div>
         <div
-          class="flex gap-2"
+          data-value="INFO"
         >
-          <button
-            variant="outline"
-          >
-            Refresh
-          </button>
-          <button
-            disabled=""
-            variant="outline"
-          >
-            Copy All
-          </button>
+          INFO
         </div>
-      </div>
-      <div
-        class="flex-1 overflow-y-auto border rounded-md p-4 bg-gray-50 dark:bg-gray-900"
-      >
         <div
-          class="text-center py-8 text-gray-500"
+          data-value="WARN"
         >
-          No logs available
+          WARN
+        </div>
+        <div
+          data-value="ERROR"
+        >
+          ERROR
         </div>
       </div>
+    </div>
+    <div
+      class="flex gap-2"
+    >
+      <button
+        variant="outline"
+      >
+        Refresh
+      </button>
+      <button
+        disabled=""
+        variant="outline"
+      >
+        Copy All
+      </button>
+    </div>
+  </div>
+  <div
+    class="flex-1 overflow-y-auto border rounded-md p-4 bg-gray-50 dark:bg-gray-900"
+  >
+    <div
+      class="text-center py-8 text-gray-500"
+    >
+      No logs available
     </div>
   </div>
 </DocumentFragment>
 `;
 
-exports[`DevLogs Component using Snapshot renders loading state correctly: devlogs-loading 1`] = `
+exports[`DevLogs Content Component renders initial state without fetching logs when isOpen is false: devlogs-initial-state 1`] = `
 <DocumentFragment>
-  <div>
-    <div>
+  <div
+    class="flex justify-between items-center mb-4 gap-4"
+  >
+    <div
+      data-testid="select"
+      data-value="all"
+    >
       <div>
         <div>
-          Developer Logs
-        </div>
-        <div>
-          View sync operation logs with timestamps and status information.
+          Filter by level
         </div>
       </div>
-      <div
-        class="flex justify-between items-center mb-4 gap-4"
-      >
-        <div>
-          <div>
-            <div>
-              Filter by level
-            </div>
-          </div>
-          <div>
-            <div>
-              All Levels
-            </div>
-            <div>
-              INFO
-            </div>
-            <div>
-              WARN
-            </div>
-            <div>
-              ERROR
-            </div>
-          </div>
+      <div>
+        <div
+          data-value="all"
+        >
+          All Levels
         </div>
         <div
-          class="flex gap-2"
+          data-value="INFO"
         >
-          <button
-            disabled=""
-            variant="outline"
-          >
-            Refreshing...
-          </button>
-          <button
-            disabled=""
-            variant="outline"
-          >
-            Copy All
-          </button>
+          INFO
         </div>
-      </div>
-      <div
-        class="flex-1 overflow-y-auto border rounded-md p-4 bg-gray-50 dark:bg-gray-900"
-      >
         <div
-          class="text-center py-8 text-gray-500"
+          data-value="WARN"
         >
-          Loading logs...
+          WARN
+        </div>
+        <div
+          data-value="ERROR"
+        >
+          ERROR
         </div>
       </div>
+    </div>
+    <div
+      class="flex gap-2"
+    >
+      <button
+        variant="outline"
+      >
+        Refresh
+      </button>
+      <button
+        disabled=""
+        variant="outline"
+      >
+        Copy All
+      </button>
+    </div>
+  </div>
+  <div
+    class="flex-1 overflow-y-auto border rounded-md p-4 bg-gray-50 dark:bg-gray-900"
+  >
+    <div
+      class="text-center py-8 text-gray-500"
+    >
+      No logs available
     </div>
   </div>
 </DocumentFragment>
 `;
 
-exports[`DevLogs Component using Snapshot renders open dialog with logs correctly: devlogs-with-logs 1`] = `
+exports[`DevLogs Content Component renders loading state when fetching logs: devlogs-loading 1`] = `
 <DocumentFragment>
-  <div>
-    <div>
+  <div
+    class="flex justify-between items-center mb-4 gap-4"
+  >
+    <div
+      data-testid="select"
+      data-value="all"
+    >
       <div>
         <div>
-          Developer Logs
+          Filter by level
         </div>
+      </div>
+      <div>
+        <div
+          data-value="all"
+        >
+          All Levels
+        </div>
+        <div
+          data-value="INFO"
+        >
+          INFO
+        </div>
+        <div
+          data-value="WARN"
+        >
+          WARN
+        </div>
+        <div
+          data-value="ERROR"
+        >
+          ERROR
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex gap-2"
+    >
+      <button
+        disabled=""
+        variant="outline"
+      >
+        Refreshing...
+      </button>
+      <button
+        disabled=""
+        variant="outline"
+      >
+        Copy All
+      </button>
+    </div>
+  </div>
+  <div
+    class="flex-1 overflow-y-auto border rounded-md p-4 bg-gray-50 dark:bg-gray-900"
+  >
+    <div
+      class="text-center py-8 text-gray-500"
+    >
+      Loading logs...
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`DevLogs Content Component renders with logs when isOpen is true: devlogs-with-logs 1`] = `
+<DocumentFragment>
+  <div
+    class="flex justify-between items-center mb-4 gap-4"
+  >
+    <div
+      data-testid="select"
+      data-value="all"
+    >
+      <div>
         <div>
-          View sync operation logs with timestamps and status information.
+          Filter by level
+        </div>
+      </div>
+      <div>
+        <div
+          data-value="all"
+        >
+          All Levels
+        </div>
+        <div
+          data-value="INFO"
+        >
+          INFO
+        </div>
+        <div
+          data-value="WARN"
+        >
+          WARN
+        </div>
+        <div
+          data-value="ERROR"
+        >
+          ERROR
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex gap-2"
+    >
+      <button
+        variant="outline"
+      >
+        Refresh
+      </button>
+      <button
+        variant="outline"
+      >
+        Copy All
+      </button>
+    </div>
+  </div>
+  <div
+    class="flex-1 overflow-y-auto border rounded-md p-4 bg-gray-50 dark:bg-gray-900"
+  >
+    <div
+      class="space-y-2"
+    >
+      <div
+        class="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow group"
+      >
+        <div
+          class="flex justify-between items-start gap-2"
+        >
+          <div
+            class="flex-1 font-mono text-sm"
+          >
+            <div
+              class="flex items-center gap-2 mb-1"
+            >
+              <span
+                class="text-gray-500 dark:text-gray-400"
+              >
+                Mon, 01 Jan 2024 12:00:00 GMT
+              </span>
+              <span
+                class="font-semibold text-blue-600 dark:text-blue-400"
+              >
+                [INFO]
+              </span>
+              <span
+                class="text-purple-600 dark:text-purple-400 text-xs"
+              >
+                SYNC_START
+              </span>
+            </div>
+            <div
+              class="text-gray-800 dark:text-gray-200 break-words"
+            >
+              Sync operation started
+            </div>
+            <div
+              class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+            >
+              Sync ID: sync-123
+            </div>
+          </div>
+          <button
+            class="opacity-0 group-hover:opacity-100 transition-opacity"
+            variant="ghost"
+          >
+            <div>
+              CopyIcon
+            </div>
+          </button>
         </div>
       </div>
       <div
-        class="flex justify-between items-center mb-4 gap-4"
+        class="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow group"
       >
-        <div>
-          <div>
-            <div>
-              Filter by level
-            </div>
-          </div>
-          <div>
-            <div>
-              All Levels
-            </div>
-            <div>
-              INFO
-            </div>
-            <div>
-              WARN
-            </div>
-            <div>
-              ERROR
-            </div>
-          </div>
-        </div>
         <div
-          class="flex gap-2"
+          class="flex justify-between items-start gap-2"
         >
-          <button
-            variant="outline"
+          <div
+            class="flex-1 font-mono text-sm"
           >
-            Refresh
-          </button>
+            <div
+              class="flex items-center gap-2 mb-1"
+            >
+              <span
+                class="text-gray-500 dark:text-gray-400"
+              >
+                Mon, 01 Jan 2024 12:01:00 GMT
+              </span>
+              <span
+                class="font-semibold text-yellow-600 dark:text-yellow-400"
+              >
+                [WARN]
+              </span>
+            </div>
+            <div
+              class="text-gray-800 dark:text-gray-200 break-words"
+            >
+              Warning message
+            </div>
+          </div>
           <button
-            variant="outline"
+            class="opacity-0 group-hover:opacity-100 transition-opacity"
+            variant="ghost"
           >
-            Copy All
+            <div>
+              CopyIcon
+            </div>
           </button>
         </div>
       </div>
       <div
-        class="flex-1 overflow-y-auto border rounded-md p-4 bg-gray-50 dark:bg-gray-900"
+        class="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow group"
       >
         <div
-          class="space-y-2"
+          class="flex justify-between items-start gap-2"
         >
           <div
-            class="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow group"
+            class="flex-1 font-mono text-sm"
           >
             <div
-              class="flex justify-between items-start gap-2"
+              class="flex items-center gap-2 mb-1"
             >
-              <div
-                class="flex-1 font-mono text-sm"
+              <span
+                class="text-gray-500 dark:text-gray-400"
               >
-                <div
-                  class="flex items-center gap-2 mb-1"
-                >
-                  <span
-                    class="text-gray-500 dark:text-gray-400"
-                  >
-                    Mon, 01 Jan 2024 12:00:00 GMT
-                  </span>
-                  <span
-                    class="font-semibold text-blue-600 dark:text-blue-400"
-                  >
-                    [INFO]
-                  </span>
-                  <span
-                    class="text-purple-600 dark:text-purple-400 text-xs"
-                  >
-                    SYNC_START
-                  </span>
-                </div>
-                <div
-                  class="text-gray-800 dark:text-gray-200 break-words"
-                >
-                  Sync operation started
-                </div>
-                <div
-                  class="text-xs text-gray-500 dark:text-gray-400 mt-1"
-                >
-                  Sync ID: sync-123
-                </div>
-              </div>
-              <button
-                class="opacity-0 group-hover:opacity-100 transition-opacity"
-                variant="ghost"
+                Mon, 01 Jan 2024 12:02:00 GMT
+              </span>
+              <span
+                class="font-semibold text-red-600 dark:text-red-400"
               >
-                <div>
-                  CopyIcon
-                </div>
-              </button>
+                [ERROR]
+              </span>
+              <span
+                class="text-purple-600 dark:text-purple-400 text-xs"
+              >
+                SYNC_ERROR
+              </span>
             </div>
-          </div>
-          <div
-            class="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow group"
-          >
             <div
-              class="flex justify-between items-start gap-2"
+              class="text-gray-800 dark:text-gray-200 break-words"
             >
-              <div
-                class="flex-1 font-mono text-sm"
-              >
-                <div
-                  class="flex items-center gap-2 mb-1"
-                >
-                  <span
-                    class="text-gray-500 dark:text-gray-400"
-                  >
-                    Mon, 01 Jan 2024 12:01:00 GMT
-                  </span>
-                  <span
-                    class="font-semibold text-yellow-600 dark:text-yellow-400"
-                  >
-                    [WARN]
-                  </span>
-                </div>
-                <div
-                  class="text-gray-800 dark:text-gray-200 break-words"
-                >
-                  Warning message
-                </div>
-              </div>
-              <button
-                class="opacity-0 group-hover:opacity-100 transition-opacity"
-                variant="ghost"
-              >
-                <div>
-                  CopyIcon
-                </div>
-              </button>
+              Error occurred
             </div>
           </div>
-          <div
-            class="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow group"
+          <button
+            class="opacity-0 group-hover:opacity-100 transition-opacity"
+            variant="ghost"
           >
-            <div
-              class="flex justify-between items-start gap-2"
-            >
-              <div
-                class="flex-1 font-mono text-sm"
-              >
-                <div
-                  class="flex items-center gap-2 mb-1"
-                >
-                  <span
-                    class="text-gray-500 dark:text-gray-400"
-                  >
-                    Mon, 01 Jan 2024 12:02:00 GMT
-                  </span>
-                  <span
-                    class="font-semibold text-red-600 dark:text-red-400"
-                  >
-                    [ERROR]
-                  </span>
-                  <span
-                    class="text-purple-600 dark:text-purple-400 text-xs"
-                  >
-                    SYNC_ERROR
-                  </span>
-                </div>
-                <div
-                  class="text-gray-800 dark:text-gray-200 break-words"
-                >
-                  Error occurred
-                </div>
-              </div>
-              <button
-                class="opacity-0 group-hover:opacity-100 transition-opacity"
-                variant="ghost"
-              >
-                <div>
-                  CopyIcon
-                </div>
-              </button>
+            <div>
+              CopyIcon
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </div>

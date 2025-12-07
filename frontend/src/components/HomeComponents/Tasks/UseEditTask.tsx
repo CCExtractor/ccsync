@@ -26,6 +26,9 @@ export const useEditTask = (selectedTask: Task | null) => {
     editedDepends: [],
     dependsDropdownOpen: false,
     dependsSearchTerm: '',
+    isEditingRecur: false,
+    editedRecur: '',
+    originalRecur: '',
   });
 
   // Update edited tags when selected task changes
@@ -37,6 +40,8 @@ export const useEditTask = (selectedTask: Task | null) => {
         editedDescription: selectedTask.description || '',
         editedPriority: selectedTask.priority || 'NONE',
         editedProject: selectedTask.project || '',
+        editedRecur: selectedTask.recur || '',
+        originalRecur: selectedTask.recur || '',
       }));
     }
   }, [selectedTask]);
@@ -66,6 +71,9 @@ export const useEditTask = (selectedTask: Task | null) => {
       editedDepends: [],
       dependsDropdownOpen: false,
       dependsSearchTerm: '',
+      isEditingRecur: false,
+      editedRecur: '',
+      originalRecur: '',
     });
   };
 

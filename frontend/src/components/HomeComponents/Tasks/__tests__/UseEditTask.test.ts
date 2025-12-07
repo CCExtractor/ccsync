@@ -51,6 +51,9 @@ describe('useEditTask Hook', () => {
       editedDepends: [],
       dependsDropdownOpen: false,
       dependsSearchTerm: '',
+      isEditingRecur: false,
+      editedRecur: '',
+      originalRecur: '',
     });
   });
 

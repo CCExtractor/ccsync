@@ -127,7 +127,7 @@ export const AddTaskdialog = ({
               <Select
                 value={newTask.project}
                 onValueChange={(value) => {
-                  if (value === '') {
+                  if (value === '__CREATE_NEW__') {
                     setIsCreatingNewProject(true);
                     setNewTask({ ...newTask, project: '' });
                   } else {
@@ -146,12 +146,15 @@ export const AddTaskdialog = ({
                   />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__NONE__">No project</SelectItem>
                   {uniqueProjects.map((project: string) => (
                     <SelectItem key={project} value={project}>
                       {project}
                     </SelectItem>
                   ))}
-                  <SelectItem value="">+ Create new project…</SelectItem>
+                  <SelectItem value="__CREATE_NEW__">
+                    + Create new project…
+                  </SelectItem>
                 </SelectContent>
               </Select>
 

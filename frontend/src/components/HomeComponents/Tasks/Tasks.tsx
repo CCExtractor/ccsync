@@ -338,7 +338,8 @@ export const Tasks = (
     wait: string,
     end: string,
     depends: string[],
-    due: string
+    due: string,
+    recur: string
   ) {
     try {
       await editTaskOnBackend({
@@ -356,6 +357,7 @@ export const Tasks = (
         end,
         depends,
         due,
+        recur,
       });
 
       console.log('Task edited successfully!');
@@ -422,7 +424,8 @@ export const Tasks = (
       task.wait || '',
       task.end || '',
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
   };
 
@@ -441,7 +444,8 @@ export const Tasks = (
       task.wait || '',
       task.end || '',
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
   };
 
@@ -461,7 +465,8 @@ export const Tasks = (
       task.wait,
       task.end || '',
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
   };
 
@@ -481,7 +486,8 @@ export const Tasks = (
       task.wait || '',
       task.end || '',
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
   };
 
@@ -501,7 +507,8 @@ export const Tasks = (
       task.wait,
       task.end,
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
   };
 
@@ -521,7 +528,8 @@ export const Tasks = (
       task.wait,
       task.end,
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
   };
 
@@ -541,7 +549,8 @@ export const Tasks = (
       task.wait,
       task.end,
       task.depends || [],
-      task.due
+      task.due,
+      task.recur || ''
     );
   };
 
@@ -561,7 +570,39 @@ export const Tasks = (
       task.wait || '',
       task.end || '',
       task.depends,
-      task.due || ''
+      task.due || '',
+      task.recur || ''
+    );
+  };
+
+  const handleRecurSaveClick = (task: Task, recur: string) => {
+    if (editState.editedRecur === 'none') {
+      updateEditState({ isEditingRecur: false });
+      return;
+    }
+
+    if (!editState.editedRecur || editState.editedRecur === '') {
+      updateEditState({ isEditingRecur: false });
+      return;
+    }
+
+    task.recur = recur;
+
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start,
+      task.entry || '',
+      task.wait || '',
+      task.end || '',
+      task.depends || [],
+      task.due || '',
+      task.recur
     );
   };
 
@@ -659,7 +700,8 @@ export const Tasks = (
       task.wait || '',
       task.end || '',
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
   };
 
@@ -854,7 +896,7 @@ export const Tasks = (
                       options={uniqueProjects}
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
-                      className="hidden sm:flex-1 min-w-[140px]"
+                      className="hidden sm:flex min-w-[140px]"
                       icon={<Key lable="p" />}
                     />
                     <MultiSelectFilter
@@ -863,7 +905,7 @@ export const Tasks = (
                       options={status}
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
-                      className="hidden sm:flex-1 min-w-[140px]"
+                      className="hidden sm:flex min-w-[140px]"
                       icon={<Key lable="s" />}
                     />
                     <MultiSelectFilter
@@ -872,7 +914,7 @@ export const Tasks = (
                       options={uniqueTags}
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
-                      className="hidden sm:flex-1 min-w-[140px]"
+                      className="hidden sm:flex min-w-[140px]"
                       icon={<Key lable="t" />}
                     />
                     <div className="pr-2">
@@ -972,6 +1014,7 @@ export const Tasks = (
                             onSaveEndDate={handleEndDateSaveClick}
                             onSaveDueDate={handleDueDateSaveClick}
                             onSaveDepends={handleDependsSaveClick}
+                            onSaveRecur={handleRecurSaveClick}
                             onMarkComplete={handleMarkComplete}
                             onMarkDeleted={handleMarkDelete}
                             isOverdue={isOverdue}

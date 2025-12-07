@@ -55,6 +55,7 @@ export const EditTaskDialog = ({
   onSaveEndDate,
   onSaveDueDate,
   onSaveDepends,
+  onSaveRecur,
   onMarkComplete,
   onMarkDeleted,
   isOverdue,
@@ -727,14 +728,6 @@ export const EditTaskDialog = ({
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell>Recur:</TableCell>
-                  <TableCell>{task.recur}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>RType:</TableCell>
-                  <TableCell>{task.rtype}</TableCell>
-                </TableRow>
-                <TableRow>
                   <TableCell>Priority:</TableCell>
                   <TableCell>
                     {editState.isEditingPriority ? (
@@ -1094,6 +1087,108 @@ export const EditTaskDialog = ({
                           <PencilIcon className="h-4 w-4 text-gray-500" />
                         </Button>
                       </>
+                    )}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Recur:</TableCell>
+                  <TableCell>
+                    {editState.isEditingRecur ? (
+                      <div className="flex items-center gap-2">
+                        <Select
+                          value={editState.editedRecur || 'none'}
+                          onValueChange={(value) =>
+                            onUpdateState({ editedRecur: value })
+                          }
+                        >
+                          <SelectTrigger className="flex-grow">
+                            <SelectValue placeholder="Select recurrence" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {!editState.originalRecur && (
+                              <SelectItem
+                                value="none"
+                                className="cursor-pointer hover:bg-accent"
+                              >
+                                None
+                              </SelectItem>
+                            )}
+                            <SelectItem
+                              value="daily"
+                              className="cursor-pointer hover:bg-accent"
+                            >
+                              Daily
+                            </SelectItem>
+                            <SelectItem
+                              value="weekly"
+                              className="cursor-pointer hover:bg-accent"
+                            >
+                              Weekly
+                            </SelectItem>
+                            <SelectItem
+                              value="monthly"
+                              className="cursor-pointer hover:bg-accent"
+                            >
+                              Monthly
+                            </SelectItem>
+                            <SelectItem
+                              value="yearly"
+                              className="cursor-pointer hover:bg-accent"
+                            >
+                              Yearly
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            onSaveRecur(task, editState.editedRecur)
+                          }
+                        >
+                          <CheckIcon className="h-4 w-4 text-green-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            onUpdateState({
+                              isEditingRecur: false,
+                              editedRecur: editState.originalRecur,
+                            })
+                          }
+                        >
+                          <XIcon className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center">
+                        <span>{task.recur || 'None'}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            onUpdateState({
+                              isEditingRecur: true,
+                              editedRecur: task.recur || 'none',
+                              originalRecur: task.recur || '',
+                            });
+                          }}
+                        >
+                          <PencilIcon className="h-4 w-4 text-gray-500" />
+                        </Button>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>RType:</TableCell>
+                  <TableCell>
+                    <span>{task.rtype || 'None'}</span>
+                    {!task.rtype && (
+                      <span className="text-xs text-gray-500 ml-2">
+                        (Auto-set by recur)
+                      </span>
                     )}
                   </TableCell>
                 </TableRow>

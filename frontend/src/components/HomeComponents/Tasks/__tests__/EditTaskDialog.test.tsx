@@ -66,6 +66,9 @@ describe('EditTaskDialog Component', () => {
     editedDepends: mockTask.depends || [],
     dependsDropdownOpen: false,
     dependsSearchTerm: '',
+    isEditingRecur: false,
+    editedRecur: '',
+    originalRecur: '',
   };
 
   const defaultProps = {
@@ -88,6 +91,7 @@ describe('EditTaskDialog Component', () => {
     onSaveEndDate: jest.fn(),
     onSaveDueDate: jest.fn(),
     onSaveDepends: jest.fn(),
+    onSaveRecur: jest.fn(),
     onMarkComplete: jest.fn(),
     onMarkDeleted: jest.fn(),
     isOverdue: jest.fn(() => false),
