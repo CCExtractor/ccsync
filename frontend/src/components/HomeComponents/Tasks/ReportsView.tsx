@@ -36,7 +36,9 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks }) => {
   };
 
   const dailyData = [{ name: 'Today', ...countStatuses(today) }];
-  const weeklyData = [{ name: 'This Week', ...countStatuses(startOfWeek) }];
+  const sevenDaysAgo = getStartOfDay(new Date());
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const weeklyData = [{ name: 'This Week', ...countStatuses(sevenDaysAgo) }];
   const monthlyData = [{ name: 'This Month', ...countStatuses(startOfMonth) }];
 
   return (

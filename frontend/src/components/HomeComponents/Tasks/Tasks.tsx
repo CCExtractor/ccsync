@@ -1147,11 +1147,11 @@ export const Tasks = (
                                 <Select
                                   value={
                                     isCreatingNewProject
-                                      ? ''
-                                      : newTask.project || ''
+                                      ? '__CREATE_NEW__'
+                                      : newTask.project || '__NONE__'
                                   }
                                   onValueChange={(value: string) => {
-                                    if (value === '') {
+                                    if (value === '__CREATE_NEW__') {
                                       // User selected "create new project" option
                                       setIsCreatingNewProject(true);
                                       setNewTask({ ...newTask, project: '' });
@@ -1175,6 +1175,9 @@ export const Tasks = (
                                     />
                                   </SelectTrigger>
                                   <SelectContent>
+                                    <SelectItem value="__NONE__">
+                                      No project
+                                    </SelectItem>
                                     {uniqueProjects.map((project: string) => (
                                       <SelectItem
                                         key={project}
@@ -1185,7 +1188,7 @@ export const Tasks = (
                                       </SelectItem>
                                     ))}
                                     <SelectItem
-                                      value=""
+                                      value="__CREATE_NEW__"
                                       data-testid="project-option-create"
                                     >
                                       + Create new project…
