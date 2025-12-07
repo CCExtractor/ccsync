@@ -137,6 +137,9 @@ export const Tasks = (
   const [editedDepends, setEditedDepends] = useState<string[]>([]);
   const [dependsDropdownOpen, setDependsDropdownOpen] = useState(false);
   const [dependsSearchTerm, setDependsSearchTerm] = useState('');
+  const [isEditingRecur, setIsEditingRecur] = useState(false);
+  const [editedRecur, setEditedRecur] = useState('');
+  const [originalRecur, setOriginalRecur] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
@@ -394,7 +397,8 @@ export const Tasks = (
     wait: string,
     end: string,
     depends: string[],
-    due: string
+    due: string,
+    recur: string
   ) {
     try {
       await editTaskOnBackend({
@@ -412,6 +416,7 @@ export const Tasks = (
         end,
         depends,
         due,
+        recur,
       });
 
       console.log('Task edited successfully!');
@@ -459,7 +464,8 @@ export const Tasks = (
       task.wait || '',
       task.end || '',
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
     setIsEditing(false);
   };
@@ -479,7 +485,8 @@ export const Tasks = (
       task.wait || '',
       task.end || '',
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
     setIsEditingProject(false);
   };
@@ -500,7 +507,8 @@ export const Tasks = (
       task.wait,
       task.end || '',
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
 
     setIsEditingWaitDate(false);
@@ -522,7 +530,8 @@ export const Tasks = (
       task.wait || '',
       task.end || '',
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
 
     setIsEditingStartDate(false);
@@ -544,7 +553,8 @@ export const Tasks = (
       task.wait,
       task.end,
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
 
     setIsEditingEntryDate(false);
@@ -566,7 +576,8 @@ export const Tasks = (
       task.wait,
       task.end,
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
 
     setIsEditingEndDate(false);
@@ -588,7 +599,8 @@ export const Tasks = (
       task.wait,
       task.end,
       task.depends || [],
-      task.due
+      task.due,
+      task.recur || ''
     );
 
     setIsEditingDueDate(false);
@@ -610,11 +622,45 @@ export const Tasks = (
       task.wait || '',
       task.end || '',
       task.depends,
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
 
     setIsEditingDepends(false);
     setDependsDropdownOpen(false);
+  };
+
+  const handleRecurSaveClick = (task: Task) => {
+    if (editedRecur === 'none') {
+      setIsEditingRecur(false);
+      return;
+    }
+
+    if (!editedRecur || editedRecur === '') {
+      setIsEditingRecur(false);
+      return;
+    }
+
+    task.recur = editedRecur;
+
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start,
+      task.entry || '',
+      task.wait || '',
+      task.end || '',
+      task.depends || [],
+      task.due || '',
+      task.recur
+    );
+
+    setIsEditingRecur(false);
   };
 
   const handleAddDependency = (uuid: string) => {
@@ -652,6 +698,9 @@ export const Tasks = (
       setEditedDepends([]);
       setDependsDropdownOpen(false);
       setDependsSearchTerm('');
+      setIsEditingRecur(false);
+      setEditedRecur('');
+      setOriginalRecur('');
     } else {
       setSelectedTask(task);
       setEditedDescription(task?.description || '');
@@ -777,7 +826,8 @@ export const Tasks = (
       task.wait || '',
       task.end || '',
       task.depends || [],
-      task.due || ''
+      task.due || '',
+      task.recur || ''
     );
 
     setIsEditingTags(false);
@@ -992,7 +1042,7 @@ export const Tasks = (
                       options={uniqueProjects}
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
-                      className="hidden sm:flex-1 min-w-[140px]"
+                      className="hidden sm:flex min-w-[140px]"
                       icon={<Key lable="p" />}
                     />
                     <MultiSelectFilter
@@ -1001,7 +1051,7 @@ export const Tasks = (
                       options={status}
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
-                      className="hidden sm:flex-1 min-w-[140px]"
+                      className="hidden sm:flex min-w-[140px]"
                       icon={<Key lable="s" />}
                     />
                     <MultiSelectFilter
@@ -1010,7 +1060,7 @@ export const Tasks = (
                       options={uniqueTags}
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
-                      className="hidden sm:flex-1 min-w-[140px]"
+                      className="hidden sm:flex min-w-[140px]"
                       icon={<Key lable="t" />}
                     />
                     <div className="pr-2">
@@ -1097,11 +1147,11 @@ export const Tasks = (
                                 <Select
                                   value={
                                     isCreatingNewProject
-                                      ? ''
-                                      : newTask.project || ''
+                                      ? '__CREATE_NEW__'
+                                      : newTask.project || '__NONE__'
                                   }
                                   onValueChange={(value: string) => {
-                                    if (value === '') {
+                                    if (value === '__CREATE_NEW__') {
                                       // User selected "create new project" option
                                       setIsCreatingNewProject(true);
                                       setNewTask({ ...newTask, project: '' });
@@ -1125,6 +1175,9 @@ export const Tasks = (
                                     />
                                   </SelectTrigger>
                                   <SelectContent>
+                                    <SelectItem value="__NONE__">
+                                      No project
+                                    </SelectItem>
                                     {uniqueProjects.map((project: string) => (
                                       <SelectItem
                                         key={project}
@@ -1135,7 +1188,7 @@ export const Tasks = (
                                       </SelectItem>
                                     ))}
                                     <SelectItem
-                                      value=""
+                                      value="__CREATE_NEW__"
                                       data-testid="project-option-create"
                                     >
                                       + Create new project…
@@ -1759,8 +1812,32 @@ export const Tasks = (
                                             <div className="flex items-center gap-2">
                                               <DatePicker
                                                 date={
-                                                  editedWaitDate
-                                                    ? new Date(editedWaitDate)
+                                                  editedWaitDate &&
+                                                  editedWaitDate !== ''
+                                                    ? (() => {
+                                                        try {
+                                                          const dateStr =
+                                                            editedWaitDate.includes(
+                                                              'T'
+                                                            )
+                                                              ? editedWaitDate.split(
+                                                                  'T'
+                                                                )[0]
+                                                              : editedWaitDate;
+                                                          const parsed =
+                                                            new Date(
+                                                              dateStr +
+                                                                'T00:00:00'
+                                                            );
+                                                          return isNaN(
+                                                            parsed.getTime()
+                                                          )
+                                                            ? undefined
+                                                            : parsed;
+                                                        } catch {
+                                                          return undefined;
+                                                        }
+                                                      })()
                                                     : undefined
                                                 }
                                                 onDateChange={(date) =>
@@ -2003,14 +2080,6 @@ export const Tasks = (
                                             </div>
                                           )}
                                         </TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>Recur:</TableCell>
-                                        <TableCell>{task.recur}</TableCell>
-                                      </TableRow>
-                                      <TableRow>
-                                        <TableCell>RType:</TableCell>
-                                        <TableCell>{task.rtype}</TableCell>
                                       </TableRow>
                                       <TableRow>
                                         <TableCell>Priority:</TableCell>
@@ -2349,6 +2418,109 @@ export const Tasks = (
                                                 <PencilIcon className="h-4 w-4 text-gray-500" />
                                               </Button>
                                             </>
+                                          )}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>Recur:</TableCell>
+                                        <TableCell>
+                                          {isEditingRecur ? (
+                                            <div className="flex items-center gap-2">
+                                              <Select
+                                                value={editedRecur || 'none'}
+                                                onValueChange={(value) =>
+                                                  setEditedRecur(value)
+                                                }
+                                              >
+                                                <SelectTrigger className="flex-grow">
+                                                  <SelectValue placeholder="Select recurrence" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                  {!originalRecur && (
+                                                    <SelectItem
+                                                      value="none"
+                                                      className="cursor-pointer hover:bg-accent"
+                                                    >
+                                                      None
+                                                    </SelectItem>
+                                                  )}
+                                                  <SelectItem
+                                                    value="daily"
+                                                    className="cursor-pointer hover:bg-accent"
+                                                  >
+                                                    Daily
+                                                  </SelectItem>
+                                                  <SelectItem
+                                                    value="weekly"
+                                                    className="cursor-pointer hover:bg-accent"
+                                                  >
+                                                    Weekly
+                                                  </SelectItem>
+                                                  <SelectItem
+                                                    value="monthly"
+                                                    className="cursor-pointer hover:bg-accent"
+                                                  >
+                                                    Monthly
+                                                  </SelectItem>
+                                                  <SelectItem
+                                                    value="yearly"
+                                                    className="cursor-pointer hover:bg-accent"
+                                                  >
+                                                    Yearly
+                                                  </SelectItem>
+                                                </SelectContent>
+                                              </Select>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  handleRecurSaveClick(task)
+                                                }
+                                              >
+                                                <CheckIcon className="h-4 w-4 text-green-500" />
+                                              </Button>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() =>
+                                                  setIsEditingRecur(false)
+                                                }
+                                              >
+                                                <XIcon className="h-4 w-4 text-red-500" />
+                                              </Button>
+                                            </div>
+                                          ) : (
+                                            <div className="flex items-center">
+                                              <span>
+                                                {task.recur || 'None'}
+                                              </span>
+                                              <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => {
+                                                  setIsEditingRecur(true);
+                                                  setOriginalRecur(
+                                                    task.recur || ''
+                                                  );
+                                                  setEditedRecur(
+                                                    task.recur || 'none'
+                                                  );
+                                                }}
+                                              >
+                                                <PencilIcon className="h-4 w-4 text-gray-500" />
+                                              </Button>
+                                            </div>
+                                          )}
+                                        </TableCell>
+                                      </TableRow>
+                                      <TableRow>
+                                        <TableCell>RType:</TableCell>
+                                        <TableCell>
+                                          <span>{task.rtype || 'None'}</span>
+                                          {!task.rtype && (
+                                            <span className="text-xs text-gray-500 ml-2">
+                                              (Auto-set by recur)
+                                            </span>
                                           )}
                                         </TableCell>
                                       </TableRow>

@@ -85,7 +85,6 @@ export const NavbarMobile = (
   return (
     <span className="flex md:hidden">
       <ModeToggle />
-
       <Sheet open={props.isOpen} onOpenChange={props.setIsOpen}>
         <SheetTrigger className="px-2">
           <Menu
@@ -208,18 +207,32 @@ export const NavbarMobile = (
                 </div>
               </DialogContent>
             </Dialog>
-            <div
-              onClick={() => {
-                setIsDevLogsOpen(true);
-                props.setIsOpen(false);
-              }}
-              className={`w-[130px] cursor-pointer border ${buttonVariants({
-                variant: 'secondary',
-              })}`}
-            >
-              <Terminal className="mr-2 w-5 h-5" />
-              Developer Logs
-            </div>
+            <Dialog open={isDevLogsOpen} onOpenChange={setIsDevLogsOpen}>
+              <DialogTrigger>
+                <div
+                  // onClick={() => {
+                  //   setIsDevLogsOpen(true);
+                  //   props.setIsOpen(false);
+                  // }}
+                  className={`w-[130px] cursor-pointer border ${buttonVariants({
+                    variant: 'secondary',
+                  })}`}
+                >
+                  <Terminal className="mr-2 w-5 h-5" />
+                  Developer Logs
+                </div>
+              </DialogTrigger>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+                <DialogHeader>
+                  <DialogTitle>Developer Logs</DialogTitle>
+                  <DialogDescription>
+                    View sync operation logs with timestamps and status
+                    information.
+                  </DialogDescription>
+                </DialogHeader>
+                <DevLogs isOpen={isDevLogsOpen} />
+              </DialogContent>
+            </Dialog>
             <div
               onClick={() => setIsDeleteConfirmOpen(true)}
               className={`w-[130px] cursor-pointer border ${buttonVariants({
@@ -241,7 +254,6 @@ export const NavbarMobile = (
           </nav>
         </SheetContent>
       </Sheet>
-      <DevLogs isOpen={isDevLogsOpen} onOpenChange={setIsDevLogsOpen} />
       <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
         <DialogContent>
           <DialogHeader>
