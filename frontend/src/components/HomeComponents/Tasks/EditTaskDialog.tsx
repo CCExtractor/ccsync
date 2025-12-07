@@ -493,8 +493,24 @@ export const EditTaskDialog = ({
                       <div className="flex items-center gap-2">
                         <DatePicker
                           date={
-                            editState.editedWaitDate
-                              ? new Date(editState.editedWaitDate)
+                            editState.editedWaitDate &&
+                            editState.editedWaitDate !== ''
+                              ? (() => {
+                                  try {
+                                    const dateStr =
+                                      editState.editedWaitDate.includes('T')
+                                        ? editState.editedWaitDate.split('T')[0]
+                                        : editState.editedWaitDate;
+                                    const parsed = new Date(
+                                      dateStr + 'T00:00:00'
+                                    );
+                                    return isNaN(parsed.getTime())
+                                      ? undefined
+                                      : parsed;
+                                  } catch {
+                                    return undefined;
+                                  }
+                                })()
                               : undefined
                           }
                           onDateChange={(date) =>
