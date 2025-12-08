@@ -10,13 +10,14 @@ const popIn = {
 
 export const HeroCards = () => {
   return (
-    <div className="hidden lg:flex flex-row flex-wrap gap-8 relative w-[700px] h-[500px]">
+    // Prevent overflow at lg breakpoint
+    <div className="hidden lg:flex flex-row flex-wrap gap-8 relative lg:w-[560px] lg:h-[480px] xl:w-[700px] xl:h-[500px]">
       <motion.div
         whileHover={'hover'}
         initial="hidden"
         animate="visible"
         variants={popIn}
-        className="mt-4 absolute w-[340px] -top-[15px] drop-shadow-xl shadow-black/10 dark:shadow-white/10"
+        className="mt-4 absolute lg:w-[300px] xl:w-[340px] -top-[30px] drop-shadow-xl shadow-black/10 dark:shadow-white/10"
       >
         <Card>
           <CardContent className="text-center pb-2 mt-5 mb-5">
@@ -29,7 +30,7 @@ export const HeroCards = () => {
         initial="hidden"
         animate="visible"
         variants={popIn}
-        className="absolute right-[20px] mt-5 top-4 w-80 flex flex-col justify-center items-center drop-shadow-xl shadow-black/10 dark:shadow-white/10"
+        className="absolute lg:right-[30px] xl:right-[8px] mt-5 top-20 lg:w-[260px] xl:w-80 flex flex-col justify-center items-center drop-shadow-xl shadow-black/10 dark:shadow-white/10"
       >
         <Card>
           <CardContent className="text-center pb-2 mt-5 mb-5">
@@ -45,7 +46,7 @@ export const HeroCards = () => {
         initial="hidden"
         animate="visible"
         variants={popIn}
-        className="absolute top-[150px] left-[50px] w-72 drop-shadow-xl shadow-black/10 dark:shadow-white/10"
+        className="absolute lg:top-[240px] lg:left-[24px] xl:top-[170px] xl:left-[40px] w-72 drop-shadow-xl shadow-black/10 dark:shadow-white/10"
       >
         <Card>
           <CardContent className="text-center pb-2 mt-5 mb-5">
@@ -58,7 +59,7 @@ export const HeroCards = () => {
         initial="hidden"
         animate="visible"
         variants={popIn}
-        className="absolute w-[350px] -right-[10px] bottom-[135px] drop-shadow-xl shadow-black/10 dark:shadow-white/10"
+        className="absolute lg:w-[290px] xl:w-[350px] lg:right-[30px] xl:-right-[6px] lg:bottom-[20px] xl:bottom-[90px] drop-shadow-xl shadow-black/10 dark:shadow-white/10"
       >
         <Card>
           <CardContent className="text-center pb-5 mt-5 mb-5">
