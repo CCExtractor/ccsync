@@ -43,7 +43,7 @@ import { debounce } from '@/components/utils/utils';
 import { Taskskeleton } from './TaskSkeleton';
 import { Key } from '@/components/ui/key-button';
 import { AddTaskdialog } from './AddTaskDialog';
-import { EditTaskDialog } from './EditTaskDialog';
+import { TaskDialog } from './TaskDialog';
 import { TaskFormData } from '../../utils/types';
 
 const db = new TasksDatabase();
@@ -991,7 +991,7 @@ export const Tasks = (
                         <Taskskeleton count={tasksPerPage} />
                       ) : (
                         currentTasks.map((task: Task, index: number) => (
-                          <EditTaskDialog
+                          <TaskDialog
                             key={task.uuid}
                             index={index}
                             onSelectTask={handleSelectTask}

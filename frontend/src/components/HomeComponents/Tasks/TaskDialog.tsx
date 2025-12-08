@@ -35,7 +35,7 @@ import {
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { formattedDate, handleCopy } from './tasks-utils';
 
-export const EditTaskDialog = ({
+export const TaskDialog = ({
   index,
   task,
   isOpen,

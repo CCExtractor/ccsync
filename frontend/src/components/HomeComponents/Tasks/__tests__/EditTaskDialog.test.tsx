@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { EditTaskDialog } from '../EditTaskDialog';
+import { TaskDialog } from '../TaskDialog';
 import { Task, EditTaskState } from '../../../utils/types';
 
 jest.mock('react-copy-to-clipboard', () => ({
@@ -9,7 +9,7 @@ jest.mock('react-copy-to-clipboard', () => ({
   ),
 }));
 
-describe('EditTaskDialog Component', () => {
+describe('TaskDialog Component', () => {
   const mockTask: Task = {
     id: 1,
     modified: '',
@@ -103,7 +103,7 @@ describe('EditTaskDialog Component', () => {
 
   describe('Rendering', () => {
     test('should render the task row with correct data', () => {
-      render(<EditTaskDialog {...defaultProps} />);
+      render(<TaskDialog {...defaultProps} />);
 
       expect(screen.getByText(mockTask.id.toString())).toBeInTheDocument();
       expect(screen.getByText(mockTask.description)).toBeInTheDocument();
@@ -116,21 +116,21 @@ describe('EditTaskDialog Component', () => {
         isOverdue: jest.fn(() => true),
       };
 
-      render(<EditTaskDialog {...overdueProps} />);
+      render(<TaskDialog {...overdueProps} />);
 
       const statusBadge = screen.getByText('O');
       expect(statusBadge).toBeInTheDocument();
     });
 
     test('should display correct priority indicator', () => {
-      const { container } = render(<EditTaskDialog {...defaultProps} />);
+      const { container } = render(<TaskDialog {...defaultProps} />);
 
       const priorityIndicator = container.querySelector('.bg-red-500');
       expect(priorityIndicator).toBeInTheDocument();
     });
 
     test('should render dialog content when opened', async () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const dialog = await screen.findByRole('dialog');
       expect(dialog).toBeInTheDocument();
@@ -145,7 +145,7 @@ describe('EditTaskDialog Component', () => {
 
   describe('Dialog Interactions', () => {
     test('should call onSelectTask when row is clicked', () => {
-      render(<EditTaskDialog {...defaultProps} />);
+      render(<TaskDialog {...defaultProps} />);
 
       const taskRow = screen.getByText(mockTask.description).closest('tr');
       fireEvent.click(taskRow!);
@@ -154,7 +154,7 @@ describe('EditTaskDialog Component', () => {
     });
 
     test('should open dialog when trigger is clicked', async () => {
-      render(<EditTaskDialog {...defaultProps} />);
+      render(<TaskDialog {...defaultProps} />);
 
       const taskRow = screen.getByText(mockTask.description).closest('tr');
       fireEvent.click(taskRow!);
@@ -163,7 +163,7 @@ describe('EditTaskDialog Component', () => {
     });
 
     test('should call onOpenChange when dialog state changes', () => {
-      render(<EditTaskDialog {...defaultProps} />);
+      render(<TaskDialog {...defaultProps} />);
 
       const taskRow = screen.getByTestId(`task-row-${mockTask.id}`);
       fireEvent.click(taskRow);
@@ -176,11 +176,7 @@ describe('EditTaskDialog Component', () => {
     test('should enable edit mode when pencil icon is clicked', async () => {
       const editingState = { ...mockEditState, isEditing: false };
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const editButton = screen
@@ -199,11 +195,7 @@ describe('EditTaskDialog Component', () => {
     test('should update description when input changes', () => {
       const editingState = { ...mockEditState, isEditing: true };
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const input = screen.getByDisplayValue(mockTask.description);
@@ -217,11 +209,7 @@ describe('EditTaskDialog Component', () => {
     test('should save description when check icon is clicked', () => {
       const editingState = { ...mockEditState, isEditing: true };
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const saveButton = screen
@@ -240,11 +228,7 @@ describe('EditTaskDialog Component', () => {
     test('should cancel editing when X icon is clicked', () => {
       const editingState = { ...mockEditState, isEditing: true };
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const cancelButtons = screen
@@ -260,13 +244,13 @@ describe('EditTaskDialog Component', () => {
 
   describe('Priority Editing', () => {
     test('should display current priority correctly', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       expect(screen.getByText('High (H)')).toBeInTheDocument();
     });
 
     test('should enable priority editing mode', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const priorityRow = screen.getByText('Priority:').closest('tr');
       const editButton = priorityRow?.querySelector('button');
@@ -287,11 +271,7 @@ describe('EditTaskDialog Component', () => {
         editedPriority: 'M',
       };
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const saveButton = screen
@@ -307,14 +287,14 @@ describe('EditTaskDialog Component', () => {
 
   describe('Tags Editing', () => {
     test('should display existing tags', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       expect(screen.getByText('tag1')).toBeInTheDocument();
       expect(screen.getByText('tag2')).toBeInTheDocument();
     });
 
     test('should enable tags editing mode', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const tagsRow = screen.getByText('Tags:').closest('tr');
       const editButton = tagsRow?.querySelector('button');
@@ -338,11 +318,7 @@ describe('EditTaskDialog Component', () => {
       };
 
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const input = screen.getByPlaceholderText(
@@ -364,11 +340,7 @@ describe('EditTaskDialog Component', () => {
       };
 
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const removeButtons = screen.getAllByText('✖');
@@ -386,11 +358,7 @@ describe('EditTaskDialog Component', () => {
       };
 
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const saveButton = screen
@@ -410,14 +378,14 @@ describe('EditTaskDialog Component', () => {
 
   describe('Project Editing', () => {
     test('should display current project', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const projectCells = screen.getAllByText(mockTask.project);
       expect(projectCells.length).toBeGreaterThan(0);
     });
 
     test('should enable project editing mode', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const projectRow = screen.getByText('Project:').closest('tr');
       const editButton = projectRow?.querySelector('button');
@@ -439,11 +407,7 @@ describe('EditTaskDialog Component', () => {
       };
 
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const saveButton = screen
@@ -468,14 +432,14 @@ describe('EditTaskDialog Component', () => {
       };
 
       render(
-        <EditTaskDialog {...defaultProps} task={taskWithDeps} isOpen={true} />
+        <TaskDialog {...defaultProps} task={taskWithDeps} isOpen={true} />
       );
 
       expect(screen.getByText('Dependency Task')).toBeInTheDocument();
     });
 
     test('should enable dependencies editing mode', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const dependsRow = screen.getByText('Depends:').closest('tr');
       const editButton = dependsRow?.querySelector('button');
@@ -497,11 +461,7 @@ describe('EditTaskDialog Component', () => {
       };
 
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const addButton = screen.getByText('Add Dependency');
@@ -520,11 +480,7 @@ describe('EditTaskDialog Component', () => {
       };
 
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const saveButton = screen
@@ -542,7 +498,7 @@ describe('EditTaskDialog Component', () => {
 
   describe('Date Editing', () => {
     test('should enable due date editing mode', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const dueRow = screen.getByText('Due:').closest('tr');
       const editButton = dueRow?.querySelector('button');
@@ -564,11 +520,7 @@ describe('EditTaskDialog Component', () => {
       };
 
       render(
-        <EditTaskDialog
-          {...defaultProps}
-          isOpen={true}
-          editState={editingState}
-        />
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
       const saveButton = screen
@@ -587,7 +539,7 @@ describe('EditTaskDialog Component', () => {
 
   describe('Task Actions', () => {
     test('should display Mark As Completed button for pending tasks', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       expect(screen.getByText(/Mark As Completed/)).toBeInTheDocument();
     });
@@ -595,14 +547,14 @@ describe('EditTaskDialog Component', () => {
     test('should not display Mark As Completed button for completed tasks', () => {
       const completedTask = { ...mockTask, status: 'completed' };
       render(
-        <EditTaskDialog {...defaultProps} task={completedTask} isOpen={true} />
+        <TaskDialog {...defaultProps} task={completedTask} isOpen={true} />
       );
 
       expect(screen.queryByText(/Mark As Completed/)).not.toBeInTheDocument();
     });
 
     test('should display delete button for non-deleted tasks', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const deleteButton = document.getElementById(
         `mark-task-as-deleted-${mockTask.id}`
@@ -611,7 +563,7 @@ describe('EditTaskDialog Component', () => {
     });
 
     test('should call onMarkComplete when confirmed', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const markCompleteButton = screen.getByText(/Mark As Completed/);
       fireEvent.click(markCompleteButton);
@@ -624,7 +576,7 @@ describe('EditTaskDialog Component', () => {
     });
 
     test('should call onMarkDeleted when confirmed', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const deleteButton = screen.getByRole('button', {
         name: /^d$/i,
@@ -641,13 +593,13 @@ describe('EditTaskDialog Component', () => {
 
   describe('UUID Copy Functionality', () => {
     test('should display UUID in dialog', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       expect(screen.getByText(mockTask.uuid)).toBeInTheDocument();
     });
 
     test('should have copy button for UUID', () => {
-      render(<EditTaskDialog {...defaultProps} isOpen={true} />);
+      render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const uuidRow = screen.getByText('UUID:').closest('tr');
       const copyButton = uuidRow?.querySelector('button');
@@ -658,7 +610,7 @@ describe('EditTaskDialog Component', () => {
   describe('Selected State', () => {
     test('should highlight selected task row', () => {
       const { container } = render(
-        <EditTaskDialog {...defaultProps} selectedIndex={0} />
+        <TaskDialog {...defaultProps} selectedIndex={0} />
       );
 
       const taskRow = container.querySelector('.bg-muted\\/50');
@@ -666,7 +618,7 @@ describe('EditTaskDialog Component', () => {
     });
 
     test('should not highlight non-selected task row', () => {
-      render(<EditTaskDialog {...defaultProps} selectedIndex={1} />);
+      render(<TaskDialog {...defaultProps} selectedIndex={1} />);
 
       const taskRow = screen.getByText(mockTask.description).closest('tr');
       expect(taskRow).not.toHaveClass('bg-muted/50');
@@ -675,21 +627,21 @@ describe('EditTaskDialog Component', () => {
 
   describe('Status Display', () => {
     test('should display P badge for pending tasks', () => {
-      render(<EditTaskDialog {...defaultProps} />);
+      render(<TaskDialog {...defaultProps} />);
 
       expect(screen.getByText('P')).toBeInTheDocument();
     });
 
     test('should display C badge for completed tasks', () => {
       const completedTask = { ...mockTask, status: 'completed' };
-      render(<EditTaskDialog {...defaultProps} task={completedTask} />);
+      render(<TaskDialog {...defaultProps} task={completedTask} />);
 
       expect(screen.getByText('C')).toBeInTheDocument();
     });
 
     test('should display D badge for deleted tasks', () => {
       const deletedTask = { ...mockTask, status: 'deleted' };
-      render(<EditTaskDialog {...defaultProps} task={deletedTask} />);
+      render(<TaskDialog {...defaultProps} task={deletedTask} />);
 
       expect(screen.getByText('D')).toBeInTheDocument();
     });
@@ -700,7 +652,7 @@ describe('EditTaskDialog Component', () => {
         isOverdue: jest.fn(() => true),
       };
 
-      render(<EditTaskDialog {...overdueProps} />);
+      render(<TaskDialog {...overdueProps} />);
 
       expect(screen.getByText('O')).toBeInTheDocument();
     });
