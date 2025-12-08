@@ -3,6 +3,8 @@ package models
 import (
 	"sync"
 	"time"
+
+	"ccsync_backend/utils"
 )
 
 // LogEntry represents a single log entry for sync operations
@@ -49,6 +51,18 @@ func (ls *LogStore) AddLog(level, message, syncID, operation string) {
 		Message:   message,
 		SyncID:    syncID,
 		Operation: operation,
+	}
+
+	// Also log to the structured logger
+	switch level {
+	case "INFO":
+		utils.Logger.Infof(message)
+	case "WARN":
+		utils.Logger.Warnf(message)
+	case "ERROR":
+		utils.Logger.Errorf(message)
+	default:
+		utils.Logger.Infof(message)
 	}
 
 	// Add to the end

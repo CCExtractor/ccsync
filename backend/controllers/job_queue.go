@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"fmt"
-	"log"
 	"sync"
+
+	"ccsync_backend/utils"
 )
 
 type Job struct {
@@ -37,7 +37,7 @@ func (q *JobQueue) AddJob(job Job) {
 
 func (q *JobQueue) processJobs() {
 	for job := range q.jobChannel {
-		fmt.Printf("Executing job: %s\n", job.Name)
+		utils.Logger.Infof("Executing job: %s", job.Name)
 
 		go BroadcastJobStatus(JobStatus{
 			Job:    job.Name,
@@ -45,14 +45,14 @@ func (q *JobQueue) processJobs() {
 		})
 
 		if err := job.Execute(); err != nil {
-			log.Printf("Error executing job %s: %v\n", job.Name, err)
+			utils.Logger.Errorf("Error executing job %s: %v", job.Name, err)
 
 			go BroadcastJobStatus(JobStatus{
 				Job:    job.Name,
 				Status: "failure",
 			})
 		} else {
-			log.Printf("Success in executing job %s\n", job.Name)
+			utils.Logger.Infof("Success in executing job %s", job.Name)
 
 			go BroadcastJobStatus(JobStatus{
 				Job:    job.Name,
