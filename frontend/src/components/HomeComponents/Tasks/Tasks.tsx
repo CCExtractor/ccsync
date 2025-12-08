@@ -296,7 +296,7 @@ export const Tasks = (
   }, [props.email, props.encryptionSecret, props.UUID]); // Add dependencies
 
   async function handleAddTask(task: TaskFormData) {
-    if (handleDate(newTask.due)) {
+    if (!newTask.due || handleDate(newTask.due)) {
       try {
         await addTaskToBackend({
           email: props.email,
@@ -305,7 +305,7 @@ export const Tasks = (
           description: task.description,
           project: task.project,
           priority: task.priority,
-          due: task.due,
+          due: task.due || undefined,
           tags: task.tags,
           backendURL: url.backendURL,
         });
