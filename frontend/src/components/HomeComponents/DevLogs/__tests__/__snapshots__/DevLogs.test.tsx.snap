@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`DevLogs Content Component renders empty logs state correctly: devlogs-empty 1`] = `
+exports[`DevLogs Snapshots – basic states renders closed dialog correctly: devlogs-closed 1`] = `
 <DocumentFragment>
   <div
     class="flex justify-between items-center mb-4 gap-4"
@@ -65,7 +65,7 @@ exports[`DevLogs Content Component renders empty logs state correctly: devlogs-e
 </DocumentFragment>
 `;
 
-exports[`DevLogs Content Component renders initial state without fetching logs when isOpen is false: devlogs-initial-state 1`] = `
+exports[`DevLogs Snapshots – basic states renders empty logs state correctly: devlogs-empty 1`] = `
 <DocumentFragment>
   <div
     class="flex justify-between items-center mb-4 gap-4"
@@ -130,7 +130,7 @@ exports[`DevLogs Content Component renders initial state without fetching logs w
 </DocumentFragment>
 `;
 
-exports[`DevLogs Content Component renders loading state when fetching logs: devlogs-loading 1`] = `
+exports[`DevLogs Snapshots – basic states renders loading state correctly: devlogs-loading 1`] = `
 <DocumentFragment>
   <div
     class="flex justify-between items-center mb-4 gap-4"
@@ -196,7 +196,7 @@ exports[`DevLogs Content Component renders loading state when fetching logs: dev
 </DocumentFragment>
 `;
 
-exports[`DevLogs Content Component renders with logs when isOpen is true: devlogs-with-logs 1`] = `
+exports[`DevLogs Snapshots – basic states renders open dialog with logs correctly: devlogs-with-logs 1`] = `
 <DocumentFragment>
   <div
     class="flex justify-between items-center mb-4 gap-4"
@@ -374,6 +374,45 @@ exports[`DevLogs Content Component renders with logs when isOpen is true: devlog
               class="text-gray-800 dark:text-gray-200 break-words"
             >
               Error occurred
+            </div>
+          </div>
+          <button
+            class="opacity-0 group-hover:opacity-100 transition-opacity"
+            variant="ghost"
+          >
+            <div>
+              CopyIcon
+            </div>
+          </button>
+        </div>
+      </div>
+      <div
+        class="p-3 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:shadow-sm transition-shadow group"
+      >
+        <div
+          class="flex justify-between items-start gap-2"
+        >
+          <div
+            class="flex-1 font-mono text-sm"
+          >
+            <div
+              class="flex items-center gap-2 mb-1"
+            >
+              <span
+                class="text-gray-500 dark:text-gray-400"
+              >
+                Mon, 01 Jan 2024 12:03:00 GMT
+              </span>
+              <span
+                class="font-semibold text-gray-600 dark:text-gray-400"
+              >
+                [DEBUG]
+              </span>
+            </div>
+            <div
+              class="text-gray-800 dark:text-gray-200 break-words"
+            >
+              Debug message
             </div>
           </div>
           <button
