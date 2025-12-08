@@ -125,7 +125,9 @@ export const AddTaskdialog = ({
             </Label>
             <div className="col-span-3 space-y-2">
               <Select
-                value={newTask.project}
+                value={
+                  isCreatingNewProject ? '__CREATE_NEW__' : newTask.project
+                }
                 onValueChange={(value) => {
                   if (value === '__CREATE_NEW__') {
                     setIsCreatingNewProject(true);
@@ -143,7 +145,13 @@ export const AddTaskdialog = ({
                         ? 'Select a project'
                         : 'No projects yet'
                     }
-                  />
+                  >
+                    {isCreatingNewProject
+                      ? newTask.project
+                        ? `New: ${newTask.project}`
+                        : '+ Create new project…'
+                      : undefined}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__NONE__">No project</SelectItem>
