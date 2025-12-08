@@ -92,11 +92,14 @@ describe('ReportsView', () => {
     });
 
     it('filters tasks by date range correctly', () => {
-      const today = new Date();
-      const yesterday = new Date(today);
+      const referenceDate = new Date('2024-01-10T12:00:00Z');
+
+      const today = new Date(referenceDate);
+      const yesterday = new Date(referenceDate);
       yesterday.setDate(yesterday.getDate() - 1);
-      const lastWeek = new Date(today);
-      lastWeek.setDate(lastWeek.getDate() - 8);
+
+      const thisWeek = new Date(referenceDate);
+      thisWeek.setDate(thisWeek.getDate() - 2);
 
       const tasks = [
         createMockTask({ status: 'completed', modified: today.toISOString() }),
@@ -106,9 +109,12 @@ describe('ReportsView', () => {
         }),
         createMockTask({
           status: 'completed',
-          modified: lastWeek.toISOString(),
+          modified: thisWeek.toISOString(),
         }),
       ];
+
+      jest.useFakeTimers();
+      jest.setSystemTime(referenceDate);
 
       render(<ReportsView tasks={tasks} />);
 
@@ -120,6 +126,8 @@ describe('ReportsView', () => {
 
       expect(daily[0].completed).toBe(1);
       expect(weekly[0].completed).toBeGreaterThanOrEqual(2);
+
+      jest.useRealTimers();
     });
 
     it('uses modified date when available', () => {
