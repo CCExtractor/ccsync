@@ -51,22 +51,27 @@ export const addTaskToBackend = async ({
   description: string;
   project: string;
   priority: string;
-  due: string;
+  due?: string;
   tags: string[];
   backendURL: string;
 }) => {
+  const requestBody: any = {
+    email,
+    encryptionSecret,
+    UUID,
+    description,
+    project,
+    priority,
+    tags,
+  };
+
+  // Only include due if it's provided
+  if (due !== undefined && due !== '') {
+    requestBody.due = due;
+  }
   const response = await fetch(`${backendURL}add-task`, {
     method: 'POST',
-    body: JSON.stringify({
-      email,
-      encryptionSecret,
-      UUID,
-      description,
-      project,
-      priority,
-      due,
-      tags,
-    }),
+    body: JSON.stringify(requestBody),
     headers: {
       'Content-Type': 'application/json',
     },
