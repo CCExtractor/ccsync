@@ -896,7 +896,7 @@ export const Tasks = (
                       options={uniqueProjects}
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
-                      className="hidden sm:flex min-w-[140px]"
+                      className="hidden lg:flex min-w-[140px]"
                       icon={<Key lable="p" />}
                     />
                     <MultiSelectFilter
@@ -905,7 +905,7 @@ export const Tasks = (
                       options={status}
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
-                      className="hidden sm:flex min-w-[140px]"
+                      className="hidden lg:flex min-w-[140px]"
                       icon={<Key lable="s" />}
                     />
                     <MultiSelectFilter
@@ -914,7 +914,7 @@ export const Tasks = (
                       options={uniqueTags}
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
-                      className="hidden sm:flex min-w-[140px]"
+                      className="hidden lg:flex min-w-[140px]"
                       icon={<Key lable="t" />}
                     />
                     <div className="pr-2">
@@ -931,7 +931,7 @@ export const Tasks = (
                         uniqueProjects={uniqueProjects}
                       />
                     </div>
-                    <div className="hidden sm:flex flex-col items-end gap-2">
+                    <div className="flex flex-col items-end gap-2">
                       <Button
                         id="sync-task"
                         variant="outline"

@@ -3,7 +3,7 @@
 exports[`BottomBar Component using Snapshot renders correctly with only one selected props: Bottom bar with only one selected props 1`] = `
 <DocumentFragment>
   <header
-    class="sm:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40"
+    class="lg:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40"
   >
     <nav
       aria-label="Main"
@@ -96,7 +96,7 @@ exports[`BottomBar Component using Snapshot renders correctly with only one sele
 exports[`BottomBar Component using Snapshot renders correctly with several selected props: Bottom bar with several selected props 1`] = `
 <DocumentFragment>
   <header
-    class="sm:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40"
+    class="lg:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40"
   >
     <nav
       aria-label="Main"
@@ -189,7 +189,7 @@ exports[`BottomBar Component using Snapshot renders correctly with several selec
 exports[`BottomBar Component using Snapshot renders correctly without selected props: Bottom bar without selected props 1`] = `
 <DocumentFragment>
   <header
-    class="sm:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40"
+    class="lg:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40"
   >
     <nav
       aria-label="Main"
