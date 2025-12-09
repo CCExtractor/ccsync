@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
+
+	"ccsync_backend/utils"
 
 	"github.com/gorilla/websocket"
 )
@@ -24,37 +25,37 @@ var broadcast = make(chan JobStatus)
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println("WebSocket Upgrade Error:", err)
+		utils.Logger.Error("WebSocket Upgrade Error:", err)
 		return
 	}
 	defer ws.Close()
 
 	clients[ws] = true
-	log.Println("New WebSocket connection established!")
+	utils.Logger.Info("New WebSocket connection established!")
 
 	for {
 		_, _, err := ws.ReadMessage()
 		if err != nil {
 			delete(clients, ws)
-			log.Println("WebSocket connection closed:", err)
+			utils.Logger.Info("WebSocket connection closed:", err)
 			break
 		}
 	}
 }
 
 func BroadcastJobStatus(jobStatus JobStatus) {
-	log.Printf("Broadcasting: %+v\n", jobStatus)
+	utils.Logger.Infof("Broadcasting: %+v", jobStatus)
 	broadcast <- jobStatus
 }
 
 func JobStatusManager() {
 	for {
 		jobStatus := <-broadcast
-		log.Printf("Sending to clients: %+v\n", jobStatus)
+		utils.Logger.Infof("Sending to clients: %+v", jobStatus)
 		for client := range clients {
 			err := client.WriteJSON(jobStatus)
 			if err != nil {
-				log.Printf("WebSocket Write Error: %v\n", err)
+				utils.Logger.Errorf("WebSocket Write Error: %v", err)
 				client.Close()
 				delete(clients, client)
 			}
