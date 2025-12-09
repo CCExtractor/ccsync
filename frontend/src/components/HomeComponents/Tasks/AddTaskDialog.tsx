@@ -145,16 +145,19 @@ export const AddTaskdialog = ({
                     }
                   />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent
+                  onWheel={(e) => e.stopPropagation()}
+                  className="max-h-60 overflow-y-auto"
+                >
+                  <SelectItem value="__CREATE_NEW__">
+                    + Create new project…
+                  </SelectItem>
                   <SelectItem value="__NONE__">No project</SelectItem>
                   {uniqueProjects.map((project: string) => (
                     <SelectItem key={project} value={project}>
                       {project}
                     </SelectItem>
                   ))}
-                  <SelectItem value="__CREATE_NEW__">
-                    + Create new project…
-                  </SelectItem>
                 </SelectContent>
               </Select>
 
