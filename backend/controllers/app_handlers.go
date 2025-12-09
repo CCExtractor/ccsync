@@ -4,7 +4,6 @@ import (
 	"ccsync_backend/utils"
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"os"
 
@@ -45,7 +44,7 @@ func (a *App) OAuthHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {string} string "Internal server error"
 // @Router /auth/callback [get]
 func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Fetching user info...")
+	utils.Logger.Info("Fetching user info...")
 
 	code := r.URL.Query().Get("code")
 
@@ -87,7 +86,7 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("User Info: %v", userInfo)
+	utils.Logger.Infof("User Info: %v", userInfo)
 
 	frontendOriginDev := os.Getenv("FRONTEND_ORIGIN_DEV")
 	http.Redirect(w, r, frontendOriginDev+"/home", http.StatusSeeOther)
@@ -110,7 +109,7 @@ func (a *App) UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Sending User Info: %v", userInfo)
+	utils.Logger.Infof("Sending User Info: %v", userInfo)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(userInfo)
 }
@@ -148,5 +147,5 @@ func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	log.Print("User has logged out")
+	utils.Logger.Info("User has logged out")
 }
