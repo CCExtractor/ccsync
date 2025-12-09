@@ -1226,6 +1226,28 @@ export const TaskDialog = ({
                     </CopyToClipboard>
                   </TableCell>
                 </TableRow>
+                <TableRow>
+                  <TableCell>Annotations:</TableCell>
+                  <TableCell>
+                    {task.annotations && task.annotations.length > 0 ? (
+                      <div className="flex flex-col gap-2">
+                        {task.annotations.map((annotation, idx) => (
+                          <div
+                            key={idx}
+                            className="p-2 border rounded-md text-sm"
+                          >
+                            <div className="font-medium text-xs text-gray-500">
+                              {formattedDate(annotation.entry)}
+                            </div>
+                            <div>{annotation.description}</div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <span>No Annotations</span>
+                    )}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </DialogDescription>
