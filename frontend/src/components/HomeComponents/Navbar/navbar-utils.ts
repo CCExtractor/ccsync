@@ -54,23 +54,36 @@ export const handleLogout = async () => {
 };
 
 export const deleteAllTasks = async (props: Props) => {
-  const loadingToastId = toast.info(
-    `Deleting all tasks for ${props.email}...`,
-    {
-      position: 'bottom-left',
-      autoClose: false,
-      hideProgressBar: true,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-    }
-  );
+  const loadingToastId = toast.info(`Checking tasks for ${props.email}...`, {
+    position: 'bottom-left',
+    autoClose: false,
+    hideProgressBar: true,
+    closeOnClick: false,
+    pauseOnHover: true,
+    draggable: true,
+  });
 
   try {
+    // Count tasks first
+    const taskCount = await db.tasks.where('email').equals(props.email).count();
+
+    // If no tasks, show Red toast
+    if (taskCount === 0) {
+      toast.update(loadingToastId, {
+        render: `No tasks to delete for ${props.email}.`,
+        type: 'error',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return;
+    }
     await db.tasks.where('email').equals(props.email).delete();
 
     toast.update(loadingToastId, {
-      render: `All tasks for ${props.email} deleted successfully!`,
+      render: `All ${taskCount} tasks for ${props.email} deleted successfully!`,
       type: 'success',
       autoClose: 3000,
       hideProgressBar: false,
@@ -79,7 +92,7 @@ export const deleteAllTasks = async (props: Props) => {
       draggable: true,
     });
 
-    console.log(`Deleted tasks for email: ${props.email}`);
+    console.log(`Deleted ${taskCount} tasks for email: ${props.email}`);
   } catch (error) {
     toast.update(loadingToastId, {
       render: `Error deleting tasks for ${props.email}: ${error}`,
