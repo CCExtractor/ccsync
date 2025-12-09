@@ -2,10 +2,11 @@ package main
 
 import (
 	"encoding/gob"
-	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"ccsync_backend/utils"
 
 	"github.com/gorilla/sessions"
 	"github.com/joho/godotenv"
@@ -46,9 +47,9 @@ import (
 func main() {
 	if os.Getenv("ENV") != "production" {
 		_ = godotenv.Load()
-		log.Println("Loaded")
+		utils.Logger.Info("Loaded")
 	} else {
-		log.Println("Continue")
+		utils.Logger.Info("Continue")
 	}
 
 	controllers.GlobalJobQueue = controllers.NewJobQueue()
@@ -69,7 +70,7 @@ func main() {
 	// Create a session store
 	sessionKey := []byte(os.Getenv("SESSION_KEY"))
 	if len(sessionKey) == 0 {
-		log.Fatal("SESSION_KEY environment variable is not set or empty")
+		utils.Logger.Fatal("SESSION_KEY environment variable is not set or empty")
 	}
 	store := sessions.NewCookieStore(sessionKey)
 	gob.Register(map[string]interface{}{})
@@ -99,9 +100,9 @@ func main() {
 	mux.HandleFunc("/api/docs/", httpSwagger.WrapHandler)
 
 	go controllers.JobStatusManager()
-	log.Println("Server started at :8000")
-	log.Println("API documentation available at http://localhost:8000/api/docs/index.html")
+	utils.Logger.Info("Server started at :8000")
+	utils.Logger.Info("API documentation available at http://localhost:8000/api/docs/index.html")
 	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
-		log.Fatal(err)
+		utils.Logger.Fatal(err)
 	}
 }
