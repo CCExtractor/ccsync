@@ -43,6 +43,7 @@ export const addTaskToBackend = async ({
   priority,
   due,
   start,
+  entry,
   wait,
   end,
   recur,
@@ -58,6 +59,7 @@ export const addTaskToBackend = async ({
   priority: string;
   due?: string;
   start: string;
+  entry: string;
   wait: string;
   end?: string;
   recur: string;
@@ -72,6 +74,7 @@ export const addTaskToBackend = async ({
     description,
     project,
     priority,
+    entry,
     wait,
     tags,
   };
