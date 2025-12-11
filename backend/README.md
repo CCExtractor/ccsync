@@ -43,6 +43,20 @@
 
   if you want to run by `npm run dev`
 
+  ### Optional: Custom Backend Port
+
+  You can set a custom port for the backend server using the `CCSYNC_PORT` environment variable:
+
+  ```bash
+  CCSYNC_PORT="8081"
+  ```
+
+  Note:
+
+  `CCSYNC_PORT` only affects the port of the backend process itself, not the Docker port mapping, and is mainly intended for use outside of a containerized environment to avoid port conflicts.
+  If you are running the backend via Docker, the exposed ports are determined by the compose configuration. To use a different port in a Docker environment, you must manually update the docker-compose.yml file to adjust the container’s port mapping.
+  Also, if you change `CCSYNC_PORT`, remember to update `CONTAINER_ORIGIN` accordingly.
+
 - Run the application:
 
   ```bash
