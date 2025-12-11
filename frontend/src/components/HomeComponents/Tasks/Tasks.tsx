@@ -73,6 +73,7 @@ export const Tasks = (
     priority: '',
     project: '',
     due: '',
+    entry: '',
     tags: [] as string[],
   });
   const [isCreatingNewProject, setIsCreatingNewProject] = useState(false);
@@ -306,6 +307,7 @@ export const Tasks = (
           project: task.project,
           priority: task.priority,
           due: task.due,
+          entry: task.entry,
           tags: task.tags,
           backendURL: url.backendURL,
         });
@@ -316,6 +318,7 @@ export const Tasks = (
           priority: '',
           project: '',
           due: '',
+          entry: '',
           tags: [],
         });
         setIsAddTaskOpen(false);

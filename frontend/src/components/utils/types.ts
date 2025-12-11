@@ -93,6 +93,7 @@ export interface TaskFormData {
   priority: string;
   project: string;
   due: string;
+  entry: string;
   tags: string[];
 }
 

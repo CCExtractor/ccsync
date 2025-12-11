@@ -13,6 +13,7 @@ func TestSetTaskwarriorConfig(t *testing.T) {
 		fmt.Println("SetTaskwarriorConfig test passed")
 	}
 }
+
 func TestSyncTaskwarrior(t *testing.T) {
 	err := SyncTaskwarrior("./")
 	if err != nil {
@@ -41,11 +42,20 @@ func TestExportTasks(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarrior(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03", nil)
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03", "", nil)
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior failed: %v", err)
 	} else {
 		fmt.Println("Add task passed")
+	}
+}
+
+func TestAddTaskToTaskwarriorWithEntryDate(t *testing.T) {
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-05", "2025-03-04", nil)
+	if err != nil {
+		t.Errorf("AddTaskToTaskwarrior failed: %v", err)
+	} else {
+		fmt.Println("Add task with entry date passed ")
 	}
 }
 
@@ -59,11 +69,20 @@ func TestCompleteTaskInTaskwarrior(t *testing.T) {
 }
 
 func TestAddTaskWithTags(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03", []string{"work", "important"})
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03", "", []string{"work", "important"})
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior with tags failed: %v", err)
 	} else {
 		fmt.Println("Add task with tags passed")
+	}
+}
+
+func TestAddTaskToTaskwarriorWithEntryDateAndTags(t *testing.T) {
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-05", "2025-03-04", []string{"work", "important"})
+	if err != nil {
+		t.Errorf("AddTaskToTaskwarrior with entry date and tags failed: %v", err)
+	} else {
+		fmt.Println("Add task with entry date and tags passed")
 	}
 }
 
