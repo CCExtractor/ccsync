@@ -59,6 +59,7 @@ describe('AddTaskDialog Component', () => {
         project: '',
         due: '',
         start: '',
+        wait: '',
         end: '',
         recur: '',
         tags: [],
@@ -223,6 +224,7 @@ describe('AddTaskDialog Component', () => {
       project: 'Work',
       due: '2024-12-25',
       start: '',
+      wait: '2025-12-20',
       end: '',
       recur: '',
       tags: ['urgent'],
@@ -292,5 +294,52 @@ describe('AddTaskDialog Component', () => {
       ...mockProps.newTask,
       project: 'New Project',
     });
+  });
+
+  test('renders wait date picker with correct placeholder', () => {
+    mockProps.isOpen = true;
+    render(<AddTaskdialog {...mockProps} />);
+
+    const waitDatePicker = screen.getByPlaceholderText(/select a wait date/i);
+    expect(waitDatePicker).toBeInTheDocument();
+  });
+
+  test('updates wait when user selects a date', () => {
+    mockProps.isOpen = true;
+    render(<AddTaskdialog {...mockProps} />);
+
+    const waitDatePicker = screen.getByPlaceholderText(/select a wait date/i);
+    fireEvent.change(waitDatePicker, { target: { value: '2025-12-20' } });
+
+    expect(mockProps.setNewTask).toHaveBeenCalledWith({
+      ...mockProps.newTask,
+      wait: '2024-12-25', // Mocked format() always returns this value regardless of input
+    });
+  });
+
+  test('submits task with wait date when provided', () => {
+    mockProps.isOpen = true;
+    mockProps.newTask.wait = '2025-12-20';
+    render(<AddTaskdialog {...mockProps} />);
+
+    const submitButton = screen.getByRole('button', {
+      name: /add task/i,
+    });
+    fireEvent.click(submitButton);
+
+    expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
+  });
+
+  test('allows empty wait date (optional field)', () => {
+    mockProps.isOpen = true;
+    mockProps.newTask.wait = '';
+    render(<AddTaskdialog {...mockProps} />);
+
+    const submitButton = screen.getByRole('button', {
+      name: /add task/i,
+    });
+    fireEvent.click(submitButton);
+
+    expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
   });
 });
