@@ -998,7 +998,7 @@ export const Tasks = (
                             selectedIndex={selectedIndex}
                             task={task}
                             isOpen={
-                              _isDialogOpen && _selectedTask?.id === task.id
+                              _isDialogOpen && _selectedTask?.uuid === task.uuid
                             }
                             onOpenChange={handleDialogOpenChange}
                             editState={editState}
