@@ -58,6 +58,12 @@ func main() {
 	clientSecret := os.Getenv("CLIENT_SEC")
 	redirectURL := os.Getenv("REDIRECT_URL_DEV")
 
+	// Get port from environment or default to 8000
+	port := os.Getenv("CCSYNC_PORT")
+	if port == "" {
+		port = "8000"
+	}
+
 	// OAuth2 configuration
 	conf := &oauth2.Config{
 		ClientID:     clientID,
@@ -100,9 +106,9 @@ func main() {
 	mux.HandleFunc("/api/docs/", httpSwagger.WrapHandler)
 
 	go controllers.JobStatusManager()
-	utils.Logger.Info("Server started at :8000")
-	utils.Logger.Info("API documentation available at http://localhost:8000/api/docs/index.html")
-	if err := http.ListenAndServe(":8000", app.EnableCORS(mux)); err != nil {
+	utils.Logger.Infof("Server started at :%s", port)
+	utils.Logger.Infof("API documentation available at http://localhost:%s/api/docs/index.html", port)
+	if err := http.ListenAndServe(":"+port, app.EnableCORS(mux)); err != nil {
 		utils.Logger.Fatal(err)
 	}
 }
