@@ -21,6 +21,7 @@ describe('useEditTask Hook', () => {
     depends: [],
     rtype: '',
     recur: '',
+    annotations: [],
     email: 'test@example.com',
   };
 

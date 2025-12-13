@@ -43,6 +43,7 @@ export const addTaskToBackend = async ({
   priority,
   due,
   tags,
+  annotations,
   backendURL,
 }: {
   email: string;
@@ -53,6 +54,7 @@ export const addTaskToBackend = async ({
   priority: string;
   due: string;
   tags: string[];
+  annotations: { entry: string; description: string }[];
   backendURL: string;
 }) => {
   const response = await fetch(`${backendURL}add-task`, {
@@ -66,6 +68,7 @@ export const addTaskToBackend = async ({
       priority,
       due,
       tags,
+      annotations,
     }),
     headers: {
       'Content-Type': 'application/json',

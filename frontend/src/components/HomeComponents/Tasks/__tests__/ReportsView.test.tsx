@@ -30,6 +30,7 @@ describe('ReportsView', () => {
     depends: [],
     rtype: '',
     recur: '',
+    annotations: [],
     email: 'test@example.com',
     ...overrides,
   });

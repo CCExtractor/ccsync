@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -35,6 +36,14 @@ export const AddTaskdialog = ({
   setIsCreatingNewProject,
   uniqueProjects = [],
 }: AddTaskDialogProps) => {
+  const [annotationInput, setAnnotationInput] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) {
+      setAnnotationInput('');
+    }
+  }, [isOpen]);
+
   const handleAddTag = () => {
     if (tagInput && !newTask.tags.includes(tagInput, 0)) {
       setNewTask({ ...newTask, tags: [...newTask.tags, tagInput] });
@@ -46,6 +55,27 @@ export const AddTaskdialog = ({
     setNewTask({
       ...newTask,
       tags: newTask.tags.filter((tag) => tag !== tagToRemove),
+    });
+  };
+
+  const handleAddAnnotation = () => {
+    if (annotationInput.trim()) {
+      const newAnnotation = {
+        entry: new Date().toISOString(),
+        description: annotationInput.trim(),
+      };
+      setNewTask({
+        ...newTask,
+        annotations: [...newTask.annotations, newAnnotation],
+      });
+      setAnnotationInput('');
+    }
+  };
+
+  const handleRemoveAnnotation = (index: number) => {
+    setNewTask({
+      ...newTask,
+      annotations: newTask.annotations.filter((_, i) => i !== index),
     });
   };
 
@@ -223,6 +253,44 @@ export const AddTaskdialog = ({
                         ✖
                       </button>
                     </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="annotations" className="text-right">
+              Annotations
+            </Label>
+            <Input
+              id="annotations"
+              name="annotations"
+              placeholder="Add an annotation"
+              value={annotationInput}
+              onChange={(e) => setAnnotationInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddAnnotation()}
+              className="col-span-3"
+            />
+          </div>
+          <div className="mt-2">
+            {newTask.annotations.length > 0 && (
+              <div className="grid grid-cols-4 items-start">
+                <div> </div>
+                <div className="flex flex-col gap-2 col-span-3">
+                  {newTask.annotations.map((annotation, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start justify-between p-2 border rounded-md"
+                    >
+                      <span className="flex-1">{annotation.description}</span>
+                      <button
+                        type="button"
+                        className="ml-2 text-red-500"
+                        onClick={() => handleRemoveAnnotation(index)}
+                      >
+                        ✖
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
