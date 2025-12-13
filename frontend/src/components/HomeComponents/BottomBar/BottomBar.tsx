@@ -23,7 +23,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
   setSelectedTag,
 }) => {
   return (
-    <header className="sm:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40">
+    <header className="lg:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40">
       {/* Nav Links */}
       <NavigationMenu className="mx-auto">
         <div className="flex space-x-4 mr-2">
