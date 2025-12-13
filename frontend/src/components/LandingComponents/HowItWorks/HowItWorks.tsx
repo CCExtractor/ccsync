@@ -78,7 +78,7 @@ export const HowItWorks = () => {
             animate={controls}
             variants={cardVariants}
             whileHover="hover"
-            className="bg-muted/50"
+            className="bg-muted rounded-lg"
           >
             <Card className="bg-muted/50 relative flex flex-col justify-center items-center">
               <CardHeader>
