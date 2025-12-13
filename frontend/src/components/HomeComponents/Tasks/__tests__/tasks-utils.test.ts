@@ -7,7 +7,9 @@ import {
   sortTasks,
   sortTasksById,
   markTaskAsCompleted,
+  bulkMarkTasksAsCompleted,
   markTaskAsDeleted,
+  bulkMarkTasksAsDeleted,
   getTimeSinceLastSync,
   hashKey,
 } from '../tasks-utils';
@@ -391,5 +393,202 @@ describe('hashKey', () => {
     expect(hash).not.toContain(email);
     expect(hash).not.toContain('test');
     expect(hash).not.toContain('@');
+  });
+});
+
+describe('bulkMarkTasksAsCompleted', () => {
+  const email = 'test@example.com';
+  const encryptionSecret = 'secret';
+  const UUID = 'user-uuid';
+  const taskUUIDs = ['id1', 'id2'];
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('calls API correctly and returns true on success', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
+
+    const result = await bulkMarkTasksAsCompleted(
+      email,
+      encryptionSecret,
+      UUID,
+      taskUUIDs
+    );
+
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('complete-tasks'),
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          encryptionSecret,
+          UUID,
+          taskuuids: taskUUIDs,
+        }),
+      }
+    );
+
+    expect(toast.success).toHaveBeenCalledWith('2 tasks marked as completed.');
+    expect(result).toBe(true);
+  });
+
+  it('returns false and shows error toast when API responds with non-ok', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: false });
+
+    const result = await bulkMarkTasksAsCompleted(
+      email,
+      encryptionSecret,
+      UUID,
+      taskUUIDs
+    );
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(toast.error).toHaveBeenCalledWith('Bulk completion failed!');
+    expect(result).toBe(false);
+  });
+
+  it('returns false and shows error toast when fetch throws a network error', async () => {
+    (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network failure'));
+
+    const result = await bulkMarkTasksAsCompleted(
+      email,
+      encryptionSecret,
+      UUID,
+      taskUUIDs
+    );
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(toast.error).toHaveBeenCalledWith('Bulk complete failed');
+    expect(result).toBe(false);
+  });
+});
+
+describe('bulkMarkTasksAsDeleted', () => {
+  const email = 'test@example.com';
+  const encryptionSecret = 'secret';
+  const UUID = 'user-uuid';
+  const taskUUIDs = ['t1', 't2'];
+  const backendURL = `${url.backendURL}delete-tasks`;
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('calls API correctly and returns true on success', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
+
+    const result = await bulkMarkTasksAsDeleted(
+      email,
+      encryptionSecret,
+      UUID,
+      taskUUIDs
+    );
+
+    expect(fetch).toHaveBeenCalledWith(backendURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        encryptionSecret,
+        UUID,
+        taskuuids: taskUUIDs,
+      }),
+    });
+
+    expect(toast.success).toHaveBeenCalledWith('2 tasks deleted.');
+    expect(result).toBe(true);
+  });
+
+  it('returns false and shows error toast when API responds with non-ok', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: false });
+
+    const result = await bulkMarkTasksAsDeleted(
+      email,
+      encryptionSecret,
+      UUID,
+      taskUUIDs
+    );
+
+    expect(toast.error).toHaveBeenCalledWith('Bulk deletion failed!');
+    expect(result).toBe(false);
+  });
+
+  it('returns false and shows error toast when fetch throws a network error', async () => {
+    (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network Error'));
+
+    const result = await bulkMarkTasksAsDeleted(
+      email,
+      encryptionSecret,
+      UUID,
+      taskUUIDs
+    );
+
+    expect(toast.error).toHaveBeenCalledWith('Bulk delete failed');
+    expect(result).toBe(false);
+  });
+
+  it('sends correct request body format with all required fields', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
+
+    await bulkMarkTasksAsCompleted('user@test.com', 'secret123', 'uuid-456', [
+      'task-1',
+      'task-2',
+      'task-3',
+    ]);
+
+    const callArgs = (fetch as jest.Mock).mock.calls[0];
+    const requestBody = JSON.parse(callArgs[1].body);
+
+    expect(requestBody).toEqual({
+      email: 'user@test.com',
+      encryptionSecret: 'secret123',
+      UUID: 'uuid-456',
+      taskuuids: ['task-1', 'task-2', 'task-3'],
+    });
+  });
+
+  it('handles bulk complete with single task correctly', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
+
+    const result = await bulkMarkTasksAsCompleted(
+      'test@example.com',
+      'secret',
+      'uuid',
+      ['single-task-uuid']
+    );
+
+    expect(toast.success).toHaveBeenCalledWith('1 task marked as completed.');
+    expect(result).toBe(true);
+  });
+
+  it('includes Content-Type header in bulk complete request', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: true });
+
+    await bulkMarkTasksAsCompleted('test@example.com', 'secret', 'uuid', [
+      'task-1',
+    ]);
+
+    const headers = (fetch as jest.Mock).mock.calls[0][1].headers;
+
+    expect(headers['Content-Type']).toBe('application/json');
+  });
+
+  it('returns false when bulk delete fails', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({ ok: false });
+
+    const result = await bulkMarkTasksAsDeleted(
+      'test@example.com',
+      'secret',
+      'uuid',
+      ['task-1']
+    );
+
+    expect(result).toBe(false);
   });
 });

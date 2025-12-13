@@ -78,6 +78,8 @@ describe('TaskDialog Component', () => {
     selectedIndex: 0,
     onOpenChange: jest.fn(),
     onSelectTask: jest.fn(),
+    selectedTaskUUIDs: [] as string[],
+    onCheckboxChange: jest.fn(),
     editState: mockEditState,
     onUpdateState: jest.fn(),
     allTasks: mockAllTasks,
