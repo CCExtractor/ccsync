@@ -86,6 +86,9 @@ export const Tasks = (
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
+  const [unsyncedTaskUuids, setUnsyncedTaskUuids] = useState<Set<string>>(
+    new Set()
+  );
   const tableRef = useRef<HTMLDivElement>(null);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -286,6 +289,8 @@ export const Tasks = (
       localStorage.setItem(hashedKey, currentTime.toString());
       setLastSyncTime(currentTime);
 
+      setUnsyncedTaskUuids(new Set());
+
       toast.success(`Tasks synced successfully!`);
     } catch (error) {
       console.error('Error syncing tasks:', error);
@@ -298,6 +303,15 @@ export const Tasks = (
   async function handleAddTask(task: TaskFormData) {
     if (handleDate(newTask.due)) {
       try {
+        setNewTask({
+          description: '',
+          priority: '',
+          project: '',
+          due: '',
+          tags: [],
+        });
+        setIsAddTaskOpen(false);
+
         await addTaskToBackend({
           email: props.email,
           encryptionSecret: props.encryptionSecret,
@@ -309,16 +323,7 @@ export const Tasks = (
           tags: task.tags,
           backendURL: url.backendURL,
         });
-
         console.log('Task added successfully!');
-        setNewTask({
-          description: '',
-          priority: '',
-          project: '',
-          due: '',
-          tags: [],
-        });
-        setIsAddTaskOpen(false);
       } catch (error) {
         console.error('Failed to add task:', error);
       }
@@ -386,6 +391,8 @@ export const Tasks = (
   };
 
   const handleMarkComplete = async (taskuuid: string) => {
+    setUnsyncedTaskUuids((prev) => new Set([...prev, taskuuid]));
+
     await markTaskAsCompleted(
       props.email,
       props.encryptionSecret,
@@ -395,6 +402,8 @@ export const Tasks = (
   };
 
   const handleMarkDelete = async (taskuuid: string) => {
+    setUnsyncedTaskUuids((prev) => new Set([...prev, taskuuid]));
+
     await markTaskAsDeleted(
       props.email,
       props.encryptionSecret,
@@ -411,6 +420,9 @@ export const Tasks = (
 
   const handleSaveDescription = (task: Task, description: string) => {
     task.description = description;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -431,6 +443,9 @@ export const Tasks = (
 
   const handleProjectSaveClick = (task: Task, project: string) => {
     task.project = project;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -451,6 +466,8 @@ export const Tasks = (
 
   const handleWaitDateSaveClick = (task: Task, waitDate: string) => {
     task.wait = waitDate;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
     handleEditTaskOnBackend(
       props.email,
@@ -473,6 +490,8 @@ export const Tasks = (
   const handleStartDateSaveClick = (task: Task, startDate: string) => {
     task.start = startDate;
 
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -493,6 +512,8 @@ export const Tasks = (
 
   const handleEntryDateSaveClick = (task: Task, entryDate: string) => {
     task.entry = entryDate;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
     handleEditTaskOnBackend(
       props.email,
@@ -515,6 +536,8 @@ export const Tasks = (
   const handleEndDateSaveClick = (task: Task, endDate: string) => {
     task.end = endDate;
 
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -536,6 +559,8 @@ export const Tasks = (
   const handleDueDateSaveClick = (task: Task, dueDate: string) => {
     task.due = dueDate;
 
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -556,6 +581,8 @@ export const Tasks = (
 
   const handleDependsSaveClick = (task: Task, depends: string[]) => {
     task.depends = depends;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
     handleEditTaskOnBackend(
       props.email,
@@ -587,6 +614,8 @@ export const Tasks = (
     }
 
     task.recur = recur;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
     handleEditTaskOnBackend(
       props.email,
@@ -687,6 +716,9 @@ export const Tasks = (
     const tagsToRemove = removedTags.map((tag) => `${tag}`);
     const finalTags = [...updatedTags, ...tagsToRemove];
     console.log(finalTags);
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -708,6 +740,8 @@ export const Tasks = (
   const handleSavePriority = async (task: Task, priority: string) => {
     try {
       const priorityValue = priority === 'NONE' ? '' : priority;
+
+      setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
       await modifyTaskOnBackend({
         email: props.email,
@@ -844,7 +878,7 @@ export const Tasks = (
         </Button>
         {/* Mobile-only Sync button (desktop already shows a Sync button with filters) */}
         <Button
-          className="sm:hidden ml-2"
+          className="sm:hidden ml-2 relative"
           variant="outline"
           onClick={async () => {
             props.setIsLoading(true);
@@ -856,7 +890,14 @@ export const Tasks = (
           {props.isLoading ? (
             <Loader2 className="mx-1 size-5 animate-spin" />
           ) : (
-            'Sync'
+            <div className="flex items-center">
+              Sync
+              {unsyncedTaskUuids.size > 0 && (
+                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
+                  {unsyncedTaskUuids.size}
+                </span>
+              )}
+            </div>
           )}
         </Button>
       </div>
@@ -935,13 +976,20 @@ export const Tasks = (
                       <Button
                         id="sync-task"
                         variant="outline"
-                        onClick={() => (
-                          props.setIsLoading(true),
-                          syncTasksWithTwAndDb()
-                        )}
+                        className="relative"
+                        onClick={async () => {
+                          props.setIsLoading(true);
+                          await syncTasksWithTwAndDb();
+                          props.setIsLoading(false);
+                        }}
                       >
                         Sync
                         <Key lable="r" />
+                        {unsyncedTaskUuids.size > 0 && (
+                          <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
+                            {unsyncedTaskUuids.size}
+                          </span>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -1018,6 +1066,7 @@ export const Tasks = (
                             onMarkComplete={handleMarkComplete}
                             onMarkDeleted={handleMarkDelete}
                             isOverdue={isOverdue}
+                            isUnsynced={unsyncedTaskUuids.has(task.uuid)}
                           />
                         ))
                       )}
