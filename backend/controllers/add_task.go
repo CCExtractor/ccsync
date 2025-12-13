@@ -52,9 +52,9 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Description is required, and cannot be empty!", http.StatusBadRequest)
 			return
 		}
-		if dueDate == "" {
-			http.Error(w, "Due Date is required, and cannot be empty!", http.StatusBadRequest)
-			return
+		var dueDateStr string
+		if dueDate != nil && *dueDate != "" {
+			dueDateStr = *dueDate
 		}
 
 		logStore := models.GetLogStore()
@@ -62,7 +62,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Name: "Add Task",
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Adding task: %s", description), uuid, "Add Task")
-				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate, tags)
+				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDateStr, tags)
 				if err != nil {
 					logStore.AddLog("ERROR", fmt.Sprintf("Failed to add task: %v", err), uuid, "Add Task")
 					return err
