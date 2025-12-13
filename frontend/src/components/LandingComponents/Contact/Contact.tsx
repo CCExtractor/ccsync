@@ -85,8 +85,9 @@ export const Contact = () => {
             animate={inView ? 'visible' : 'hidden'}
             variants={cardVariants}
             whileHover={'hover'}
+            className="bg-muted rounded-lg mt-8"
           >
-            <Card className="bg-muted/50 relative mt-8 flex flex-col justify-center items-center">
+            <Card className="bg-muted/50 relative  flex flex-col justify-center items-center">
               <CardHeader className="mt-8 flex justify-center items-center pb-2">
                 <a href={url}>{icon}</a>
                 <CardTitle className="text-center">

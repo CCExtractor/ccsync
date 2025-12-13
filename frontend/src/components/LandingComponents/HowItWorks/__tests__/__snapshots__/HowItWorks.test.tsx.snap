@@ -23,7 +23,7 @@ exports[`HowItWorks component using snapshot renders correctly 1`] = `
       class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 gap-y-10"
     >
       <div
-        class="bg-muted/50"
+        class="bg-muted rounded-lg"
         style="opacity: 0; transform: translateX(-50px);"
       >
         <div
@@ -125,7 +125,7 @@ exports[`HowItWorks component using snapshot renders correctly 1`] = `
         </div>
       </div>
       <div
-        class="bg-muted/50"
+        class="bg-muted rounded-lg"
         style="opacity: 0; transform: translateX(-50px);"
       >
         <div
@@ -223,7 +223,7 @@ exports[`HowItWorks component using snapshot renders correctly 1`] = `
         </div>
       </div>
       <div
-        class="bg-muted/50"
+        class="bg-muted rounded-lg"
         style="opacity: 0; transform: translateX(-50px);"
       >
         <div
@@ -305,7 +305,7 @@ exports[`HowItWorks component using snapshot renders correctly 1`] = `
         </div>
       </div>
       <div
-        class="bg-muted/50"
+        class="bg-muted rounded-lg"
         style="opacity: 0; transform: translateX(-50px);"
       >
         <div
