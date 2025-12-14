@@ -243,6 +243,14 @@ export const Tasks = (
   useEffect(() => {
     if (!isAddTaskOpen) {
       setIsCreatingNewProject(false);
+      setTagInput('');
+      setNewTask({
+        description: '',
+        priority: '',
+        project: '',
+        due: '',
+        tags: [],
+      });
     }
   }, [isAddTaskOpen]);
 

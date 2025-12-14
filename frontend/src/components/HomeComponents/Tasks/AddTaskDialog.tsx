@@ -80,26 +80,27 @@ export const AddTaskdialog = ({
             <Label htmlFor="description" className="text-right">
               Description
             </Label>
-            <Input
-              id="description"
-              name="description"
-              type="text"
-              value={newTask.description}
-              onChange={(e) =>
-                setNewTask({
-                  ...newTask,
-                  description: e.target.value,
-                })
-              }
-              required
-              className="col-span-3"
-            />
+            <div className="col-span-3">
+              <Input
+                id="description"
+                name="description"
+                type="text"
+                value={newTask.description}
+                onChange={(e) =>
+                  setNewTask({
+                    ...newTask,
+                    description: e.target.value,
+                  })
+                }
+                required
+              />
+            </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="priority" className="text-right">
               Priority
             </Label>
-            <div className="col-span-1 flex items-center">
+            <div className="col-span-3 flex items-center">
               <select
                 id="priority"
                 name="priority"
@@ -112,9 +113,10 @@ export const AddTaskdialog = ({
                 }
                 className="border rounded-md px-2 py-1 w-full bg-white text-black dark:bg-black dark:text-white transition-colors"
               >
-                <option value="H">H</option>
-                <option value="M">M</option>
-                <option value="L">L</option>
+                <option value="">None</option>
+                <option value="H">High (H)</option>
+                <option value="M">Medium (M)</option>
+                <option value="L">Low (L)</option>
               </select>
             </div>
           </div>
@@ -195,16 +197,17 @@ export const AddTaskdialog = ({
             <Label htmlFor="description" className="text-right">
               Tags
             </Label>
-            <Input
-              id="tags"
-              name="tags"
-              placeholder="Add a tag"
-              value={tagInput}
-              onChange={(e) => setTagInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
-              required
-              className="col-span-3"
-            />
+            <div className="col-span-3">
+              <Input
+                id="tags"
+                name="tags"
+                placeholder="Add a tag"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
+                required
+              />
+            </div>
           </div>
 
           <div className="mt-2">

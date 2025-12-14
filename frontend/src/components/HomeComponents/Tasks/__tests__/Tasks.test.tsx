@@ -180,6 +180,56 @@ describe('Tasks Component', () => {
     expect(dropdown).toHaveValue('10');
   });
 
+  test('reset form fields when Add Task dialog is closed via cancel button', async () => {
+    render(<Tasks {...mockProps} />);
+
+    expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+    const addTaskButton = screen.getByRole('button', { name: /add task/i });
+    fireEvent.click(addTaskButton);
+
+    const descriptionInput = screen.getByLabelText(/description/i);
+    fireEvent.change(descriptionInput, {
+      target: { value: 'New Task Description' },
+    });
+
+    expect(descriptionInput).toHaveValue('New Task Description');
+
+    const priorityInput = screen.getByLabelText(/priority/i);
+    fireEvent.change(priorityInput, { target: { value: 'L' } });
+
+    expect(priorityInput).toHaveValue('L');
+
+    const projectSelect = await screen.findByTestId('project-select');
+    fireEvent.change(projectSelect, { target: { value: 'ProjectA' } });
+
+    expect(projectSelect).toHaveValue('ProjectA');
+
+    const tagsInput = screen.getByPlaceholderText('Add a tag');
+    fireEvent.change(tagsInput, { target: { value: 'urgent' } });
+    fireEvent.keyDown(tagsInput, { key: 'Enter', code: 'Enter' });
+
+    expect(screen.getByText('urgent')).toBeInTheDocument();
+
+    const cancelButton = screen.getByRole('button', { name: /cancel/i });
+    fireEvent.click(cancelButton);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Add a new task')).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(addTaskButton);
+
+    const descriptionInputAfter = screen.getByLabelText(/description/i);
+    const priorityInputAfter = screen.getByLabelText(/priority/i);
+    const projectSelectAfter = await screen.findByTestId('project-select');
+
+    expect(descriptionInputAfter).toHaveValue('');
+    expect(priorityInputAfter).toHaveValue('');
+    expect(projectSelectAfter).toHaveValue('');
+    expect(screen.queryByText('urgent')).not.toBeInTheDocument();
+  });
+
   test('loads "tasksPerPage" from localStorage on initial render', async () => {
     localStorageMock.setItem('mockHashedKey', '20');
 

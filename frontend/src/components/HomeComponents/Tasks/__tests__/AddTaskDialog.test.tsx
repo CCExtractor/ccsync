@@ -258,9 +258,12 @@ describe('AddTaskDialog Component', () => {
 
     const prioritySelect = screen.getByLabelText(/priority/i);
 
-    expect(prioritySelect).toContainHTML('<option value="H">H</option>');
-    expect(prioritySelect).toContainHTML('<option value="M">M</option>');
-    expect(prioritySelect).toContainHTML('<option value="L">L</option>');
+    expect(prioritySelect).toContainHTML('<option value="">None</option>');
+    expect(prioritySelect).toContainHTML('<option value="H">High (H)</option>');
+    expect(prioritySelect).toContainHTML(
+      '<option value="M">Medium (M)</option>'
+    );
+    expect(prioritySelect).toContainHTML('<option value="L">Low (L)</option>');
   });
 
   test('shows new project input when creating new project', () => {
