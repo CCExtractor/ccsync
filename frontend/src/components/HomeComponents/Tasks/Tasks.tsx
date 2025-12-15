@@ -19,7 +19,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   getDisplayedPages,
-  handleDate,
   markTaskAsCompleted,
   markTaskAsDeleted,
   Props,
@@ -296,32 +295,30 @@ export const Tasks = (
   }, [props.email, props.encryptionSecret, props.UUID]); // Add dependencies
 
   async function handleAddTask(task: TaskFormData) {
-    if (!newTask.due || handleDate(newTask.due)) {
-      try {
-        await addTaskToBackend({
-          email: props.email,
-          encryptionSecret: props.encryptionSecret,
-          UUID: props.UUID,
-          description: task.description,
-          project: task.project,
-          priority: task.priority,
-          due: task.due || undefined,
-          tags: task.tags,
-          backendURL: url.backendURL,
-        });
+    try {
+      await addTaskToBackend({
+        email: props.email,
+        encryptionSecret: props.encryptionSecret,
+        UUID: props.UUID,
+        description: task.description,
+        project: task.project,
+        priority: task.priority,
+        due: task.due || undefined,
+        tags: task.tags,
+        backendURL: url.backendURL,
+      });
 
-        console.log('Task added successfully!');
-        setNewTask({
-          description: '',
-          priority: '',
-          project: '',
-          due: '',
-          tags: [],
-        });
-        setIsAddTaskOpen(false);
-      } catch (error) {
-        console.error('Failed to add task:', error);
-      }
+      console.log('Task added successfully!');
+      setNewTask({
+        description: '',
+        priority: '',
+        project: '',
+        due: '',
+        tags: [],
+      });
+      setIsAddTaskOpen(false);
+    } catch (error) {
+      console.error('Failed to add task:', error);
     }
   }
 
