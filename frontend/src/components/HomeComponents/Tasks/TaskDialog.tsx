@@ -91,8 +91,8 @@ export const TaskDialog = ({
           data-testid={`task-row-${task.id}`}
           id={`task-row-${task.id}`}
           key={index}
-          className={`border-b cursor-pointer ${
-            selectedIndex === index ? 'bg-muted/50' : ''
+          className={`border-b cursor-pointer hover:dark:bg-muted/50 hover:bg-black/15 ${
+            selectedIndex === index ? 'dark:bg-muted/50 bg-black/15' : ''
           }`}
           onClick={() => {
             onSelectTask(task, index);
