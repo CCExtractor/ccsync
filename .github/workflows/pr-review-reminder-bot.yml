@@ -25,6 +25,9 @@ jobs:
               - Clarify decisions you made or areas you might be unsure about and/or any future updates being considered.
               - Finally, submit all the comments!
 
+              More information on how to conduct a self review:
+              https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/reviewing-proposed-changes-in-a-pull-request
+
               This helps make the review process smoother and gives us a clearer understanding of your thought process.
 
               Once you've added your self-review, we'll continue from our side. Thank you!
