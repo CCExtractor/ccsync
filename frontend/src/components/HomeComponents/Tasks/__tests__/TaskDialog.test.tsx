@@ -609,19 +609,16 @@ describe('TaskDialog Component', () => {
 
   describe('Selected State', () => {
     test('should highlight selected task row', () => {
-      const { container } = render(
-        <TaskDialog {...defaultProps} selectedIndex={0} />
-      );
+      render(<TaskDialog {...defaultProps} selectedIndex={0} />);
 
-      const taskRow = container.querySelector('.bg-muted\\/50');
-      expect(taskRow).toBeInTheDocument();
+      const taskRow = screen.getByText(mockTask.description).closest('tr');
+      expect(taskRow).toHaveAttribute('data-selected', 'true');
     });
 
     test('should not highlight non-selected task row', () => {
       render(<TaskDialog {...defaultProps} selectedIndex={1} />);
-
       const taskRow = screen.getByText(mockTask.description).closest('tr');
-      expect(taskRow).not.toHaveClass('bg-muted/50');
+      expect(taskRow).toHaveAttribute('data-selected', 'false');
     });
   });
 
