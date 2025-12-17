@@ -151,6 +151,7 @@ export const Tasks = (
         target instanceof HTMLTextAreaElement ||
         target instanceof HTMLSelectElement ||
         _isDialogOpen ||
+        isAddTaskOpen ||
         target.isContentEditable
       ) {
         return;
