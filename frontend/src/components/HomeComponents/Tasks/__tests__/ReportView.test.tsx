@@ -57,6 +57,7 @@ const createMockTask = (
     depends,
     rtype: 'mockRtype',
     recur: 'mockRecur',
+    annotations: [],
     email: 'mockEmail',
   };
 };

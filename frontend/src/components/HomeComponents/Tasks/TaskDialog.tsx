@@ -1227,6 +1227,20 @@ export const TaskDialog = ({
                     </CopyToClipboard>
                   </TableCell>
                 </TableRow>
+                <TableRow>
+                  <TableCell>Annotations:</TableCell>
+                  <TableCell>
+                    {task.annotations && task.annotations.length > 0 ? (
+                      <span>
+                        {task.annotations
+                          .map((ann) => ann.description)
+                          .join(', ')}
+                      </span>
+                    ) : (
+                      <span>No Annotations</span>
+                    )}
+                  </TableCell>
+                </TableRow>
               </TableBody>
             </Table>
           </DialogDescription>
