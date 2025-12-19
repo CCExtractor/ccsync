@@ -59,6 +59,7 @@ describe('AddTaskDialog Component', () => {
         project: '',
         due: '',
         tags: [],
+        annotations: [],
       },
       setNewTask: jest.fn(),
       tagInput: '',
@@ -219,6 +220,7 @@ describe('AddTaskDialog Component', () => {
       project: 'Work',
       due: '2024-12-25',
       tags: ['urgent'],
+      annotations: [],
     };
     render(<AddTaskdialog {...mockProps} />);
 

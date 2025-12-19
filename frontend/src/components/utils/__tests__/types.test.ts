@@ -54,6 +54,7 @@ describe('Task interface', () => {
       depends: ['123e4567', '123e4567'],
       rtype: 'any',
       recur: 'none',
+      annotations: [],
       email: 'test@example.com',
     };
 
