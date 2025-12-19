@@ -1,14 +1,16 @@
 package tw
 
 import (
+	"ccsync_backend/models"
 	"ccsync_backend/utils"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 )
 
 // add task to the user's tw client
-func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate string, tags []string) error {
+func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate string, tags []string, annotations []models.Annotation) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
@@ -51,6 +53,34 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 
 	if err := utils.ExecCommandInDir(tempDir, "task", cmdArgs...); err != nil {
 		return fmt.Errorf("failed to add task: %v\n %v", err, cmdArgs)
+	}
+
+	if len(annotations) > 0 {
+		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", "export")
+		if err != nil {
+			return fmt.Errorf("failed to export tasks: %v", err)
+		}
+
+		var tasks []models.Task
+		if err := json.Unmarshal(output, &tasks); err != nil {
+			return fmt.Errorf("failed to parse exported tasks: %v", err)
+		}
+
+		if len(tasks) == 0 {
+			return fmt.Errorf("no tasks found after creation")
+		}
+
+		lastTask := tasks[len(tasks)-1]
+		taskID := fmt.Sprintf("%d", lastTask.ID)
+
+		for _, annotation := range annotations {
+			if annotation.Description != "" {
+				annotateArgs := []string{"rc.confirmation=off", taskID, "annotate", annotation.Description}
+				if err := utils.ExecCommandInDir(tempDir, "task", annotateArgs...); err != nil {
+					return fmt.Errorf("failed to add annotation to task %s: %v", taskID, err)
+				}
+			}
+		}
 	}
 
 	// Sync Taskwarrior again

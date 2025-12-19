@@ -39,6 +39,7 @@ const createTask = (
   depends: [],
   rtype: '',
   recur: '',
+  annotations: [],
 });
 
 describe('sortTasks', () => {

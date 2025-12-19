@@ -2,14 +2,15 @@ package models
 
 // Request body for task related request handlers
 type AddTaskRequestBody struct {
-	Email            string   `json:"email"`
-	EncryptionSecret string   `json:"encryptionSecret"`
-	UUID             string   `json:"UUID"`
-	Description      string   `json:"description"`
-	Project          string   `json:"project"`
-	Priority         string   `json:"priority"`
-	DueDate          *string  `json:"due"`
-	Tags             []string `json:"tags"`
+	Email            string       `json:"email"`
+	EncryptionSecret string       `json:"encryptionSecret"`
+	UUID             string       `json:"UUID"`
+	Description      string       `json:"description"`
+	Project          string       `json:"project"`
+	Priority         string       `json:"priority"`
+	DueDate          *string      `json:"due"`
+	Tags             []string     `json:"tags"`
+	Annotations      []Annotation `json:"annotations"`
 }
 type ModifyTaskRequestBody struct {
 	Email            string   `json:"email"`

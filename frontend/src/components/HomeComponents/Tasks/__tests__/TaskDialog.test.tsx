@@ -29,6 +29,7 @@ describe('TaskDialog Component', () => {
     depends: [],
     recur: '',
     rtype: '',
+    annotations: [],
   };
 
   const mockAllTasks: Task[] = [

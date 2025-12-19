@@ -43,6 +43,7 @@ export const addTaskToBackend = async ({
   priority,
   due,
   tags,
+  annotations,
   backendURL,
 }: {
   email: string;
@@ -53,6 +54,7 @@ export const addTaskToBackend = async ({
   priority: string;
   due?: string;
   tags: string[];
+  annotations: { entry: string; description: string }[];
   backendURL: string;
 }) => {
   const requestBody: any = {
@@ -69,6 +71,13 @@ export const addTaskToBackend = async ({
   if (due !== undefined && due !== '') {
     requestBody.due = due;
   }
+
+  // Add annotations to request body, filtering out empty descriptions
+  requestBody.annotations = annotations.filter(
+    (annotation) =>
+      annotation.description && annotation.description.trim() !== ''
+  );
+
   const response = await fetch(`${backendURL}add-task`, {
     method: 'POST',
     body: JSON.stringify(requestBody),

@@ -15,6 +15,11 @@ export interface CopyButtonProps {
   label: string;
 }
 
+export interface Annotation {
+  entry: string;
+  description: string;
+}
+
 export interface Task {
   id: number;
   description: string;
@@ -33,6 +38,7 @@ export interface Task {
   depends: string[];
   rtype: string;
   recur: string;
+  annotations: Annotation[];
   email: string;
 }
 
@@ -94,6 +100,7 @@ export interface TaskFormData {
   project: string;
   due: string;
   tags: string[];
+  annotations: Annotation[];
 }
 
 export interface AddTaskDialogProps {

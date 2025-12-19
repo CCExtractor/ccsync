@@ -67,12 +67,13 @@ export const Tasks = (
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
 
-  const [newTask, setNewTask] = useState({
+  const [newTask, setNewTask] = useState<TaskFormData>({
     description: '',
     priority: '',
     project: '',
     due: '',
-    tags: [] as string[],
+    tags: [],
+    annotations: [],
   });
   const [isCreatingNewProject, setIsCreatingNewProject] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
@@ -306,6 +307,7 @@ export const Tasks = (
         priority: task.priority,
         due: task.due || undefined,
         tags: task.tags,
+        annotations: task.annotations,
         backendURL: url.backendURL,
       });
 
@@ -316,6 +318,7 @@ export const Tasks = (
         project: '',
         due: '',
         tags: [],
+        annotations: [],
       });
       setIsAddTaskOpen(false);
     } catch (error) {
