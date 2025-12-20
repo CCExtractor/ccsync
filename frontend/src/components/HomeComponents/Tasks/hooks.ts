@@ -43,6 +43,7 @@ export const addTaskToBackend = async ({
   priority,
   due,
   start,
+  end,
   recur,
   tags,
   annotations,
@@ -56,6 +57,7 @@ export const addTaskToBackend = async ({
   priority: string;
   due?: string;
   start: string;
+  end: string;
   recur: string;
   tags: string[];
   annotations: { entry: string; description: string }[];
@@ -79,6 +81,11 @@ export const addTaskToBackend = async ({
   // Only include start if it's provided
   if (start !== undefined && start !== '') {
     requestBody.start = start;
+  }
+
+  // Only include end if it's provided
+  if (end !== undefined && end !== '') {
+    requestBody.end = end;
   }
 
   // Only include recur if it's provided
