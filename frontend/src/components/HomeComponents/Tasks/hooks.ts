@@ -43,6 +43,7 @@ export const addTaskToBackend = async ({
   priority,
   due,
   start,
+  recur,
   tags,
   annotations,
   backendURL,
@@ -55,6 +56,7 @@ export const addTaskToBackend = async ({
   priority: string;
   due?: string;
   start: string;
+  recur: string;
   tags: string[];
   annotations: { entry: string; description: string }[];
   backendURL: string;
@@ -77,6 +79,11 @@ export const addTaskToBackend = async ({
   // Only include start if it's provided
   if (start !== undefined && start !== '') {
     requestBody.start = start;
+  }
+
+  // Only include recur if it's provided
+  if (recur !== undefined && recur !== '') {
+    requestBody.recur = recur;
   }
 
   // Add annotations to request body, filtering out empty descriptions
