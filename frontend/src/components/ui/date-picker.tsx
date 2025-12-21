@@ -23,7 +23,7 @@ export function DatePicker({
   className,
 }: DatePickerProps) {
   return (
-    <Popover>
+    <Popover modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant={'outline'}
