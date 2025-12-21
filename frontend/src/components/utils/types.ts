@@ -102,6 +102,7 @@ export interface TaskFormData {
   start: string;
   tags: string[];
   annotations: Annotation[];
+  depends: string[];
 }
 
 export interface AddTaskDialogProps {
@@ -115,6 +116,7 @@ export interface AddTaskDialogProps {
   isCreatingNewProject: boolean;
   setIsCreatingNewProject: (value: boolean) => void;
   uniqueProjects: string[];
+  allTasks?: Task[];
 }
 
 export interface EditTaskDialogProps {

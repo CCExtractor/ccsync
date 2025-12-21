@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"ccsync_backend/models"
+	"ccsync_backend/utils"
 	"ccsync_backend/utils/tw"
 	"encoding/json"
 	"fmt"
@@ -49,9 +50,16 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		start := requestBody.Start
 		tags := requestBody.Tags
 		annotations := requestBody.Annotations
+		depends := requestBody.Depends
 
 		if description == "" {
 			http.Error(w, "Description is required, and cannot be empty!", http.StatusBadRequest)
+			return
+		}
+
+		// Validate dependencies
+		if err := utils.ValidateDependencies(depends, ""); err != nil {
+			http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
 			return
 		}
 		var dueDateStr string
@@ -64,7 +72,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Name: "Add Task",
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Adding task: %s", description), uuid, "Add Task")
-				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDateStr, start, tags, annotations)
+				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDateStr, start, tags, annotations, depends)
 				if err != nil {
 					logStore.AddLog("ERROR", fmt.Sprintf("Failed to add task: %v", err), uuid, "Add Task")
 					return err

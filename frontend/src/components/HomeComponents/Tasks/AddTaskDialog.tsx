@@ -35,6 +35,7 @@ export const AddTaskdialog = ({
   isCreatingNewProject,
   setIsCreatingNewProject,
   uniqueProjects = [],
+  allTasks = [], // Add this prop
 }: AddTaskDialogProps) => {
   const [annotationInput, setAnnotationInput] = useState('');
 
@@ -321,6 +322,131 @@ export const AddTaskdialog = ({
                 </div>
               </div>
             )}
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="depends" className="text-right">
+              Depends On
+            </Label>
+            <div className="col-span-3 space-y-2">
+              <Select
+                value=""
+                onValueChange={(taskUuid) => {
+                  if (taskUuid && !newTask.depends.includes(taskUuid)) {
+                    setNewTask({
+                      ...newTask,
+                      depends: [...newTask.depends, taskUuid],
+                    });
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a task this depends on" />
+                </SelectTrigger>
+                <SelectContent
+                  className="max-h-60 overflow-y-auto"
+                  onWheel={(e) => e.stopPropagation()}
+                >
+                  {(() => {
+                    const availableTasks = allTasks.filter(
+                      (task) =>
+                        task.status === 'pending' &&
+                        !newTask.depends.includes(task.uuid)
+                    );
+
+                    if (availableTasks.length === 0) {
+                      return (
+                        <SelectItem value="" disabled>
+                          No available tasks to depend on
+                        </SelectItem>
+                      );
+                    }
+
+                    // Limit to first 50 tasks for better performance
+                    const limitedTasks = availableTasks.slice(0, 50);
+
+                    return (
+                      <>
+                        {limitedTasks.map((task) => (
+                          <SelectItem key={task.uuid} value={task.uuid}>
+                            <div className="flex items-center gap-2 w-full min-w-0">
+                              <span className="font-medium text-xs shrink-0">
+                                #{task.id}
+                              </span>
+                              <span className="truncate flex-1 text-sm">
+                                {task.description.length > 35
+                                  ? `${task.description.substring(0, 35)}...`
+                                  : task.description}
+                              </span>
+                              {task.project && (
+                                <Badge
+                                  variant="secondary"
+                                  className="text-xs px-1 py-0 shrink-0"
+                                >
+                                  {task.project.length > 8
+                                    ? `${task.project.substring(0, 8)}...`
+                                    : task.project}
+                                </Badge>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                        {availableTasks.length > 50 && (
+                          <SelectItem
+                            value=""
+                            disabled
+                            className="text-xs text-muted-foreground"
+                          >
+                            ... and {availableTasks.length - 50} more tasks (use
+                            search to find more)
+                          </SelectItem>
+                        )}
+                      </>
+                    );
+                  })()}
+                </SelectContent>
+              </Select>
+
+              {/* Display selected dependencies */}
+              {newTask.depends.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {newTask.depends.map((taskUuid) => {
+                    const dependentTask = allTasks.find(
+                      (t) => t.uuid === taskUuid
+                    );
+                    return (
+                      <Badge
+                        key={taskUuid}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        <span>
+                          #{dependentTask?.id || '?'}{' '}
+                          {dependentTask?.description?.substring(0, 20) ||
+                            taskUuid.substring(0, 8)}
+                          {dependentTask?.description &&
+                            dependentTask.description.length > 20 &&
+                            '...'}
+                        </span>
+                        <button
+                          type="button"
+                          className="ml-1 text-red-500 hover:text-red-700"
+                          onClick={() => {
+                            setNewTask({
+                              ...newTask,
+                              depends: newTask.depends.filter(
+                                (d) => d !== taskUuid
+                              ),
+                            });
+                          }}
+                        >
+                          ✖
+                        </button>
+                      </Badge>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <DialogFooter>
