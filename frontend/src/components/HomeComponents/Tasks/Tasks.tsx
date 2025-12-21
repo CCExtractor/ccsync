@@ -918,7 +918,7 @@ export const Tasks = (
                       className="hidden sm:flex min-w-[140px]"
                       icon={<Key lable="t" />}
                     />
-                    <div className="pr-2">
+                    <div className="flex justify-center">
                       <AddTaskdialog
                         isOpen={isAddTaskOpen}
                         setIsOpen={setIsAddTaskOpen}
