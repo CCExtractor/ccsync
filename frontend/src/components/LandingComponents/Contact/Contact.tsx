@@ -32,7 +32,8 @@ const contactList: ContactProps[] = [
     position: 'Check out our Github repository',
     url: url.githubRepoURL,
   },
-  {
+  // HIDING BROKEN LINKS TEMPORARILY
+  /* {
     icon: <AiOutlineDiscord size={45} />,
     name: 'Discord',
     position: 'Join us at Discord for discussions',
@@ -43,7 +44,8 @@ const contactList: ContactProps[] = [
     name: 'Email',
     position: 'Email us for any queries',
     url: '',
-  },
+  }, 
+  */
 ];
 
 const cardVariants = {
@@ -75,7 +77,7 @@ export const Contact = () => {
       <div
         data-testid="contact"
         ref={ref}
-        className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 gap-y-10"
+        className="flex flex-wrap justify-center gap-8 gap-y-10"
       >
         {contactList.map(({ icon, name, position, url }: ContactProps) => (
           <motion.div
