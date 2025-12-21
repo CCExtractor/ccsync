@@ -99,6 +99,15 @@ CCSync is composed of **three core modules**:
 
 📖 Learn more in the [official documentation](https://its-me-abhishek.github.io/ccsync-docs/).
 
+## Prerequisites
+
+Before setting up the project, ensure you have the following installed:
+
+- **Go (Golang):** Version 1.21 or higher (Required for Backend).
+- **Node.js & npm:** Version 18 or higher (Required for Frontend).
+- **Docker:** (Optional) Required only if you want to run the Sync Server or the full stack via `docker-compose`.
+- **Tmux:** (Linux/macOS only) Required only if you use the `setup.sh` script. Windows users should follow the **Manual Setup** instructions.
+
 ## Development Setup
 
 Want to contribute or run CCSync locally? We've made it easy!
