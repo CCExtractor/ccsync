@@ -72,6 +72,7 @@ export const Tasks = (
     priority: '',
     project: '',
     due: '',
+    start: '',
     tags: [],
     annotations: [],
   });
@@ -306,6 +307,7 @@ export const Tasks = (
         project: task.project,
         priority: task.priority,
         due: task.due || undefined,
+        start: task.start || '',
         tags: task.tags,
         annotations: task.annotations,
         backendURL: url.backendURL,
@@ -317,6 +319,7 @@ export const Tasks = (
         priority: '',
         project: '',
         due: '',
+        start: '',
         tags: [],
         annotations: [],
       });
