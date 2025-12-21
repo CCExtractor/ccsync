@@ -42,6 +42,7 @@ export const addTaskToBackend = async ({
   project,
   priority,
   due,
+  start,
   tags,
   annotations,
   backendURL,
@@ -53,6 +54,7 @@ export const addTaskToBackend = async ({
   project: string;
   priority: string;
   due?: string;
+  start: string;
   tags: string[];
   annotations: { entry: string; description: string }[];
   backendURL: string;
@@ -70,6 +72,11 @@ export const addTaskToBackend = async ({
   // Only include due if it's provided
   if (due !== undefined && due !== '') {
     requestBody.due = due;
+  }
+
+  // Only include start if it's provided
+  if (start !== undefined && start !== '') {
+    requestBody.start = start;
   }
 
   // Add annotations to request body, filtering out empty descriptions

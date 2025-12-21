@@ -99,6 +99,7 @@ export interface TaskFormData {
   priority: string;
   project: string;
   due: string;
+  start: string;
   tags: string[];
   annotations: Annotation[];
 }
