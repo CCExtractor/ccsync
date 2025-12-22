@@ -73,6 +73,7 @@ export const Tasks = (
     project: '',
     due: '',
     start: '',
+    recur: '',
     tags: [],
     annotations: [],
   });
@@ -308,6 +309,7 @@ export const Tasks = (
         priority: task.priority,
         due: task.due || undefined,
         start: task.start || '',
+        recur: task.recur || '',
         tags: task.tags,
         annotations: task.annotations,
         backendURL: url.backendURL,
@@ -320,6 +322,7 @@ export const Tasks = (
         project: '',
         due: '',
         start: '',
+        recur: '',
         tags: [],
         annotations: [],
       });
