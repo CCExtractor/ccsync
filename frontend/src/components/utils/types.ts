@@ -100,6 +100,7 @@ export interface TaskFormData {
   project: string;
   due: string;
   start: string;
+  recur: string;
   tags: string[];
   annotations: Annotation[];
 }
