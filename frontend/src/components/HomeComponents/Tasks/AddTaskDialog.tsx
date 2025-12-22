@@ -110,7 +110,7 @@ export const AddTaskdialog = ({
             Fill in the details below to add a new task.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-4 h-96  overflow-auto p-4">
           <div className="grid grid-cols-8 items-center gap-4">
             <Label htmlFor="description" className="text-right col-span-2">
               Description
