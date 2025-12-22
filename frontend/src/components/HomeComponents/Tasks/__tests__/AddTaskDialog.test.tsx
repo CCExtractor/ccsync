@@ -59,6 +59,7 @@ describe('AddTaskDialog Component', () => {
         project: '',
         due: '',
         start: '',
+        end: '',
         tags: [],
         annotations: [],
       },
@@ -221,6 +222,7 @@ describe('AddTaskDialog Component', () => {
       project: 'Work',
       due: '2024-12-25',
       start: '',
+      end: '',
       tags: ['urgent'],
       annotations: [],
     };
