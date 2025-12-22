@@ -42,7 +42,7 @@ func TestExportTasks(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarrior(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03", "2025-03-01", nil, []models.Annotation{{Description: "note"}})
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03", "2025-03-01", "", nil, []models.Annotation{{Description: "note"}})
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior failed: %v", err)
 	} else {
@@ -60,7 +60,7 @@ func TestCompleteTaskInTaskwarrior(t *testing.T) {
 }
 
 func TestAddTaskWithTags(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03", "2025-03-01", []string{"work", "important"}, []models.Annotation{{Description: "note"}})
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03", "2025-03-01", "", []string{"work", "important"}, []models.Annotation{{Description: "note"}})
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior with tags failed: %v", err)
 	} else {
@@ -96,7 +96,7 @@ func TestEditTaskWithMixedTagOperations(t *testing.T) {
 }
 
 func TestModifyTaskWithTags(t *testing.T) {
-	err := ModifyTaskInTaskwarrior("uuid", "description", "project", "H", "pending", "2025-03-03", "email", "encryptionSecret", "taskuuid", []string{"+urgent", "-work", "normal"})
+	err := ModifyTaskInTaskwarrior("uuid", "description", "project", "H", "pending", "2025-03-03", "", "email", "encryptionSecret", "taskuuid", []string{"+urgent", "-work", "normal"})
 	if err != nil {
 		t.Errorf("ModifyTaskInTaskwarrior with tags failed: %v", err)
 	} else {

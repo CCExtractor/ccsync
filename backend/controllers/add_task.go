@@ -47,6 +47,13 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		priority := requestBody.Priority
 		dueDate := requestBody.DueDate
 		start := requestBody.Start
+		end := requestBody.End
+
+		// Validate start/end ordering
+		if err := validateStartEnd(start, end); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		tags := requestBody.Tags
 		annotations := requestBody.Annotations
 
@@ -64,7 +71,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Name: "Add Task",
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Adding task: %s", description), uuid, "Add Task")
-				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDateStr, start, tags, annotations)
+				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDateStr, start, end, tags, annotations)
 				if err != nil {
 					logStore.AddLog("ERROR", fmt.Sprintf("Failed to add task: %v", err), uuid, "Add Task")
 					return err

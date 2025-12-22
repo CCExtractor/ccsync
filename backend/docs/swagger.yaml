@@ -16,6 +16,10 @@ definitions:
         type: string
       project:
         type: string
+      start:
+        type: string
+      end:
+        type: string
       tags:
         items:
           type: string
@@ -66,6 +70,10 @@ definitions:
         type: array
       taskid:
         type: string
+      start:
+        type: string
+      end:
+        type: string
     type: object
   models.ModifyTaskRequestBody:
     properties:
@@ -90,6 +98,10 @@ definitions:
           type: string
         type: array
       taskid:
+        type: string
+      start:
+        type: string
+      end:
         type: string
     type: object
   models.Task:

@@ -47,6 +47,8 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		priority := requestBody.Priority
 		status := requestBody.Status
 		due := requestBody.Due
+		start := requestBody.Start
+		end := requestBody.End
 		tags := requestBody.Tags
 
 		if description == "" {
@@ -58,6 +60,13 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Validate start/end ordering if provided
+		if err := validateStartEnd(start, end); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		// requestBody currently doesn't include start field for ModifyTaskRequestBody
+
 		// if err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID); err != nil {
 		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
 		// 	return
@@ -68,7 +77,7 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Name: "Modify Task",
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Modifying task ID: %s", taskID), uuid, "Modify Task")
-				err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID, tags)
+				err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, end, email, encryptionSecret, taskID, tags)
 				if err != nil {
 					logStore.AddLog("ERROR", fmt.Sprintf("Failed to modify task ID %s: %v", taskID, err), uuid, "Modify Task")
 					return err

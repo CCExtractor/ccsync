@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID string, tags []string) error {
+func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, end, email, encryptionSecret, taskID string, tags []string) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		fmt.Println("1")
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
@@ -53,6 +53,14 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 	if err := utils.ExecCommand("task", taskID, "modify", escapedDue); err != nil {
 		fmt.Println("8")
 		return fmt.Errorf("failed to edit task due: %v", err)
+	}
+
+	// Handle end date
+	if end != "" {
+		escapedEnd := fmt.Sprintf(`end:%s`, strings.ReplaceAll(end, `"`, `\"`))
+		if err := utils.ExecCommand("task", taskID, "modify", escapedEnd); err != nil {
+			return fmt.Errorf("failed to edit task end: %v", err)
+		}
 	}
 
 	// escapedStatus := fmt.Sprintf(`status:%s`, strings.ReplaceAll(status, `"`, `\"`))
