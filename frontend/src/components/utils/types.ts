@@ -101,6 +101,7 @@ export interface TaskFormData {
   due: string;
   start: string;
   end: string;
+  recur: string;
   tags: string[];
   annotations: Annotation[];
 }

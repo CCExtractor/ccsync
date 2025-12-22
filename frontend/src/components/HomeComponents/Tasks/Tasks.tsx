@@ -74,6 +74,7 @@ export const Tasks = (
     due: '',
     start: '',
     end: '',
+    recur: '',
     tags: [],
     annotations: [],
   });
@@ -310,6 +311,7 @@ export const Tasks = (
         due: task.due || undefined,
         start: task.start || '',
         end: task.end || '',
+        recur: task.recur || '',
         tags: task.tags,
         annotations: task.annotations,
         backendURL: url.backendURL,
@@ -323,6 +325,7 @@ export const Tasks = (
         due: '',
         start: '',
         end: '',
+        recur: '',
         tags: [],
         annotations: [],
       });

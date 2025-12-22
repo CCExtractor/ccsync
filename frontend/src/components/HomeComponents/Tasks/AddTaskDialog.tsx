@@ -162,7 +162,9 @@ export const AddTaskdialog = ({
             </Label>
             <div className="col-span-3 space-y-2">
               <Select
-                value={newTask.project}
+                value={
+                  isCreatingNewProject ? '__CREATE_NEW__' : newTask.project
+                }
                 onValueChange={(value) => {
                   if (value === '__CREATE_NEW__') {
                     setIsCreatingNewProject(true);
@@ -180,7 +182,13 @@ export const AddTaskdialog = ({
                         ? 'Select a project'
                         : 'No projects yet'
                     }
-                  />
+                  >
+                    {isCreatingNewProject
+                      ? newTask.project
+                        ? `New: ${newTask.project}`
+                        : '+ Create new project…'
+                      : undefined}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent
                   onWheel={(e) => e.stopPropagation()}
@@ -260,6 +268,31 @@ export const AddTaskdialog = ({
                 }}
                 placeholder="Select an end date"
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="recur" className="text-right">
+              Recur
+            </Label>
+            <div className="col-span-1 flex items-center">
+              <select
+                id="recur"
+                name="recur"
+                value={newTask.recur}
+                onChange={(e) =>
+                  setNewTask({
+                    ...newTask,
+                    recur: e.target.value,
+                  })
+                }
+                className="border rounded-md px-2 py-1 w-full bg-white text-black dark:bg-black dark:text-white transition-colors"
+              >
+                <option value="">None</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
             </div>
           </div>
           <div className="grid grid-cols-8 items-center gap-4">
