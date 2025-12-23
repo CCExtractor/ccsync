@@ -10,6 +10,7 @@ type AddTaskRequestBody struct {
 	Priority         string       `json:"priority"`
 	DueDate          *string      `json:"due"`
 	Start            string       `json:"start"`
+	End              string       `json:"end"`
 	Recur            string       `json:"recur"`
 	Tags             []string     `json:"tags"`
 	Annotations      []Annotation `json:"annotations"`
