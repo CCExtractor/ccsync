@@ -70,6 +70,9 @@ describe('TaskDialog Component', () => {
     isEditingRecur: false,
     editedRecur: '',
     originalRecur: '',
+    isEditingAnnotations: false,
+    editedAnnotations: [],
+    annotationInput: '',
   };
 
   const defaultProps = {
@@ -93,6 +96,7 @@ describe('TaskDialog Component', () => {
     onSaveDueDate: jest.fn(),
     onSaveDepends: jest.fn(),
     onSaveRecur: jest.fn(),
+    onSaveAnnotations: jest.fn(),
     onMarkComplete: jest.fn(),
     onMarkDeleted: jest.fn(),
     isOverdue: jest.fn(() => false),

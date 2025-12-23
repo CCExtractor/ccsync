@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useEditTask } from './UseEditTask';
-import { Task } from '../../utils/types';
+import { Task, Annotation } from '../../utils/types';
 import { ReportsView } from './ReportsView';
 import Fuse from 'fuse.js';
 import { useHotkeys } from '@/components/utils/use-hotkeys';
@@ -352,7 +352,8 @@ export const Tasks = (
     end: string,
     depends: string[],
     due: string,
-    recur: string
+    recur: string,
+    annotations: Annotation[]
   ) {
     try {
       await editTaskOnBackend({
@@ -371,6 +372,7 @@ export const Tasks = (
         depends,
         due,
         recur,
+        annotations,
       });
 
       console.log('Task edited successfully!');
@@ -438,7 +440,8 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -458,7 +461,8 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -479,7 +483,8 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -500,7 +505,8 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -521,7 +527,8 @@ export const Tasks = (
       task.end,
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -542,7 +549,8 @@ export const Tasks = (
       task.end,
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -563,7 +571,8 @@ export const Tasks = (
       task.end,
       task.depends || [],
       task.due,
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -584,7 +593,8 @@ export const Tasks = (
       task.end || '',
       task.depends,
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -615,7 +625,8 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur
+      task.recur,
+      task.annotations || []
     );
   };
 
@@ -714,7 +725,29 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
+    );
+  };
+
+  const handleSaveAnnotations = (task: Task, annotations: Annotation[]) => {
+    task.annotations = annotations;
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start,
+      task.entry || '',
+      task.wait || '',
+      task.end || '',
+      task.depends || [],
+      task.due || '',
+      task.recur || '',
+      task.annotations
     );
   };
 
@@ -1028,6 +1061,7 @@ export const Tasks = (
                             onSaveDueDate={handleDueDateSaveClick}
                             onSaveDepends={handleDependsSaveClick}
                             onSaveRecur={handleRecurSaveClick}
+                            onSaveAnnotations={handleSaveAnnotations}
                             onMarkComplete={handleMarkComplete}
                             onMarkDeleted={handleMarkDelete}
                             isOverdue={isOverdue}
