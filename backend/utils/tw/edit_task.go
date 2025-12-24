@@ -94,12 +94,10 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 		}
 	}
 
-	// Handle depends
-	if len(depends) > 0 {
-		dependsStr := strings.Join(depends, ",")
-		if err := utils.ExecCommand("task", taskID, "modify", "depends:"+dependsStr); err != nil {
-			return fmt.Errorf("failed to set depends %s: %v", dependsStr, err)
-		}
+	// Handle depends - always set to ensure clearing works
+	dependsStr := strings.Join(depends, ",")
+	if err := utils.ExecCommand("task", taskID, "modify", "depends:"+dependsStr); err != nil {
+		return fmt.Errorf("failed to set depends %s: %v", dependsStr, err)
 	}
 
 	// Handle due date

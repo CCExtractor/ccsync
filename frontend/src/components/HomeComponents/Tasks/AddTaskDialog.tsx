@@ -38,6 +38,36 @@ export const AddTaskdialog = ({
   allTasks = [], // Add this prop
 }: AddTaskDialogProps) => {
   const [annotationInput, setAnnotationInput] = useState('');
+  const [dependencySearch, setDependencySearch] = useState('');
+  const [showDependencyResults, setShowDependencyResults] = useState(false);
+
+  const getFilteredTasks = () => {
+    const availableTasks = allTasks.filter(
+      (task) =>
+        task.status === 'pending' && !newTask.depends.includes(task.uuid)
+    );
+
+    if (dependencySearch.trim() === '') {
+      return [];
+    }
+
+    return availableTasks
+      .filter(
+        (task) =>
+          task.description
+            .toLowerCase()
+            .includes(dependencySearch.toLowerCase()) ||
+          (task.project &&
+            task.project
+              .toLowerCase()
+              .includes(dependencySearch.toLowerCase())) ||
+          (task.tags &&
+            task.tags.some((tag) =>
+              tag.toLowerCase().includes(dependencySearch.toLowerCase())
+            ))
+      )
+      .slice(0, 5);
+  };
 
   useEffect(() => {
     if (!isOpen) {
@@ -327,84 +357,71 @@ export const AddTaskdialog = ({
             <Label htmlFor="depends" className="text-right">
               Depends On
             </Label>
-            <div className="col-span-3 space-y-2">
-              <Select
-                value=""
-                onValueChange={(taskUuid) => {
-                  if (taskUuid && !newTask.depends.includes(taskUuid)) {
-                    setNewTask({
-                      ...newTask,
-                      depends: [...newTask.depends, taskUuid],
-                    });
-                  }
+            <div className="col-span-3 space-y-2 relative">
+              {/* Search input */}
+              <Input
+                placeholder="Search and select tasks this depends on..."
+                value={dependencySearch}
+                onChange={(e) => {
+                  setDependencySearch(e.target.value);
+                  setShowDependencyResults(e.target.value.trim() !== '');
                 }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a task this depends on" />
-                </SelectTrigger>
-                <SelectContent
-                  className="max-h-60 overflow-y-auto"
-                  onWheel={(e) => e.stopPropagation()}
-                >
-                  {(() => {
-                    const availableTasks = allTasks.filter(
-                      (task) =>
-                        task.status === 'pending' &&
-                        !newTask.depends.includes(task.uuid)
-                    );
+                onFocus={() =>
+                  setShowDependencyResults(dependencySearch.trim() !== '')
+                }
+                onBlur={() =>
+                  setTimeout(() => setShowDependencyResults(false), 200)
+                }
+              />
 
-                    if (availableTasks.length === 0) {
+              {/* Search results dropdown */}
+              {showDependencyResults && (
+                <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                  {(() => {
+                    const filteredTasks = getFilteredTasks();
+
+                    if (filteredTasks.length === 0) {
                       return (
-                        <SelectItem value="" disabled>
-                          No available tasks to depend on
-                        </SelectItem>
+                        <div className="p-3 text-sm text-muted-foreground text-center">
+                          No tasks found matching your search
+                        </div>
                       );
                     }
 
-                    // Limit to first 50 tasks for better performance
-                    const limitedTasks = availableTasks.slice(0, 50);
-
-                    return (
-                      <>
-                        {limitedTasks.map((task) => (
-                          <SelectItem key={task.uuid} value={task.uuid}>
-                            <div className="flex items-center gap-2 w-full min-w-0">
-                              <span className="font-medium text-xs shrink-0">
-                                #{task.id}
-                              </span>
-                              <span className="truncate flex-1 text-sm">
-                                {task.description.length > 35
-                                  ? `${task.description.substring(0, 35)}...`
-                                  : task.description}
-                              </span>
-                              {task.project && (
-                                <Badge
-                                  variant="secondary"
-                                  className="text-xs px-1 py-0 shrink-0"
-                                >
-                                  {task.project.length > 8
-                                    ? `${task.project.substring(0, 8)}...`
-                                    : task.project}
-                                </Badge>
-                              )}
-                            </div>
-                          </SelectItem>
-                        ))}
-                        {availableTasks.length > 50 && (
-                          <SelectItem
-                            value=""
-                            disabled
-                            className="text-xs text-muted-foreground"
-                          >
-                            ... and {availableTasks.length - 50} more tasks (use
-                            search to find more)
-                          </SelectItem>
-                        )}
-                      </>
-                    );
+                    return filteredTasks.map((task) => (
+                      <div
+                        key={task.uuid}
+                        className="p-3 cursor-pointer hover:bg-accent transition-colors"
+                        onClick={() => {
+                          setNewTask({
+                            ...newTask,
+                            depends: [...newTask.depends, task.uuid],
+                          });
+                          setDependencySearch('');
+                          setShowDependencyResults(false);
+                        }}
+                      >
+                        <div className="flex items-center gap-2 w-full min-w-0">
+                          <span className="font-medium text-xs shrink-0 text-muted-foreground">
+                            #{task.id}
+                          </span>
+                          <span className="truncate flex-1 text-sm">
+                            {task.description}
+                          </span>
+                          {task.project && (
+                            <Badge
+                              variant="secondary"
+                              className="text-xs px-1 py-0 shrink-0"
+                            >
+                              {task.project}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    ));
                   })()}
-                </SelectContent>
-              </Select>
+                </div>
+              )}
 
               {/* Display selected dependencies */}
               {newTask.depends.length > 0 && (

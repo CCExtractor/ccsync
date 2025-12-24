@@ -55,12 +55,10 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 		return fmt.Errorf("failed to edit task due: %v", err)
 	}
 
-	// Handle dependencies
-	if len(depends) > 0 {
-		dependsStr := strings.Join(depends, ",")
-		if err := utils.ExecCommand("task", taskID, "modify", "depends:"+dependsStr); err != nil {
-			return fmt.Errorf("failed to set dependencies %s: %v", dependsStr, err)
-		}
+	// Handle dependencies - always set to ensure clearing works
+	dependsStr := strings.Join(depends, ",")
+	if err := utils.ExecCommand("task", taskID, "modify", "depends:"+dependsStr); err != nil {
+		return fmt.Errorf("failed to set dependencies %s: %v", dependsStr, err)
 	}
 
 	// escapedStatus := fmt.Sprintf(`status:%s`, strings.ReplaceAll(status, `"`, `\"`))
