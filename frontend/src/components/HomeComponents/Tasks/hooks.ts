@@ -133,6 +133,7 @@ export const editTaskOnBackend = async ({
   depends,
   due,
   recur,
+  annotations,
 }: {
   email: string;
   encryptionSecret: string;
@@ -149,6 +150,7 @@ export const editTaskOnBackend = async ({
   depends: string[];
   due: string;
   recur: string;
+  annotations: { entry: string; description: string }[];
 }) => {
   const response = await fetch(`${backendURL}edit-task`, {
     method: 'POST',
@@ -167,6 +169,7 @@ export const editTaskOnBackend = async ({
       depends,
       due,
       recur,
+      annotations,
     }),
     headers: {
       'Content-Type': 'application/json',
