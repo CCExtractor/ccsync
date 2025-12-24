@@ -54,6 +54,7 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		depends := requestBody.Depends
 		due := requestBody.Due
 		recur := requestBody.Recur
+		annotations := requestBody.Annotations
 
 		if taskID == "" {
 			http.Error(w, "taskID is required", http.StatusBadRequest)
@@ -71,7 +72,7 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Name: "Edit Task",
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Editing task ID: %s", taskID), uuid, "Edit Task")
-				err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID, tags, project, start, entry, wait, end, depends, due, recur)
+				err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID, tags, project, start, entry, wait, end, depends, due, recur, annotations)
 				if err != nil {
 					logStore.AddLog("ERROR", fmt.Sprintf("Failed to edit task ID %s: %v", taskID, err), uuid, "Edit Task")
 					return err

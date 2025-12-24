@@ -10,6 +10,10 @@ type AddTaskRequestBody struct {
 	Priority         string       `json:"priority"`
 	DueDate          *string      `json:"due"`
 	Start            string       `json:"start"`
+	EntryDate        string       `json:"entry"`
+	WaitDate         string       `json:"wait"`
+	End              string       `json:"end"`
+	Recur            string       `json:"recur"`
 	Tags             []string     `json:"tags"`
 	Annotations      []Annotation `json:"annotations"`
 	Depends          []string     `json:"depends"`
@@ -28,20 +32,21 @@ type ModifyTaskRequestBody struct {
 	Depends          []string `json:"depends"`
 }
 type EditTaskRequestBody struct {
-	Email            string   `json:"email"`
-	EncryptionSecret string   `json:"encryptionSecret"`
-	UUID             string   `json:"UUID"`
-	TaskID           string   `json:"taskid"`
-	Description      string   `json:"description"`
-	Tags             []string `json:"tags"`
-	Project          string   `json:"project"`
-	Start            string   `json:"start"`
-	Entry            string   `json:"entry"`
-	Wait             string   `json:"wait"`
-	End              string   `json:"end"`
-	Depends          []string `json:"depends"`
-	Due              string   `json:"due"`
-	Recur            string   `json:"recur"`
+	Email            string       `json:"email"`
+	EncryptionSecret string       `json:"encryptionSecret"`
+	UUID             string       `json:"UUID"`
+	TaskID           string       `json:"taskid"`
+	Description      string       `json:"description"`
+	Tags             []string     `json:"tags"`
+	Project          string       `json:"project"`
+	Start            string       `json:"start"`
+	Entry            string       `json:"entry"`
+	Wait             string       `json:"wait"`
+	End              string       `json:"end"`
+	Depends          []string     `json:"depends"`
+	Due              string       `json:"due"`
+	Recur            string       `json:"recur"`
+	Annotations      []Annotation `json:"annotations"`
 }
 type CompleteTaskRequestBody struct {
 	Email            string `json:"email"`

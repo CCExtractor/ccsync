@@ -29,6 +29,9 @@ export const useEditTask = (selectedTask: Task | null) => {
     isEditingRecur: false,
     editedRecur: '',
     originalRecur: '',
+    isEditingAnnotations: false,
+    editedAnnotations: [],
+    annotationInput: '',
   });
 
   // Update edited tags when selected task changes
@@ -42,6 +45,7 @@ export const useEditTask = (selectedTask: Task | null) => {
         editedProject: selectedTask.project || '',
         editedRecur: selectedTask.recur || '',
         originalRecur: selectedTask.recur || '',
+        editedAnnotations: selectedTask.annotations || [],
       }));
     }
   }, [selectedTask]);
@@ -74,6 +78,9 @@ export const useEditTask = (selectedTask: Task | null) => {
       isEditingRecur: false,
       editedRecur: '',
       originalRecur: '',
+      isEditingAnnotations: false,
+      editedAnnotations: [],
+      annotationInput: '',
     });
   };
 

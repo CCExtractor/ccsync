@@ -92,6 +92,9 @@ export interface EditTaskState {
   isEditingRecur: boolean;
   editedRecur: string;
   originalRecur: string;
+  isEditingAnnotations: boolean;
+  editedAnnotations: Annotation[];
+  annotationInput: string;
 }
 
 export interface TaskFormData {
@@ -100,6 +103,10 @@ export interface TaskFormData {
   project: string;
   due: string;
   start: string;
+  entry: string;
+  wait: string;
+  end: string;
+  recur: string;
   tags: string[];
   annotations: Annotation[];
   depends: string[];
@@ -140,6 +147,7 @@ export interface EditTaskDialogProps {
   onSaveDueDate: (task: Task, date: string) => void;
   onSaveDepends: (task: Task, depends: string[]) => void;
   onSaveRecur: (task: Task, recur: string) => void;
+  onSaveAnnotations: (task: Task, annotations: Annotation[]) => void;
   onMarkComplete: (uuid: string) => void;
   onMarkDeleted: (uuid: string) => void;
   isOverdue: (due?: string) => boolean;

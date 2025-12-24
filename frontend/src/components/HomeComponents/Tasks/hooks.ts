@@ -43,6 +43,10 @@ export const addTaskToBackend = async ({
   priority,
   due,
   start,
+  entry,
+  wait,
+  end,
+  recur,
   tags,
   annotations,
   depends,
@@ -56,6 +60,10 @@ export const addTaskToBackend = async ({
   priority: string;
   due?: string;
   start: string;
+  entry: string;
+  wait: string;
+  end?: string;
+  recur: string;
   tags: string[];
   annotations: { entry: string; description: string }[];
   depends?: string[];
@@ -68,6 +76,8 @@ export const addTaskToBackend = async ({
     description,
     project,
     priority,
+    entry,
+    wait,
     tags,
   };
 
@@ -83,6 +93,15 @@ export const addTaskToBackend = async ({
   // Add dependencies if provided
   if (depends && depends.length > 0) {
     requestBody.depends = depends;
+  }
+
+  if (end !== undefined && end !== '') {
+    requestBody.end = end;
+  }
+
+  // Only include recur if it's provided
+  if (recur !== undefined && recur !== '') {
+    requestBody.recur = recur;
   }
 
   // Add annotations to request body, filtering out empty descriptions
@@ -123,6 +142,7 @@ export const editTaskOnBackend = async ({
   depends,
   due,
   recur,
+  annotations,
 }: {
   email: string;
   encryptionSecret: string;
@@ -139,6 +159,7 @@ export const editTaskOnBackend = async ({
   depends: string[];
   due: string;
   recur: string;
+  annotations: { entry: string; description: string }[];
 }) => {
   const response = await fetch(`${backendURL}edit-task`, {
     method: 'POST',
@@ -157,6 +178,7 @@ export const editTaskOnBackend = async ({
       depends,
       due,
       recur,
+      annotations,
     }),
     headers: {
       'Content-Type': 'application/json',

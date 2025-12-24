@@ -141,7 +141,7 @@ export const AddTaskdialog = ({
             Fill in the details below to add a new task.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-4 h-96  overflow-auto p-4">
           <div className="grid grid-cols-8 items-center gap-4">
             <Label htmlFor="description" className="text-right col-span-2">
               Description
@@ -193,7 +193,9 @@ export const AddTaskdialog = ({
             </Label>
             <div className="col-span-3 space-y-2">
               <Select
-                value={newTask.project}
+                value={
+                  isCreatingNewProject ? '__CREATE_NEW__' : newTask.project
+                }
                 onValueChange={(value) => {
                   if (value === '__CREATE_NEW__') {
                     setIsCreatingNewProject(true);
@@ -211,7 +213,13 @@ export const AddTaskdialog = ({
                         ? 'Select a project'
                         : 'No projects yet'
                     }
-                  />
+                  >
+                    {isCreatingNewProject
+                      ? newTask.project
+                        ? `New: ${newTask.project}`
+                        : '+ Create new project…'
+                      : undefined}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent
                   onWheel={(e) => e.stopPropagation()}
@@ -274,6 +282,82 @@ export const AddTaskdialog = ({
                 }}
                 placeholder="Select a start date"
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="end" className="text-right">
+              End
+            </Label>
+            <div className="col-span-3">
+              <DatePicker
+                date={newTask.end ? new Date(newTask.end) : undefined}
+                onDateChange={(date) => {
+                  setNewTask({
+                    ...newTask,
+                    end: date ? format(date, 'yyyy-MM-dd') : '',
+                  });
+                }}
+                placeholder="Select an end date"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="entry" className="text-right">
+              Entry
+            </Label>
+            <div className="col-span-3">
+              <DatePicker
+                date={newTask.entry ? new Date(newTask.entry) : undefined}
+                onDateChange={(date) => {
+                  setNewTask({
+                    ...newTask,
+                    entry: date ? format(date, 'yyyy-MM-dd') : '',
+                  });
+                }}
+                placeholder="Select an entry date"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="wait" className="text-right">
+              Wait
+            </Label>
+            <div className="col-span-3">
+              <DatePicker
+                date={newTask.wait ? new Date(newTask.wait) : undefined}
+                onDateChange={(date) => {
+                  setNewTask({
+                    ...newTask,
+                    wait: date ? format(date, 'yyyy-MM-dd') : '',
+                  });
+                }}
+                placeholder="Select a wait date"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="recur" className="text-right">
+              Recur
+            </Label>
+            <div className="col-span-1 flex items-center">
+              <select
+                id="recur"
+                name="recur"
+                value={newTask.recur}
+                onChange={(e) =>
+                  setNewTask({
+                    ...newTask,
+                    recur: e.target.value,
+                  })
+                }
+                className="border rounded-md px-2 py-1 w-full bg-white text-black dark:bg-black dark:text-white transition-colors"
+              >
+                <option value="">None</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="yearly">Yearly</option>
+              </select>
             </div>
           </div>
           <div className="grid grid-cols-8 items-center gap-4">

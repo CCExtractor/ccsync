@@ -48,6 +48,10 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		priority := requestBody.Priority
 		dueDate := requestBody.DueDate
 		start := requestBody.Start
+		entryDate := requestBody.EntryDate
+		waitDate := requestBody.WaitDate
+		end := requestBody.End
+		recur := requestBody.Recur
 		tags := requestBody.Tags
 		annotations := requestBody.Annotations
 		depends := requestBody.Depends

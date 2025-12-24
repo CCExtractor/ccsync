@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useEditTask } from './UseEditTask';
-import { Task } from '../../utils/types';
+import { Task, Annotation } from '../../utils/types';
 import { ReportsView } from './ReportsView';
 import Fuse from 'fuse.js';
 import { useHotkeys } from '@/components/utils/use-hotkeys';
@@ -73,6 +73,10 @@ export const Tasks = (
     project: '',
     due: '',
     start: '',
+    entry: '',
+    wait: '',
+    end: '',
+    recur: '',
     tags: [],
     annotations: [],
     depends: [],
@@ -309,6 +313,10 @@ export const Tasks = (
         priority: task.priority,
         due: task.due || undefined,
         start: task.start || '',
+        entry: task.entry,
+        wait: task.wait,
+        end: task.end || '',
+        recur: task.recur || '',
         tags: task.tags,
         annotations: task.annotations,
         depends: task.depends,
@@ -322,6 +330,10 @@ export const Tasks = (
         project: '',
         due: '',
         start: '',
+        entry: '',
+        wait: '',
+        end: '',
+        recur: '',
         tags: [],
         annotations: [],
         depends: [],
@@ -346,7 +358,8 @@ export const Tasks = (
     end: string,
     depends: string[],
     due: string,
-    recur: string
+    recur: string,
+    annotations: Annotation[]
   ) {
     try {
       await editTaskOnBackend({
@@ -365,6 +378,7 @@ export const Tasks = (
         depends,
         due,
         recur,
+        annotations,
       });
 
       console.log('Task edited successfully!');
@@ -462,7 +476,8 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -482,7 +497,8 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -503,7 +519,8 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -524,7 +541,8 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -545,7 +563,8 @@ export const Tasks = (
       task.end,
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -566,7 +585,8 @@ export const Tasks = (
       task.end,
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -587,7 +607,8 @@ export const Tasks = (
       task.end,
       task.depends || [],
       task.due,
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -608,7 +629,8 @@ export const Tasks = (
       task.end || '',
       task.depends,
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
     );
   };
 
@@ -639,7 +661,8 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur
+      task.recur,
+      task.annotations || []
     );
   };
 
@@ -738,7 +761,29 @@ export const Tasks = (
       task.end || '',
       task.depends || [],
       task.due || '',
-      task.recur || ''
+      task.recur || '',
+      task.annotations || []
+    );
+  };
+
+  const handleSaveAnnotations = (task: Task, annotations: Annotation[]) => {
+    task.annotations = annotations;
+    handleEditTaskOnBackend(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      task.description,
+      task.tags,
+      task.id.toString(),
+      task.project,
+      task.start,
+      task.entry || '',
+      task.wait || '',
+      task.end || '',
+      task.depends || [],
+      task.due || '',
+      task.recur || '',
+      task.annotations
     );
   };
 
@@ -933,7 +978,7 @@ export const Tasks = (
                       options={uniqueProjects}
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
-                      className="hidden sm:flex min-w-[140px]"
+                      className="hidden lg:flex min-w-[140px]"
                       icon={<Key lable="p" />}
                     />
                     <MultiSelectFilter
@@ -942,7 +987,7 @@ export const Tasks = (
                       options={status}
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
-                      className="hidden sm:flex min-w-[140px]"
+                      className="hidden lg:flex min-w-[140px]"
                       icon={<Key lable="s" />}
                     />
                     <MultiSelectFilter
@@ -951,7 +996,7 @@ export const Tasks = (
                       options={uniqueTags}
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
-                      className="hidden sm:flex min-w-[140px]"
+                      className="hidden lg:flex min-w-[140px]"
                       icon={<Key lable="t" />}
                     />
                     <div className="flex justify-center">
@@ -969,7 +1014,7 @@ export const Tasks = (
                         allTasks={tasks}
                       />
                     </div>
-                    <div className="hidden sm:flex flex-col items-end gap-2">
+                    <div className="flex flex-col items-end gap-2">
                       <Button
                         id="sync-task"
                         variant="outline"
@@ -1053,6 +1098,7 @@ export const Tasks = (
                             onSaveDueDate={handleDueDateSaveClick}
                             onSaveDepends={handleDependsSaveClick}
                             onSaveRecur={handleRecurSaveClick}
+                            onSaveAnnotations={handleSaveAnnotations}
                             onMarkComplete={handleMarkComplete}
                             onMarkDeleted={handleMarkDelete}
                             isOverdue={isOverdue}

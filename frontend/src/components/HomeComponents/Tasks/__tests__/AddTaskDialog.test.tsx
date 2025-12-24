@@ -3,7 +3,13 @@ import { AddTaskdialog } from '../AddTaskDialog';
 import '@testing-library/jest-dom';
 
 jest.mock('date-fns', () => ({
-  format: jest.fn(() => '2024-12-25'),
+  format: jest.fn((date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }),
 }));
 
 jest.mock('@/components/ui/date-picker', () => ({
@@ -65,6 +71,10 @@ describe('AddTaskDialog Component', () => {
         project: '',
         due: '',
         start: '',
+        entry: '',
+        wait: '',
+        end: '',
+        recur: '',
         tags: [],
         annotations: [],
         depends: [],
@@ -229,6 +239,10 @@ describe('AddTaskDialog Component', () => {
       project: 'Work',
       due: '2024-12-25',
       start: '',
+      entry: '2025-12-20',
+      wait: '2025-12-20',
+      end: '',
+      recur: '',
       tags: ['urgent'],
       annotations: [],
       depends: [],

@@ -1,13 +1,15 @@
 package tw
 
 import (
+	"ccsync_backend/models"
 	"ccsync_backend/utils"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 )
 
-func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string, project string, start string, entry string, wait string, end string, depends []string, due string, recur string) error {
+func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string, project string, start string, entry string, wait string, end string, depends []string, due string, recur string, annotations []models.Annotation) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
@@ -114,6 +116,33 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 	if recur != "" {
 		if err := utils.ExecCommand("task", taskID, "modify", "recur:"+recur); err != nil {
 			return fmt.Errorf("failed to set recur %s: %v", recur, err)
+		}
+	}
+
+	// Handle annotations
+	if len(annotations) >= 0 {
+		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", taskID, "export")
+		if err == nil {
+			var tasks []map[string]interface{}
+			if err := json.Unmarshal(output, &tasks); err == nil && len(tasks) > 0 {
+				if existingAnnotations, ok := tasks[0]["annotations"].([]interface{}); ok {
+					for _, ann := range existingAnnotations {
+						if annMap, ok := ann.(map[string]interface{}); ok {
+							if desc, ok := annMap["description"].(string); ok {
+								utils.ExecCommand("task", taskID, "denotate", desc)
+							}
+						}
+					}
+				}
+			}
+		}
+
+		for _, annotation := range annotations {
+			if annotation.Description != "" {
+				if err := utils.ExecCommand("task", taskID, "annotate", annotation.Description); err != nil {
+					return fmt.Errorf("failed to add annotation %s: %v", annotation.Description, err)
+				}
+			}
 		}
 	}
 
