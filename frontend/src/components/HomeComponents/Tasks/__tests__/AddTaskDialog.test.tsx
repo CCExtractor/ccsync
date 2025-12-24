@@ -506,9 +506,11 @@ describe('AddTaskDialog Component', () => {
       priority: 'H',
       project: 'Work',
       due: '2024-12-25',
+      start: '',
       entry: '2025-12-20',
       tags: ['urgent'],
       annotations: [],
+      depends: [],
     };
     render(<AddTaskdialog {...mockProps} />);
 
@@ -525,9 +527,11 @@ describe('AddTaskDialog Component', () => {
       priority: 'M',
       project: '',
       due: '',
+      start: '',
       entry: '',
       tags: [],
       annotations: [],
+      depends: [],
     };
     render(<AddTaskdialog {...mockProps} />);
 
