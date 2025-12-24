@@ -56,6 +56,7 @@ export const TaskDialog = ({
   onSaveDueDate,
   onSaveDepends,
   onSaveRecur,
+  onSaveAnnotations,
   onMarkComplete,
   onMarkDeleted,
   isOverdue,
@@ -1230,14 +1231,130 @@ export const TaskDialog = ({
                 <TableRow>
                   <TableCell>Annotations:</TableCell>
                   <TableCell>
-                    {task.annotations && task.annotations.length > 0 ? (
-                      <span>
-                        {task.annotations
-                          .map((ann) => ann.description)
-                          .join(', ')}
-                      </span>
+                    {editState.isEditingAnnotations ? (
+                      <div>
+                        <div className="flex items-center w-full">
+                          <Input
+                            type="text"
+                            value={editState.annotationInput}
+                            onChange={(e) => {
+                              onUpdateState({
+                                annotationInput: e.target.value,
+                              });
+                            }}
+                            placeholder="Add an annotation (press enter to add)"
+                            className="flex-grow mr-2"
+                            onKeyDown={(e) => {
+                              if (
+                                e.key === 'Enter' &&
+                                editState.annotationInput.trim()
+                              ) {
+                                const newAnnotation = {
+                                  entry: new Date().toISOString(),
+                                  description: editState.annotationInput.trim(),
+                                };
+                                onUpdateState({
+                                  editedAnnotations: [
+                                    ...editState.editedAnnotations,
+                                    newAnnotation,
+                                  ],
+                                  annotationInput: '',
+                                });
+                              }
+                            }}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              onSaveAnnotations(
+                                task,
+                                editState.editedAnnotations
+                              );
+                              onUpdateState({
+                                isEditingAnnotations: false,
+                                annotationInput: '',
+                              });
+                            }}
+                            aria-label="Save annotations"
+                          >
+                            <CheckIcon className="h-4 w-4 text-green-500" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              onUpdateState({
+                                isEditingAnnotations: false,
+                                editedAnnotations: task.annotations || [],
+                                annotationInput: '',
+                              });
+                            }}
+                            aria-label="Cancel editing annotations"
+                          >
+                            <XIcon className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                        <div className="mt-2">
+                          {editState.editedAnnotations != null &&
+                            editState.editedAnnotations.length > 0 && (
+                              <div>
+                                <div className="flex flex-wrap gap-2 col-span-3">
+                                  {editState.editedAnnotations.map(
+                                    (annotation, index) => (
+                                      <Badge key={index}>
+                                        <span>{annotation.description}</span>
+                                        <button
+                                          type="button"
+                                          className="ml-2 text-red-500"
+                                          onClick={() =>
+                                            onUpdateState({
+                                              editedAnnotations:
+                                                editState.editedAnnotations.filter(
+                                                  (a) => a !== annotation
+                                                ),
+                                            })
+                                          }
+                                        >
+                                          ✖
+                                        </button>
+                                      </Badge>
+                                    )
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                        </div>
+                      </div>
                     ) : (
-                      <span>No Annotations</span>
+                      <div className="flex items-center flex-wrap">
+                        {task.annotations && task.annotations.length >= 1 ? (
+                          task.annotations.map((annotation, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="mr-2 mt-1"
+                            >
+                              {annotation.description}
+                            </Badge>
+                          ))
+                        ) : (
+                          <span>No Annotations</span>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() =>
+                            onUpdateState({
+                              isEditingAnnotations: true,
+                              editedAnnotations: task.annotations || [],
+                              annotationInput: '',
+                            })
+                          }
+                        >
+                          <PencilIcon className="h-4 w-4 text-gray-500" />
+                        </Button>
+                      </div>
                     )}
                   </TableCell>
                 </TableRow>

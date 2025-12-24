@@ -55,6 +55,9 @@ describe('useEditTask Hook', () => {
       isEditingRecur: false,
       editedRecur: '',
       originalRecur: '',
+      isEditingAnnotations: false,
+      editedAnnotations: [],
+      annotationInput: '',
     });
   });
 
