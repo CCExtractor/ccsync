@@ -10,7 +10,7 @@ import (
 )
 
 // add task to the user's tw client
-func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate, start, waitDate string, end, recur string, tags []string, annotations []models.Annotation) error {
+func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate, start, entryDate string, waitDate string, end, recur string, tags []string, annotations []models.Annotation) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
@@ -42,6 +42,9 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 	}
 	if start != "" {
 		cmdArgs = append(cmdArgs, "start:"+start)
+	}
+	if entryDate != "" {
+		cmdArgs = append(cmdArgs, "entry:"+entryDate)
 	}
 	if waitDate != "" {
 		cmdArgs = append(cmdArgs, "wait:"+waitDate)

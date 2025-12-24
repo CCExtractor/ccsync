@@ -3,7 +3,13 @@ import { AddTaskdialog } from '../AddTaskDialog';
 import '@testing-library/jest-dom';
 
 jest.mock('date-fns', () => ({
-  format: jest.fn(() => '2024-12-25'),
+  format: jest.fn((date) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }),
 }));
 
 jest.mock('@/components/ui/date-picker', () => ({
@@ -59,6 +65,7 @@ describe('AddTaskDialog Component', () => {
         project: '',
         due: '',
         start: '',
+        entry: '',
         wait: '',
         end: '',
         recur: '',
@@ -224,6 +231,7 @@ describe('AddTaskDialog Component', () => {
       project: 'Work',
       due: '2024-12-25',
       start: '',
+      entry: '2025-12-20',
       wait: '2025-12-20',
       end: '',
       recur: '',
@@ -313,7 +321,7 @@ describe('AddTaskDialog Component', () => {
 
     expect(mockProps.setNewTask).toHaveBeenCalledWith({
       ...mockProps.newTask,
-      wait: '2024-12-25', // Mocked format() always returns this value regardless of input
+      wait: '2025-12-20',
     });
   });
 
@@ -338,6 +346,67 @@ describe('AddTaskDialog Component', () => {
     const submitButton = screen.getByRole('button', {
       name: /add task/i,
     });
+    fireEvent.click(submitButton);
+
+    expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
+  });
+
+  test('renders entry date picker with correct placeholder', () => {
+    mockProps.isOpen = true;
+    render(<AddTaskdialog {...mockProps} />);
+
+    const entryDatePicker =
+      screen.getByPlaceholderText(/select an entry date/i);
+    expect(entryDatePicker).toBeInTheDocument();
+  });
+
+  test('updates entry when user selects a date', () => {
+    mockProps.isOpen = true;
+    render(<AddTaskdialog {...mockProps} />);
+
+    const entryDatePicker =
+      screen.getByPlaceholderText(/select an entry date/i);
+    fireEvent.change(entryDatePicker, { target: { value: '2025-12-20' } });
+
+    expect(mockProps.setNewTask).toHaveBeenCalledWith({
+      ...mockProps.newTask,
+      entry: '2025-12-20',
+    });
+  });
+
+  test('submits task with entry date when provided', () => {
+    mockProps.isOpen = true;
+    mockProps.newTask = {
+      description: 'Test task',
+      priority: 'H',
+      project: 'Work',
+      due: '2024-12-25',
+      entry: '2025-12-20',
+      tags: ['urgent'],
+      annotations: [],
+    };
+    render(<AddTaskdialog {...mockProps} />);
+
+    const submitButton = screen.getByRole('button', { name: /add task/i });
+    fireEvent.click(submitButton);
+
+    expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
+  });
+
+  test('allows empty entry date (optional field)', () => {
+    mockProps.isOpen = true;
+    mockProps.newTask = {
+      description: 'Test task',
+      priority: 'M',
+      project: '',
+      due: '',
+      entry: '',
+      tags: [],
+      annotations: [],
+    };
+    render(<AddTaskdialog {...mockProps} />);
+
+    const submitButton = screen.getByRole('button', { name: /add task/i });
     fireEvent.click(submitButton);
 
     expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
