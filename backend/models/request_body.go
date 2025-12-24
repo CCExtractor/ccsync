@@ -29,20 +29,21 @@ type ModifyTaskRequestBody struct {
 	Tags             []string `json:"tags"`
 }
 type EditTaskRequestBody struct {
-	Email            string   `json:"email"`
-	EncryptionSecret string   `json:"encryptionSecret"`
-	UUID             string   `json:"UUID"`
-	TaskID           string   `json:"taskid"`
-	Description      string   `json:"description"`
-	Tags             []string `json:"tags"`
-	Project          string   `json:"project"`
-	Start            string   `json:"start"`
-	Entry            string   `json:"entry"`
-	Wait             string   `json:"wait"`
-	End              string   `json:"end"`
-	Depends          []string `json:"depends"`
-	Due              string   `json:"due"`
-	Recur            string   `json:"recur"`
+	Email            string       `json:"email"`
+	EncryptionSecret string       `json:"encryptionSecret"`
+	UUID             string       `json:"UUID"`
+	TaskID           string       `json:"taskid"`
+	Description      string       `json:"description"`
+	Tags             []string     `json:"tags"`
+	Project          string       `json:"project"`
+	Start            string       `json:"start"`
+	Entry            string       `json:"entry"`
+	Wait             string       `json:"wait"`
+	End              string       `json:"end"`
+	Depends          []string     `json:"depends"`
+	Due              string       `json:"due"`
+	Recur            string       `json:"recur"`
+	Annotations      []Annotation `json:"annotations"`
 }
 type CompleteTaskRequestBody struct {
 	Email            string `json:"email"`
