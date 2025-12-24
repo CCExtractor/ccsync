@@ -271,6 +271,23 @@ export const AddTaskdialog = ({
             </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="entry" className="text-right">
+              Entry
+            </Label>
+            <div className="col-span-3">
+              <DatePicker
+                date={newTask.entry ? new Date(newTask.entry) : undefined}
+                onDateChange={(date) => {
+                  setNewTask({
+                    ...newTask,
+                    entry: date ? format(date, 'yyyy-MM-dd') : '',
+                  });
+                }}
+                placeholder="Select an entry date"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="wait" className="text-right">
               Wait
             </Label>

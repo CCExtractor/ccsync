@@ -103,6 +103,7 @@ export interface TaskFormData {
   project: string;
   due: string;
   start: string;
+  entry: string;
   wait: string;
   end: string;
   recur: string;
