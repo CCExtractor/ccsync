@@ -414,4 +414,112 @@ describe('AddTaskDialog Component', () => {
       expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
     });
   });
+
+  test('renders wait date picker with correct placeholder', () => {
+    mockProps.isOpen = true;
+    render(<AddTaskdialog {...mockProps} />);
+
+    const waitDatePicker = screen.getByPlaceholderText(/select a wait date/i);
+    expect(waitDatePicker).toBeInTheDocument();
+  });
+
+  test('updates wait when user selects a date', () => {
+    mockProps.isOpen = true;
+    render(<AddTaskdialog {...mockProps} />);
+
+    const waitDatePicker = screen.getByPlaceholderText(/select a wait date/i);
+    fireEvent.change(waitDatePicker, { target: { value: '2025-12-20' } });
+
+    expect(mockProps.setNewTask).toHaveBeenCalledWith({
+      ...mockProps.newTask,
+      wait: '2025-12-20',
+    });
+  });
+
+  test('submits task with wait date when provided', () => {
+    mockProps.isOpen = true;
+    mockProps.newTask.wait = '2025-12-20';
+    render(<AddTaskdialog {...mockProps} />);
+
+    const submitButton = screen.getByRole('button', {
+      name: /add task/i,
+    });
+    fireEvent.click(submitButton);
+
+    expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
+  });
+
+  test('allows empty wait date (optional field)', () => {
+    mockProps.isOpen = true;
+    mockProps.newTask.wait = '';
+    render(<AddTaskdialog {...mockProps} />);
+
+    const submitButton = screen.getByRole('button', {
+      name: /add task/i,
+    });
+    fireEvent.click(submitButton);
+
+    expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
+  });
+
+  test('renders entry date picker with correct placeholder', () => {
+    mockProps.isOpen = true;
+    render(<AddTaskdialog {...mockProps} />);
+
+    const entryDatePicker =
+      screen.getByPlaceholderText(/select an entry date/i);
+    expect(entryDatePicker).toBeInTheDocument();
+  });
+
+  test('updates entry when user selects a date', () => {
+    mockProps.isOpen = true;
+    render(<AddTaskdialog {...mockProps} />);
+
+    const entryDatePicker =
+      screen.getByPlaceholderText(/select an entry date/i);
+    fireEvent.change(entryDatePicker, { target: { value: '2025-12-20' } });
+
+    expect(mockProps.setNewTask).toHaveBeenCalledWith({
+      ...mockProps.newTask,
+      entry: '2025-12-20',
+    });
+  });
+
+  test('submits task with entry date when provided', () => {
+    mockProps.isOpen = true;
+    mockProps.newTask = {
+      description: 'Test task',
+      priority: 'H',
+      project: 'Work',
+      due: '2024-12-25',
+      entry: '2025-12-20',
+      tags: ['urgent'],
+      annotations: [],
+    };
+    render(<AddTaskdialog {...mockProps} />);
+
+    const submitButton = screen.getByRole('button', { name: /add task/i });
+    fireEvent.click(submitButton);
+
+    expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
+  });
+
+  test('allows empty entry date (optional field)', () => {
+    mockProps.isOpen = true;
+    mockProps.newTask = {
+      description: 'Test task',
+      priority: 'M',
+      project: '',
+      due: '',
+      entry: '',
+      tags: [],
+      annotations: [],
+    };
+    render(<AddTaskdialog {...mockProps} />);
+
+    const submitButton = screen.getByRole('button', { name: /add task/i });
+    fireEvent.click(submitButton);
+
+    expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
+  });
 });

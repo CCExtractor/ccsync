@@ -72,7 +72,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Name: "Add Task",
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Adding task: %s", description), uuid, "Add Task")
-				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDateStr, start, tags, annotations, depends)
+				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDateStr, start, entryDate, waitDate, end, recur, tags, annotations, depends)
 				if err != nil {
 					logStore.AddLog("ERROR", fmt.Sprintf("Failed to add task: %v", err), uuid, "Add Task")
 					return err
