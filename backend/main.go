@@ -100,6 +100,8 @@ func main() {
 	mux.Handle("/delete-task", rateLimitedHandler(http.HandlerFunc(controllers.DeleteTaskHandler)))
 	mux.Handle("/sync/logs", rateLimitedHandler(http.HandlerFunc(controllers.SyncLogsHandler)))
 
+	mux.HandleFunc("/health", controllers.HealthCheckHandler)
+
 	mux.HandleFunc("/ws", controllers.WebSocketHandler)
 
 	// API documentation endpoint
