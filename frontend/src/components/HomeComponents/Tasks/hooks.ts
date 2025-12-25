@@ -49,6 +49,7 @@ export const addTaskToBackend = async ({
   recur,
   tags,
   annotations,
+  depends,
   backendURL,
 }: {
   email: string;
@@ -65,6 +66,7 @@ export const addTaskToBackend = async ({
   recur: string;
   tags: string[];
   annotations: { entry: string; description: string }[];
+  depends?: string[];
   backendURL: string;
 }) => {
   const requestBody: any = {
@@ -87,6 +89,10 @@ export const addTaskToBackend = async ({
   // Only include start if it's provided
   if (start !== undefined && start !== '') {
     requestBody.start = start;
+  }
+  // Add dependencies if provided
+  if (depends && depends.length > 0) {
+    requestBody.depends = depends;
   }
 
   if (end !== undefined && end !== '') {

@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID string, tags []string) error {
+func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID string, tags []string, depends []string) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		fmt.Println("1")
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
@@ -53,6 +53,12 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 	if err := utils.ExecCommand("task", taskID, "modify", escapedDue); err != nil {
 		fmt.Println("8")
 		return fmt.Errorf("failed to edit task due: %v", err)
+	}
+
+	// Handle dependencies - always set to ensure clearing works
+	dependsStr := strings.Join(depends, ",")
+	if err := utils.ExecCommand("task", taskID, "modify", "depends:"+dependsStr); err != nil {
+		return fmt.Errorf("failed to set dependencies %s: %v", dependsStr, err)
 	}
 
 	// escapedStatus := fmt.Sprintf(`status:%s`, strings.ReplaceAll(status, `"`, `\"`))

@@ -84,3 +84,17 @@ func Test_ExecCommandForOutputInDir(t *testing.T) {
 		t.Errorf("Expected output but got empty result")
 	}
 }
+
+func Test_ValidateDependencies_ValidDependencies(t *testing.T) {
+	depends := []string{"task-uuid-1", "task-uuid-2"}
+	currentTaskUUID := "current-task-uuid"
+	err := ValidateDependencies(depends, currentTaskUUID)
+	assert.NoError(t, err)
+}
+
+func Test_ValidateDependencies_EmptyList(t *testing.T) {
+	depends := []string{}
+	currentTaskUUID := "current-task-uuid"
+	err := ValidateDependencies(depends, currentTaskUUID)
+	assert.NoError(t, err)
+}

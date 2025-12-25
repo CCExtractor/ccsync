@@ -47,22 +47,24 @@ jest.mock('@/components/ui/multi-select', () => ({
 
 jest.mock('@/components/ui/select', () => {
   return {
-    Select: ({ children, onValueChange, value }: any) => (
-      <select
-        data-testid="project-select"
-        value={value}
-        onChange={(e) => onValueChange?.(e.target.value)}
-      >
-        {children}
-      </select>
-    ),
-    SelectTrigger: ({ children }: any) => <>{children}</>,
+    Select: ({ children, onValueChange, value }: any) => {
+      return (
+        <select
+          data-testid="project-select"
+          value={value}
+          onChange={(e) => onValueChange?.(e.target.value)}
+        >
+          {children}
+        </select>
+      );
+    },
+    SelectTrigger: ({ children }: any) => children,
     SelectValue: ({ placeholder }: any) => (
       <option value="" disabled hidden>
         {placeholder}
       </option>
     ),
-    SelectContent: ({ children }: any) => <>{children}</>,
+    SelectContent: ({ children }: any) => children,
     SelectItem: ({ value, children, ...props }: any) => (
       <option value={value} {...props}>
         {children}
@@ -492,5 +494,43 @@ describe('Tasks Component', () => {
     });
 
     expect(newProjectInput).toHaveValue('My Fresh Project');
+  });
+
+  // Task Dependencies Tests
+  describe('Task Dependencies', () => {
+    test('passes allTasks prop to AddTaskDialog for dependency selection', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Task 1')).toBeInTheDocument();
+      });
+
+      const addTaskButton = screen.getByRole('button', { name: /add task/i });
+      fireEvent.click(addTaskButton);
+
+      expect(
+        screen.getByText(/fill in the details below/i)
+      ).toBeInTheDocument();
+
+      expect(screen.getByText('Depends On')).toBeInTheDocument();
+    });
+
+    test('dependency dropdown is available in add task dialog', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Task 1')).toBeInTheDocument();
+      });
+
+      const addTaskButton = screen.getByRole('button', { name: /add task/i });
+      fireEvent.click(addTaskButton);
+
+      expect(screen.getByText('Depends On')).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(
+          'Search and select tasks this depends on...'
+        )
+      ).toBeInTheDocument();
+    });
   });
 });
