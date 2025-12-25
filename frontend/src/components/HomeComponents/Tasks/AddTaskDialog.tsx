@@ -427,6 +427,7 @@ export const AddTaskdialog = ({
                       <button
                         type="button"
                         className="ml-2 text-red-500"
+                        aria-label="remove annotation"
                         onClick={() => handleRemoveAnnotation(annotation)}
                       >
                         ✖
