@@ -1,5 +1,5 @@
 # Use node image for building the frontend
-FROM node:16-alpine AS build
+FROM node:25-alpine AS build
 
 # Set working directory
 WORKDIR /app
