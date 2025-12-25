@@ -196,3 +196,79 @@ func Test_AddTaskHandler_MissingDescription(t *testing.T) {
 	assert.Equal(t, http.StatusBadRequest, rr.Code)
 	assert.Contains(t, rr.Body.String(), "Description is required")
 }
+
+// Task Dependencies Tests
+func Test_AddTaskHandler_WithDependencies(t *testing.T) {
+	GlobalJobQueue = NewJobQueue()
+
+	requestBody := map[string]interface{}{
+		"email":            "test@example.com",
+		"encryptionSecret": "secret",
+		"UUID":             "test-uuid",
+		"description":      "Task with dependencies",
+		"project":          "TestProject",
+		"priority":         "H",
+		"depends":          []string{"task-uuid-1", "task-uuid-2"},
+		"tags":             []string{"dependent"},
+	}
+
+	body, _ := json.Marshal(requestBody)
+	req, err := http.NewRequest("POST", "/add-task", bytes.NewBuffer(body))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	AddTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusAccepted, rr.Code)
+}
+
+func Test_AddTaskHandler_WithEmptyDependencies(t *testing.T) {
+	GlobalJobQueue = NewJobQueue()
+
+	requestBody := map[string]interface{}{
+		"email":            "test@example.com",
+		"encryptionSecret": "secret",
+		"UUID":             "test-uuid",
+		"description":      "Task with empty dependencies",
+		"project":          "TestProject",
+		"priority":         "M",
+		"depends":          []string{},
+		"tags":             []string{"test"},
+	}
+
+	body, _ := json.Marshal(requestBody)
+	req, err := http.NewRequest("POST", "/add-task", bytes.NewBuffer(body))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	AddTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusAccepted, rr.Code)
+}
+
+func Test_EditTaskHandler_WithDependencies(t *testing.T) {
+	GlobalJobQueue = NewJobQueue()
+
+	requestBody := map[string]interface{}{
+		"email":            "test@example.com",
+		"encryptionSecret": "secret",
+		"UUID":             "test-uuid",
+		"taskID":           "1",
+		"description":      "Edited task with dependencies",
+		"project":          "EditedProject",
+		"depends":          []string{"task-uuid-3"},
+		"tags":             []string{"edited", "dependent"},
+	}
+
+	body, _ := json.Marshal(requestBody)
+	req, err := http.NewRequest("POST", "/edit-task", bytes.NewBuffer(body))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	EditTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusAccepted, rr.Code)
+}

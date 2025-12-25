@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"ccsync_backend/models"
+	"ccsync_backend/utils"
 	"ccsync_backend/utils/tw"
 	"encoding/json"
 	"fmt"
@@ -48,6 +49,7 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		status := requestBody.Status
 		due := requestBody.Due
 		tags := requestBody.Tags
+		depends := requestBody.Depends
 
 		if description == "" {
 			http.Error(w, "Description is required, and cannot be empty!", http.StatusBadRequest)
@@ -55,6 +57,12 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if taskID == "" {
 			http.Error(w, "taskID is required", http.StatusBadRequest)
+			return
+		}
+
+		// Validate dependencies
+		if err := utils.ValidateDependencies(depends, uuid); err != nil {
+			http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
 			return
 		}
 
@@ -68,7 +76,7 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Name: "Modify Task",
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Modifying task ID: %s", taskID), uuid, "Modify Task")
-				err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID, tags)
+				err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID, tags, depends)
 				if err != nil {
 					logStore.AddLog("ERROR", fmt.Sprintf("Failed to modify task ID %s: %v", taskID, err), uuid, "Modify Task")
 					return err
