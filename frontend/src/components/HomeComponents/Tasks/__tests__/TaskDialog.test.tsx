@@ -100,6 +100,7 @@ describe('TaskDialog Component', () => {
     onMarkComplete: jest.fn(),
     onMarkDeleted: jest.fn(),
     isOverdue: jest.fn(() => false),
+    isUnsynced: false,
   };
 
   beforeEach(() => {
@@ -125,6 +126,31 @@ describe('TaskDialog Component', () => {
 
       const statusBadge = screen.getByText('O');
       expect(statusBadge).toBeInTheDocument();
+    });
+
+    test('should display Unsynced badge when isUnsynced is true', () => {
+      const unsyncedProps = {
+        ...defaultProps,
+        isUnsynced: true,
+      };
+
+      render(<TaskDialog {...unsyncedProps} />);
+
+      const unsyncedBadge = screen.getByText('Unsynced');
+      expect(unsyncedBadge).toBeInTheDocument();
+      expect(unsyncedBadge).toHaveClass('animate-pulse');
+    });
+
+    test('should not display Unsynced badge when isUnsynced is false', () => {
+      const unsyncedProps = {
+        ...defaultProps,
+        isUnsynced: false,
+      };
+
+      render(<TaskDialog {...unsyncedProps} />);
+
+      const unsyncedBadge = screen.queryByText('Unsynced');
+      expect(unsyncedBadge).not.toBeInTheDocument();
     });
 
     test('should display correct priority indicator', () => {
@@ -584,7 +610,7 @@ describe('TaskDialog Component', () => {
       render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       const deleteButton = screen.getByRole('button', {
-        name: /^d$/i,
+        name: /delete task/i,
       });
       fireEvent.click(deleteButton);
 

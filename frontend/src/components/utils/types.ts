@@ -151,4 +151,5 @@ export interface EditTaskDialogProps {
   onMarkComplete: (uuid: string) => void;
   onMarkDeleted: (uuid: string) => void;
   isOverdue: (due?: string) => boolean;
+  isUnsynced: boolean;
 }
