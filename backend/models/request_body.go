@@ -16,6 +16,7 @@ type AddTaskRequestBody struct {
 	Recur            string       `json:"recur"`
 	Tags             []string     `json:"tags"`
 	Annotations      []Annotation `json:"annotations"`
+	Depends          []string     `json:"depends"`
 }
 type ModifyTaskRequestBody struct {
 	Email            string   `json:"email"`
@@ -28,6 +29,7 @@ type ModifyTaskRequestBody struct {
 	Status           string   `json:"status"`
 	Due              string   `json:"due"`
 	Tags             []string `json:"tags"`
+	Depends          []string `json:"depends"`
 }
 type EditTaskRequestBody struct {
 	Email            string       `json:"email"`

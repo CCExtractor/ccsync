@@ -28,18 +28,24 @@ jest.mock('@/components/ui/date-picker', () => ({
 
 jest.mock('@/components/ui/select', () => {
   return {
-    Select: ({ children, onValueChange, value }: any) => (
-      <select
-        data-testid="project-select"
-        value={value}
-        onChange={(e) => onValueChange?.(e.target.value)}
-      >
+    Select: ({ children, onValueChange, value }: any) => {
+      // Create a simple select element that calls onValueChange when changed
+      return (
+        <select
+          value={value || ''}
+          onChange={(e) => onValueChange?.(e.target.value)}
+        >
+          {children}
+        </select>
+      );
+    },
+    SelectTrigger: ({ children, 'data-testid': dataTestId, ...props }: any) => (
+      <div data-testid={dataTestId} {...props}>
         {children}
-      </select>
+      </div>
     ),
-    SelectTrigger: ({ children }: any) => <>{children}</>,
     SelectValue: ({ placeholder }: any) => (
-      <option value="" disabled hidden>
+      <option value="" disabled>
         {placeholder}
       </option>
     ),
@@ -71,12 +77,14 @@ describe('AddTaskDialog Component', () => {
         recur: '',
         tags: [],
         annotations: [],
+        depends: [],
       },
       setNewTask: jest.fn(),
       tagInput: '',
       setTagInput: jest.fn(),
       onSubmit: jest.fn(),
       uniqueProjects: [],
+      allTasks: [],
       isCreatingNewProject: false,
       setIsCreatingNewProject: jest.fn(),
     };
@@ -237,6 +245,7 @@ describe('AddTaskDialog Component', () => {
       recur: '',
       tags: ['urgent'],
       annotations: [],
+      depends: [],
     };
     render(<AddTaskdialog {...mockProps} />);
 
@@ -301,6 +310,122 @@ describe('AddTaskDialog Component', () => {
     expect(mockProps.setNewTask).toHaveBeenCalledWith({
       ...mockProps.newTask,
       project: 'New Project',
+    });
+  });
+
+  describe('Task Dependencies', () => {
+    beforeEach(() => {
+      mockProps.isOpen = true;
+      mockProps.allTasks = [
+        {
+          id: 1,
+          uuid: 'task-1',
+          description: 'First task',
+          status: 'pending',
+          project: 'Project A',
+          tags: [],
+          priority: 'M',
+          due: '',
+          start: '',
+          end: '',
+          entry: '',
+          wait: '',
+          modified: '',
+          depends: [],
+          rtype: '',
+          recur: '',
+          annotations: [],
+          email: 'test@example.com',
+          urgency: 0,
+        },
+        {
+          id: 2,
+          uuid: 'task-2',
+          description: 'Second task',
+          status: 'pending',
+          project: 'Project B',
+          tags: [],
+          priority: 'H',
+          due: '',
+          start: '',
+          end: '',
+          entry: '',
+          wait: '',
+          modified: '',
+          depends: [],
+          rtype: '',
+          recur: '',
+          annotations: [],
+          email: 'test@example.com',
+          urgency: 0,
+        },
+      ];
+    });
+
+    test('renders dependency search field', () => {
+      render(<AddTaskdialog {...mockProps} />);
+
+      expect(screen.getByText('Depends On')).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(
+          'Search and select tasks this depends on...'
+        )
+      ).toBeInTheDocument();
+    });
+
+    test('displays selected dependencies as badges', () => {
+      mockProps.newTask.depends = ['task-1'];
+      render(<AddTaskdialog {...mockProps} />);
+
+      expect(screen.getByText('#1 First task')).toBeInTheDocument();
+    });
+
+    test('removes dependency when remove button is clicked', () => {
+      mockProps.newTask.depends = ['task-1'];
+      render(<AddTaskdialog {...mockProps} />);
+
+      const removeButton = screen.getByText('✖');
+      fireEvent.click(removeButton);
+
+      expect(mockProps.setNewTask).toHaveBeenCalledWith({
+        ...mockProps.newTask,
+        depends: [],
+      });
+    });
+
+    test('shows message when no tasks found', () => {
+      mockProps.allTasks = [];
+      render(<AddTaskdialog {...mockProps} />);
+
+      const searchInput = screen.getByPlaceholderText(
+        'Search and select tasks this depends on...'
+      );
+      fireEvent.change(searchInput, { target: { value: 'test' } });
+
+      expect(
+        screen.getByText('No tasks found matching your search')
+      ).toBeInTheDocument();
+    });
+
+    test('includes dependencies in task submission', () => {
+      mockProps.newTask = {
+        description: 'Test task with dependency',
+        priority: 'H',
+        project: 'Work',
+        due: '2024-12-25',
+        start: '',
+        tags: [],
+        annotations: [],
+        depends: ['task-1'],
+      };
+      render(<AddTaskdialog {...mockProps} />);
+
+      const submitButton = screen.getByRole('button', {
+        name: /add task/i,
+      });
+      fireEvent.click(submitButton);
+
+      expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
     });
   });
 
@@ -381,9 +506,11 @@ describe('AddTaskDialog Component', () => {
       priority: 'H',
       project: 'Work',
       due: '2024-12-25',
+      start: '',
       entry: '2025-12-20',
       tags: ['urgent'],
       annotations: [],
+      depends: [],
     };
     render(<AddTaskdialog {...mockProps} />);
 
@@ -400,9 +527,11 @@ describe('AddTaskDialog Component', () => {
       priority: 'M',
       project: '',
       due: '',
+      start: '',
       entry: '',
       tags: [],
       annotations: [],
+      depends: [],
     };
     render(<AddTaskdialog {...mockProps} />);
 

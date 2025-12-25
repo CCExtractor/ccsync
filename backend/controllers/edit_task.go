@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"ccsync_backend/models"
+	"ccsync_backend/utils"
 	"ccsync_backend/utils/tw"
 	"encoding/json"
 	"fmt"
@@ -57,6 +58,12 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 		if taskID == "" {
 			http.Error(w, "taskID is required", http.StatusBadRequest)
+			return
+		}
+
+		// Validate dependencies
+		if err := utils.ValidateDependencies(depends, uuid); err != nil {
+			http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
 			return
 		}
 

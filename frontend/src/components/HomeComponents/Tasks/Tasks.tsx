@@ -79,6 +79,7 @@ export const Tasks = (
     recur: '',
     tags: [],
     annotations: [],
+    depends: [],
   });
   const [isCreatingNewProject, setIsCreatingNewProject] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
@@ -318,6 +319,7 @@ export const Tasks = (
         recur: task.recur || '',
         tags: task.tags,
         annotations: task.annotations,
+        depends: task.depends,
         backendURL: url.backendURL,
       });
 
@@ -334,6 +336,7 @@ export const Tasks = (
         recur: '',
         tags: [],
         annotations: [],
+        depends: [],
       });
       setIsAddTaskOpen(false);
     } catch (error) {
@@ -404,6 +407,36 @@ export const Tasks = (
   };
 
   const handleMarkComplete = async (taskuuid: string) => {
+    // Find the task being completed
+    const taskToComplete = tasks.find((t) => t.uuid === taskuuid);
+    if (!taskToComplete) {
+      toast.error('Task not found');
+      return;
+    }
+
+    if (taskToComplete.depends && taskToComplete.depends.length > 0) {
+      const incompleteDependencies = taskToComplete.depends.filter(
+        (depUuid) => {
+          const depTask = tasks.find((t) => t.uuid === depUuid);
+          return depTask && depTask.status !== 'completed';
+        }
+      );
+
+      if (incompleteDependencies.length > 0) {
+        const incompleteDepNames = incompleteDependencies
+          .map((depUuid) => {
+            const depTask = tasks.find((t) => t.uuid === depUuid);
+            return depTask?.description || depUuid.substring(0, 8);
+          })
+          .join(', ');
+        toast.error(
+          `Cannot complete this task. Please complete these dependencies first: ${incompleteDepNames}`
+        );
+        return;
+      }
+    }
+
+    // If all dependencies are completed, allow completion
     await markTaskAsCompleted(
       props.email,
       props.encryptionSecret,
@@ -978,6 +1011,7 @@ export const Tasks = (
                         isCreatingNewProject={isCreatingNewProject}
                         setIsCreatingNewProject={setIsCreatingNewProject}
                         uniqueProjects={uniqueProjects}
+                        allTasks={tasks}
                       />
                     </div>
                     <div className="flex flex-col items-end gap-2">
@@ -1144,6 +1178,7 @@ export const Tasks = (
                         isCreatingNewProject={isCreatingNewProject}
                         setIsCreatingNewProject={setIsCreatingNewProject}
                         uniqueProjects={uniqueProjects}
+                        allTasks={tasks}
                       />
                     </div>
                     <div className="flex flex-col items-end gap-2">
