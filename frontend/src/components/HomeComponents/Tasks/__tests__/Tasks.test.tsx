@@ -139,13 +139,20 @@ jest.mock('../hooks', () => ({
               uuid: 'uuid-deleted-1',
             },
           ]),
+          delete: jest.fn().mockResolvedValue(undefined),
         })),
       })),
+      bulkPut: jest.fn().mockResolvedValue(undefined),
     },
+    transaction: jest.fn(async (_mode, _table, callback) => {
+      await callback();
+      return Promise.resolve();
+    }),
   })),
   fetchTaskwarriorTasks: jest.fn().mockResolvedValue([]),
   addTaskToBackend: jest.fn().mockResolvedValue({}),
   editTaskOnBackend: jest.fn().mockResolvedValue({}),
+  modifyTaskOnBackend: jest.fn().mockResolvedValue({}),
 }));
 
 jest.mock('../Pagination', () => {
@@ -934,6 +941,425 @@ describe('Tasks Component', () => {
           'Search and select tasks this depends on...'
         )
       ).toBeInTheDocument();
+    });
+  });
+
+  test('shows red border when task is marked as completed', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      const completeButton = screen.getByLabelText('complete task');
+      fireEvent.click(completeButton);
+    });
+
+    const yesButton = screen.getAllByText('Yes')[0];
+    fireEvent.click(yesButton);
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+  });
+
+  test('shows red border when task is deleted', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      const deleteButton = screen.getByLabelText('delete task');
+      fireEvent.click(deleteButton);
+    });
+
+    await waitFor(() => {
+      const yesButtons = screen.getAllByText('Yes');
+      if (yesButtons.length > 0) fireEvent.click(yesButtons[0]);
+    });
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+  });
+
+  test('shows unsynced count after bulk delete', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await screen.findByText('Task 1');
+    const checkboxes = screen.getAllByRole('checkbox');
+
+    fireEvent.click(checkboxes[1]);
+    fireEvent.click(checkboxes[2]);
+
+    const deleteBtn = screen.getByText(/Delete 2 Tasks/i);
+    fireEvent.click(deleteBtn);
+
+    const yesButton = await screen.findByText('Yes');
+    fireEvent.click(yesButton);
+
+    await waitFor(() => {
+      const syncButton = document.getElementById('sync-task');
+      expect(within(syncButton!).getByText('2')).toBeInTheDocument();
+    });
+  });
+
+  test('shows unsynced count after bulk complete', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await screen.findByText('Task 1');
+    const checkboxes = screen.getAllByRole('checkbox');
+
+    fireEvent.click(checkboxes[1]);
+    fireEvent.click(checkboxes[2]);
+
+    const bulkButton = screen.getByTestId('bulk-complete-btn');
+    fireEvent.click(bulkButton);
+
+    const yesButton = await screen.findByText('Yes');
+    fireEvent.click(yesButton);
+
+    await waitFor(() => {
+      const syncButton = document.getElementById('sync-task');
+      expect(within(syncButton!).getByText('2')).toBeInTheDocument();
+    });
+  });
+
+  test('shows red border when task description is edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Description:')).toBeInTheDocument();
+    });
+
+    const descriptionLabel = screen.getByText('Description:');
+    const descRow = descriptionLabel.closest('tr') as HTMLElement;
+    const editButton = within(descRow).getByLabelText('edit');
+
+    fireEvent.click(editButton);
+
+    const input = await screen.findByDisplayValue('Task 12');
+
+    fireEvent.change(input, { target: { value: 'Updated Task 12' } });
+
+    const saveButton = screen.getByLabelText('save');
+
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+  });
+
+  test('shows red border when task project is edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Project:')).toBeInTheDocument();
+    });
+
+    const projectLabel = screen.getByText('Project:');
+    const projectRow = projectLabel.closest('tr') as HTMLElement;
+    const editButton = within(projectRow).getByLabelText('edit');
+    fireEvent.click(editButton);
+
+    const projectSelect = await screen.findByTestId('project-select');
+    fireEvent.change(projectSelect, { target: { value: 'ProjectA' } });
+
+    fireEvent.keyDown(document.body, { key: 'Escape' });
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+  });
+
+  test.each([
+    ['Wait', 'Wait:', 'Pick a date'],
+    ['End', 'End:', 'Select end date'],
+    ['Due', 'Due:', 'Select due date'],
+    ['Start', 'Start:', 'Pick a date'],
+    ['Entry', 'Entry:', 'Pick a date'],
+  ])('shows red when task %s date is edited', async (_, label, placeholder) => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText(label)).toBeInTheDocument();
+    });
+
+    const dateLabel = screen.getByText(label);
+    const dateRow = dateLabel.closest('tr') as HTMLElement;
+
+    const editButton = within(dateRow).getByLabelText('edit');
+    fireEvent.click(editButton);
+
+    const dateButton = within(dateRow).getByText(placeholder).closest('button');
+    fireEvent.click(dateButton!);
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+    });
+
+    const dialog = screen.getByRole('dialog');
+    const day15 = within(dialog).getByText('15');
+    fireEvent.click(day15);
+
+    const saveButton = screen.getByLabelText('save');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+  });
+
+  test('shows red border when task priority is edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Priority:')).toBeInTheDocument();
+    });
+
+    const priorityLabel = screen.getByText('Priority:');
+    const priorityRow = priorityLabel.closest('tr') as HTMLElement;
+
+    const editButton = within(priorityRow).getByLabelText('edit');
+    fireEvent.click(editButton);
+
+    const select = within(priorityRow).getByTestId('project-select');
+    fireEvent.change(select, { target: { value: 'H' } });
+
+    const saveButton = screen.getByLabelText('save');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+  });
+
+  test('shows red border when task dependencies are edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Depends:')).toBeInTheDocument();
+    });
+
+    const dependsLabel = screen.getByText('Depends:');
+    const dependsRow = dependsLabel.closest('tr') as HTMLElement;
+
+    const editButton = within(dependsRow).getByLabelText('edit');
+    fireEvent.click(editButton);
+
+    const addDependecyButton = within(dependsRow)
+      .getByText('Add Dependency')
+      .closest('button');
+    fireEvent.click(addDependecyButton!);
+
+    const dropdown = within(dependsRow).getByTestId('dependency-dropdown');
+
+    fireEvent.click(within(dropdown).getByText('Task 11'));
+    fireEvent.click(within(dropdown).getByText('Task 10'));
+
+    const saveButton = screen.getByLabelText('save');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+  });
+
+  test('shows red border when task tags are edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Tags:')).toBeInTheDocument();
+    });
+
+    const tagsLabel = screen.getByText('Tags:');
+    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
+
+    const editButton = within(tagsRow).getByLabelText('edit');
+    fireEvent.click(editButton);
+
+    const editInput = await screen.findByPlaceholderText(
+      'Add a tag (press enter to add)'
+    );
+
+    fireEvent.change(editInput, { target: { value: 'unsyncedtag' } });
+    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
+
+    const saveButton = screen.getByLabelText('Save tags');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+  });
+
+  test('shows red border when task recur is edited', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      expect(screen.getByText('Recur:')).toBeInTheDocument();
+    });
+
+    const recurLabel = screen.getByText('Recur:');
+    const recurRow = recurLabel.closest('tr') as HTMLElement;
+
+    const editButton = within(recurRow).getByLabelText('edit');
+    fireEvent.click(editButton);
+
+    const select = within(recurRow).getByTestId('project-select');
+    fireEvent.change(select, { target: { value: 'weekly' } });
+
+    const saveButton = screen.getByLabelText('save');
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+  });
+
+  test('shows and updates notification badge count on Sync button', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      const completeButton = screen.getByLabelText('complete task');
+      fireEvent.click(completeButton);
+    });
+
+    const yesButton = screen.getAllByText('Yes')[0];
+    fireEvent.click(yesButton);
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+
+    const syncButtons = screen.getAllByText('Sync');
+    const syncBtnContainer = syncButtons[0].closest('button');
+
+    if (syncBtnContainer) {
+      expect(within(syncBtnContainer).getByText('1')).toBeInTheDocument();
+    } else {
+      throw new Error('Sync button not found');
+    }
+  });
+
+  test('clears red border after sync', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+    });
+
+    const task12 = screen.getByText('Task 12');
+    fireEvent.click(task12);
+
+    await waitFor(() => {
+      const completeButton = screen.getByLabelText('complete task');
+      fireEvent.click(completeButton);
+    });
+
+    const yesButton = screen.getAllByText('Yes')[0];
+    fireEvent.click(yesButton);
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).toHaveClass('border-l-red-500');
+    });
+
+    const hooks = require('../hooks');
+    hooks.fetchTaskwarriorTasks.mockResolvedValueOnce([
+      {
+        id: 12,
+        description: 'Task 12',
+        status: 'completed',
+        project: 'ProjectA',
+        tags: ['tag1'],
+        uuid: 'uuid-12',
+      },
+    ]);
+
+    const syncButtons = screen.getAllByText('Sync');
+    fireEvent.click(syncButtons[0]);
+
+    await waitFor(() => {
+      const row = screen.getByTestId('task-row-12');
+      expect(row).not.toHaveClass('border-l-red-500');
     });
   });
 });
