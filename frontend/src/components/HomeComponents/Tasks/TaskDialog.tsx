@@ -28,6 +28,8 @@ import {
   CopyIcon,
   Folder,
   PencilIcon,
+  Pin,
+  PinOff,
   Tag,
   Trash2Icon,
   XIcon,
@@ -60,6 +62,8 @@ export const TaskDialog = ({
   onMarkComplete,
   onMarkDeleted,
   isOverdue,
+  isPinned,
+  onTogglePin,
 }: EditTaskDialogProps) => {
   const handleDialogOpenChange = (open: boolean) => {
     if (open) {
@@ -131,28 +135,33 @@ export const TaskDialog = ({
             )}
           </TableCell>
           <TableCell className="py-2">
-            <Badge
-              className={
-                task.status === 'pending' && isOverdue(task.due)
-                  ? 'bg-orange-500 text-white'
-                  : ''
-              }
-              variant={
-                task.status === 'deleted'
-                  ? 'destructive'
+            <div className="flex items-center gap-1">
+              <Badge
+                className={
+                  task.status === 'pending' && isOverdue(task.due)
+                    ? 'bg-orange-500 text-white'
+                    : ''
+                }
+                variant={
+                  task.status === 'deleted'
+                    ? 'destructive'
+                    : task.status === 'completed'
+                      ? 'default'
+                      : 'secondary'
+                }
+              >
+                {task.status === 'pending' && isOverdue(task.due)
+                  ? 'O'
                   : task.status === 'completed'
-                    ? 'default'
-                    : 'secondary'
-              }
-            >
-              {task.status === 'pending' && isOverdue(task.due)
-                ? 'O'
-                : task.status === 'completed'
-                  ? 'C'
-                  : task.status === 'deleted'
-                    ? 'D'
-                    : 'P'}
-            </Badge>
+                    ? 'C'
+                    : task.status === 'deleted'
+                      ? 'D'
+                      : 'P'}
+              </Badge>
+              {isPinned && (
+                <Pin className="h-4 w-4 text-amber-500 fill-amber-500" />
+              )}
+            </div>
           </TableCell>
         </TableRow>
       </DialogTrigger>
@@ -1365,6 +1374,23 @@ export const TaskDialog = ({
 
         {/* Non-scrollable footer */}
         <DialogFooter className="flex flex-row justify-end pt-4">
+          <Button
+            variant="outline"
+            onClick={() => onTogglePin(task.uuid)}
+            className="mr-auto"
+          >
+            {isPinned ? (
+              <>
+                <PinOff className="h-4 w-4 mr-1" />
+                Unpin
+              </>
+            ) : (
+              <>
+                <Pin className="h-4 w-4 mr-1" />
+                Pin
+              </>
+            )}
+          </Button>
           {task.status == 'pending' ? (
             <Dialog>
               <DialogTrigger asChild className="mr-5">
