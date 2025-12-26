@@ -98,3 +98,56 @@ func Test_ValidateDependencies_EmptyList(t *testing.T) {
 	err := ValidateDependencies(depends, currentTaskUUID)
 	assert.NoError(t, err)
 }
+
+func TestConvertISOToTaskwarriorFormat(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+		hasError bool
+	}{
+		{
+			name:     "ISO datetime with milliseconds (frontend format)",
+			input:    "2025-12-27T14:30:00.000Z",
+			expected: "2025-12-27T14:30:00",
+			hasError: false,
+		},
+		{
+			name:     "ISO datetime at midnight (explicit datetime)",
+			input:    "2025-12-27T00:00:00.000Z",
+			expected: "2025-12-27T00:00:00",
+			hasError: false,
+		},
+		{
+			name:     "Date only format",
+			input:    "2025-12-27",
+			expected: "2025-12-27",
+			hasError: false,
+		},
+		{
+			name:     "Empty string",
+			input:    "",
+			expected: "",
+			hasError: false,
+		},
+		{
+			name:     "Invalid format",
+			input:    "invalid-date",
+			expected: "",
+			hasError: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := ConvertISOToTaskwarriorFormat(tt.input)
+
+			if tt.hasError {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, tt.expected, result)
+			}
+		})
+	}
+}

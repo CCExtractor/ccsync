@@ -35,7 +35,13 @@ export function exportTasksAsTXT(tasks: Task[]) {
     txtContent += `Tags: ${task.tags.length ? task.tags.join(', ') : 'None'}\n`;
     txtContent += `UUID: ${task.uuid}\n`;
     txtContent += `Entry: ${new Date(task.entry).toLocaleString()}\n`;
-    txtContent += `Due: ${task.due ? new Date(task.due).toLocaleString() : 'None'}\n`;
+    txtContent += `Due: ${
+      task.due
+        ? new Date(
+            task.due.includes('T') ? task.due : `${task.due}T00:00:00`
+          ).toLocaleString()
+        : 'None'
+    }\n`;
     txtContent += `----------------------------------------\n\n`;
   });
 

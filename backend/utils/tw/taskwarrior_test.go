@@ -52,7 +52,7 @@ func TestAddTaskToTaskwarrior(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarriorWithWaitDate(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-03", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-04", "", nil, []models.Annotation{})
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-03", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-04", "", nil, []models.Annotation{}, nil)
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior with wait date failed: %v", err)
 	} else {
@@ -61,7 +61,7 @@ func TestAddTaskToTaskwarriorWithWaitDate(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarriorWithEntryDate(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-05", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-10", "", nil, nil)
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-05", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-10", "", nil, nil, nil)
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior failed: %v", err)
 	} else {
@@ -88,7 +88,7 @@ func TestAddTaskWithTags(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarriorWithEntryDateAndTags(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-05", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-10", "", []string{"work", "important"}, nil)
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-05", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-10", "", []string{"work", "important"}, nil, nil)
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior with entry date and tags failed: %v", err)
 	} else {
@@ -97,7 +97,7 @@ func TestAddTaskToTaskwarriorWithEntryDateAndTags(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarriorWithWaitDateWithTags(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-03", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-04", "", []string{"work", "important"}, []models.Annotation{})
+	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-03", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-04", "", []string{"work", "important"}, []models.Annotation{}, nil)
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior with wait date failed: %v", err)
 	} else {

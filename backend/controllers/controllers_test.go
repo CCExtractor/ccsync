@@ -135,7 +135,7 @@ func Test_AddTaskHandler_WithDueDate(t *testing.T) {
 		"description":      "Test task",
 		"project":          "TestProject",
 		"priority":         "H",
-		"due":              "2025-12-31",
+		"due":              "2025-12-31T23:59:59.000Z",
 		"tags":             []string{"test", "important"},
 	}
 

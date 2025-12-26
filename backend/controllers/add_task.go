@@ -68,7 +68,12 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		var dueDateStr string
 		if dueDate != nil && *dueDate != "" {
-			dueDateStr = *dueDate
+			convertedDate, err := utils.ConvertISOToTaskwarriorFormat(*dueDate)
+			if err != nil {
+				http.Error(w, fmt.Sprintf("Invalid due date format: %v", err), http.StatusBadRequest)
+				return
+			}
+			dueDateStr = convertedDate
 		}
 
 		logStore := models.GetLogStore()
