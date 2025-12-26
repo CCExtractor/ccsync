@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Hero } from '../Hero';
 import { Props } from '../../../utils/types';
@@ -60,6 +60,39 @@ describe('Hero component', () => {
     );
     expect(uuidCopyButton).toBeInTheDocument();
     expect(secretCopyButton).toBeInTheDocument();
+  });
+
+  test('show UUID by default', () => {
+    render(<Hero {...mockProps} />);
+
+    const uuidCode = screen.getAllByText(mockProps.uuid)[0];
+    expect(uuidCode).toBeInTheDocument();
+  });
+
+  test('Hides UUId when button is clicked', () => {
+    render(<Hero {...mockProps} />);
+    const togglebutton = screen.getByRole('button', { name: /hide uuid/i });
+
+    fireEvent.click(togglebutton);
+
+    const maskedUuid = '•'.repeat(mockProps.uuid.length);
+    expect(screen.getByText(maskedUuid)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /show uuid/i })
+    ).toBeInTheDocument();
+  });
+
+  test('Hides encryption secret when button is clicked', () => {
+    render(<Hero {...mockProps} />);
+    const togglebutton = screen.getByRole('button', { name: /hide secret/i });
+
+    fireEvent.click(togglebutton);
+
+    const maskedsecret = '•'.repeat(mockProps.encryption_secret.length);
+    expect(screen.getByText(maskedsecret)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /show secret/i })
+    ).toBeInTheDocument();
   });
 });
 
