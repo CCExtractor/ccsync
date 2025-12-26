@@ -66,6 +66,7 @@ describe('NavbarDesktop', () => {
 
     expect(screen.getAllByText('test@example.com')[0]).toBeInTheDocument();
   });
+
   it('opens github link when clicked', async () => {
     const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
 
