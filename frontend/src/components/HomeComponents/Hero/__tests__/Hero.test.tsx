@@ -69,7 +69,7 @@ describe('Hero component', () => {
     expect(uuidCode).toBeInTheDocument();
   });
 
-  test('Hides UUId when button is clicked', () => {
+  test('Hides UUID when button is clicked', () => {
     render(<Hero {...mockProps} />);
     const togglebutton = screen.getByRole('button', { name: /hide uuid/i });
 
