@@ -1,4 +1,8 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import {
+  exportTasksAsJSON,
+  exportTasksAsTXT,
+} from '@/components/utils/ExportTasks';
 import { NavbarMobile } from '../NavbarMobile';
 import {
   deleteAllTasks,
@@ -7,7 +11,12 @@ import {
   routeList,
 } from '../navbar-utils';
 
-jest.mock('../navbar-utils', () => ({
+jest.mock('@/components/utils/ExportTasks', () => ({
+  exportTasksAsJSON: jest.fn(),
+  exportTasksAsTXT: jest.fn(),
+}));
+
+jest.mock('@/components/HomeComponents/Navbar/navbar-utils', () => ({
   deleteAllTasks: jest.fn(),
   handleLogout: jest.fn(),
   routeList: [
@@ -113,6 +122,34 @@ describe('NavbarMobile', () => {
 
     fireEvent.click(logoutButton);
     expect(handleLogout).toHaveBeenCalled();
+  });
+
+  test('export task as json and close menu', () => {
+    render(<NavbarMobile {...openProps} />);
+
+    fireEvent.click(screen.getByText('Export Tasks'));
+    fireEvent.click(screen.getByText('Download .json'));
+
+    expect(exportTasksAsJSON).toHaveBeenCalledWith(openProps.tasks);
+    expect(mockSetIsOpen).toHaveBeenCalledWith(false);
+  });
+
+  test('export task as txt and close menu', () => {
+    render(<NavbarMobile {...openProps} />);
+
+    fireEvent.click(screen.getByText('Export Tasks'));
+    fireEvent.click(screen.getByText('Download .txt'));
+
+    expect(exportTasksAsTXT).toHaveBeenCalledWith(openProps.tasks);
+    expect(mockSetIsOpen).toHaveBeenCalledWith(false);
+  });
+
+  test('opens auto-sync dialog', () => {
+    render(<NavbarMobile {...openProps} />);
+
+    fireEvent.click(screen.getByText('Auto-sync'));
+
+    expect(screen.getByText(/Enable Auto-Sync/i)).toBeInTheDocument();
   });
 });
 
