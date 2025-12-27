@@ -6,6 +6,24 @@ jest.mock('@/components/ui/switch', () => ({
     <button onClick={() => onCheckedChange(true)}>toggle</button>
   ),
 }));
+jest.mock('@/components/utils/ExportTasks', () => ({
+  exportTasksAsJSON: jest.fn(),
+  exportTasksAsTXT: jest.fn(),
+}));
+jest.mock('../navbar-utils', () => ({
+  ...jest.requireActual('../navbar-utils'),
+  deleteAllTasks: jest.fn(),
+}));
+jest.mock('@/components/ui/dialog', () => ({
+  Dialog: ({ children }: any) => <div>{children}</div>,
+  DialogTrigger: ({ children }: any) => <div>{children}</div>,
+  DialogContent: ({ children }: any) => (
+    <div data-testid="export-dialog">{children}</div>
+  ),
+  DialogHeader: ({ children }: any) => <div>{children}</div>,
+  DialogTitle: ({ children }: any) => <h2>{children}</h2>,
+  DialogDescription: ({ children }: any) => <p>{children}</p>,
+}));
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NavbarDesktop } from '../NavbarDesktop';
@@ -82,6 +100,32 @@ describe('NavbarDesktop', () => {
     );
 
     openSpy.mockRestore();
+  });
+  it('exports tasks as TXT and triggers export handler', async () => {
+    const user = userEvent.setup();
+    const { exportTasksAsTXT } = require('@/components/utils/ExportTasks');
+
+    render(<NavbarDesktop {...extendedProps} />);
+
+    await user.click(screen.getByText('CN'));
+    await user.click(screen.getByText('Export tasks'));
+
+    expect(screen.getByText(/Would you like to download/i)).toBeInTheDocument();
+
+    await user.click(screen.getByText('Download .txt'));
+
+    expect(exportTasksAsTXT).toHaveBeenCalledWith([]);
+  });
+  it('exports tasks as JSON', async () => {
+    const { exportTasksAsJSON } = require('@/components/utils/ExportTasks');
+
+    render(<NavbarDesktop {...extendedProps} />);
+
+    await userEvent.click(screen.getByText('CN'));
+    await userEvent.click(screen.getByText('Export tasks'));
+    await userEvent.click(screen.getByText('Download .json'));
+
+    expect(exportTasksAsJSON).toHaveBeenCalledWith([]);
   });
   it('shows slider when auto sync is enabled', async () => {
     const user = userEvent.setup();
