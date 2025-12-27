@@ -65,6 +65,7 @@ export const TaskDialog = ({
   onMarkComplete,
   onMarkDeleted,
   isOverdue,
+  isUnsynced,
 }: EditTaskDialogProps) => {
   const handleDialogOpenChange = (open: boolean) => {
     if (open) {
@@ -99,6 +100,7 @@ export const TaskDialog = ({
           key={index}
           className={`border-b cursor-pointer hover:dark:bg-muted/50 hover:bg-black/15 ${
             selectedIndex === index ? 'dark:bg-muted/50 bg-black/15' : ''
+          } ${isUnsynced ? 'border-l-4 border-l-red-500' : ''}   
           }`}
           data-selected={selectedIndex === index}
           onClick={() => {
@@ -222,6 +224,7 @@ export const TaskDialog = ({
                           <Button
                             variant="ghost"
                             size="icon"
+                            aria-label="save"
                             onClick={() => {
                               onSaveDescription(
                                 task,
@@ -235,6 +238,7 @@ export const TaskDialog = ({
                           <Button
                             variant="ghost"
                             size="icon"
+                            aria-label="cancel"
                             onClick={handleCancelClick}
                           >
                             <XIcon className="h-4 w-4 text-red-500" />
@@ -247,6 +251,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() => handleEditClick(task.description)}
                         >
                           <PencilIcon className="h-4 w-4 text-gray-500" />
@@ -294,6 +299,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSaveDueDate(task, editState.editedDueDate);
                             onUpdateState({ isEditingDueDate: false });
@@ -304,6 +310,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               editedDueDate: task.due || '',
@@ -320,6 +327,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() => {
                             onUpdateState({
                               isEditingDueDate: true,
@@ -379,6 +387,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSaveStartDate(task, editState.editedStartDate);
                             onUpdateState({ isEditingStartDate: false });
@@ -390,6 +399,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               editedStartDate: task.start || '',
@@ -406,6 +416,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() => {
                             onUpdateState({
                               isEditingStartDate: true,
@@ -462,6 +473,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSaveEndDate(task, editState.editedEndDate);
                             onUpdateState({ isEditingEndDate: false });
@@ -472,6 +484,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               editedEndDate: task.end || '',
@@ -488,6 +501,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() => {
                             onUpdateState({
                               isEditingEndDate: true,
@@ -544,6 +558,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSaveWaitDate(task, editState.editedWaitDate);
                             onUpdateState({ isEditingWaitDate: false });
@@ -555,6 +570,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               editedWaitDate: task.wait || '',
@@ -571,6 +587,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() => {
                             onUpdateState({
                               isEditingWaitDate: true,
@@ -618,6 +635,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() => {
                             onUpdateState({
                               isEditingDepends: true,
@@ -676,7 +694,10 @@ export const TaskDialog = ({
                               Add Dependency
                             </Button>
                             {editState.dependsDropdownOpen && (
-                              <div className="absolute left-0 top-full mt-1 z-50 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                              <div
+                                data-testid="dependency-dropdown"
+                                className="absolute left-0 top-full mt-1 z-50 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto"
+                              >
                                 <Input
                                   type="text"
                                   placeholder="Search tasks..."
@@ -734,6 +755,7 @@ export const TaskDialog = ({
                           <Button
                             variant="ghost"
                             size="icon"
+                            aria-label="save"
                             onClick={() => {
                               onSaveDepends(task, editState.editedDepends);
                               onUpdateState({
@@ -747,6 +769,7 @@ export const TaskDialog = ({
                           <Button
                             variant="ghost"
                             size="icon"
+                            aria-label="cancel"
                             onClick={() => {
                               onUpdateState({
                                 isEditingDepends: false,
@@ -788,6 +811,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSavePriority(task, editState.editedPriority);
                             onUpdateState({ isEditingPriority: false });
@@ -798,6 +822,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() => {
                             onUpdateState({
                               editedPriority: task.priority || 'NONE',
@@ -824,6 +849,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() =>
                             onUpdateState({
                               editedPriority: task.priority || 'NONE',
@@ -915,6 +941,7 @@ export const TaskDialog = ({
                                 <Button
                                   variant="ghost"
                                   size="icon"
+                                  aria-label="save"
                                   onClick={() => {
                                     onSaveProject(
                                       task,
@@ -928,6 +955,7 @@ export const TaskDialog = ({
                                 <Button
                                   variant="ghost"
                                   size="icon"
+                                  aria-label="cancel"
                                   onClick={() =>
                                     onUpdateState({
                                       editedProject: task.project,
@@ -948,6 +976,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() => {
                             onUpdateState({
                               editedProject: task.project,
@@ -1010,6 +1039,7 @@ export const TaskDialog = ({
                           <Button
                             variant="ghost"
                             size="icon"
+                            aria-label="Save tags"
                             onClick={() => {
                               onSaveTags(task, editState.editedTags);
                               onUpdateState({
@@ -1017,13 +1047,13 @@ export const TaskDialog = ({
                                 editTagInput: '',
                               });
                             }}
-                            aria-label="Save tags"
                           >
                             <CheckIcon className="h-4 w-4 text-green-500" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
+                            aria-label="Cancel editing tags"
                             onClick={() => {
                               onUpdateState({
                                 isEditingTags: false,
@@ -1031,7 +1061,6 @@ export const TaskDialog = ({
                                 editTagInput: '',
                               });
                             }}
-                            aria-label="Cancel editing tags"
                           >
                             <XIcon className="h-4 w-4 text-red-500" />
                           </Button>
@@ -1084,6 +1113,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() =>
                             onUpdateState({
                               isEditingTags: true,
@@ -1140,6 +1170,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() => {
                             onSaveEntryDate(task, editState.editedEntryDate);
                             onUpdateState({ isEditingEntryDate: false });
@@ -1151,6 +1182,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               isEditingEntryDate: false,
@@ -1171,6 +1203,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() =>
                             onUpdateState({
                               isEditingEntryDate: true,
@@ -1240,6 +1273,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="save"
                           onClick={() =>
                             onSaveRecur(task, editState.editedRecur)
                           }
@@ -1249,6 +1283,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
                               isEditingRecur: false,
@@ -1265,6 +1300,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() => {
                             onUpdateState({
                               isEditingRecur: true,
@@ -1448,7 +1484,10 @@ export const TaskDialog = ({
           {task.status == 'pending' ? (
             <Dialog>
               <DialogTrigger asChild className="mr-5">
-                <Button id={`mark-task-complete-${task.id}`}>
+                <Button
+                  id={`mark-task-complete-${task.id}`}
+                  aria-label="complete task"
+                >
                   Mark As Completed <Key lable="c" />
                 </Button>
               </DialogTrigger>
@@ -1488,6 +1527,7 @@ export const TaskDialog = ({
                   id={`mark-task-as-deleted-${task.id}`}
                   className="mr-4"
                   variant={'destructive'}
+                  aria-label="delete task"
                 >
                   <Trash2Icon />
                   <Key lable="d" />
