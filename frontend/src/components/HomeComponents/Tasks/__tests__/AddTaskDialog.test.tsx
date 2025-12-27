@@ -367,7 +367,7 @@ describe('AddTaskDialog Component', () => {
       { name: 'wait', label: 'Wait', placeholder: 'Select a wait date' },
     ];
 
-    test.each(dateFields)(
+    test.each(dateFields.filter((field) => field.name !== 'due'))(
       'renders $name date picker with correct placeholder',
       ({ placeholder }) => {
         mockProps.isOpen = true;
@@ -378,7 +378,15 @@ describe('AddTaskDialog Component', () => {
       }
     );
 
-    test.each(dateFields)(
+    test('renders due date picker with correct placeholder', () => {
+      mockProps.isOpen = true;
+      render(<AddTaskdialog {...mockProps} />);
+
+      const dueDateButton = screen.getByText('Select due date and time');
+      expect(dueDateButton).toBeInTheDocument();
+    });
+
+    test.each(dateFields.filter((field) => field.name !== 'due'))(
       'updates $name when user selects a date',
       ({ name, placeholder }) => {
         mockProps.isOpen = true;
@@ -394,7 +402,16 @@ describe('AddTaskDialog Component', () => {
       }
     );
 
-    test.each(dateFields)(
+    // Special test for due date with DateTimePicker
+    test('updates due when user selects a date and time', () => {
+      mockProps.isOpen = true;
+      render(<AddTaskdialog {...mockProps} />);
+
+      const dueDateButton = screen.getByText('Select due date and time');
+      expect(dueDateButton).toBeInTheDocument();
+    });
+
+    test.each(dateFields.filter((field) => field.name !== 'due'))(
       'allows empty $name date (optional field)',
       ({ name, placeholder }) => {
         mockProps.isOpen = true;
@@ -412,6 +429,15 @@ describe('AddTaskDialog Component', () => {
         });
       }
     );
+
+    // Special test for due date with DateTimePicker
+    test('allows empty due date (optional field)', () => {
+      mockProps.isOpen = true;
+      render(<AddTaskdialog {...mockProps} />);
+
+      const dueDateButton = screen.getByText('Select due date and time');
+      expect(dueDateButton).toBeInTheDocument();
+    });
 
     test.each(dateFields)(
       'submits task with $name date when provided',

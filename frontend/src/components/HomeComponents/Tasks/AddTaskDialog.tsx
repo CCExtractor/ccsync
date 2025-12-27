@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import {
   Dialog,
   DialogContent,
@@ -255,15 +256,27 @@ export const AddTaskdialog = ({
               Due
             </Label>
             <div className="col-span-3">
-              <DatePicker
-                date={newTask.due ? new Date(newTask.due) : undefined}
-                onDateChange={(date) => {
+              <DateTimePicker
+                date={
+                  newTask.due
+                    ? new Date(
+                        newTask.due.includes('T')
+                          ? newTask.due
+                          : `${newTask.due}T00:00:00`
+                      )
+                    : undefined
+                }
+                onDateTimeChange={(date, hasTime) => {
                   setNewTask({
                     ...newTask,
-                    due: date ? format(date, 'yyyy-MM-dd') : '',
+                    due: date
+                      ? hasTime
+                        ? date.toISOString()
+                        : format(date, 'yyyy-MM-dd')
+                      : '',
                   });
                 }}
-                placeholder="Select a due date"
+                placeholder="Select due date and time"
               />
             </div>
           </div>

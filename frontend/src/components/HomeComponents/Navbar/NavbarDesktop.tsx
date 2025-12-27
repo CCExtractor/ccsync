@@ -112,7 +112,7 @@ export const NavbarDesktop = (
                 <DialogTrigger>
                   <DropdownMenuItem
                     className="text-red-500"
-                    onClick={() => setIsDeleteConfirmOpen(true)}
+                    onSelect={(e) => e.preventDefault()}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete all tasks
@@ -120,9 +120,9 @@ export const NavbarDesktop = (
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogDescription className="text-lg font-semibold text-red-600">
+                    <DialogTitle className="text-lg font-semibold text-red-600">
                       Delete All Tasks?
-                    </DialogDescription>
+                    </DialogTitle>
                   </DialogHeader>
                   <div className="py-4">
                     <p className="text-base mb-2">
