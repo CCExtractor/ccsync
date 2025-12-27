@@ -4,6 +4,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { url } from '@/components/utils/URLs';
@@ -97,6 +98,9 @@ export const NavbarMobile = (
         <SheetContent side={'left'}>
           <SheetHeader>
             <SheetTitle className="font-bold text-xl">CCSync</SheetTitle>
+            <SheetDescription>
+              Mobile navigation menu for CCSync
+            </SheetDescription>
           </SheetHeader>
 
           <nav className="flex flex-col justify-center items-center gap-2 mt-4">
@@ -177,6 +181,13 @@ export const NavbarMobile = (
                 </div>
               </DialogTrigger>
               <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Auto Sync</DialogTitle>
+                  <DialogDescription>
+                    Enable or disable automatic task synchronization and
+                    configure the sync interval.
+                  </DialogDescription>
+                </DialogHeader>
                 <div className="flex flex-col space-y-4 pt-2">
                   <div className="flex mt-2 items-center justify-between space-x-2">
                     <Label htmlFor="autosync-switch" className="text-base">
