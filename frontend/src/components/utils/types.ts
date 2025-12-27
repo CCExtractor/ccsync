@@ -136,6 +136,9 @@ export interface EditTaskDialogProps {
   editState: EditTaskState;
   onUpdateState: (updates: Partial<EditTaskState>) => void;
   allTasks: Task[];
+  uniqueProjects: string[];
+  isCreatingNewProject: boolean;
+  setIsCreatingNewProject: (value: boolean) => void;
   onSaveDescription: (task: Task, description: string) => void;
   onSaveTags: (task: Task, tags: string[]) => void;
   onSavePriority: (task: Task, priority: string) => void;
