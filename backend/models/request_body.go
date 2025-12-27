@@ -22,6 +22,7 @@ type ModifyTaskRequestBody struct {
 	Status           string   `json:"status"`
 	Due              string   `json:"due"`
 	Tags             []string `json:"tags"`
+	IsPinned         bool     `json:"isPinned"`
 }
 type EditTaskRequestBody struct {
 	Email            string   `json:"email"`

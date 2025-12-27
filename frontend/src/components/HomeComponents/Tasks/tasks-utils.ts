@@ -12,6 +12,8 @@ export type Props = {
 
 export const sortTasks = (tasks: Task[], order: 'asc' | 'desc') => {
   return tasks.sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
     if (a.status < b.status) return order === 'asc' ? -1 : 1;
     if (a.status > b.status) return order === 'asc' ? 1 : -1;
     return 0;
@@ -104,6 +106,9 @@ export const formattedDate = (dateString: string) => {
 
 export const sortTasksById = (tasks: Task[], order: 'asc' | 'desc') => {
   return tasks.sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+
     if (order === 'asc') {
       return a.id < b.id ? -1 : 1;
     } else {
@@ -143,3 +148,40 @@ export const handleDate = (v: string) => {
   }
   return true;
 };
+
+export const toggleTaskPin =async (
+  email: string,
+  encryptionSecret: string,
+  UUID: string,
+  taskuuid: string,
+  isPinned: boolean
+) => {
+  try {
+    const backendURL = url.backendURL+`toggle-pin`;
+    
+    const response = await fetch(backendURL, {
+      method: 'POST',
+      headers: {
+     'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        encryptionSecret: encryptionSecret,
+        UUID: UUID,
+        taskuuid: taskuuid,
+        isPinned: isPinned,
+      }),
+    });
+
+    if (response.ok) {
+      toast.success(isPinned ? "Task Pinned" : "Task Unpinned", { position: 'bottom-left' });
+      return true;
+    } else {
+      console.error('Failed to toggle pin');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error toggling pin:', error);
+    return false;
+  }
+}

@@ -55,6 +55,7 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 
 	// Sync Taskwarrior again
 	if err := SyncTaskwarrior(tempDir); err != nil {
+		fmt.Print("Sync after adding task failed")
 		return err
 	}
 

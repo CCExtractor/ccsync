@@ -26,4 +26,5 @@ type Task struct {
 	RType       string       `json:"rtype"`
 	Recur       string       `json:"recur"`
 	Annotations []Annotation `json:"annotations"`
+	IsPinned    bool         `json:"isPinned"`
 }

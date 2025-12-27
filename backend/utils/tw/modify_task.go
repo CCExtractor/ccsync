@@ -56,9 +56,10 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 	}
 
 	// escapedStatus := fmt.Sprintf(`status:%s`, strings.ReplaceAll(status, `"`, `\"`))
-	if status == "completed" {
+	switch status {
+	case "completed":
 		utils.ExecCommand("task", taskID, "done", "rc.confirmation=off")
-	} else if status == "deleted" {
+	case "deleted":
 		utils.ExecCommand("task", taskID, "delete", "rc.confirmation=off")
 	}
 
@@ -88,6 +89,60 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 
 	if err := SyncTaskwarrior(tempDir); err != nil {
 		fmt.Println("11")
+		return err
+	}
+
+	return nil
+}
+
+/*
+	func ModifyTaskPin(uuid string, isPinned bool) error {
+		var tagAction string
+		if isPinned {
+			tagAction = "+pinned" // Add the tag
+		} else {
+			tagAction = "-pinned" // Remove the tag
+		}
+
+		// This runs: task <uuid> modify +pinned
+		cmd := exec.Command("task", uuid, "modify", tagAction)
+		output, err := cmd.CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("taskwarrior error: %s", string(output))
+		}
+		return nil
+	}
+*/
+func ModifyTaskPin(email, encryptionSecret, uuid, taskuuid string, isPinned bool) error {
+	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
+		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
+	}
+
+	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	if err != nil {
+		return fmt.Errorf("failed to create temporary directory: %v", err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	origin := os.Getenv("CONTAINER_ORIGIN")
+	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
+		return err
+	}
+
+	if err := SyncTaskwarrior(tempDir); err != nil {
+		return err
+	}
+
+	tagAction := "+pinned"
+	if !isPinned {
+		tagAction = "-pinned"
+	}
+
+	if err := utils.ExecCommandInDir(tempDir, "task", taskuuid, "modify", tagAction); err != nil {
+		return fmt.Errorf("failed to modify task pin: %v", err)
+	}
+
+	if err := SyncTaskwarrior(tempDir); err != nil {
 		return err
 	}
 

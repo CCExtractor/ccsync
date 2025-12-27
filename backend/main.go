@@ -64,7 +64,7 @@ func main() {
 	mux.Handle("/modify-task", rateLimitedHandler(http.HandlerFunc(controllers.ModifyTaskHandler)))
 	mux.Handle("/complete-task", rateLimitedHandler(http.HandlerFunc(controllers.CompleteTaskHandler)))
 	mux.Handle("/delete-task", rateLimitedHandler(http.HandlerFunc(controllers.DeleteTaskHandler)))
-
+	mux.Handle("/toggle-pin", rateLimitedHandler(http.HandlerFunc(controllers.TogglePinHandler)))
 	mux.HandleFunc("/ws", controllers.WebSocketHandler)
 
 	go controllers.JobStatusManager()

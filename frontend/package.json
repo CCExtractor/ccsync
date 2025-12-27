@@ -28,6 +28,7 @@
     "aria-query": "^5.3.0",
     "array-union": "^2.1.0",
     "autoprefixer": "^10.4.16",
+    "axios": "^1.13.2",
     "babel-jest": "^29.7.0",
     "babel-plugin-istanbul": "^6.1.1",
     "babel-plugin-jest-hoist": "^29.6.3",

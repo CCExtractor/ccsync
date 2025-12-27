@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Task } from '../../utils/types';
 import {
   Table,
@@ -31,6 +32,7 @@ import {
   Tag,
   Trash2Icon,
   XIcon,
+  Pin,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -235,7 +237,7 @@ export const Tasks = (
       console.error('Failed to edit task:', error);
     }
   }
-
+  
   const handleIdSort = () => {
     const newOrder = idSortOrder === 'asc' ? 'desc' : 'asc';
     setIdSortOrder(newOrder);
@@ -247,6 +249,61 @@ export const Tasks = (
     setSortOrder(newOrder);
     setTasks(sortTasks([...tasks], newOrder));
   };
+  const handleTogglePin = async (task: Task) => {
+  const isCurrentlyPinned = task.tags?.includes('pinned');
+  const newPinStatus = !isCurrentlyPinned;
+
+  
+  const updatedTags = newPinStatus
+    ? Array.from(new Set([...(task.tags || []), 'pinned']))
+    : (task.tags || []).filter((t) => t !== 'pinned');
+
+  
+  setTasks((prev) =>
+    prev.map((t) =>
+      t.uuid === task.uuid ? { ...t, tags: updatedTags, isPinned: newPinStatus } : t
+    )
+  );
+
+  try {
+    
+    await axios.post(
+      `${url.backendURL}toggle-pin`,
+      {
+        email: props.email,
+        encryptionSecret: props.encryptionSecret,
+        UUID: props.UUID,
+        taskuuid: task.uuid,
+        isPinned: newPinStatus,
+      },
+      {
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+
+    
+    await db.tasks.update(task.uuid, { tags: updatedTags, isPinned: newPinStatus });
+
+    toast.success(newPinStatus ? 'Task pinned' : 'Task unpinned', {
+      position: 'bottom-left',
+    });
+  } catch (error: any) {
+    console.error('Pin toggle failed:', error?.response?.status, error?.message);
+    toast.error('Could not toggle pin');
+
+    
+    setTasks((prev) => prev.map((t) => (t.uuid === task.uuid ? task : t)));
+
+   
+    try {
+      const tasksFromDB = await db.tasks.where('email').equals(props.email).toArray();
+      setTasks(sortTasksById(tasksFromDB, 'desc'));
+      setTempTasks(sortTasksById(tasksFromDB, 'desc'));
+    } catch (dbErr) {
+      console.error('Failed to re-sync tasks from DB after rollback:', dbErr);
+    }
+  }
+};
 
   const handleEditClick = (description: string) => {
     setIsEditing(true);
@@ -301,32 +358,35 @@ export const Tasks = (
     });
   };
 
-  // useEffect to update tempTasks whenever selectedProject changes
-  useEffect(() => {
-    if (selectedProject === 'all') {
-      setTempTasks(tasks);
-    } else {
-      const filteredTasks = tasks.filter(
-        (task) => task.project === selectedProject
-      );
-      setTempTasks(sortTasksById(filteredTasks, 'desc'));
-    }
-  }, [selectedProject, tasks]);
 
   const handleStatusChange = (value: string) => {
     setSelectedStatus(value);
   };
 
-  useEffect(() => {
-    if (selectedStatus === 'all') {
-      setTempTasks(tasks);
-    } else {
-      const filteredTasks = tasks.filter(
-        (task) => task.status === selectedStatus
-      );
-      setTempTasks(sortTasksById(filteredTasks, 'desc'));
-    }
-  }, [selectedStatus, tasks]);
+
+useEffect(() => {
+  let filtered = [...tasks];
+  
+  
+  if (selectedProject !== 'all') {
+    filtered = filtered.filter((task) => task.project === selectedProject);
+  }
+
+  if (selectedStatus !== 'all') {
+    filtered = filtered.filter((task) => task.status === selectedStatus);
+  }
+
+ 
+  const sorted = filtered.sort((a, b) => {
+   
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    
+    return b.id - a.id; 
+  });
+
+  setTempTasks(sorted);
+}, [selectedProject, selectedStatus, tasks]);
 
   const handleEditTagsClick = (task: Task) => {
     setEditedTags(task.tags || []);
@@ -655,22 +715,43 @@ export const Tasks = (
                             </span>
                           </TableCell>
                           <TableCell className="flex items-center space-x-2 py-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 p-0 hover:bg-transparent"
+                              onClick={(e) => {
+                              e.preventDefault();  
+                              e.stopPropagation();
+                              handleTogglePin(task);
+                              }}
+                            >
+                              <Pin
+                                className={`h-4 w-4 transition-colors ${
+                                  task.tags?.includes('pinned') 
+                                    ? "fill-[#F596D3] text-[#F596D3]" 
+                                    : "text-muted-foreground hover:text-white"
+                                  }`}
+                                />
+                            </Button>
+
                             {task.priority === 'H' && (
                               <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3"></div>
                             )}
                             {task.priority === 'M' && (
                               <div className="flex items-center justify-center w-3 h-3 bg-yellow-500 rounded-full border-0 min-w-3"></div>
                             )}
-                            {task.priority != 'H' && task.priority != 'M' && (
+                            {task.priority !== 'H' && task.priority !== 'M' && (
                               <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
                             )}
+
                             <span className="text-s text-foreground">
                               {task.description}
                             </span>
-                            {task.project != '' && (
+
+                            {task.project !== '' && (
                               <Badge variant={'secondary'}>
-                                <Folder className="pr-2" />
-                                {task.project === '' ? '' : task.project}
+                                <Folder className="pr-2 h-3 w-3" />
+                                {task.project}
                               </Badge>
                             )}
                           </TableCell>
