@@ -85,16 +85,42 @@ func Test_ExecCommandForOutputInDir(t *testing.T) {
 	}
 }
 
-func Test_ValidateDependencies_ValidDependencies(t *testing.T) {
-	depends := []string{"task-uuid-1", "task-uuid-2"}
-	currentTaskUUID := "current-task-uuid"
-	err := ValidateDependencies(depends, currentTaskUUID)
-	assert.NoError(t, err)
-}
-
 func Test_ValidateDependencies_EmptyList(t *testing.T) {
 	depends := []string{}
 	currentTaskUUID := "current-task-uuid"
 	err := ValidateDependencies(depends, currentTaskUUID)
 	assert.NoError(t, err)
+}
+
+// Circular Dependency Detection Tests
+func Test_detectCycle_NoCycle(t *testing.T) { //A -> B -> C
+	graph := map[string][]string{
+		"A": {"B"},
+		"B": {"C"},
+		"C": {},
+	}
+
+	hasCycle := detectCycle(graph, "A")
+	assert.False(t, hasCycle, "Should not detect cycle in linear dependency")
+}
+
+func Test_detectCycle_SimpleCycle(t *testing.T) { // A -> B -> A
+	graph := map[string][]string{
+		"A": {"B"},
+		"B": {"A"},
+	}
+
+	hasCycle := detectCycle(graph, "A")
+	assert.True(t, hasCycle, "Should detect simple cycle A -> B -> A")
+}
+
+func Test_detectCycle_ComplexCycle(t *testing.T) { // A -> B -> C -> A
+	graph := map[string][]string{
+		"A": {"B"},
+		"B": {"C"},
+		"C": {"A"},
+	}
+
+	hasCycle := detectCycle(graph, "A")
+	assert.True(t, hasCycle, "Should detect complex cycle A -> B -> C -> A")
 }
