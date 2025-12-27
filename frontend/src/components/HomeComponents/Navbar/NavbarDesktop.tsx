@@ -16,8 +16,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
-import { ModeToggle } from '../../utils/ThemeModeToggle';
+
+import { ModeToggle } from '@/components/utils/ThemeModeToggle';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 import { buttonVariants } from '@/components/ui/button';
 import {
   routeList,
@@ -41,7 +43,7 @@ import {
   exportTasksAsTXT,
 } from '@/components/utils/ExportTasks';
 import { useState } from 'react';
-import { DevLogs } from '../DevLogs/DevLogs';
+import { DevLogs } from '@/components/HomeComponents/DevLogs/DevLogs';
 import { useTaskAutoSync } from '@/components/utils/TaskAutoSync';
 import { Label } from '@/components/ui/label';
 
