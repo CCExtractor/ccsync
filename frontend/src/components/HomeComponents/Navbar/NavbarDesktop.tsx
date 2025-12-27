@@ -110,7 +110,7 @@ export const NavbarDesktop = (
                 <DialogTrigger>
                   <DropdownMenuItem
                     className="text-red-500"
-                    onClick={() => setIsDeleteConfirmOpen(true)}
+                    onSelect={(e) => e.preventDefault()}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete all tasks
