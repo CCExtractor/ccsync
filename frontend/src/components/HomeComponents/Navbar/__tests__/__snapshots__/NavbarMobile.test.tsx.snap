@@ -5,125 +5,243 @@ exports[`NavbarMobile component using snapshot renders correctly when closed: pr
   <span
     class="flex md:hidden"
   >
-    <button
-      aria-expanded="false"
-      aria-haspopup="menu"
-      class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 ghost"
-      data-state="closed"
-      id="radix-:ID:"
-      type="button"
+    <div
+      data-testid="mode-toggle"
     >
-      <svg
-        class="lucide lucide-sun h-[1.1rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-        data-testid="sun-icon"
-        fill="none"
-        height="24"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-        width="24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle
-          cx="12"
-          cy="12"
-          r="4"
-        />
-        <path
-          d="M12 2v2"
-        />
-        <path
-          d="M12 20v2"
-        />
-        <path
-          d="m4.93 4.93 1.41 1.41"
-        />
-        <path
-          d="m17.66 17.66 1.41 1.41"
-        />
-        <path
-          d="M2 12h2"
-        />
-        <path
-          d="M20 12h2"
-        />
-        <path
-          d="m6.34 17.66-1.41 1.41"
-        />
-        <path
-          d="m19.07 4.93-1.41 1.41"
-        />
-      </svg>
-      <svg
-        class="lucide lucide-moon absolute h-[1.1rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-        data-testid="moon-icon"
-        fill="none"
-        height="24"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-        width="24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"
-        />
-      </svg>
-      <span
-        class="sr-only"
-      >
-        Toggle theme
-      </span>
-    </button>
-    <button
-      aria-controls="radix-:ID:"
-      aria-expanded="false"
-      aria-haspopup="dialog"
-      class="px-2"
-      data-state="closed"
-      type="button"
-    >
-      <svg
-        class="lucide lucide-menu flex md:hidden h-5 w-5"
-        fill="none"
-        height="24"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-        width="24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <line
-          x1="4"
-          x2="20"
-          y1="12"
-          y2="12"
-        />
-        <line
-          x1="4"
-          x2="20"
-          y1="6"
-          y2="6"
-        />
-        <line
-          x1="4"
-          x2="20"
-          y1="18"
-          y2="18"
-        />
-      </svg>
-      <span
-        class="sr-only"
-      >
-        Menu Icon
-      </span>
-    </button>
+      ModeToggle
+    </div>
+    <div>
+      <button>
+        <div>
+          Menu
+        </div>
+      </button>
+      <div>
+        <div>
+          <div>
+            CCSync
+          </div>
+          <div>
+            Mobile navigation menu for CCSync
+          </div>
+        </div>
+        <nav
+          class="flex flex-col justify-center items-center gap-2 mt-4"
+        >
+          <a
+            class="button-ghost-default"
+            href="#"
+            rel="noreferrer noopener"
+          >
+            Home
+          </a>
+          <a
+            class="button-ghost-default"
+            href="#tasks"
+            rel="noreferrer noopener"
+          >
+            Tasks
+          </a>
+          <a
+            class="button-ghost-default"
+            href="#setup-guide"
+            rel="noreferrer noopener"
+          >
+            Setup Guide
+          </a>
+          <a
+            class="button-ghost-default"
+            href="#faq"
+            rel="noreferrer noopener"
+          >
+            FAQ
+          </a>
+          <a
+            class="w-[130px] border button-secondary-default"
+            rel="noreferrer noopener"
+            target="_blank"
+          >
+            <div>
+              Github
+            </div>
+            Github
+          </a>
+          <div>
+            <button>
+              <div
+                class="w-[130px] cursor-pointer border button-secondary-default"
+              >
+                <div>
+                  FileDown
+                </div>
+                Export Tasks
+              </div>
+            </button>
+            <div>
+              <div>
+                <div>
+                  Choose Export Format
+                </div>
+                <div>
+                  Would you like to download your tasks as a JSON file or a TXT file?
+                </div>
+              </div>
+              <div
+                class="flex flex-col sm:flex-row justify-end gap-2 mt-4"
+              >
+                <button
+                  class="w-full sm:w-auto hover:bg-white bg-[#3B82F6]"
+                >
+                  <div>
+                    FileText
+                  </div>
+                  Download .txt
+                </button>
+                <button
+                  class="w-full sm:w-auto hover:bg-white bg-[#3B82F6]"
+                >
+                  <div>
+                    FileJson
+                  </div>
+                  Download .json
+                </button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <button>
+              <div
+                class="w-[130px] cursor-pointer border button-secondary-default"
+              >
+                Auto-sync
+              </div>
+            </button>
+            <div>
+              <div>
+                <div>
+                  Auto Sync
+                </div>
+                <div>
+                  Enable or disable automatic task synchronization and configure the sync interval.
+                </div>
+              </div>
+              <div
+                class="flex flex-col space-y-4 pt-2"
+              >
+                <div
+                  class="flex mt-2 items-center justify-between space-x-2"
+                >
+                  <label
+                    class="text-base"
+                    for="autosync-switch"
+                  >
+                    Enable Auto-Sync
+                  </label>
+                  <input
+                    id="autosync-switch"
+                    type="checkbox"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <button>
+              <div
+                class="w-[130px] cursor-pointer border button-secondary-default"
+              >
+                <div>
+                  Terminal
+                </div>
+                Developer Logs
+              </div>
+            </button>
+            <div>
+              <div>
+                <div>
+                  Developer Logs
+                </div>
+                <div>
+                  View sync operation logs with timestamps and status information.
+                </div>
+              </div>
+              <div
+                data-testid="dev-logs"
+              >
+                DevLogs
+              </div>
+            </div>
+          </div>
+          <div
+            class="w-[130px] cursor-pointer border button-destructive-default"
+          >
+            <div>
+              Trash2
+            </div>
+            Delete All Tasks
+          </div>
+          <div
+            class="w-[130px] border button-destructive-default"
+          >
+            <div>
+              LogOut
+            </div>
+            Log out
+          </div>
+        </nav>
+      </div>
+    </div>
+    <div>
+      <div>
+        <div>
+          <div>
+            Delete All Tasks?
+          </div>
+          <div>
+            This action cannot be undone
+          </div>
+        </div>
+        <div
+          class="py-4"
+        >
+          <p
+            class="text-base mb-2"
+          >
+            Are you sure you want to delete all tasks for 
+            <span
+              class="font-semibold"
+            >
+              test@example.com
+            </span>
+            ?
+          </p>
+          <p
+            class="text-sm text-muted-foreground"
+          >
+            All your tasks will be permanently deleted from the local database.
+          </p>
+        </div>
+        <div
+          class="flex flex-col sm:flex-row justify-end gap-2"
+        >
+          <button
+            class="w-full sm:w-auto"
+            variant="outline"
+          >
+            Cancel
+          </button>
+          <button
+            class="w-full sm:w-auto"
+            variant="destructive"
+          >
+            <div>
+              Trash2
+            </div>
+            Delete All Tasks
+          </button>
+        </div>
+      </div>
+    </div>
   </span>
 </DocumentFragment>
 `;
@@ -133,125 +251,243 @@ exports[`NavbarMobile component using snapshot renders correctly when open: prop
   <span
     class="flex md:hidden"
   >
-    <button
-      aria-expanded="false"
-      aria-haspopup="menu"
-      class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-10 w-10 ghost"
-      data-state="closed"
-      id="radix-:ID:"
-      type="button"
+    <div
+      data-testid="mode-toggle"
     >
-      <svg
-        class="lucide lucide-sun h-[1.1rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-        data-testid="sun-icon"
-        fill="none"
-        height="24"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-        width="24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <circle
-          cx="12"
-          cy="12"
-          r="4"
-        />
-        <path
-          d="M12 2v2"
-        />
-        <path
-          d="M12 20v2"
-        />
-        <path
-          d="m4.93 4.93 1.41 1.41"
-        />
-        <path
-          d="m17.66 17.66 1.41 1.41"
-        />
-        <path
-          d="M2 12h2"
-        />
-        <path
-          d="M20 12h2"
-        />
-        <path
-          d="m6.34 17.66-1.41 1.41"
-        />
-        <path
-          d="m19.07 4.93-1.41 1.41"
-        />
-      </svg>
-      <svg
-        class="lucide lucide-moon absolute h-[1.1rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-        data-testid="moon-icon"
-        fill="none"
-        height="24"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-        width="24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"
-        />
-      </svg>
-      <span
-        class="sr-only"
-      >
-        Toggle theme
-      </span>
-    </button>
-    <button
-      aria-controls="radix-:ID:"
-      aria-expanded="false"
-      aria-haspopup="dialog"
-      class="px-2"
-      data-state="closed"
-      type="button"
-    >
-      <svg
-        class="lucide lucide-menu flex md:hidden h-5 w-5"
-        fill="none"
-        height="24"
-        stroke="currentColor"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-        width="24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <line
-          x1="4"
-          x2="20"
-          y1="12"
-          y2="12"
-        />
-        <line
-          x1="4"
-          x2="20"
-          y1="6"
-          y2="6"
-        />
-        <line
-          x1="4"
-          x2="20"
-          y1="18"
-          y2="18"
-        />
-      </svg>
-      <span
-        class="sr-only"
-      >
-        Menu Icon
-      </span>
-    </button>
+      ModeToggle
+    </div>
+    <div>
+      <button>
+        <div>
+          Menu
+        </div>
+      </button>
+      <div>
+        <div>
+          <div>
+            CCSync
+          </div>
+          <div>
+            Mobile navigation menu for CCSync
+          </div>
+        </div>
+        <nav
+          class="flex flex-col justify-center items-center gap-2 mt-4"
+        >
+          <a
+            class="button-ghost-default"
+            href="#"
+            rel="noreferrer noopener"
+          >
+            Home
+          </a>
+          <a
+            class="button-ghost-default"
+            href="#tasks"
+            rel="noreferrer noopener"
+          >
+            Tasks
+          </a>
+          <a
+            class="button-ghost-default"
+            href="#setup-guide"
+            rel="noreferrer noopener"
+          >
+            Setup Guide
+          </a>
+          <a
+            class="button-ghost-default"
+            href="#faq"
+            rel="noreferrer noopener"
+          >
+            FAQ
+          </a>
+          <a
+            class="w-[130px] border button-secondary-default"
+            rel="noreferrer noopener"
+            target="_blank"
+          >
+            <div>
+              Github
+            </div>
+            Github
+          </a>
+          <div>
+            <button>
+              <div
+                class="w-[130px] cursor-pointer border button-secondary-default"
+              >
+                <div>
+                  FileDown
+                </div>
+                Export Tasks
+              </div>
+            </button>
+            <div>
+              <div>
+                <div>
+                  Choose Export Format
+                </div>
+                <div>
+                  Would you like to download your tasks as a JSON file or a TXT file?
+                </div>
+              </div>
+              <div
+                class="flex flex-col sm:flex-row justify-end gap-2 mt-4"
+              >
+                <button
+                  class="w-full sm:w-auto hover:bg-white bg-[#3B82F6]"
+                >
+                  <div>
+                    FileText
+                  </div>
+                  Download .txt
+                </button>
+                <button
+                  class="w-full sm:w-auto hover:bg-white bg-[#3B82F6]"
+                >
+                  <div>
+                    FileJson
+                  </div>
+                  Download .json
+                </button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <button>
+              <div
+                class="w-[130px] cursor-pointer border button-secondary-default"
+              >
+                Auto-sync
+              </div>
+            </button>
+            <div>
+              <div>
+                <div>
+                  Auto Sync
+                </div>
+                <div>
+                  Enable or disable automatic task synchronization and configure the sync interval.
+                </div>
+              </div>
+              <div
+                class="flex flex-col space-y-4 pt-2"
+              >
+                <div
+                  class="flex mt-2 items-center justify-between space-x-2"
+                >
+                  <label
+                    class="text-base"
+                    for="autosync-switch"
+                  >
+                    Enable Auto-Sync
+                  </label>
+                  <input
+                    id="autosync-switch"
+                    type="checkbox"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <button>
+              <div
+                class="w-[130px] cursor-pointer border button-secondary-default"
+              >
+                <div>
+                  Terminal
+                </div>
+                Developer Logs
+              </div>
+            </button>
+            <div>
+              <div>
+                <div>
+                  Developer Logs
+                </div>
+                <div>
+                  View sync operation logs with timestamps and status information.
+                </div>
+              </div>
+              <div
+                data-testid="dev-logs"
+              >
+                DevLogs
+              </div>
+            </div>
+          </div>
+          <div
+            class="w-[130px] cursor-pointer border button-destructive-default"
+          >
+            <div>
+              Trash2
+            </div>
+            Delete All Tasks
+          </div>
+          <div
+            class="w-[130px] border button-destructive-default"
+          >
+            <div>
+              LogOut
+            </div>
+            Log out
+          </div>
+        </nav>
+      </div>
+    </div>
+    <div>
+      <div>
+        <div>
+          <div>
+            Delete All Tasks?
+          </div>
+          <div>
+            This action cannot be undone
+          </div>
+        </div>
+        <div
+          class="py-4"
+        >
+          <p
+            class="text-base mb-2"
+          >
+            Are you sure you want to delete all tasks for 
+            <span
+              class="font-semibold"
+            >
+              test@example.com
+            </span>
+            ?
+          </p>
+          <p
+            class="text-sm text-muted-foreground"
+          >
+            All your tasks will be permanently deleted from the local database.
+          </p>
+        </div>
+        <div
+          class="flex flex-col sm:flex-row justify-end gap-2"
+        >
+          <button
+            class="w-full sm:w-auto"
+            variant="outline"
+          >
+            Cancel
+          </button>
+          <button
+            class="w-full sm:w-auto"
+            variant="destructive"
+          >
+            <div>
+              Trash2
+            </div>
+            Delete All Tasks
+          </button>
+        </div>
+      </div>
+    </div>
   </span>
 </DocumentFragment>
 `;
