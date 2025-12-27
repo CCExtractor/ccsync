@@ -927,42 +927,6 @@ export const TaskDialog = ({
                             </div>
                           )}
                         </div>
-                        {/* <div className="flex items-center">
-                          <Input
-                            id={`project-${task.id}`}
-                            name={`project-${task.id}`}
-                            type="text"
-                            value={editState.editedProject}
-                            onChange={(e) =>
-                              onUpdateState({
-                                editedProject: e.target.value,
-                              })
-                            }
-                            className="flex-grow mr-2"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              onSaveProject(task, editState.editedProject);
-                              onUpdateState({ isEditingProject: false });
-                            }}
-                          >
-                            <CheckIcon className="h-4 w-4 text-green-500" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() =>
-                              onUpdateState({
-                                editedProject: task.project,
-                                isEditingProject: false,
-                              })
-                            }
-                          >
-                            <XIcon className="h-4 w-4 text-red-500" />
-                          </Button>
-                        </div> */}
                       </>
                     ) : (
                       <>
