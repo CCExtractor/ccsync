@@ -47,6 +47,9 @@ export const TaskDialog = ({
   editState,
   onUpdateState,
   allTasks,
+  isCreatingNewProject,
+  setIsCreatingNewProject,
+  uniqueProjects,
   onSaveDescription,
   onSaveTags,
   onSavePriority,
@@ -839,41 +842,104 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingProject ? (
                       <>
-                        <div className="flex items-center">
-                          <Input
-                            id={`project-${task.id}`}
-                            name={`project-${task.id}`}
-                            type="text"
-                            value={editState.editedProject}
-                            onChange={(e) =>
-                              onUpdateState({
-                                editedProject: e.target.value,
-                              })
+                        <div className="col-span-3 space-y-2 w-[300px]">
+                          <Select
+                            value={
+                              isCreatingNewProject
+                                ? '__CREATE_NEW__'
+                                : editState.editedProject
                             }
-                            className="flex-grow mr-2"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              onSaveProject(task, editState.editedProject);
-                              onUpdateState({ isEditingProject: false });
+                            onValueChange={(value) => {
+                              if (value === '__CREATE_NEW__') {
+                                setIsCreatingNewProject(true);
+                                onUpdateState({ editedProject: '' });
+                              } else {
+                                const project =
+                                  value === '__NONE__' ? '' : value;
+                                setIsCreatingNewProject(false);
+                                onUpdateState({ editedProject: project });
+                                onSaveProject(task, project);
+                              }
                             }}
                           >
-                            <CheckIcon className="h-4 w-4 text-green-500" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() =>
-                              onUpdateState({
-                                editedProject: task.project,
-                                isEditingProject: false,
-                              })
-                            }
-                          >
-                            <XIcon className="h-4 w-4 text-red-500" />
-                          </Button>
+                            <SelectTrigger
+                              id="project"
+                              data-testid="project-select"
+                            >
+                              <SelectValue
+                                placeholder={
+                                  uniqueProjects.length
+                                    ? 'Select a project'
+                                    : 'No projects yet'
+                                }
+                              >
+                                {isCreatingNewProject
+                                  ? editState.editedProject
+                                    ? `New: ${editState.editedProject}`
+                                    : '+ Create new project…'
+                                  : undefined}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent
+                              onWheel={(e) => e.stopPropagation()}
+                              className="max-h-60 overflow-y-auto"
+                            >
+                              <SelectItem value="__CREATE_NEW__">
+                                + Create new project…
+                              </SelectItem>
+                              <SelectItem value="__NONE__">
+                                No project
+                              </SelectItem>
+                              {uniqueProjects.map((project: string) => (
+                                <SelectItem key={project} value={project}>
+                                  {project}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          {isCreatingNewProject && (
+                            <div className="flex gap-4 justify-center items-center">
+                              <Input
+                                id="project-name"
+                                placeholder="New project name"
+                                value={editState.editedProject}
+                                autoFocus
+                                onChange={(e) =>
+                                  onUpdateState({
+                                    editedProject: e.target.value,
+                                  })
+                                }
+                              />
+                              <div className="flex justify-center items-center">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    onSaveProject(
+                                      task,
+                                      editState.editedProject
+                                    );
+                                    onUpdateState({ isEditingProject: false });
+                                  }}
+                                >
+                                  <CheckIcon className="h-4 w-4 text-green-500" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() =>
+                                    onUpdateState({
+                                      editedProject: task.project,
+                                      isEditingProject: false,
+                                    })
+                                  }
+                                >
+                                  <XIcon className="h-4 w-4 text-red-500" />
+                                </Button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </>
                     ) : (
