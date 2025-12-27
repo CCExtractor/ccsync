@@ -40,3 +40,9 @@ func ConvertISOToTaskwarriorFormat(isoDatetime string) (string, error) {
 		return parsedTime.Format("2006-01-02T15:04:05"), nil
 	}
 }
+func ConvertOptionalISOToTaskwarriorFormat(isoDatetime *string) (string, error) {
+	if isoDatetime == nil || *isoDatetime == "" {
+		return "", nil
+	}
+	return ConvertISOToTaskwarriorFormat(*isoDatetime)
+}

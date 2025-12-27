@@ -66,14 +66,10 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
 			return
 		}
-		var dueDateStr string
-		if dueDate != nil && *dueDate != "" {
-			convertedDate, err := utils.ConvertISOToTaskwarriorFormat(*dueDate)
-			if err != nil {
-				http.Error(w, fmt.Sprintf("Invalid due date format: %v", err), http.StatusBadRequest)
-				return
-			}
-			dueDateStr = convertedDate
+		dueDateStr, err := utils.ConvertOptionalISOToTaskwarriorFormat(dueDate)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid due date format: %v", err), http.StatusBadRequest)
+			return
 		}
 
 		logStore := models.GetLogStore()
