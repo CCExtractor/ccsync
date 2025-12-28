@@ -12,6 +12,7 @@ import {
   bulkMarkTasksAsDeleted,
   getTimeSinceLastSync,
   hashKey,
+  parseTaskwarriorDate,
 } from '../tasks-utils';
 import { Task } from '@/components/utils/types';
 
@@ -591,5 +592,25 @@ describe('bulkMarkTasksAsDeleted', () => {
     );
 
     expect(result).toBe(false);
+  });
+});
+
+describe('parseTaskwarriorDate', () => {
+  it('parses Taskwarrior date format correctly', () => {
+    const result = parseTaskwarriorDate('20241215T130002Z');
+    expect(result).toEqual(new Date('2024-12-15T13:00:02Z'));
+  });
+
+  it('returns null for empty string', () => {
+    expect(parseTaskwarriorDate('')).toBeNull();
+  });
+
+  it('returns null for invalid date format', () => {
+    expect(parseTaskwarriorDate('invalid-date')).toBeNull();
+  });
+
+  it('handles ISO format gracefully', () => {
+    const result = parseTaskwarriorDate('20241215T130002Z');
+    expect(result).toBeInstanceOf(Date);
   });
 });

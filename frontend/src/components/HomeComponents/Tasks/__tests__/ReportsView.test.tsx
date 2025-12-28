@@ -2,6 +2,10 @@ import { render, screen } from '@testing-library/react';
 import { ReportsView } from '../ReportsView';
 import { Task } from '@/components/utils/types';
 
+const toTWFormat = (date: Date): string => {
+  return date.toISOString().replace(/[-:]/g, '').replace('.000', '');
+};
+
 jest.mock('../ReportChart', () => ({
   ReportChart: jest.fn(({ title, data, chartId }) => (
     <div data-testid={chartId}>
@@ -60,11 +64,11 @@ describe('ReportsView', () => {
 
   describe('Data Calculation', () => {
     it('counts completed tasks correctly', () => {
-      const today = new Date().toISOString();
+      const today = toTWFormat(new Date());
       const tasks = [
-        createMockTask({ status: 'completed', modified: today }),
-        createMockTask({ status: 'completed', modified: today }),
-        createMockTask({ status: 'pending', modified: today }),
+        createMockTask({ status: 'completed', end: today }),
+        createMockTask({ status: 'completed', end: today }),
+        createMockTask({ status: 'pending', due: today }),
       ];
 
       render(<ReportsView tasks={tasks} />);
@@ -77,10 +81,10 @@ describe('ReportsView', () => {
     });
 
     it('counts pending tasks as ongoing', () => {
-      const today = new Date().toISOString();
+      const today = toTWFormat(new Date());
       const tasks = [
-        createMockTask({ status: 'pending', modified: today }),
-        createMockTask({ status: 'pending', modified: today }),
+        createMockTask({ status: 'pending', due: today }),
+        createMockTask({ status: 'pending', due: today }),
       ];
 
       render(<ReportsView tasks={tasks} />);
@@ -103,14 +107,14 @@ describe('ReportsView', () => {
       thisWeek.setDate(thisWeek.getDate() - 2);
 
       const tasks = [
-        createMockTask({ status: 'completed', modified: today.toISOString() }),
+        createMockTask({ status: 'completed', end: toTWFormat(today) }),
         createMockTask({
           status: 'completed',
-          modified: yesterday.toISOString(),
+          end: toTWFormat(yesterday),
         }),
         createMockTask({
           status: 'completed',
-          modified: thisWeek.toISOString(),
+          end: toTWFormat(thisWeek),
         }),
       ];
 
@@ -132,11 +136,11 @@ describe('ReportsView', () => {
     });
 
     it('uses modified date when available', () => {
-      const today = new Date().toISOString();
+      const today = toTWFormat(new Date());
       const tasks = [
         createMockTask({
           status: 'completed',
-          modified: today,
+          end: today,
           due: '2020-01-01T00:00:00Z',
         }),
       ];
@@ -149,12 +153,12 @@ describe('ReportsView', () => {
       expect(data[0].completed).toBe(1);
     });
 
-    it('falls back to due date when modified is not available', () => {
-      const today = new Date().toISOString();
+    it('falls back to due date when end is not available', () => {
+      const today = toTWFormat(new Date());
       const tasks = [
         createMockTask({
           status: 'completed',
-          modified: '',
+          end: '',
           due: today,
         }),
       ];
@@ -167,12 +171,14 @@ describe('ReportsView', () => {
       expect(data[0].completed).toBe(1);
     });
 
-    it('excludes tasks without modified or due dates', () => {
+    it('uses entry date as fallback when end and due are not available', () => {
+      const today = toTWFormat(new Date());
       const tasks = [
         createMockTask({
-          status: 'completed',
-          modified: '',
+          status: 'pending',
+          end: '',
           due: '',
+          entry: today,
         }),
       ];
 
@@ -181,17 +187,16 @@ describe('ReportsView', () => {
       const dailyData = screen.getByTestId('daily-report-chart-data');
       const data = JSON.parse(dailyData.textContent || '[]');
 
-      expect(data[0].completed).toBe(0);
-      expect(data[0].ongoing).toBe(0);
+      expect(data[0].ongoing).toBe(1);
     });
 
     it('handles mixed statuses correctly', () => {
-      const today = new Date().toISOString();
+      const today = toTWFormat(new Date());
       const tasks = [
-        createMockTask({ status: 'completed', modified: today }),
-        createMockTask({ status: 'pending', modified: today }),
-        createMockTask({ status: 'deleted', modified: today }),
-        createMockTask({ status: 'recurring', modified: today }),
+        createMockTask({ status: 'completed', end: today }),
+        createMockTask({ status: 'pending', due: today }),
+        createMockTask({ status: 'deleted', end: today }),
+        createMockTask({ status: 'recurring', due: today }),
       ];
 
       render(<ReportsView tasks={tasks} />);
@@ -216,7 +221,7 @@ describe('ReportsView', () => {
       const tasks = [
         createMockTask({
           status: 'completed',
-          modified: taskInWeek.toISOString(),
+          end: toTWFormat(taskInWeek),
         }),
       ];
 
@@ -238,7 +243,7 @@ describe('ReportsView', () => {
       const tasks = [
         createMockTask({
           status: 'completed',
-          modified: taskInMonth.toISOString(),
+          end: toTWFormat(taskInMonth),
         }),
       ];
 

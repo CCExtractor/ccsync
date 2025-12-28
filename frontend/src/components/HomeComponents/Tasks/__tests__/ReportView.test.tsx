@@ -23,20 +23,25 @@ const createMockTask = (
     depends = ['depends1', 'depends2'],
   } = overrides;
 
-  const getDateForOffset = (offset: DateOffset): Date => {
+  const getDateForOffset = (offset: DateOffset): string => {
+    let date: Date;
     switch (offset) {
       case 'dailyData':
-        return mockToday;
+        date = mockToday;
+        break;
       case 'weeklyData':
-        // Calcul du début de la semaine (dimanche)
         const startOfWeek = new Date(mockToday);
         startOfWeek.setUTCDate(
           startOfWeek.getUTCDate() - startOfWeek.getUTCDay()
         );
-        return startOfWeek;
+        date = startOfWeek;
+        break;
       case 'monthlyData':
-        return new Date(mockToday.getUTCFullYear(), mockToday.getUTCMonth(), 1);
+        date = new Date(mockToday.getUTCFullYear(), mockToday.getUTCMonth(), 1);
+        break;
     }
+    // Return Taskwarrior format: YYYYMMDDTHHMMSSZ
+    return date.toISOString().replace(/[-:]/g, '').replace('.000', '');
   };
 
   return {
@@ -48,12 +53,12 @@ const createMockTask = (
     uuid: `mockUuid-${id}`,
     urgency: 1,
     priority: 'mockPriority',
-    due: 'mockDue',
+    due: status === 'pending' ? getDateForOffset(dateOffset) : '',
     start: 'mockStart',
-    end: 'mockEnd',
-    entry: 'mockEntry',
+    end: status === 'completed' ? getDateForOffset(dateOffset) : '',
+    entry: getDateForOffset(dateOffset),
     wait: 'mockWait',
-    modified: getDateForOffset(dateOffset).toISOString(),
+    modified: '',
     depends,
     rtype: 'mockRtype',
     recur: 'mockRecur',

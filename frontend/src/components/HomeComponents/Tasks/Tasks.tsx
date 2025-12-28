@@ -36,6 +36,7 @@ import {
   sortTasksById,
   getTimeSinceLastSync,
   hashKey,
+  parseTaskwarriorDate,
 } from './tasks-utils';
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
@@ -120,14 +121,8 @@ export const Tasks = (
   const isOverdue = (due?: string) => {
     if (!due) return false;
 
-    const parsed = new Date(
-      due.replace(
-        /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/,
-        '$1-$2-$3T$4:$5:$6Z'
-      )
-    );
-
-    const dueDate = new Date(parsed);
+    const dueDate = parseTaskwarriorDate(due);
+    if (!dueDate) return false;
     dueDate.setHours(0, 0, 0, 0);
 
     const today = new Date();

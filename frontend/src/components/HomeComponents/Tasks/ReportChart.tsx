@@ -83,10 +83,21 @@ export const ReportChart: React.FC<ReportChartProps> = ({
           <Tooltip
             contentStyle={{ backgroundColor: '#333', border: 'none' }}
             labelClassName="text-white"
+            cursor={false}
           />
           <Legend wrapperClassName="text-white" />
-          <Bar dataKey="completed" fill="#E776CB" name="Completed" />
-          <Bar dataKey="ongoing" fill="#5FD9FA" name="Ongoing" />
+          <Bar
+            dataKey="completed"
+            fill="#E776CB"
+            name="Completed"
+            label={{ position: 'top', fill: 'white', fontSize: 12 }}
+          />
+          <Bar
+            dataKey="ongoing"
+            fill="#5FD9FA"
+            name="Ongoing"
+            label={{ position: 'top', fill: 'white', fontSize: 12 }}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

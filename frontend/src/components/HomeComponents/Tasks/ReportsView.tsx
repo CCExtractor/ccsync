@@ -2,6 +2,7 @@ import React from 'react';
 import { ReportsViewProps } from '../../utils/types';
 import { getStartOfDay } from '../../utils/utils';
 import { ReportChart } from './ReportChart';
+import { parseTaskwarriorDate } from '../Tasks/tasks-utils';
 
 export const ReportsView: React.FC<ReportsViewProps> = ({ tasks }) => {
   const now = new Date();
@@ -16,10 +17,13 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks }) => {
   const countStatuses = (filterDate: Date) => {
     return tasks
       .filter((task) => {
-        const taskDateStr = task.modified || task.due;
+        const taskDateStr = task.end || task.due || task.entry;
         if (!taskDateStr) return false;
 
-        const modifiedDate = getStartOfDay(new Date(taskDateStr));
+        const parsedDate = parseTaskwarriorDate(taskDateStr);
+        if (!parsedDate) return false;
+
+        const modifiedDate = getStartOfDay(parsedDate);
         return modifiedDate >= filterDate;
       })
       .reduce(
@@ -36,9 +40,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks }) => {
   };
 
   const dailyData = [{ name: 'Today', ...countStatuses(today) }];
-  const sevenDaysAgo = getStartOfDay(new Date());
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const weeklyData = [{ name: 'This Week', ...countStatuses(sevenDaysAgo) }];
+  const weeklyData = [{ name: 'This Week', ...countStatuses(startOfWeek) }];
   const monthlyData = [{ name: 'This Month', ...countStatuses(startOfMonth) }];
 
   return (
