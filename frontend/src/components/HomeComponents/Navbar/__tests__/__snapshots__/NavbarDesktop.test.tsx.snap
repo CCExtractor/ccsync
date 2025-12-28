@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`NavbarDesktop component using snapshot renders correctly 1`] = `
+exports[`NavbarDesktop snapshot renders correctly 1`] = `
 <DocumentFragment>
   <div
     class="hidden md:flex items-center justify-between w-full"

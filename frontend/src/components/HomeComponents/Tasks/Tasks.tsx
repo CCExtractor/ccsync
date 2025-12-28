@@ -5,6 +5,14 @@ import { ReportsView } from './ReportsView';
 import Fuse from 'fuse.js';
 import { useHotkeys } from '@/components/utils/use-hotkeys';
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from '@/components/ui/dialog';
+import {
   Table,
   TableBody,
   TableCell,
@@ -20,7 +28,9 @@ import { Label } from '@/components/ui/label';
 import {
   getDisplayedPages,
   markTaskAsCompleted,
+  bulkMarkTasksAsCompleted,
   markTaskAsDeleted,
+  bulkMarkTasksAsDeleted,
   Props,
   sortTasks,
   sortTasksById,
@@ -92,6 +102,10 @@ export const Tasks = (
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
+  const [selectedTaskUUIDs, setSelectedTaskUUIDs] = useState<string[]>([]);
+  const [unsyncedTaskUuids, setUnsyncedTaskUuids] = useState<Set<string>>(
+    new Set()
+  );
   const tableRef = useRef<HTMLDivElement>(null);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -303,6 +317,8 @@ export const Tasks = (
       localStorage.setItem(hashedKey, currentTime.toString());
       setLastSyncTime(currentTime);
 
+      setUnsyncedTaskUuids(new Set());
+
       toast.success(`Tasks synced successfully!`);
     } catch (error) {
       console.error('Error syncing tasks:', error);
@@ -398,6 +414,40 @@ export const Tasks = (
     }
   }
 
+  const handleBulkComplete = async () => {
+    if (selectedTaskUUIDs.length === 0) return;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, ...selectedTaskUUIDs]));
+
+    const success = await bulkMarkTasksAsCompleted(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      selectedTaskUUIDs
+    );
+
+    if (success) {
+      setSelectedTaskUUIDs([]);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedTaskUUIDs.length === 0) return;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, ...selectedTaskUUIDs]));
+
+    const success = await bulkMarkTasksAsDeleted(
+      props.email,
+      props.encryptionSecret,
+      props.UUID,
+      selectedTaskUUIDs
+    );
+
+    if (success) {
+      setSelectedTaskUUIDs([]);
+    }
+  };
+
   const handleIdSort = () => {
     const newOrder = idSortOrder === 'asc' ? 'desc' : 'asc';
     setIdSortOrder(newOrder);
@@ -447,6 +497,8 @@ export const Tasks = (
     }
 
     // If all dependencies are completed, allow completion
+    setUnsyncedTaskUuids((prev) => new Set([...prev, taskuuid]));
+
     await markTaskAsCompleted(
       props.email,
       props.encryptionSecret,
@@ -456,6 +508,8 @@ export const Tasks = (
   };
 
   const handleMarkDelete = async (taskuuid: string) => {
+    setUnsyncedTaskUuids((prev) => new Set([...prev, taskuuid]));
+
     await markTaskAsDeleted(
       props.email,
       props.encryptionSecret,
@@ -472,6 +526,9 @@ export const Tasks = (
 
   const handleSaveDescription = (task: Task, description: string) => {
     task.description = description;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -493,6 +550,9 @@ export const Tasks = (
 
   const handleProjectSaveClick = (task: Task, project: string) => {
     task.project = project;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -514,6 +574,8 @@ export const Tasks = (
 
   const handleWaitDateSaveClick = (task: Task, waitDate: string) => {
     task.wait = waitDate;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
     handleEditTaskOnBackend(
       props.email,
@@ -537,6 +599,8 @@ export const Tasks = (
   const handleStartDateSaveClick = (task: Task, startDate: string) => {
     task.start = startDate;
 
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -558,6 +622,8 @@ export const Tasks = (
 
   const handleEntryDateSaveClick = (task: Task, entryDate: string) => {
     task.entry = entryDate;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
     handleEditTaskOnBackend(
       props.email,
@@ -581,6 +647,8 @@ export const Tasks = (
   const handleEndDateSaveClick = (task: Task, endDate: string) => {
     task.end = endDate;
 
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -602,6 +670,8 @@ export const Tasks = (
 
   const handleDueDateSaveClick = (task: Task, dueDate: string) => {
     task.due = dueDate;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
     handleEditTaskOnBackend(
       props.email,
@@ -659,6 +729,8 @@ export const Tasks = (
     }
 
     task.recur = recur;
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
     handleEditTaskOnBackend(
       props.email,
@@ -760,6 +832,9 @@ export const Tasks = (
     const tagsToRemove = removedTags.map((tag) => `${tag}`);
     const finalTags = [...updatedTags, ...tagsToRemove];
     console.log(finalTags);
+
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     handleEditTaskOnBackend(
       props.email,
       props.encryptionSecret,
@@ -803,6 +878,8 @@ export const Tasks = (
   const handleSavePriority = async (task: Task, priority: string) => {
     try {
       const priorityValue = priority === 'NONE' ? '' : priority;
+
+      setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
       await modifyTaskOnBackend({
         email: props.email,
@@ -939,7 +1016,7 @@ export const Tasks = (
         </Button>
         {/* Mobile-only Sync button (desktop already shows a Sync button with filters) */}
         <Button
-          className="sm:hidden ml-2"
+          className="sm:hidden ml-2 relative"
           variant="outline"
           onClick={async () => {
             props.setIsLoading(true);
@@ -951,7 +1028,14 @@ export const Tasks = (
           {props.isLoading ? (
             <Loader2 className="mx-1 size-5 animate-spin" />
           ) : (
-            'Sync'
+            <div className="flex items-center">
+              Sync
+              {unsyncedTaskUuids.size > 0 && (
+                <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
+                  {unsyncedTaskUuids.size}
+                </span>
+              )}
+            </div>
           )}
         </Button>
       </div>
@@ -965,7 +1049,7 @@ export const Tasks = (
         >
           {tasks.length != 0 ? (
             <>
-              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full pt-12 pb-6">
+              <div className="mt-10 pl-1 md:pl-4 pr-1 md:pr-4 bg-muted/50 border shadow-md rounded-lg p-4 h-full pt-12 pb-6 relative overflow-y-auto">
                 {/* Table for displaying tasks */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <h3 className="ml-4 mb-4 mr-4 text-2xl mt-0 md:text-2xl font-bold">
@@ -1031,13 +1115,20 @@ export const Tasks = (
                       <Button
                         id="sync-task"
                         variant="outline"
-                        onClick={() => (
-                          props.setIsLoading(true),
-                          syncTasksWithTwAndDb()
-                        )}
+                        className="relative"
+                        onClick={async () => {
+                          props.setIsLoading(true);
+                          await syncTasksWithTwAndDb();
+                          props.setIsLoading(false);
+                        }}
                       >
                         Sync
                         <Key lable="r" />
+                        {unsyncedTaskUuids.size > 0 && (
+                          <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
+                            {unsyncedTaskUuids.size}
+                          </span>
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -1049,6 +1140,30 @@ export const Tasks = (
                   <Table className="w-full text-white">
                     <TableHeader>
                       <TableRow>
+                        <TableHead>
+                          <input
+                            type="checkbox"
+                            checked={
+                              currentTasks.filter((t) => t.status !== 'deleted')
+                                .length > 0 &&
+                              selectedTaskUUIDs.length ===
+                                currentTasks.filter(
+                                  (t) => t.status !== 'deleted'
+                                ).length
+                            }
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedTaskUUIDs(
+                                  currentTasks
+                                    .filter((task) => task.status !== 'deleted')
+                                    .map((task) => task.uuid)
+                                );
+                              } else {
+                                setSelectedTaskUUIDs([]);
+                              }
+                            }}
+                          />
+                        </TableHead>
                         <TableHead
                           className="py-2 w-0.20/6"
                           onClick={handleIdSort}
@@ -1090,6 +1205,22 @@ export const Tasks = (
                           <TaskDialog
                             key={task.uuid}
                             index={index}
+                            selectedTaskUUIDs={selectedTaskUUIDs}
+                            onCheckboxChange={(
+                              uuid: string,
+                              checked: boolean
+                            ) => {
+                              if (checked) {
+                                setSelectedTaskUUIDs([
+                                  ...selectedTaskUUIDs,
+                                  uuid,
+                                ]);
+                              } else {
+                                setSelectedTaskUUIDs(
+                                  selectedTaskUUIDs.filter((id) => id !== uuid)
+                                );
+                              }
+                            }}
                             onSelectTask={handleSelectTask}
                             selectedIndex={selectedIndex}
                             task={task}
@@ -1100,6 +1231,9 @@ export const Tasks = (
                             editState={editState}
                             onUpdateState={updateEditState}
                             allTasks={tasks}
+                            uniqueProjects={uniqueProjects}
+                            isCreatingNewProject={isCreatingNewProject}
+                            setIsCreatingNewProject={setIsCreatingNewProject}
                             onSaveDescription={handleSaveDescription}
                             onSaveTags={handleSaveTags}
                             onSavePriority={handleSavePriority}
@@ -1115,6 +1249,7 @@ export const Tasks = (
                             onMarkComplete={handleMarkComplete}
                             onMarkDeleted={handleMarkDelete}
                             isOverdue={isOverdue}
+                            isUnsynced={unsyncedTaskUuids.has(task.uuid)}
                           />
                         ))
                       )}
@@ -1166,6 +1301,96 @@ export const Tasks = (
                     {/* Intentionally empty for spacing */}
                   </div>
                 </div>
+                {selectedTaskUUIDs.length > 0 && (
+                  <div
+                    className="sticky bottom-0 left-1/2 -translate-x-1/2 w-fit bg-black border border-white rounded-lg shadow-xl p-1.5 mt-4 flex gap-4 z-50"
+                    data-testid="bulk-action-bar"
+                  >
+                    {/* Bulk Complete Dialog */}
+                    {!selectedTaskUUIDs.some((uuid) => {
+                      const task = currentTasks.find((t) => t.uuid === uuid);
+                      return task?.status === 'completed';
+                    }) && (
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="default"
+                            data-testid="bulk-complete-btn"
+                          >
+                            Mark {selectedTaskUUIDs.length}{' '}
+                            {selectedTaskUUIDs.length === 1 ? 'Task' : 'Tasks'}{' '}
+                            Completed
+                          </Button>
+                        </DialogTrigger>
+
+                        <DialogContent>
+                          <DialogTitle className="text-2xl font-bold">
+                            <span className="bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
+                              Are you
+                            </span>{' '}
+                            sure?
+                          </DialogTitle>
+
+                          <DialogFooter className="flex flex-row justify-center">
+                            <DialogClose asChild>
+                              <Button
+                                className="mr-5"
+                                onClick={async () => {
+                                  await handleBulkComplete();
+                                }}
+                              >
+                                Yes
+                              </Button>
+                            </DialogClose>
+
+                            <DialogClose asChild>
+                              <Button variant="destructive">No</Button>
+                            </DialogClose>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+
+                    {/* Bulk Delete Dialog */}
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          data-testid="bulk-delete-btn"
+                        >
+                          Delete {selectedTaskUUIDs.length}{' '}
+                          {selectedTaskUUIDs.length === 1 ? 'Task' : 'Tasks'}
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent>
+                        <DialogTitle className="text-2xl font-bold">
+                          <span className="bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
+                            Are you
+                          </span>{' '}
+                          sure?
+                        </DialogTitle>
+
+                        <DialogFooter className="flex flex-row justify-center">
+                          <DialogClose asChild>
+                            <Button
+                              className="mr-5"
+                              onClick={async () => {
+                                await handleBulkDelete();
+                              }}
+                            >
+                              Yes
+                            </Button>
+                          </DialogClose>
+
+                          <DialogClose asChild>
+                            <Button variant="destructive">No</Button>
+                          </DialogClose>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                )}
               </div>
             </>
           ) : (

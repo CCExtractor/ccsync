@@ -47,6 +47,86 @@ export const markTaskAsCompleted = async (
   }
 };
 
+export const bulkMarkTasksAsCompleted = async (
+  email: string,
+  encryptionSecret: string,
+  UUID: string,
+  taskUUIDs: string[]
+) => {
+  try {
+    const backendURL = url.backendURL + `complete-tasks`;
+
+    const response = await fetch(backendURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        encryptionSecret,
+        UUID,
+        taskuuids: taskUUIDs,
+      }),
+    });
+
+    if (response.ok) {
+      console.log('Bulk completion successful!');
+      toast.success(
+        `${taskUUIDs.length} ${taskUUIDs.length === 1 ? 'task' : 'tasks'} marked as completed.`
+      );
+      return true;
+    } else {
+      toast.error('Bulk completion failed!');
+      console.error('Failed bulk completion');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error in bulk complete:', error);
+    toast.error('Bulk complete failed');
+    return false;
+  }
+};
+
+export const bulkMarkTasksAsDeleted = async (
+  email: string,
+  encryptionSecret: string,
+  UUID: string,
+  taskUUIDs: string[]
+) => {
+  try {
+    const backendURL = url.backendURL + `delete-tasks`;
+
+    const response = await fetch(backendURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        encryptionSecret,
+        UUID,
+        taskuuids: taskUUIDs,
+      }),
+    });
+
+    if (response.ok) {
+      console.log('Bulk deletion successful!');
+      toast.success(
+        `${taskUUIDs.length} ${taskUUIDs.length === 1 ? 'task' : 'tasks'} deleted.`
+      );
+      return true;
+    } else {
+      toast.error('Bulk deletion failed!');
+      console.error('Failed bulk deletion');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error in bulk delete:', error);
+    toast.error('Bulk delete failed');
+    return false;
+  }
+};
+
 export const markTaskAsDeleted = async (
   email: string,
   encryptionSecret: string,

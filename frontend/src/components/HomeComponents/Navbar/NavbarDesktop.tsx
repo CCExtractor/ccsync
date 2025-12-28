@@ -16,8 +16,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
-import { ModeToggle } from '../../utils/ThemeModeToggle';
+
+import { ModeToggle } from '@/components/utils/ThemeModeToggle';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+
 import { buttonVariants } from '@/components/ui/button';
 import {
   routeList,
@@ -41,7 +43,7 @@ import {
   exportTasksAsTXT,
 } from '@/components/utils/ExportTasks';
 import { useState } from 'react';
-import { DevLogs } from '../DevLogs/DevLogs';
+import { DevLogs } from '@/components/HomeComponents/DevLogs/DevLogs';
 import { useTaskAutoSync } from '@/components/utils/TaskAutoSync';
 import { Label } from '@/components/ui/label';
 
@@ -110,7 +112,7 @@ export const NavbarDesktop = (
                 <DialogTrigger>
                   <DropdownMenuItem
                     className="text-red-500"
-                    onClick={() => setIsDeleteConfirmOpen(true)}
+                    onSelect={(e) => e.preventDefault()}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete all tasks
@@ -118,9 +120,9 @@ export const NavbarDesktop = (
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogDescription className="text-lg font-semibold text-red-600">
+                    <DialogTitle className="text-lg font-semibold text-red-600">
                       Delete All Tasks?
-                    </DialogDescription>
+                    </DialogTitle>
                   </DialogHeader>
                   <div className="py-4">
                     <p className="text-base mb-2">
