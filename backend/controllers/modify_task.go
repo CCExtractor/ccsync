@@ -42,7 +42,7 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		email := requestBody.Email
 		encryptionSecret := requestBody.EncryptionSecret
 		uuid := requestBody.UUID
-		taskID := requestBody.TaskID
+		taskUUID := requestBody.TaskUUID
 		description := requestBody.Description
 		project := requestBody.Project
 		priority := requestBody.Priority
@@ -55,8 +55,8 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Description is required, and cannot be empty!", http.StatusBadRequest)
 			return
 		}
-		if taskID == "" {
-			http.Error(w, "taskID is required", http.StatusBadRequest)
+		if taskUUID == "" {
+			http.Error(w, "taskUUID is required", http.StatusBadRequest)
 			return
 		}
 
@@ -75,13 +75,13 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		job := Job{
 			Name: "Modify Task",
 			Execute: func() error {
-				logStore.AddLog("INFO", fmt.Sprintf("Modifying task ID: %s", taskID), uuid, "Modify Task")
-				err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID, tags, depends)
+				logStore.AddLog("INFO", fmt.Sprintf("Modifying task UUID: %s", taskUUID), uuid, "Modify Task")
+				err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskUUID, tags, depends)
 				if err != nil {
-					logStore.AddLog("ERROR", fmt.Sprintf("Failed to modify task ID %s: %v", taskID, err), uuid, "Modify Task")
+					logStore.AddLog("ERROR", fmt.Sprintf("Failed to modify task UUID %s: %v", taskUUID, err), uuid, "Modify Task")
 					return err
 				}
-				logStore.AddLog("INFO", fmt.Sprintf("Successfully modified task ID: %s", taskID), uuid, "Modify Task")
+				logStore.AddLog("INFO", fmt.Sprintf("Successfully modified task UUID: %s", taskUUID), uuid, "Modify Task")
 				return nil
 			},
 		}

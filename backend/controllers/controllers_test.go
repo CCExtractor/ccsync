@@ -255,7 +255,7 @@ func Test_EditTaskHandler_WithDependencies(t *testing.T) {
 		"email":            "test@example.com",
 		"encryptionSecret": "secret",
 		"UUID":             "test-uuid",
-		"taskID":           "1",
+		"taskUUID":         "task-uuid",
 		"description":      "Edited task with dependencies",
 		"project":          "EditedProject",
 		"depends":          []string{"task-uuid-3"},
