@@ -78,8 +78,12 @@ export const HomePage: React.FC = () => {
       try {
         const data = JSON.parse(event.data);
         if (data.status === 'success') {
-          // Skip refresh for Edit Task to prevent dialog blinking
-          if (data.job !== 'Edit Task') {
+          // Use syncTasksWithTwAndDb to update both backend and IndexedDB
+          // This ensures the Tasks component sees the updated data
+          if (data.job === 'Edit Task') {
+            // For Edit Task, we need to trigger a sync to update the UI
+            window.dispatchEvent(new CustomEvent('syncTasks'));
+          } else {
             getTasks(userInfo.email, userInfo.encryption_secret, userInfo.uuid);
           }
 
@@ -128,7 +132,15 @@ export const HomePage: React.FC = () => {
           }
         } else if (data.status == 'failure') {
           console.log(`Failed to ${data.job || 'perform action'}`);
-          toast.error(`Failed to ${data.job || 'perform action'}`, {
+
+          // Show specific message for Edit Task failures
+          let errorMessage = `Failed to ${data.job || 'perform action'}`;
+          if (data.job === 'Edit Task') {
+            errorMessage =
+              'Failed to add dependency: Circular dependency detected';
+          }
+
+          toast.error(errorMessage, {
             position: 'bottom-left',
             autoClose: 3000,
             hideProgressBar: false,

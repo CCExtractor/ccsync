@@ -215,6 +215,16 @@ export const Tasks = (
     return () => clearInterval(interval);
   }, []);
 
+  // Listen for sync events from WebSocket handler
+  useEffect(() => {
+    const handleSyncTasks = () => {
+      syncTasksWithTwAndDb();
+    };
+
+    window.addEventListener('syncTasks', handleSyncTasks);
+    return () => window.removeEventListener('syncTasks', handleSyncTasks);
+  }, [syncTasksWithTwAndDb]);
+
   useEffect(() => {
     const fetchTasksForEmail = async () => {
       try {
@@ -381,7 +391,7 @@ export const Tasks = (
         annotations,
       });
 
-      console.log('Task edited successfully!');
+      // Don't show success message here - wait for WebSocket confirmation
       setIsAddTaskOpen(false);
     } catch (error) {
       console.error('Failed to edit task:', error);
@@ -612,26 +622,29 @@ export const Tasks = (
     );
   };
 
-  const handleDependsSaveClick = (task: Task, depends: string[]) => {
-    task.depends = depends;
-
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      task.tags,
-      task.id.toString(),
-      task.project,
-      task.start,
-      task.entry || '',
-      task.wait || '',
-      task.end || '',
-      task.depends,
-      task.due || '',
-      task.recur || '',
-      task.annotations || []
-    );
+  const handleDependsSaveClick = async (task: Task, depends: string[]) => {
+    try {
+      console.log('Calling backend...');
+      await handleEditTaskOnBackend(
+        props.email,
+        props.encryptionSecret,
+        props.UUID,
+        task.description,
+        task.tags,
+        task.id.toString(),
+        task.project,
+        task.start,
+        task.entry || '',
+        task.wait || '',
+        task.end || '',
+        depends,
+        task.due || '',
+        task.recur || '',
+        task.annotations || []
+      );
+    } catch (error) {
+      console.error('Failed to update dependencies:', error);
+    }
   };
 
   const handleRecurSaveClick = (task: Task, recur: string) => {

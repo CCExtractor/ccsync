@@ -34,7 +34,7 @@ export const useEditTask = (selectedTask: Task | null) => {
     annotationInput: '',
   });
 
-  // Update edited tags when selected task changes
+  // Sync all editable fields from selectedTask when it changes
   useEffect(() => {
     if (selectedTask) {
       setState((prev) => ({
@@ -46,6 +46,7 @@ export const useEditTask = (selectedTask: Task | null) => {
         editedRecur: selectedTask.recur || '',
         originalRecur: selectedTask.recur || '',
         editedAnnotations: selectedTask.annotations || [],
+        editedDepends: selectedTask.depends || [],
       }));
     }
   }, [selectedTask]);
