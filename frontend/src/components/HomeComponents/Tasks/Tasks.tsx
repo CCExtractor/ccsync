@@ -693,6 +693,8 @@ export const Tasks = (
   };
 
   const handleDependsSaveClick = async (task: Task, depends: string[]) => {
+    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+
     try {
       console.log('Calling backend...');
       await handleEditTaskOnBackend(
