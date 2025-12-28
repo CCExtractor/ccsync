@@ -22,7 +22,7 @@ type ModifyTaskRequestBody struct {
 	Email            string   `json:"email"`
 	EncryptionSecret string   `json:"encryptionSecret"`
 	UUID             string   `json:"UUID"`
-	TaskID           string   `json:"taskid"`
+	TaskUUID         string   `json:"taskuuid"`
 	Description      string   `json:"description"`
 	Project          string   `json:"project"`
 	Priority         string   `json:"priority"`
@@ -35,7 +35,7 @@ type EditTaskRequestBody struct {
 	Email            string       `json:"email"`
 	EncryptionSecret string       `json:"encryptionSecret"`
 	UUID             string       `json:"UUID"`
-	TaskID           string       `json:"taskid"`
+	TaskUUID         string       `json:"taskuuid"`
 	Description      string       `json:"description"`
 	Tags             []string     `json:"tags"`
 	Project          string       `json:"project"`

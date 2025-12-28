@@ -132,7 +132,7 @@ export const editTaskOnBackend = async ({
   UUID,
   description,
   tags,
-  taskID,
+  taskUUID,
   backendURL,
   project,
   start,
@@ -149,7 +149,7 @@ export const editTaskOnBackend = async ({
   UUID: string;
   description: string;
   tags: string[];
-  taskID: string;
+  taskUUID: string;
   backendURL: string;
   project: string;
   start: string;
@@ -167,7 +167,7 @@ export const editTaskOnBackend = async ({
       email,
       encryptionSecret,
       UUID,
-      taskID,
+      taskUUID,
       description,
       tags,
       project,
@@ -187,7 +187,7 @@ export const editTaskOnBackend = async ({
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(errorText || 'Failed to edit task');
+    throw new Error('321' + errorText || 'Failed to edit task');
   }
 
   return response;
@@ -197,7 +197,7 @@ export const modifyTaskOnBackend = async ({
   email,
   encryptionSecret,
   UUID,
-  taskID,
+  taskUUID,
   description,
   project,
   priority,
@@ -209,7 +209,7 @@ export const modifyTaskOnBackend = async ({
   email: string;
   encryptionSecret: string;
   UUID: string;
-  taskID: string;
+  taskUUID: string;
   description: string;
   project: string;
   priority: string;
@@ -224,7 +224,7 @@ export const modifyTaskOnBackend = async ({
       email,
       encryptionSecret,
       UUID,
-      taskid: taskID,
+      taskuuid: taskUUID,
       description,
       project,
       priority,
