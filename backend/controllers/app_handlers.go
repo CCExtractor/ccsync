@@ -86,7 +86,7 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.Logger.Infof("User Info: %v", userInfo)
+	// utils.Logger.Infof("User Info: %v", userInfo)
 
 	frontendOriginDev := os.Getenv("FRONTEND_ORIGIN_DEV")
 	http.Redirect(w, r, frontendOriginDev+"/home", http.StatusSeeOther)
@@ -109,7 +109,7 @@ func (a *App) UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.Logger.Infof("Sending User Info: %v", userInfo)
+	// utils.Logger.Infof("Sending User Info: %v", userInfo)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(userInfo)
 }
@@ -119,7 +119,7 @@ func (a *App) EnableCORS(handler http.Handler) http.Handler {
 		allowedOrigin := os.Getenv("FRONTEND_ORIGIN_DEV") // frontend origin
 		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-User-Email, X-Encryption-Secret, X-User-UUID")
 		w.Header().Set("Access-Control-Allow-Credentials", "true") // to allow credentials
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
@@ -147,5 +147,5 @@ func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	utils.Logger.Info("User has logged out")
+	// utils.Logger.Info("User has logged out")
 }

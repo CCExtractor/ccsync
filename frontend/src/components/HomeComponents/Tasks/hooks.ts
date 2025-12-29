@@ -12,18 +12,15 @@ export const fetchTaskwarriorTasks = async ({
   UUID: string;
   backendURL: string;
 }) => {
-  const fullURL =
-    backendURL +
-    `/tasks?email=${encodeURIComponent(
-      email
-    )}&encryptionSecret=${encodeURIComponent(
-      encryptionSecret
-    )}&UUID=${encodeURIComponent(UUID)}`;
+  const fullURL = `${backendURL}tasks`;
 
   const response = await fetch(fullURL, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      'X-User-Email': email,
+      'X-Encryption-Secret': encryptionSecret,
+      'X-User-UUID': UUID,
     },
   });
 

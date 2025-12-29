@@ -17,6 +17,7 @@ import (
 	"ccsync_backend/middleware"
 
 	_ "ccsync_backend/docs" // Swagger docs
+
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 

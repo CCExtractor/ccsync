@@ -15,7 +15,7 @@ func SetTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID string) error 
 
 	for _, args := range configCmds {
 		if err := utils.ExecCommandInDir(tempDir, args[0], args[1:]...); err != nil {
-			return fmt.Errorf("error setting Taskwarrior config (%v): %v", args, err)
+			return fmt.Errorf("error setting Taskwarrior config (%v)", err)
 		}
 	}
 	return nil
