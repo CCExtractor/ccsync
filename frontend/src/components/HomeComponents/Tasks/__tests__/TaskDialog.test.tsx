@@ -9,6 +9,26 @@ jest.mock('react-copy-to-clipboard', () => ({
   ),
 }));
 
+jest.mock('@/components/ui/date-time-picker', () => ({
+  DateTimePicker: ({ onDateTimeChange, placeholder }: any) => (
+    <input
+      data-testid="date-time-picker"
+      placeholder={placeholder}
+      onChange={(e) => {
+        if (e.target.value) {
+          const date = new Date(e.target.value);
+          // Simulate hasTime based on whether time is provided
+          const hasTime =
+            e.target.value.includes('T') && e.target.value.includes(':');
+          onDateTimeChange(date, hasTime);
+        } else {
+          onDateTimeChange(null, false);
+        }
+      }}
+    />
+  ),
+}));
+
 describe('TaskDialog Component', () => {
   const mockTask: Task = {
     id: 1,
@@ -532,44 +552,182 @@ describe('TaskDialog Component', () => {
   });
 
   describe('Date Editing', () => {
-    test('should enable due date editing mode', () => {
-      render(<TaskDialog {...defaultProps} isOpen={true} />);
+    const dateFields = [
+      {
+        name: 'due',
+        label: 'Due',
+        saveFn: 'onSaveDueDate',
+        editStateKey: 'isEditingDueDate',
+        editedStateKey: 'editedDueDate',
+      },
+      {
+        name: 'start',
+        label: 'Start',
+        saveFn: 'onSaveStartDate',
+        editStateKey: 'isEditingStartDate',
+        editedStateKey: 'editedStartDate',
+      },
+      {
+        name: 'end',
+        label: 'End',
+        saveFn: 'onSaveEndDate',
+        editStateKey: 'isEditingEndDate',
+        editedStateKey: 'editedEndDate',
+      },
+      {
+        name: 'entry',
+        label: 'Entry',
+        saveFn: 'onSaveEntryDate',
+        editStateKey: 'isEditingEntryDate',
+        editedStateKey: 'editedEntryDate',
+      },
+      {
+        name: 'wait',
+        label: 'Wait',
+        saveFn: 'onSaveWaitDate',
+        editStateKey: 'isEditingWaitDate',
+        editedStateKey: 'editedWaitDate',
+      },
+    ];
 
-      const dueRow = screen.getByText('Due:').closest('tr');
-      const editButton = dueRow?.querySelector('button');
+    test.each(dateFields)(
+      'should enable $name date editing mode',
+      ({ label, editStateKey, editedStateKey }) => {
+        render(<TaskDialog {...defaultProps} isOpen={true} />);
 
-      if (editButton) {
-        fireEvent.click(editButton);
-        expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
-          isEditingDueDate: true,
-          editedDueDate: '2024-12-31',
-        });
+        const dateRow = screen.getByText(`${label}:`).closest('tr');
+        const editButton = dateRow?.querySelector('button');
+
+        if (editButton) {
+          fireEvent.click(editButton);
+          expect(defaultProps.onUpdateState).toHaveBeenCalledWith(
+            expect.objectContaining({
+              [editStateKey]: true,
+            })
+          );
+        }
       }
-    });
+    );
 
-    test('should save due date changes', () => {
-      const editingState = {
-        ...mockEditState,
-        isEditingDueDate: true,
-        editedDueDate: '2024-12-31',
-      };
+    test.each(dateFields)(
+      'should save $name date changes (date only)',
+      ({ label, saveFn, editStateKey, editedStateKey }) => {
+        const editingState = {
+          ...mockEditState,
+          [editStateKey]: true,
+          [editedStateKey]: '2024-12-31',
+        };
 
-      render(
-        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
-      );
+        render(
+          <TaskDialog
+            {...defaultProps}
+            isOpen={true}
+            editState={editingState}
+          />
+        );
 
-      const saveButton = screen
-        .getAllByRole('button')
-        .find((btn) => btn.querySelector('.text-green-500'));
+        const saveButton = screen
+          .getAllByRole('button')
+          .find((btn) => btn.querySelector('.text-green-500'));
 
-      if (saveButton) {
-        fireEvent.click(saveButton);
-        expect(defaultProps.onSaveDueDate).toHaveBeenCalledWith(
-          mockTask,
-          '2024-12-31'
+        if (saveButton) {
+          fireEvent.click(saveButton);
+          expect((defaultProps as any)[saveFn]).toHaveBeenCalledWith(
+            mockTask,
+            '2024-12-31'
+          );
+        }
+      }
+    );
+
+    test.each(dateFields)(
+      'should save $name date changes (date with time)',
+      ({ label, saveFn, editStateKey, editedStateKey }) => {
+        const editingState = {
+          ...mockEditState,
+          [editStateKey]: true,
+          [editedStateKey]: '2024-12-31T14:30:00.000Z',
+        };
+
+        render(
+          <TaskDialog
+            {...defaultProps}
+            isOpen={true}
+            editState={editingState}
+          />
+        );
+
+        const saveButton = screen
+          .getAllByRole('button')
+          .find((btn) => btn.querySelector('.text-green-500'));
+
+        if (saveButton) {
+          fireEvent.click(saveButton);
+          expect((defaultProps as any)[saveFn]).toHaveBeenCalledWith(
+            mockTask,
+            '2024-12-31T14:30:00.000Z'
+          );
+        }
+      }
+    );
+
+    test.each(dateFields)(
+      'should update $name when DateTimePicker value changes (date only)',
+      ({ label, editStateKey, editedStateKey }) => {
+        const editingState = {
+          ...mockEditState,
+          [editStateKey]: true,
+        };
+
+        render(
+          <TaskDialog
+            {...defaultProps}
+            isOpen={true}
+            editState={editingState}
+          />
+        );
+
+        const dateTimePicker = screen.getByPlaceholderText(
+          `Select ${label.toLowerCase()} date and time`
+        );
+        fireEvent.change(dateTimePicker, { target: { value: '2025-01-15' } });
+
+        expect(defaultProps.onUpdateState).toHaveBeenCalledWith(
+          expect.objectContaining({
+            [editedStateKey]: '2025-01-15',
+          })
         );
       }
-    });
+    );
+
+    test.each(dateFields)(
+      'should update $name when DateTimePicker value changes (date with time)',
+      ({ label, editStateKey, editedStateKey }) => {
+        const editingState = {
+          ...mockEditState,
+          [editStateKey]: true,
+        };
+
+        render(
+          <TaskDialog
+            {...defaultProps}
+            isOpen={true}
+            editState={editingState}
+          />
+        );
+
+        const dateTimePicker = screen.getByPlaceholderText(
+          `Select ${label.toLowerCase()} date and time`
+        );
+        fireEvent.change(dateTimePicker, {
+          target: { value: '2025-01-15T14:30:00.000Z' },
+        });
+
+        expect(defaultProps.onUpdateState).toHaveBeenCalled();
+        const callArgs = defaultProps.onUpdateState.mock.calls[0][0];
+        expect(callArgs[editedStateKey]).toContain('T');
+      }
+    );
   });
 
   describe('Task Actions', () => {
