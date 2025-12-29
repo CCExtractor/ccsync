@@ -23,14 +23,18 @@ import (
 // @Router /edit-task [post]
 func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
+		email, uuid, encryptionSecret, err := GetSessionCredentials(r)
+		if err != nil {
+			http.Error(w, "Authentication required", http.StatusUnauthorized)
+			return
+		}
+
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("error reading request body: %v", err), http.StatusBadRequest)
 			return
 		}
 		defer r.Body.Close()
-
-		// fmt.Printf("Raw request body: %s\n", string(body))
 
 		var requestBody models.EditTaskRequestBody
 
@@ -40,9 +44,13 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		email := requestBody.Email
-		encryptionSecret := requestBody.EncryptionSecret
-		uuid := requestBody.UUID
+		if requestBody.Email != "" || requestBody.UUID != "" {
+			if err := ValidateUserCredentials(r, requestBody.Email, requestBody.UUID); err != nil {
+				http.Error(w, "Invalid credentials", http.StatusForbidden)
+				return
+			}
+		}
+
 		taskUUID := requestBody.TaskUUID
 		description := requestBody.Description
 		tags := requestBody.Tags
@@ -61,7 +69,6 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Validate dependencies
 		if err := utils.ValidateDependencies(depends, uuid); err != nil {
 			http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
 			return

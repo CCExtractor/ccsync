@@ -22,14 +22,18 @@ import (
 // @Router /complete-task [post]
 func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
+		email, uuid, encryptionSecret, err := GetSessionCredentials(r)
+		if err != nil {
+			http.Error(w, "Authentication required", http.StatusUnauthorized)
+			return
+		}
+
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("error reading request body: %v", err), http.StatusBadRequest)
 			return
 		}
 		defer r.Body.Close()
-
-		// fmt.Printf("Raw request body: %s\n", string(body))
 
 		var requestBody models.CompleteTaskRequestBody
 
@@ -39,9 +43,13 @@ func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		email := requestBody.Email
-		encryptionSecret := requestBody.EncryptionSecret
-		uuid := requestBody.UUID
+		if requestBody.Email != "" || requestBody.UUID != "" {
+			if err := ValidateUserCredentials(r, requestBody.Email, requestBody.UUID); err != nil {
+				http.Error(w, "Invalid credentials", http.StatusForbidden)
+				return
+			}
+		}
+
 		taskuuid := requestBody.TaskUUID
 
 		if taskuuid == "" {
@@ -49,10 +57,6 @@ func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// if err := tw.CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
-		// http.Error(w, err.Error(), http.StatusInternalServerError)
-		// return
-		// }
 		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Complete Task",

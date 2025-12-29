@@ -26,6 +26,12 @@ func BulkDeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	email, uuid, encryptionSecret, err := GetSessionCredentials(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
+		return
+	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("error reading request body: %v", err), http.StatusBadRequest)
@@ -40,9 +46,13 @@ func BulkDeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email := requestBody.Email
-	encryptionSecret := requestBody.EncryptionSecret
-	uuid := requestBody.UUID
+	if requestBody.Email != "" || requestBody.UUID != "" {
+		if err := ValidateUserCredentials(r, requestBody.Email, requestBody.UUID); err != nil {
+			http.Error(w, "Invalid credentials", http.StatusForbidden)
+			return
+		}
+	}
+
 	taskUUIDs := requestBody.TaskUUIDs
 
 	if len(taskUUIDs) == 0 {

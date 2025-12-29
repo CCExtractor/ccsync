@@ -21,17 +21,25 @@ import (
 // @Failure 500 {string} string "Failed to fetch tasks at backend"
 // @Router /tasks [get]
 func TasksHandler(w http.ResponseWriter, r *http.Request) {
-	email := r.URL.Query().Get("email")
-	encryptionSecret := r.URL.Query().Get("encryptionSecret")
-	UUID := r.URL.Query().Get("UUID")
-	origin := os.Getenv("CONTAINER_ORIGIN")
-	if email == "" || encryptionSecret == "" || UUID == "" {
-		http.Error(w, "Missing required parameters", http.StatusBadRequest)
+	email, uuid, encryptionSecret, err := GetSessionCredentials(r)
+	if err != nil {
+		http.Error(w, "Authentication required", http.StatusUnauthorized)
 		return
 	}
 
+	queryEmail := r.URL.Query().Get("email")
+	queryUUID := r.URL.Query().Get("UUID")
+
+	if queryEmail != "" || queryUUID != "" {
+		if err := ValidateUserCredentials(r, queryEmail, queryUUID); err != nil {
+			http.Error(w, "Invalid credentials", http.StatusForbidden)
+			return
+		}
+	}
+
 	if r.Method == http.MethodGet {
-		tasks, _ := tw.FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
+		origin := os.Getenv("CONTAINER_ORIGIN")
+		tasks, _ := tw.FetchTasksFromTaskwarrior(email, encryptionSecret, origin, uuid)
 		if tasks == nil {
 			http.Error(w, "Failed to fetch tasks at backend", http.StatusInternalServerError)
 			return

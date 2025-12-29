@@ -22,6 +22,12 @@ import (
 // @Router /delete-task [post]
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
+		email, uuid, encryptionSecret, err := GetSessionCredentials(r)
+		if err != nil {
+			http.Error(w, "Authentication required", http.StatusUnauthorized)
+			return
+		}
+
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("error reading request body: %v", err), http.StatusBadRequest)
@@ -37,9 +43,13 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		email := requestBody.Email
-		encryptionSecret := requestBody.EncryptionSecret
-		uuid := requestBody.UUID
+		if requestBody.Email != "" || requestBody.UUID != "" {
+			if err := ValidateUserCredentials(r, requestBody.Email, requestBody.UUID); err != nil {
+				http.Error(w, "Invalid credentials", http.StatusForbidden)
+				return
+			}
+		}
+
 		taskuuid := requestBody.TaskUUID
 
 		if taskuuid == "" {
@@ -47,10 +57,6 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// if err := tw.DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
-		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 	return
-		// }
 		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Delete Task",

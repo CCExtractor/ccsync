@@ -23,14 +23,18 @@ import (
 // @Router /modify-task [post]
 func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
+		email, uuid, encryptionSecret, err := GetSessionCredentials(r)
+		if err != nil {
+			http.Error(w, "Authentication required", http.StatusUnauthorized)
+			return
+		}
+
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("error reading request body: %v", err), http.StatusBadRequest)
 			return
 		}
 		defer r.Body.Close()
-
-		// fmt.Printf("Raw request body: %s\n", string(body))
 
 		var requestBody models.ModifyTaskRequestBody
 
@@ -39,9 +43,14 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("error decoding request body: %v", err), http.StatusBadRequest)
 			return
 		}
-		email := requestBody.Email
-		encryptionSecret := requestBody.EncryptionSecret
-		uuid := requestBody.UUID
+
+		if requestBody.Email != "" || requestBody.UUID != "" {
+			if err := ValidateUserCredentials(r, requestBody.Email, requestBody.UUID); err != nil {
+				http.Error(w, "Invalid credentials", http.StatusForbidden)
+				return
+			}
+		}
+
 		taskUUID := requestBody.TaskUUID
 		description := requestBody.Description
 		project := requestBody.Project
@@ -60,16 +69,10 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Validate dependencies
 		if err := utils.ValidateDependencies(depends, uuid); err != nil {
 			http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
 			return
 		}
-
-		// if err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID); err != nil {
-		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 	return
-		// }
 
 		logStore := models.GetLogStore()
 		job := Job{
