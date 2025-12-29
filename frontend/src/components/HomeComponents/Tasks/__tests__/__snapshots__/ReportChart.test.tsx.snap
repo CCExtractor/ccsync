@@ -128,6 +128,11 @@ exports[`ReportChart Component using Snapshot renders correctly with one data en
           data-name="Ongoing"
           data-testid="bar-ongoing"
         />
+        <div
+          data-fill="#F33434"
+          data-name="Overdue"
+          data-testid="bar-overdue"
+        />
       </div>
     </div>
   </div>
@@ -261,6 +266,11 @@ exports[`ReportChart Component using Snapshot renders correctly with several dat
           data-fill="#5FD9FA"
           data-name="Ongoing"
           data-testid="bar-ongoing"
+        />
+        <div
+          data-fill="#F33434"
+          data-name="Overdue"
+          data-testid="bar-overdue"
         />
       </div>
     </div>

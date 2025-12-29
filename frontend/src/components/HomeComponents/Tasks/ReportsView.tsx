@@ -2,7 +2,7 @@ import React from 'react';
 import { ReportsViewProps } from '../../utils/types';
 import { getStartOfDay } from '../../utils/utils';
 import { ReportChart } from './ReportChart';
-import { parseTaskwarriorDate } from '../Tasks/tasks-utils';
+import { parseTaskwarriorDate, isOverdue } from '../Tasks/tasks-utils';
 
 export const ReportsView: React.FC<ReportsViewProps> = ({ tasks }) => {
   const now = new Date();
@@ -14,6 +14,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks }) => {
   const startOfMonth = getStartOfDay(
     new Date(now.getFullYear(), now.getMonth(), 1)
   );
+
   const countStatuses = (filterDate: Date) => {
     return tasks
       .filter((task) => {
@@ -31,11 +32,15 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks }) => {
           if (task.status === 'completed') {
             acc.completed += 1;
           } else if (task.status === 'pending') {
-            acc.ongoing += 1;
+            if (isOverdue(task.due)) {
+              acc.overdue += 1;
+            } else {
+              acc.ongoing += 1;
+            }
           }
           return acc;
         },
-        { completed: 0, ongoing: 0 }
+        { completed: 0, ongoing: 0, overdue: 0 }
       );
   };
 

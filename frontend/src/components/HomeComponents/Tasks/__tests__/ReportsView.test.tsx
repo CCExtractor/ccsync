@@ -96,6 +96,50 @@ describe('ReportsView', () => {
       expect(data[0].completed).toBe(0);
     });
 
+    it('counts pending tasks with past due date as overdue', () => {
+      const todayDate = new Date();
+      const today = toTWFormat(todayDate);
+
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - 10);
+      const pastDue = toTWFormat(pastDate);
+
+      const tasks = [
+        createMockTask({ status: 'pending', due: pastDue }),
+        createMockTask({ status: 'pending', due: pastDue }),
+        createMockTask({ status: 'pending', due: today }),
+        createMockTask({ status: 'completed', end: today }),
+      ];
+
+      render(<ReportsView tasks={tasks} />);
+
+      const monthlyData = screen.getByTestId('monthly-report-chart-data');
+      const data = JSON.parse(monthlyData.textContent || '[]');
+
+      expect(data[0].overdue).toBe(2);
+      expect(data[0].ongoing).toBe(1);
+      expect(data[0].completed).toBe(1);
+    });
+
+    it('treats task with no due date as ongoing', () => {
+      const today = toTWFormat(new Date());
+
+      const tasks = [
+        createMockTask({
+          status: 'pending',
+          entry: today,
+        }),
+      ];
+
+      render(<ReportsView tasks={tasks} />);
+      const dailyData = screen.getByTestId('daily-report-chart-data');
+      const data = JSON.parse(dailyData.textContent || '[]');
+
+      expect(data[0].ongoing).toBe(1);
+      expect(data[0].overdue).toBe(0);
+      expect(data[0].completed).toBe(0);
+    });
+
     it('filters tasks by date range correctly', () => {
       const referenceDate = new Date('2024-01-10T12:00:00Z');
 
@@ -135,7 +179,7 @@ describe('ReportsView', () => {
       jest.useRealTimers();
     });
 
-    it('uses modified date when available', () => {
+    it('uses end date when available', () => {
       const today = toTWFormat(new Date());
       const tasks = [
         createMockTask({
@@ -191,21 +235,29 @@ describe('ReportsView', () => {
     });
 
     it('handles mixed statuses correctly', () => {
-      const today = toTWFormat(new Date());
+      const todayDate = new Date();
+      const today = toTWFormat(todayDate);
+
+      const pastDate = new Date();
+      pastDate.setDate(pastDate.getDate() - 10);
+      const pastDue = toTWFormat(pastDate);
+
       const tasks = [
         createMockTask({ status: 'completed', end: today }),
         createMockTask({ status: 'pending', due: today }),
+        createMockTask({ status: 'pending', due: pastDue }),
         createMockTask({ status: 'deleted', end: today }),
         createMockTask({ status: 'recurring', due: today }),
       ];
 
       render(<ReportsView tasks={tasks} />);
 
-      const dailyData = screen.getByTestId('daily-report-chart-data');
-      const data = JSON.parse(dailyData.textContent || '[]');
+      const monthlyData = screen.getByTestId('monthly-report-chart-data');
+      const data = JSON.parse(monthlyData.textContent || '[]');
 
       expect(data[0].completed).toBe(1);
       expect(data[0].ongoing).toBe(1);
+      expect(data[0].overdue).toBe(1);
     });
   });
 
