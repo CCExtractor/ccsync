@@ -27,7 +27,7 @@ jest.mock('../report-download-utils', () => ({
 }));
 
 describe('ReportChart', () => {
-  const mockData = [{ name: 'Today', completed: 5, ongoing: 3 }];
+  const mockData = [{ name: 'Today', completed: 5, ongoing: 3, overdue: 2 }];
 
   const defaultProps = {
     data: mockData,
@@ -85,6 +85,15 @@ describe('ReportChart', () => {
       const ongoingBar = screen.getByTestId('bar-ongoing');
       expect(ongoingBar).toHaveAttribute('data-fill', '#5FD9FA');
       expect(ongoingBar).toHaveAttribute('data-name', 'Ongoing');
+    });
+
+    it('displays overdue bar with correct color', () => {
+      render(<ReportChart {...defaultProps} />);
+
+      const overdueBar = screen.getByTestId('bar-overdue');
+
+      expect(overdueBar).toHaveAttribute('data-fill', '#F33434');
+      expect(overdueBar).toHaveAttribute('data-name', 'Overdue');
     });
 
     it('renders chart axes', () => {
