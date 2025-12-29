@@ -116,6 +116,9 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
             <span>
               ongoing: 1 
             </span>
+            <span>
+              overdue: 0 
+            </span>
           </div>
           <div
             data-stroke="#555"
@@ -151,6 +154,12 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
             data-data-key="ongoing"
             data-fill="#5FD9FA"
             data-name="Ongoing"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="overdue"
+            data-fill="#F33434"
+            data-name="Overdue"
             data-testid="Bar"
           />
         </div>
@@ -267,6 +276,9 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
             <span>
               ongoing: 1 
             </span>
+            <span>
+              overdue: 0 
+            </span>
           </div>
           <div
             data-stroke="#555"
@@ -302,6 +314,12 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
             data-data-key="ongoing"
             data-fill="#5FD9FA"
             data-name="Ongoing"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="overdue"
+            data-fill="#F33434"
+            data-name="Overdue"
             data-testid="Bar"
           />
         </div>
@@ -418,6 +436,9 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
             <span>
               ongoing: 1 
             </span>
+            <span>
+              overdue: 0 
+            </span>
           </div>
           <div
             data-stroke="#555"
@@ -453,6 +474,12 @@ exports[`ReportsView Component using Snapshot renders correctly with only one ta
             data-data-key="ongoing"
             data-fill="#5FD9FA"
             data-name="Ongoing"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="overdue"
+            data-fill="#F33434"
+            data-name="Overdue"
             data-testid="Bar"
           />
         </div>
@@ -578,6 +605,9 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
             <span>
               ongoing: 1 
             </span>
+            <span>
+              overdue: 0 
+            </span>
           </div>
           <div
             data-stroke="#555"
@@ -613,6 +643,12 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
             data-data-key="ongoing"
             data-fill="#5FD9FA"
             data-name="Ongoing"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="overdue"
+            data-fill="#F33434"
+            data-name="Overdue"
             data-testid="Bar"
           />
         </div>
@@ -727,7 +763,10 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
               completed: 2 
             </span>
             <span>
-              ongoing: 2 
+              ongoing: 1 
+            </span>
+            <span>
+              overdue: 1 
             </span>
           </div>
           <div
@@ -764,6 +803,12 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
             data-data-key="ongoing"
             data-fill="#5FD9FA"
             data-name="Ongoing"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="overdue"
+            data-fill="#F33434"
+            data-name="Overdue"
             data-testid="Bar"
           />
         </div>
@@ -878,7 +923,10 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
               completed: 4 
             </span>
             <span>
-              ongoing: 4 
+              ongoing: 1 
+            </span>
+            <span>
+              overdue: 3 
             </span>
           </div>
           <div
@@ -915,6 +963,12 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
             data-data-key="ongoing"
             data-fill="#5FD9FA"
             data-name="Ongoing"
+            data-testid="Bar"
+          />
+          <div
+            data-data-key="overdue"
+            data-fill="#F33434"
+            data-name="Overdue"
             data-testid="Bar"
           />
         </div>

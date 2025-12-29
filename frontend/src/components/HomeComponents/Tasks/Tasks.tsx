@@ -36,7 +36,7 @@ import {
   sortTasksById,
   getTimeSinceLastSync,
   hashKey,
-  parseTaskwarriorDate,
+  isOverdue,
 } from './tasks-utils';
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
@@ -117,19 +117,6 @@ export const Tasks = (
   } = useEditTask(_selectedTask);
 
   // Handler for dialog open/close
-
-  const isOverdue = (due?: string) => {
-    if (!due) return false;
-
-    const dueDate = parseTaskwarriorDate(due);
-    if (!dueDate) return false;
-    dueDate.setHours(0, 0, 0, 0);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    return dueDate < today;
-  };
 
   const debouncedSearch = debounce((value: string) => {
     setDebouncedTerm(value);

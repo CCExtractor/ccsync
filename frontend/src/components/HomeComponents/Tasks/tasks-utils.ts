@@ -199,6 +199,19 @@ export const parseTaskwarriorDate = (dateString: string) => {
   return isNaN(date.getTime()) ? null : date;
 };
 
+export const isOverdue = (due?: string) => {
+  if (!due) return false;
+
+  const dueDate = parseTaskwarriorDate(due);
+  if (!dueDate) return false;
+  dueDate.setHours(0, 0, 0, 0);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return dueDate < today;
+};
+
 export const sortTasksById = (tasks: Task[], order: 'asc' | 'desc') => {
   return tasks.sort((a, b) => {
     if (order === 'asc') {
