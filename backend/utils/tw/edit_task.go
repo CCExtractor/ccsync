@@ -43,11 +43,8 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 
 	// Handle wait date
 	if wait != "" {
-		// Convert `2025-11-29` -> `2025-11-29T00:00:00`
-		formattedWait := wait + "T00:00:00"
-
-		if err := utils.ExecCommand("task", taskID, "modify", "wait:"+formattedWait); err != nil {
-			return fmt.Errorf("failed to set wait date %s: %v", formattedWait, err)
+		if err := utils.ExecCommand("task", taskID, "modify", "wait:"+wait); err != nil {
+			return fmt.Errorf("failed to set wait date %s: %v", wait, err)
 		}
 	}
 
@@ -104,11 +101,8 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 
 	// Handle due date
 	if due != "" {
-		// Convert `2025-11-29` -> `2025-11-29T00:00:00`
-		formattedDue := due + "T00:00:00"
-
-		if err := utils.ExecCommand("task", taskID, "modify", "due:"+formattedDue); err != nil {
-			return fmt.Errorf("failed to set due date %s: %v", formattedDue, err)
+		if err := utils.ExecCommand("task", taskID, "modify", "due:"+due); err != nil {
+			return fmt.Errorf("failed to set due date %s: %v", due, err)
 		}
 	}
 

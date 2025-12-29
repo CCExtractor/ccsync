@@ -67,12 +67,43 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Convert all date fields to Taskwarrior format
+		startStr, err := utils.ConvertISOToTaskwarriorFormat(start)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid start date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		entryStr, err := utils.ConvertISOToTaskwarriorFormat(entry)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid entry date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		waitStr, err := utils.ConvertISOToTaskwarriorFormat(wait)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid wait date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		endStr, err := utils.ConvertISOToTaskwarriorFormat(end)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid end date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		dueStr, err := utils.ConvertISOToTaskwarriorFormat(due)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid due date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
 		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Edit Task",
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Editing task ID: %s", taskUUID), uuid, "Edit Task")
-				err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskUUID, tags, project, start, entry, wait, end, depends, due, recur, annotations)
+				err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskUUID, tags, project, startStr, entryStr, waitStr, endStr, depends, dueStr, recur, annotations)
 				if err != nil {
 					logStore.AddLog("ERROR", fmt.Sprintf("Failed to edit task ID %s: %v", taskUUID, err), uuid, "Edit Task")
 					return err
