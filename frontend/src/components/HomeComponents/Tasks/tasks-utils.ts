@@ -182,6 +182,23 @@ export const formattedDate = (dateString: string) => {
   }
 };
 
+export const parseTaskwarriorDate = (dateString: string) => {
+  // Taskwarrior date format: YYYYMMDDTHHMMSSZ
+
+  if (!dateString) return null;
+
+  const year = dateString.substring(0, 4);
+  const month = dateString.substring(4, 6);
+  const day = dateString.substring(6, 8);
+  const hour = dateString.substring(9, 11);
+  const min = dateString.substring(11, 13);
+  const sec = dateString.substring(13, 15);
+  const parsed = `${year}-${month}-${day}T${hour}:${min}:${sec}Z`;
+
+  const date = new Date(parsed);
+  return isNaN(date.getTime()) ? null : date;
+};
+
 export const sortTasksById = (tasks: Task[], order: 'asc' | 'desc') => {
   return tasks.sort((a, b) => {
     if (order === 'asc') {
