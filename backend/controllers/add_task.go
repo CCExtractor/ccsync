@@ -66,9 +66,35 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
 			return
 		}
+
+		// Convert all date fields to Taskwarrior format
 		dueDateStr, err := utils.ConvertOptionalISOToTaskwarriorFormat(dueDate)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Invalid due date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		startStr, err := utils.ConvertISOToTaskwarriorFormat(start)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid start date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		entryDateStr, err := utils.ConvertISOToTaskwarriorFormat(entryDate)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid entry date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		waitDateStr, err := utils.ConvertISOToTaskwarriorFormat(waitDate)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid wait date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		endStr, err := utils.ConvertISOToTaskwarriorFormat(end)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid end date format: %v", err), http.StatusBadRequest)
 			return
 		}
 
@@ -77,7 +103,7 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Name: "Add Task",
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Adding task: %s", description), uuid, "Add Task")
-				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDateStr, start, entryDate, waitDate, end, recur, tags, annotations, depends)
+				err := tw.AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDateStr, startStr, entryDateStr, waitDateStr, endStr, recur, tags, annotations, depends)
 				if err != nil {
 					logStore.AddLog("ERROR", fmt.Sprintf("Failed to add task: %v", err), uuid, "Add Task")
 					return err
