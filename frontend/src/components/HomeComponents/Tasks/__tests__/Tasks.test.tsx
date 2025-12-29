@@ -1105,7 +1105,7 @@ describe('Tasks Component', () => {
     ['Wait', 'Wait:', 'Pick a date'],
     ['End', 'End:', 'Select end date'],
     ['Due', 'Due:', 'Select due date'],
-    ['Start', 'Start:', 'Pick a date'],
+    ['Start', 'Start:', 'Select start date and time'],
     ['Entry', 'Entry:', 'Pick a date'],
   ])('shows red when task %s date is edited', async (_, label, placeholder) => {
     render(<Tasks {...mockProps} />);
@@ -1135,7 +1135,7 @@ describe('Tasks Component', () => {
     });
 
     const dialog = screen.getByRole('dialog');
-    const day15 = within(dialog).getByText('15');
+    const day15 = within(dialog).getAllByText('15')[0];
     fireEvent.click(day15);
 
     const saveButton = screen.getByLabelText('save');
