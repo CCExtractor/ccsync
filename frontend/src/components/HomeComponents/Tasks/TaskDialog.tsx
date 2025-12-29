@@ -2,6 +2,7 @@ import { EditTaskDialogProps } from '../../utils/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/date-picker';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 import {
   Dialog,
   DialogClose,
@@ -265,19 +266,17 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingDueDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           date={
                             editState.editedDueDate &&
                             editState.editedDueDate !== ''
                               ? (() => {
                                   try {
-                                    const dateStr =
-                                      editState.editedDueDate.includes('T')
-                                        ? editState.editedDueDate.split('T')[0]
-                                        : editState.editedDueDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                    const dateStr = editState.editedDueDate;
+                                    // Handle both ISO datetime and date-only formats
+                                    const parsed = dateStr.includes('T')
+                                      ? new Date(dateStr)
+                                      : new Date(dateStr + 'T00:00:00');
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -287,14 +286,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) => {
                             onUpdateState({
                               editedDueDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
-                            })
-                          }
-                          placeholder="Select due date"
+                            });
+                          }}
+                          placeholder="Select due date and time"
                         />
                         <Button
                           variant="ghost"
@@ -331,11 +332,7 @@ export const TaskDialog = ({
                           onClick={() => {
                             onUpdateState({
                               isEditingDueDate: true,
-                              editedDueDate: task.due
-                                ? task.due.includes('T')
-                                  ? task.due.split('T')[0]
-                                  : task.due
-                                : '',
+                              editedDueDate: task.due || '',
                             });
                           }}
                         >
@@ -350,22 +347,17 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingStartDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           date={
                             editState.editedStartDate &&
                             editState.editedStartDate !== ''
                               ? (() => {
                                   try {
-                                    // Handle YYYY-MM-DD format
-                                    const dateStr =
-                                      editState.editedStartDate.includes('T')
-                                        ? editState.editedStartDate.split(
-                                            'T'
-                                          )[0]
-                                        : editState.editedStartDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                    const dateStr = editState.editedStartDate;
+                                    // Handle both ISO datetime and date-only formats
+                                    const parsed = dateStr.includes('T')
+                                      ? new Date(dateStr)
+                                      : new Date(dateStr + 'T00:00:00');
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -375,13 +367,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) => {
                             onUpdateState({
                               editedStartDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
-                            })
-                          }
+                            });
+                          }}
+                          placeholder="Select start date and time"
                         />
 
                         <Button
@@ -420,11 +415,7 @@ export const TaskDialog = ({
                           onClick={() => {
                             onUpdateState({
                               isEditingStartDate: true,
-                              editedStartDate: task.start
-                                ? task.start.includes('T')
-                                  ? task.start.split('T')[0]
-                                  : task.start
-                                : '',
+                              editedStartDate: task.start || '',
                             });
                           }}
                         >
@@ -439,19 +430,17 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingEndDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           date={
                             editState.editedEndDate &&
                             editState.editedEndDate !== ''
                               ? (() => {
                                   try {
-                                    const dateStr =
-                                      editState.editedEndDate.includes('T')
-                                        ? editState.editedEndDate.split('T')[0]
-                                        : editState.editedEndDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                    const dateStr = editState.editedEndDate;
+                                    // Handle both ISO datetime and date-only formats
+                                    const parsed = dateStr.includes('T')
+                                      ? new Date(dateStr)
+                                      : new Date(dateStr + 'T00:00:00');
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -461,14 +450,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) => {
                             onUpdateState({
                               editedEndDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
-                            })
-                          }
-                          placeholder="Select end date"
+                            });
+                          }}
+                          placeholder="Select end date and time"
                         />
                         <Button
                           variant="ghost"
@@ -505,11 +496,7 @@ export const TaskDialog = ({
                           onClick={() => {
                             onUpdateState({
                               isEditingEndDate: true,
-                              editedEndDate: task.end
-                                ? task.end.includes('T')
-                                  ? task.end.split('T')[0]
-                                  : task.end
-                                : '',
+                              editedEndDate: task.end || '',
                             });
                           }}
                         >
@@ -524,19 +511,17 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingWaitDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           date={
                             editState.editedWaitDate &&
                             editState.editedWaitDate !== ''
                               ? (() => {
                                   try {
-                                    const dateStr =
-                                      editState.editedWaitDate.includes('T')
-                                        ? editState.editedWaitDate.split('T')[0]
-                                        : editState.editedWaitDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                    const dateStr = editState.editedWaitDate;
+                                    // Handle both ISO datetime and date-only formats
+                                    const parsed = dateStr.includes('T')
+                                      ? new Date(dateStr)
+                                      : new Date(dateStr + 'T00:00:00');
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -546,13 +531,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) => {
                             onUpdateState({
                               editedWaitDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
-                            })
-                          }
+                            });
+                          }}
+                          placeholder="Select wait date and time"
                         />
 
                         <Button
@@ -1133,22 +1121,17 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingEntryDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           date={
                             editState.editedEntryDate &&
                             editState.editedEntryDate !== ''
                               ? (() => {
                                   try {
-                                    // Handle YYYY-MM-DD format
-                                    const dateStr =
-                                      editState.editedEntryDate.includes('T')
-                                        ? editState.editedEntryDate.split(
-                                            'T'
-                                          )[0]
-                                        : editState.editedEntryDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                    const dateStr = editState.editedEntryDate;
+                                    // Handle both ISO datetime and date-only formats
+                                    const parsed = dateStr.includes('T')
+                                      ? new Date(dateStr)
+                                      : new Date(dateStr + 'T00:00:00');
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -1158,13 +1141,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) => {
                             onUpdateState({
                               editedEntryDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
-                            })
-                          }
+                            });
+                          }}
+                          placeholder="Select entry date and time"
                         />
 
                         <Button
@@ -1186,11 +1172,7 @@ export const TaskDialog = ({
                           onClick={() =>
                             onUpdateState({
                               isEditingEntryDate: false,
-                              editedEntryDate: task.entry
-                                ? task.entry.includes('T')
-                                  ? task.entry.split('T')[0]
-                                  : task.entry
-                                : '',
+                              editedEntryDate: task.entry || '',
                             })
                           }
                         >
@@ -1207,11 +1189,7 @@ export const TaskDialog = ({
                           onClick={() =>
                             onUpdateState({
                               isEditingEntryDate: true,
-                              editedEntryDate: task.entry
-                                ? task.entry.includes('T')
-                                  ? task.entry.split('T')[0]
-                                  : task.entry
-                                : '',
+                              editedEntryDate: task.entry || '',
                             })
                           }
                         >
