@@ -44,7 +44,7 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		email := requestBody.Email
 		encryptionSecret := requestBody.EncryptionSecret
 		uuid := requestBody.UUID
-		taskID := requestBody.TaskID
+		taskUUID := requestBody.TaskUUID
 		description := requestBody.Description
 		tags := requestBody.Tags
 		project := requestBody.Project
@@ -57,7 +57,7 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		recur := requestBody.Recur
 		annotations := requestBody.Annotations
 
-		if taskID == "" {
+		if taskUUID == "" {
 			http.Error(w, "taskID is required", http.StatusBadRequest)
 			return
 		}
@@ -90,13 +90,13 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		job := Job{
 			Name: "Edit Task",
 			Execute: func() error {
-				logStore.AddLog("INFO", fmt.Sprintf("Editing task ID: %s", taskID), uuid, "Edit Task")
-				err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID, tags, project, start, entry, wait, end, depends, due, recur, annotations)
+				logStore.AddLog("INFO", fmt.Sprintf("Editing task ID: %s", taskUUID), uuid, "Edit Task")
+				err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskUUID, tags, project, start, entry, wait, end, depends, due, recur, annotations)
 				if err != nil {
-					logStore.AddLog("ERROR", fmt.Sprintf("Failed to edit task ID %s: %v", taskID, err), uuid, "Edit Task")
+					logStore.AddLog("ERROR", fmt.Sprintf("Failed to edit task ID %s: %v", taskUUID, err), uuid, "Edit Task")
 					return err
 				}
-				logStore.AddLog("INFO", fmt.Sprintf("Successfully edited task ID: %s", taskID), uuid, "Edit Task")
+				logStore.AddLog("INFO", fmt.Sprintf("Successfully edited task ID: %s", taskUUID), uuid, "Edit Task")
 				return nil
 			},
 		}
