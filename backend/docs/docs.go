@@ -240,6 +240,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/complete-tasks": {
+            "post": {
+                "description": "Mark multiple tasks as completed in Taskwarrior",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Bulk complete tasks",
+                "parameters": [
+                    {
+                        "description": "Bulk task completion details",
+                        "name": "task",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BulkCompleteTaskRequestBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Bulk task completion accepted for processing",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request - missing or empty taskuuids",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method not allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/delete-task": {
             "post": {
                 "description": "Delete a task from Taskwarrior",
@@ -273,6 +319,52 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad request - invalid input or missing taskuuid",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method not allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/delete-tasks": {
+            "post": {
+                "description": "Delete multiple tasks in Taskwarrior",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Bulk delete tasks",
+                "parameters": [
+                    {
+                        "description": "Bulk task deletion details",
+                        "name": "task",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.BulkDeleteTaskRequestBody"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Bulk task deletion accepted for processing",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request - missing or empty taskuuids",
                         "schema": {
                             "type": "string"
                         }
@@ -378,9 +470,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/sync/logs": {
+            "get": {
+                "description": "Fetch the latest sync operation logs",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Logs"
+                ],
+                "summary": "Get sync logs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Number of latest log entries to return (default: 100)",
+                        "name": "last",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of log entries",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.LogEntry"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid last parameter",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/tasks": {
             "get": {
-                "description": "Fetch all tasks from Taskwarrior for a specific user",
+                "description": "Fetch all tasks from Taskwarrior for a specific user via Headers",
                 "consumes": [
                     "application/json"
                 ],
@@ -395,22 +527,22 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "User email",
-                        "name": "email",
-                        "in": "query",
+                        "name": "X-User-Email",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Encryption secret for the user",
-                        "name": "encryptionSecret",
-                        "in": "query",
+                        "description": "Encryption secret",
+                        "name": "X-Encryption-Secret",
+                        "in": "header",
                         "required": true
                     },
                     {
                         "type": "string",
                         "description": "User UUID",
-                        "name": "UUID",
-                        "in": "query",
+                        "name": "X-User-UUID",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -425,7 +557,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Missing required parameters",
+                        "description": "Missing required headers",
                         "schema": {
                             "type": "string"
                         }
@@ -447,6 +579,18 @@ const docTemplate = `{
                 "UUID": {
                     "type": "string"
                 },
+                "annotations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Annotation"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "description": {
                     "type": "string"
                 },
@@ -459,10 +603,22 @@ const docTemplate = `{
                 "encryptionSecret": {
                     "type": "string"
                 },
+                "end": {
+                    "type": "string"
+                },
+                "entry": {
+                    "type": "string"
+                },
                 "priority": {
                     "type": "string"
                 },
                 "project": {
+                    "type": "string"
+                },
+                "recur": {
+                    "type": "string"
+                },
+                "start": {
                     "type": "string"
                 },
                 "tags": {
@@ -470,6 +626,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "wait": {
+                    "type": "string"
                 }
             }
         },
@@ -481,6 +640,46 @@ const docTemplate = `{
                 },
                 "entry": {
                     "type": "string"
+                }
+            }
+        },
+        "models.BulkCompleteTaskRequestBody": {
+            "type": "object",
+            "properties": {
+                "UUID": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "encryptionSecret": {
+                    "type": "string"
+                },
+                "taskuuids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "models.BulkDeleteTaskRequestBody": {
+            "type": "object",
+            "properties": {
+                "UUID": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "encryptionSecret": {
+                    "type": "string"
+                },
+                "taskuuids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
@@ -524,7 +723,22 @@ const docTemplate = `{
                 "UUID": {
                     "type": "string"
                 },
+                "annotations": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Annotation"
+                    }
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "description": {
+                    "type": "string"
+                },
+                "due": {
                     "type": "string"
                 },
                 "email": {
@@ -533,13 +747,52 @@ const docTemplate = `{
                 "encryptionSecret": {
                     "type": "string"
                 },
+                "end": {
+                    "type": "string"
+                },
+                "entry": {
+                    "type": "string"
+                },
+                "project": {
+                    "type": "string"
+                },
+                "recur": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "string"
+                },
                 "tags": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
                 },
-                "taskid": {
+                "taskuuid": {
+                    "type": "string"
+                },
+                "wait": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.LogEntry": {
+            "type": "object",
+            "properties": {
+                "level": {
+                    "description": "INFO, WARN, ERROR",
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "syncId": {
+                    "type": "string"
+                },
+                "timestamp": {
                     "type": "string"
                 }
             }
@@ -549,6 +802,12 @@ const docTemplate = `{
             "properties": {
                 "UUID": {
                     "type": "string"
+                },
+                "depends": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "description": {
                     "type": "string"
@@ -577,7 +836,7 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "taskid": {
+                "taskuuid": {
                     "type": "string"
                 }
             }

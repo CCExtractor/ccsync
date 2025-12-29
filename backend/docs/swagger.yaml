@@ -4,6 +4,14 @@ definitions:
     properties:
       UUID:
         type: string
+      annotations:
+        items:
+          $ref: '#/definitions/models.Annotation'
+        type: array
+      depends:
+        items:
+          type: string
+        type: array
       description:
         type: string
       due:
@@ -12,14 +20,24 @@ definitions:
         type: string
       encryptionSecret:
         type: string
+      end:
+        type: string
+      entry:
+        type: string
       priority:
         type: string
       project:
+        type: string
+      recur:
+        type: string
+      start:
         type: string
       tags:
         items:
           type: string
         type: array
+      wait:
+        type: string
     type: object
   models.Annotation:
     properties:
@@ -27,6 +45,32 @@ definitions:
         type: string
       entry:
         type: string
+    type: object
+  models.BulkCompleteTaskRequestBody:
+    properties:
+      UUID:
+        type: string
+      email:
+        type: string
+      encryptionSecret:
+        type: string
+      taskuuids:
+        items:
+          type: string
+        type: array
+    type: object
+  models.BulkDeleteTaskRequestBody:
+    properties:
+      UUID:
+        type: string
+      email:
+        type: string
+      encryptionSecret:
+        type: string
+      taskuuids:
+        items:
+          type: string
+        type: array
     type: object
   models.CompleteTaskRequestBody:
     properties:
@@ -54,23 +98,63 @@ definitions:
     properties:
       UUID:
         type: string
+      annotations:
+        items:
+          $ref: '#/definitions/models.Annotation'
+        type: array
+      depends:
+        items:
+          type: string
+        type: array
       description:
+        type: string
+      due:
         type: string
       email:
         type: string
       encryptionSecret:
         type: string
+      end:
+        type: string
+      entry:
+        type: string
+      project:
+        type: string
+      recur:
+        type: string
+      start:
+        type: string
       tags:
         items:
           type: string
         type: array
-      taskid:
+      taskuuid:
+        type: string
+      wait:
+        type: string
+    type: object
+  models.LogEntry:
+    properties:
+      level:
+        description: INFO, WARN, ERROR
+        type: string
+      message:
+        type: string
+      operation:
+        type: string
+      syncId:
+        type: string
+      timestamp:
         type: string
     type: object
   models.ModifyTaskRequestBody:
     properties:
       UUID:
         type: string
+      depends:
+        items:
+          type: string
+        type: array
       description:
         type: string
       due:
@@ -89,14 +173,14 @@ definitions:
         items:
           type: string
         type: array
-      taskid:
+      taskuuid:
         type: string
     type: object
   models.Task:
     properties:
       annotations:
         items:
-          $ref: "#/definitions/models.Annotation"
+          $ref: '#/definitions/models.Annotation'
         type: array
       depends:
         items:
@@ -154,17 +238,17 @@ paths:
   /add-task:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Add a new task to Taskwarrior for a specific user
       parameters:
-        - description: Task details
-          in: body
-          name: task
-          required: true
-          schema:
-            $ref: "#/definitions/models.AddTaskRequestBody"
+      - description: Task details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.AddTaskRequestBody'
       produces:
-        - application/json
+      - application/json
       responses:
         "202":
           description: Task accepted for processing
@@ -180,14 +264,14 @@ paths:
             type: string
       summary: Add a new task
       tags:
-        - Tasks
+      - Tasks
   /api/user:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Retrieve user information from the session
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: User information including email, id, uuid, and encryption_secret
@@ -200,20 +284,20 @@ paths:
             type: string
       summary: Get user information
       tags:
-        - Auth
+      - Auth
   /auth/callback:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Handles the OAuth callback and creates user session
       parameters:
-        - description: OAuth authorization code
-          in: query
-          name: code
-          required: true
-          type: string
+      - description: OAuth authorization code
+        in: query
+        name: code
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "303":
           description: Redirect to frontend home page
@@ -229,14 +313,14 @@ paths:
             type: string
       summary: OAuth callback handler
       tags:
-        - Auth
+      - Auth
   /auth/logout:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Logout user and delete session
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: Successfully logged out
@@ -248,14 +332,14 @@ paths:
             type: string
       summary: Logout user
       tags:
-        - Auth
+      - Auth
   /auth/oauth:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Redirects user to Google OAuth login page
       produces:
-        - application/json
+      - application/json
       responses:
         "307":
           description: Redirect to OAuth provider
@@ -263,21 +347,21 @@ paths:
             type: string
       summary: Initiate OAuth login
       tags:
-        - Auth
+      - Auth
   /complete-task:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Mark a task as completed in Taskwarrior
       parameters:
-        - description: Task completion details
-          in: body
-          name: task
-          required: true
-          schema:
-            $ref: "#/definitions/models.CompleteTaskRequestBody"
+      - description: Task completion details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.CompleteTaskRequestBody'
       produces:
-        - application/json
+      - application/json
       responses:
         "202":
           description: Task completion accepted for processing
@@ -293,21 +377,51 @@ paths:
             type: string
       summary: Complete a task
       tags:
-        - Tasks
+      - Tasks
+  /complete-tasks:
+    post:
+      consumes:
+      - application/json
+      description: Mark multiple tasks as completed in Taskwarrior
+      parameters:
+      - description: Bulk task completion details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.BulkCompleteTaskRequestBody'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Bulk task completion accepted for processing
+          schema:
+            type: string
+        "400":
+          description: Invalid request - missing or empty taskuuids
+          schema:
+            type: string
+        "405":
+          description: Method not allowed
+          schema:
+            type: string
+      summary: Bulk complete tasks
+      tags:
+      - Tasks
   /delete-task:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Delete a task from Taskwarrior
       parameters:
-        - description: Task deletion details
-          in: body
-          name: task
-          required: true
-          schema:
-            $ref: "#/definitions/models.DeleteTaskRequestBody"
+      - description: Task deletion details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.DeleteTaskRequestBody'
       produces:
-        - application/json
+      - application/json
       responses:
         "202":
           description: Task deletion accepted for processing
@@ -323,21 +437,51 @@ paths:
             type: string
       summary: Delete a task
       tags:
-        - Tasks
+      - Tasks
+  /delete-tasks:
+    post:
+      consumes:
+      - application/json
+      description: Delete multiple tasks in Taskwarrior
+      parameters:
+      - description: Bulk task deletion details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.BulkDeleteTaskRequestBody'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Bulk task deletion accepted for processing
+          schema:
+            type: string
+        "400":
+          description: Invalid request - missing or empty taskuuids
+          schema:
+            type: string
+        "405":
+          description: Method not allowed
+          schema:
+            type: string
+      summary: Bulk delete tasks
+      tags:
+      - Tasks
   /edit-task:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Edit task description and tags in Taskwarrior
       parameters:
-        - description: Task edit details
-          in: body
-          name: task
-          required: true
-          schema:
-            $ref: "#/definitions/models.EditTaskRequestBody"
+      - description: Task edit details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.EditTaskRequestBody'
       produces:
-        - application/json
+      - application/json
       responses:
         "202":
           description: Task edit accepted for processing
@@ -353,23 +497,22 @@ paths:
             type: string
       summary: Edit a task
       tags:
-        - Tasks
+      - Tasks
   /modify-task:
     post:
       consumes:
-        - application/json
-      description:
-        Modify task properties including description, project, priority,
+      - application/json
+      description: Modify task properties including description, project, priority,
         status, due date, and tags
       parameters:
-        - description: Task modification details
-          in: body
-          name: task
-          required: true
-          schema:
-            $ref: "#/definitions/models.ModifyTaskRequestBody"
+      - description: Task modification details
+        in: body
+        name: task
+        required: true
+        schema:
+          $ref: '#/definitions/models.ModifyTaskRequestBody'
       produces:
-        - application/json
+      - application/json
       responses:
         "202":
           description: Task modification accepted for processing
@@ -385,39 +528,65 @@ paths:
             type: string
       summary: Modify a task
       tags:
-        - Tasks
+      - Tasks
+  /sync/logs:
+    get:
+      consumes:
+      - application/json
+      description: Fetch the latest sync operation logs
+      parameters:
+      - description: 'Number of latest log entries to return (default: 100)'
+        in: query
+        name: last
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of log entries
+          schema:
+            items:
+              $ref: '#/definitions/models.LogEntry'
+            type: array
+        "400":
+          description: Invalid last parameter
+          schema:
+            type: string
+      summary: Get sync logs
+      tags:
+      - Logs
   /tasks:
     get:
       consumes:
-        - application/json
-      description: Fetch all tasks from Taskwarrior for a specific user
+      - application/json
+      description: Fetch all tasks from Taskwarrior for a specific user via Headers
       parameters:
-        - description: User email
-          in: query
-          name: email
-          required: true
-          type: string
-        - description: Encryption secret for the user
-          in: query
-          name: encryptionSecret
-          required: true
-          type: string
-        - description: User UUID
-          in: query
-          name: UUID
-          required: true
-          type: string
+      - description: User email
+        in: header
+        name: X-User-Email
+        required: true
+        type: string
+      - description: Encryption secret
+        in: header
+        name: X-Encryption-Secret
+        required: true
+        type: string
+      - description: User UUID
+        in: header
+        name: X-User-UUID
+        required: true
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
         "200":
           description: List of tasks
           schema:
             items:
-              $ref: "#/definitions/models.Task"
+              $ref: '#/definitions/models.Task'
             type: array
         "400":
-          description: Missing required parameters
+          description: Missing required headers
           schema:
             type: string
         "500":
@@ -426,7 +595,7 @@ paths:
             type: string
       summary: Get all tasks
       tags:
-        - Tasks
+      - Tasks
 securityDefinitions:
   ApiKeyAuth:
     in: header
@@ -434,7 +603,7 @@ securityDefinitions:
     type: apiKey
 swagger: "2.0"
 tags:
-  - description: Task management operations
-    name: Tasks
-  - description: Authentication and authorization endpoints
-    name: Auth
+- description: Task management operations
+  name: Tasks
+- description: Authentication and authorization endpoints
+  name: Auth
