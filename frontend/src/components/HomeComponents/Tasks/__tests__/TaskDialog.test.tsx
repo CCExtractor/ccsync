@@ -611,7 +611,7 @@ describe('TaskDialog Component', () => {
 
     test.each(dateFields)(
       'should save $name date changes (date only)',
-      ({ saveFn, editStateKey, editedStateKey: _editedStateKey }) => {
+      ({ saveFn, editStateKey, editedStateKey }) => {
         const editingState = {
           ...mockEditState,
           [editStateKey]: true,
@@ -642,7 +642,7 @@ describe('TaskDialog Component', () => {
 
     test.each(dateFields)(
       'should save $name date changes (date with time)',
-      ({ saveFn, editStateKey, editedStateKey: _editedStateKey }) => {
+      ({ saveFn, editStateKey, editedStateKey }) => {
         const editingState = {
           ...mockEditState,
           [editStateKey]: true,
@@ -673,7 +673,7 @@ describe('TaskDialog Component', () => {
 
     test.each(dateFields)(
       'should update $name when DateTimePicker value changes (date only)',
-      ({ label, editStateKey, editedStateKey: _editedStateKey }) => {
+      ({ label, editStateKey, editedStateKey }) => {
         const editingState = {
           ...mockEditState,
           [editStateKey]: true,
@@ -702,7 +702,7 @@ describe('TaskDialog Component', () => {
 
     test.each(dateFields)(
       'should update $name when DateTimePicker value changes (date with time)',
-      ({ label: _label, editStateKey, editedStateKey }) => {
+      ({ label, editStateKey, editedStateKey }) => {
         const editingState = {
           ...mockEditState,
           [editStateKey]: true,
