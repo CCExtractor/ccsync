@@ -26,6 +26,24 @@ describe('CopyableCode', () => {
     expect(screen.getByText(sampleText)).toBeInTheDocument();
     expect(screen.getByTestId('copy-icon')).toBeInTheDocument();
   });
+  it('toggles sensitive value visibility and masks the text', () => {
+    const sensitiveText = 'API_KEY 12345';
+
+    render(
+      <CopyableCode
+        text={sensitiveText}
+        copyText={sensitiveText}
+        isSensitive={true}
+      />
+    );
+    expect(screen.getByText(sensitiveText)).toBeInTheDocument();
+    expect(screen.getByTestId('eye-off-icon')).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: /hide sensitive value/i })
+    );
+    expect(screen.getByText('API_KEY •••••')).toBeInTheDocument();
+    expect(screen.getByTestId('eye-icon')).toBeInTheDocument();
+  });
 
   it('copies text to clipboard and shows toast message', async () => {
     render(<CopyableCode text={sampleText} copyText={sampleCopyText} />);
