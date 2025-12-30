@@ -592,7 +592,7 @@ describe('TaskDialog Component', () => {
 
     test.each(dateFields)(
       'should enable $name date editing mode',
-      ({ label, editStateKey }) => {
+      ({ label, editStateKey, editedStateKey }) => {
         render(<TaskDialog {...defaultProps} isOpen={true} />);
 
         const dateRow = screen.getByText(`${label}:`).closest('tr');
@@ -611,7 +611,7 @@ describe('TaskDialog Component', () => {
 
     test.each(dateFields)(
       'should save $name date changes (date only)',
-      ({ saveFn, editStateKey, editedStateKey }) => {
+      ({ label, saveFn, editStateKey, editedStateKey }) => {
         const editingState = {
           ...mockEditState,
           [editStateKey]: true,
@@ -642,7 +642,7 @@ describe('TaskDialog Component', () => {
 
     test.each(dateFields)(
       'should save $name date changes (date with time)',
-      ({ saveFn, editStateKey, editedStateKey }) => {
+      ({ label, saveFn, editStateKey, editedStateKey }) => {
         const editingState = {
           ...mockEditState,
           [editStateKey]: true,
