@@ -13,6 +13,7 @@ import {
   getTimeSinceLastSync,
   hashKey,
   parseTaskwarriorDate,
+  isOverdue,
 } from '../tasks-utils';
 import { Task } from '@/components/utils/types';
 
@@ -612,5 +613,39 @@ describe('parseTaskwarriorDate', () => {
   it('handles ISO format gracefully', () => {
     const result = parseTaskwarriorDate('20241215T130002Z');
     expect(result).toBeInstanceOf(Date);
+  });
+});
+
+describe('isOverdue', () => {
+  beforeEach(() => {
+    jest.useFakeTimers().setSystemTime(new Date('2025-11-11T10:00:00.000Z'));
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('returns false for undefined due date', () => {
+    expect(isOverdue(undefined)).toBe(false);
+  });
+
+  it('returns false for empty string due date', () => {
+    expect(isOverdue('')).toBe(false);
+  });
+
+  it('returns false for future due date', () => {
+    expect(isOverdue('20251215T130002Z')).toBe(false);
+  });
+
+  it('returns true for past due date', () => {
+    expect(isOverdue('20251015T130002Z')).toBe(true);
+  });
+
+  it('returns false for today due date', () => {
+    expect(isOverdue('20251111T130002Z')).toBe(false);
+  });
+
+  it('returns false for invalid date format', () => {
+    expect(isOverdue('invalid-date')).toBe(false);
   });
 });

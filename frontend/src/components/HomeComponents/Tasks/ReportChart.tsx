@@ -98,6 +98,12 @@ export const ReportChart: React.FC<ReportChartProps> = ({
             name="Ongoing"
             label={{ position: 'top', fill: 'white', fontSize: 12 }}
           />
+          <Bar
+            dataKey="overdue"
+            fill="#F33434"
+            name="Overdue"
+            label={{ position: 'top', fill: 'white', fontSize: 12 }}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

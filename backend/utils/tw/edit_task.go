@@ -30,7 +30,6 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 
 	// Escape the double quotes in the description and format it
 	if err := utils.ExecCommand("task", taskID, "modify", description); err != nil {
-		fmt.Println("task " + taskID + " modify " + description)
 		return fmt.Errorf("failed to edit task: %v", err)
 	}
 
