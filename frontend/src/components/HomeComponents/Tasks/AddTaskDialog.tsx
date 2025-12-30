@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,23 +25,25 @@ import {
 } from '@/components/ui/select';
 import { AddTaskDialogProps } from '@/components/utils/types';
 import { format } from 'date-fns';
+import { AddMultiSelect } from './AddMultiSelect';
 
 export const AddTaskdialog = ({
   isOpen,
   setIsOpen,
   newTask,
   setNewTask,
-  tagInput,
-  setTagInput,
   onSubmit,
   isCreatingNewProject,
   setIsCreatingNewProject,
   uniqueProjects = [],
+  uniqueTags = [],
   allTasks = [],
 }: AddTaskDialogProps) => {
   const [annotationInput, setAnnotationInput] = useState('');
   const [dependencySearch, setDependencySearch] = useState('');
   const [showDependencyResults, setShowDependencyResults] = useState(false);
+  const [dialogContainer, setDialogContainer] =
+    React.useState<HTMLDivElement | null>(null);
 
   const getFilteredTasks = () => {
     const availableTasks = allTasks.filter(
@@ -102,20 +105,6 @@ export const AddTaskdialog = ({
     });
   };
 
-  const handleAddTag = () => {
-    if (tagInput && !newTask.tags.includes(tagInput, 0)) {
-      setNewTask({ ...newTask, tags: [...newTask.tags, tagInput] });
-      setTagInput('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setNewTask({
-      ...newTask,
-      tags: newTask.tags.filter((tag) => tag !== tagToRemove),
-    });
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -129,6 +118,7 @@ export const AddTaskdialog = ({
         </Button>
       </DialogTrigger>
       <DialogContent>
+        <div ref={setDialogContainer} />
         <DialogHeader>
           <DialogTitle>
             <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
@@ -194,6 +184,7 @@ export const AddTaskdialog = ({
             </Label>
             <div className="col-span-3 space-y-2">
               <Select
+                data-testid="project-select"
                 value={
                   isCreatingNewProject ? '__CREATE_NEW__' : newTask.project
                 }
@@ -210,7 +201,7 @@ export const AddTaskdialog = ({
                   }
                 }}
               >
-                <SelectTrigger id="project" data-testid="project-select">
+                <SelectTrigger id="project">
                   <SelectValue
                     placeholder={
                       uniqueProjects.length
@@ -376,44 +367,19 @@ export const AddTaskdialog = ({
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-8 items-center gap-4">
-            <Label htmlFor="tags" className="text-right col-span-2">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="tags" className="text-right">
               Tags
             </Label>
-            <div className="col-span-6">
-              <Input
-                id="tags"
-                name="tags"
-                placeholder="Add a tag"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
-                required
-                className="col-span-6"
+            <div className="col-span-3 space-y-2">
+              <AddMultiSelect
+                options={uniqueTags}
+                selected={newTask.tags}
+                onChange={(tags) => setNewTask({ ...newTask, tags })}
+                placeholder="Search or create tag.."
+                portalContainer={dialogContainer}
               />
             </div>
-          </div>
-
-          <div className="mt-2">
-            {newTask.tags.length > 0 && (
-              <div className="grid grid-cols-4 items-center">
-                <div> </div>
-                <div className="flex flex-wrap gap-2 col-span-3">
-                  {newTask.tags.map((tag, index) => (
-                    <Badge key={index}>
-                      <span>{tag}</span>
-                      <button
-                        type="button"
-                        className="ml-2 text-red-500"
-                        onClick={() => handleRemoveTag(tag)}
-                      >
-                        ✖
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
           <div className="grid grid-cols-8 items-center gap-4">
             <Label htmlFor="annotations" className="text-right col-span-2">
