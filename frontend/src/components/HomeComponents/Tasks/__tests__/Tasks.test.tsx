@@ -1138,7 +1138,9 @@ describe('Tasks Component', () => {
     // Find the calendar day button (gridcell with name="day"), not the time picker button
     const day15Button = within(dialog)
       .getAllByRole('gridcell')
-      .find((el) => el.textContent === '15' && el.getAttribute('name') === 'day');
+      .find(
+        (el) => el.textContent === '15' && el.getAttribute('name') === 'day'
+      );
     if (!day15Button) {
       throw new Error('Could not find calendar day button with value 15');
     }
