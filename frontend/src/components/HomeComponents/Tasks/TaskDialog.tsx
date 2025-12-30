@@ -40,6 +40,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTaskDialogKeyboard } from './UseTaskDialogKeyboard';
 import { FIELDS } from './constants';
 import { useTaskDialogFocusMap } from './UseTaskDialogFocusMap';
+import { SearchAndAddSelector } from './SearchAndAddSelector';
 
 export const TaskDialog = ({
   index,
@@ -53,13 +54,14 @@ export const TaskDialog = ({
   editState,
   onUpdateState,
   allTasks,
+  uniqueProjects,
   isCreatingNewProject,
   setIsCreatingNewProject,
-  uniqueProjects,
+  uniqueTags,
   onSaveDescription,
-  onSaveTags,
   onSavePriority,
   onSaveProject,
+  onSaveTags,
   onSaveWaitDate,
   onSaveStartDate,
   onSaveEntryDate,
@@ -993,6 +995,7 @@ export const TaskDialog = ({
                     {editState.isEditingPriority ? (
                       <div className="flex items-center">
                         <Select
+                          data-testid="priority-select"
                           value={editState.editedPriority}
                           onValueChange={(value) =>
                             onUpdateState({
@@ -1077,6 +1080,7 @@ export const TaskDialog = ({
                       <>
                         <div className="col-span-3 space-y-2 w-[300px]">
                           <Select
+                            data-testid="project-select"
                             value={
                               isCreatingNewProject
                                 ? '__CREATE_NEW__'
@@ -1095,10 +1099,7 @@ export const TaskDialog = ({
                               }
                             }}
                           >
-                            <SelectTrigger
-                              id="project"
-                              data-testid="project-select"
-                            >
+                            <SelectTrigger id="project">
                               <SelectValue
                                 placeholder={
                                   uniqueProjects.length
@@ -1213,104 +1214,39 @@ export const TaskDialog = ({
                   <TableCell>Tags:</TableCell>
                   <TableCell>
                     {editState.isEditingTags ? (
-                      <div>
-                        <div className="flex items-center w-full">
-                          <Input
-                            ref={(element) =>
-                              (inputRefs.current.tags = element)
-                            }
-                            type="text"
-                            value={editState.editTagInput}
-                            onChange={(e) => {
-                              // For allowing only alphanumeric characters
-                              if (e.target.value.length > 1) {
-                                /^[a-zA-Z0-9]*$/.test(e.target.value.trim())
-                                  ? onUpdateState({
-                                      editTagInput: e.target.value.trim(),
-                                    })
-                                  : '';
-                              } else {
-                                /^[a-zA-Z]*$/.test(e.target.value.trim())
-                                  ? onUpdateState({
-                                      editTagInput: e.target.value.trim(),
-                                    })
-                                  : '';
-                              }
-                            }}
-                            placeholder="Add a tag (press enter to add)"
-                            className="flex-grow mr-2"
-                            onKeyDown={(e) => {
-                              if (
-                                e.key === 'Enter' &&
-                                editState.editTagInput.trim()
-                              ) {
-                                onUpdateState({
-                                  editedTags: [
-                                    ...editState.editedTags,
-                                    editState.editTagInput.trim(),
-                                  ],
-                                  editTagInput: '',
-                                });
-                              }
-                            }}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="Save tags"
-                            onClick={() => {
-                              onSaveTags(task, editState.editedTags);
-                              onUpdateState({
-                                isEditingTags: false,
-                                editTagInput: '',
-                              });
-                            }}
-                          >
-                            <CheckIcon className="h-4 w-4 text-green-500" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="Cancel editing tags"
-                            onClick={() => {
-                              onUpdateState({
-                                isEditingTags: false,
-                                editedTags: task.tags || [],
-                                editTagInput: '',
-                              });
-                            }}
-                          >
-                            <XIcon className="h-4 w-4 text-red-500" />
-                          </Button>
-                        </div>
-                        <div className="mt-2">
-                          {editState.editedTags != null &&
-                            editState.editedTags.length > 0 && (
-                              <div>
-                                <div className="flex flex-wrap gap-2 col-span-3">
-                                  {editState.editedTags.map((tag, index) => (
-                                    <Badge key={index}>
-                                      <span>{tag}</span>
-                                      <button
-                                        type="button"
-                                        className="ml-2 text-red-500"
-                                        onClick={() =>
-                                          onUpdateState({
-                                            editedTags:
-                                              editState.editedTags.filter(
-                                                (t) => t !== tag
-                                              ),
-                                          })
-                                        }
-                                      >
-                                        ✖
-                                      </button>
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                        </div>
+                      <div className="col-span-3 space-y-2 w-[400px] flex">
+                        <SearchAndAddSelector
+                          options={uniqueTags}
+                          selected={editState.editedTags}
+                          onChange={(tags) =>
+                            onUpdateState({ editedTags: tags })
+                          }
+                          placeholder="Search or create tags..."
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Save tags"
+                          onClick={() => {
+                            onSaveTags(task, editState.editedTags);
+                            onUpdateState({ isEditingTags: false });
+                          }}
+                        >
+                          <CheckIcon className="h-4 w-4 text-green-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="cancel"
+                          onClick={() => {
+                            onUpdateState({
+                              isEditingTags: false,
+                              editedTags: task.tags || [],
+                            });
+                          }}
+                        >
+                          <XIcon className="h-4 w-4 text-red-500" />
+                        </Button>
                       </div>
                     ) : (
                       <div className="flex items-center flex-wrap">
@@ -1339,7 +1275,6 @@ export const TaskDialog = ({
                             onUpdateState({
                               isEditingTags: true,
                               editedTags: task.tags || [],
-                              editTagInput: '',
                             })
                           }
                         >
@@ -1448,6 +1383,7 @@ export const TaskDialog = ({
                     {editState.isEditingRecur ? (
                       <div className="flex items-center gap-2">
                         <Select
+                          data-testid="recur-select"
                           value={editState.editedRecur || 'none'}
                           onValueChange={(value) =>
                             onUpdateState({ editedRecur: value })

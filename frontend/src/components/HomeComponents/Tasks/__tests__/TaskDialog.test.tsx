@@ -9,6 +9,45 @@ jest.mock('react-copy-to-clipboard', () => ({
   ),
 }));
 
+jest.mock('../SearchAndAddSelector', () => ({
+  SearchAndAddSelector: ({ options, selected, onChange, placeholder }: any) => (
+    <div data-testid="search-and-add-selector">
+      <button data-testid="multi-select-trigger" onClick={() => {}}>
+        {selected.length === 0
+          ? placeholder
+          : selected.map((tag: string) => (
+              <span key={tag} data-testid={`tag-${tag}`}>
+                {tag}
+                <button
+                  data-testid={`remove-${tag}`}
+                  onClick={() =>
+                    onChange(selected.filter((t: string) => t !== tag))
+                  }
+                >
+                  ✖
+                </button>
+              </span>
+            ))}
+      </button>
+      <div data-testid="options-list">
+        {options.map((opt: string) => (
+          <div
+            key={opt}
+            data-testid={`option-${opt}`}
+            onClick={() => {
+              if (!selected.includes(opt)) {
+                onChange([...selected, opt]);
+              }
+            }}
+          >
+            {opt}
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+}));
+
 describe('TaskDialog Component', () => {
   const mockTask: Task = {
     id: 1,
@@ -49,7 +88,6 @@ describe('TaskDialog Component', () => {
     editedPriority: mockTask.priority,
     editedProject: mockTask.project,
     editedTags: mockTask.tags,
-    editTagInput: '',
     isEditingPriority: false,
     isEditingProject: false,
     isEditingTags: false,
@@ -90,6 +128,7 @@ describe('TaskDialog Component', () => {
     uniqueProjects: [],
     isCreatingNewProject: false,
     setIsCreatingNewProject: jest.fn(),
+    uniqueTags: [],
     onSaveDescription: jest.fn(),
     onSaveTags: jest.fn(),
     onSavePriority: jest.fn(),
@@ -323,93 +362,61 @@ describe('TaskDialog Component', () => {
   });
 
   describe('Tags Editing', () => {
-    test('should display existing tags', () => {
+    test('should display existing tags as badges', () => {
       render(<TaskDialog {...defaultProps} isOpen={true} />);
 
       expect(screen.getByText('tag1')).toBeInTheDocument();
       expect(screen.getByText('tag2')).toBeInTheDocument();
     });
 
-    test('should enable tags editing mode', () => {
-      render(<TaskDialog {...defaultProps} isOpen={true} />);
-
-      const tagsRow = screen.getByText('Tags:').closest('tr');
-      const editButton = tagsRow?.querySelector('button');
-
-      if (editButton) {
-        fireEvent.click(editButton);
-        expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
-          isEditingTags: true,
-          editedTags: mockTask.tags || [],
-          editTagInput: '',
-        });
-      }
-    });
-
-    test('should add new tag on Enter key press', () => {
+    test('should call onSaveTags with modified tags when save is clicked', () => {
       const editingState = {
         ...mockEditState,
         isEditingTags: true,
-        editTagInput: 'newtag',
-        editedTags: ['tag1', 'tag2'],
+        editedTags: ['tag1', 'tag2', 'newTag'],
       };
 
       render(
         <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
-      const input = screen.getByPlaceholderText(
-        'Add a tag (press enter to add)'
-      );
-      fireEvent.keyDown(input, { key: 'Enter' });
+      const saveButton = screen.getByRole('button', { name: /save tags/i });
+      fireEvent.click(saveButton);
 
+      expect(defaultProps.onSaveTags).toHaveBeenCalledWith(mockTask, [
+        'tag1',
+        'tag2',
+        'newTag',
+      ]);
       expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
-        editedTags: ['tag1', 'tag2', 'newtag'],
-        editTagInput: '',
+        isEditingTags: false,
       });
     });
 
-    test('should remove tag when X button is clicked', () => {
+    test('should reset tags to original when cancel is clicked', () => {
       const editingState = {
         ...mockEditState,
         isEditingTags: true,
         editedTags: ['tag1', 'tag2'],
       };
-
-      render(
-        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
-      );
-
-      const removeButtons = screen.getAllByText('✖');
-      if (removeButtons.length > 0) {
-        fireEvent.click(removeButtons[0]);
-        expect(defaultProps.onUpdateState).toHaveBeenCalled();
-      }
-    });
-
-    test('should save tags when check icon is clicked', () => {
-      const editingState = {
-        ...mockEditState,
-        isEditingTags: true,
-        editedTags: ['tag1', 'tag2', 'tag3'],
+      const propsWithUniqueTags = {
+        ...defaultProps,
+        uniqueTags: ['tag1', 'tag2', 'newTag'],
+        editState: editingState,
       };
 
-      render(
-        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
-      );
+      render(<TaskDialog {...propsWithUniqueTags} isOpen={true} />);
 
-      const saveButton = screen
-        .getAllByRole('button')
-        .find((btn) => btn.getAttribute('aria-label') === 'Save tags');
+      const optionButton = screen.getByTestId('option-newTag');
+      fireEvent.click(optionButton);
 
-      if (saveButton) {
-        fireEvent.click(saveButton);
-        expect(defaultProps.onSaveTags).toHaveBeenCalledWith(mockTask, [
-          'tag1',
-          'tag2',
-          'tag3',
-        ]);
-      }
+      const cancelButton = screen.getByRole('button', { name: /cancel/i });
+      fireEvent.click(cancelButton);
+
+      expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
+        isEditingTags: false,
+        editedTags: mockTask.tags,
+      });
     });
   });
 

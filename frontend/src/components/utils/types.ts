@@ -72,7 +72,6 @@ export interface EditTaskState {
   editedDescription: string;
   isEditingTags: boolean;
   editedTags: string[];
-  editTagInput: string;
   isEditingPriority: boolean;
   editedPriority: string;
   isEditingProject: boolean;
@@ -119,12 +118,11 @@ export interface AddTaskDialogProps {
   setIsOpen: (value: boolean) => void;
   newTask: TaskFormData;
   setNewTask: (task: TaskFormData) => void;
-  tagInput: string;
-  setTagInput: (value: string) => void;
   onSubmit: (task: TaskFormData) => void;
+  uniqueProjects: string[];
   isCreatingNewProject: boolean;
   setIsCreatingNewProject: (value: boolean) => void;
-  uniqueProjects: string[];
+  uniqueTags: string[];
   allTasks?: Task[];
 }
 
@@ -143,6 +141,7 @@ export interface EditTaskDialogProps {
   uniqueProjects: string[];
   isCreatingNewProject: boolean;
   setIsCreatingNewProject: (value: boolean) => void;
+  uniqueTags: string[];
   onSaveDescription: (task: Task, description: string) => void;
   onSaveTags: (task: Task, tags: string[]) => void;
   onSavePriority: (task: Task, priority: string) => void;

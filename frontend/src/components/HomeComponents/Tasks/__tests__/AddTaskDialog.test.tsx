@@ -30,11 +30,10 @@ jest.mock('@/components/ui/date-picker', () => ({
 
 jest.mock('@/components/ui/select', () => {
   return {
-    Select: ({ children, onValueChange, value }: any) => {
-      // Create a simple select element that calls onValueChange when changed
+    Select: ({ children, onValueChange, value, ...props }: any) => {
       return (
         <select
-          data-testid="project-select"
+          {...props}
           value={value || ''}
           onChange={(e) => onValueChange?.(e.target.value)}
         >
@@ -42,9 +41,9 @@ jest.mock('@/components/ui/select', () => {
         </select>
       );
     },
-    SelectTrigger: ({ children, 'data-testid': dataTestId, ...props }: any) => (
-      <div {...props}>{children}</div>
-    ),
+    SelectTrigger: ({ children, ...props }: any) => {
+      return <div {...props}>{children}</div>;
+    },
     SelectValue: ({ placeholder }: any) => (
       <option value="" disabled>
         {placeholder}
@@ -58,6 +57,45 @@ jest.mock('@/components/ui/select', () => {
     ),
   };
 });
+
+jest.mock('../SearchAndAddSelector', () => ({
+  SearchAndAddSelector: ({ options, selected, onChange, placeholder }: any) => (
+    <div data-testid="search-and-add-selector">
+      <button data-testid="multi-select-trigger" onClick={() => {}}>
+        {selected.length === 0
+          ? placeholder
+          : selected.map((tag: string) => (
+              <span key={tag} data-testid={`tag-${tag}`}>
+                {tag}
+                <button
+                  data-testid={`remove-${tag}`}
+                  onClick={() =>
+                    onChange(selected.filter((t: string) => t !== tag))
+                  }
+                >
+                  ✖
+                </button>
+              </span>
+            ))}
+      </button>
+      <div data-testid="options-list">
+        {options.map((opt: string) => (
+          <div
+            key={opt}
+            data-testid={`option-${opt}`}
+            onClick={() => {
+              if (!selected.includes(opt)) {
+                onChange([...selected, opt]);
+              }
+            }}
+          >
+            {opt}
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+}));
 
 describe('AddTaskDialog Component', () => {
   let mockProps: any;
@@ -81,13 +119,12 @@ describe('AddTaskDialog Component', () => {
         depends: [],
       },
       setNewTask: jest.fn(),
-      tagInput: '',
-      setTagInput: jest.fn(),
       onSubmit: jest.fn(),
       uniqueProjects: [],
-      allTasks: [],
       isCreatingNewProject: false,
       setIsCreatingNewProject: jest.fn(),
+      uniqueTags: [],
+      allTasks: [],
     };
   });
 
@@ -298,43 +335,39 @@ describe('AddTaskDialog Component', () => {
   });
 
   describe('Tags', () => {
-    test('adds a tag when user types and presses Enter', () => {
+    beforeEach(() => {
       mockProps.isOpen = true;
-      mockProps.tagInput = 'urgent';
+      mockProps.uniqueTags = ['work', 'personal', 'urgent'];
+    });
+
+    test('adds tag when option is clicked', () => {
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagsInput = screen.getByPlaceholderText(/add a tag/i);
-
-      fireEvent.keyDown(tagsInput, { key: 'Enter', code: 'Enter' });
+      const workOption = screen.getByTestId('option-work');
+      fireEvent.click(workOption);
 
       expect(mockProps.setNewTask).toHaveBeenCalledWith({
         ...mockProps.newTask,
-        tags: ['urgent'],
+        tags: ['work'],
       });
-
-      expect(mockProps.setTagInput).toHaveBeenCalledWith('');
     });
 
     test('does not add duplicate tags', () => {
-      mockProps.isOpen = true;
-      mockProps.tagInput = 'urgent';
-      mockProps.newTask.tags = ['urgent'];
+      mockProps.newTask.tags = ['work'];
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagsInput = screen.getByPlaceholderText(/add a tag/i);
-      fireEvent.keyDown(tagsInput, { key: 'Enter', code: 'Enter' });
+      const workOption = screen.getByTestId('option-work');
+      fireEvent.click(workOption);
 
       expect(mockProps.setNewTask).not.toHaveBeenCalled();
     });
 
-    test('removes a tag when user clicks the remove button', () => {
-      mockProps.isOpen = true;
+    test('removes a tag when remove button is clicked', () => {
       mockProps.newTask.tags = ['urgent', 'important'];
       render(<AddTaskdialog {...mockProps} />);
 
-      const removeButtons = screen.getAllByText('✖');
-
-      fireEvent.click(removeButtons[0]);
+      const removeButton = screen.getByTestId('remove-urgent');
+      fireEvent.click(removeButton);
 
       expect(mockProps.setNewTask).toHaveBeenCalledWith({
         ...mockProps.newTask,
@@ -343,33 +376,19 @@ describe('AddTaskDialog Component', () => {
     });
 
     test('displays tags as badges', () => {
-      mockProps.isOpen = true;
       mockProps.newTask.tags = ['urgent', 'work'];
       render(<AddTaskdialog {...mockProps} />);
 
-      expect(screen.getByText('urgent')).toBeInTheDocument();
-      expect(screen.getByText('work')).toBeInTheDocument();
+      expect(screen.getByTestId('tag-urgent')).toBeInTheDocument();
+      expect(screen.getByTestId('tag-work')).toBeInTheDocument();
     });
 
-    test('updates tagInput when user types in tag field', () => {
-      mockProps.isOpen = true;
+    test('displays unique tags in options', () => {
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagsInput = screen.getByPlaceholderText(/add a tag/i);
-      fireEvent.change(tagsInput, { target: { value: 'new-tag' } });
-
-      expect(mockProps.setTagInput).toHaveBeenCalledWith('new-tag');
-    });
-
-    test('does not add empty tag when tagInput is empty', () => {
-      mockProps.isOpen = true;
-      mockProps.tagInput = '';
-      render(<AddTaskdialog {...mockProps} />);
-
-      const tagsInput = screen.getByPlaceholderText(/add a tag/i);
-      fireEvent.keyDown(tagsInput, { key: 'Enter', code: 'Enter' });
-
-      expect(mockProps.setNewTask).not.toHaveBeenCalled();
+      expect(screen.getByTestId('option-work')).toBeInTheDocument();
+      expect(screen.getByTestId('option-personal')).toBeInTheDocument();
+      expect(screen.getByTestId('option-urgent')).toBeInTheDocument();
     });
   });
 

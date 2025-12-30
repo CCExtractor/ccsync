@@ -105,11 +105,7 @@ export const Tasks = (
   const [isCreatingNewProject, setIsCreatingNewProject] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [_isDialogOpen, setIsDialogOpen] = useState(false);
-  const [tagInput, setTagInput] = useState('');
   const [_selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [editedTags, setEditedTags] = useState<string[]>(
-    _selectedTask?.tags || []
-  );
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
@@ -198,11 +194,6 @@ export const Tasks = (
       setTasksPerPage(parseInt(storedTasksPerPage, 10));
     }
   }, [props.email]);
-  useEffect(() => {
-    if (_selectedTask) {
-      setEditedTags(_selectedTask.tags || []);
-    }
-  }, [_selectedTask]);
 
   useEffect(() => {
     const hashedKey = hashKey('lastSyncTime', props.email);
@@ -851,11 +842,16 @@ export const Tasks = (
   ]);
 
   const handleSaveTags = (task: Task, tags: string[]) => {
-    const currentTags = tags || [];
-    const removedTags = currentTags.filter((tag) => !editedTags.includes(tag));
-    const updatedTags = editedTags.filter((tag) => tag.trim() !== '');
-    const tagsToRemove = removedTags.map((tag) => `${tag}`);
-    const finalTags = [...updatedTags, ...tagsToRemove];
+    const originalTags = task.tags || [];
+    const finalTags = (tags || []).filter((tag) => tag.trim() !== '');
+    const tagsToAdd = finalTags.filter((tag) => !originalTags.includes(tag));
+    const tagsToRemove = originalTags
+      .filter((tag) => !finalTags.includes(tag))
+      .map((tag) => `-${tag}`);
+
+    const tagOperations = [...tagsToAdd, ...tagsToRemove];
+
+    task.tags = finalTags;
 
     setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
@@ -864,7 +860,7 @@ export const Tasks = (
       props.encryptionSecret,
       props.UUID,
       task.description,
-      finalTags,
+      tagOperations,
       task.uuid.toString(),
       task.project,
       task.start,
@@ -1123,12 +1119,11 @@ export const Tasks = (
                         setIsOpen={setIsAddTaskOpen}
                         newTask={newTask}
                         setNewTask={setNewTask}
-                        tagInput={tagInput}
-                        setTagInput={setTagInput}
                         onSubmit={handleAddTask}
+                        uniqueProjects={uniqueProjects}
                         isCreatingNewProject={isCreatingNewProject}
                         setIsCreatingNewProject={setIsCreatingNewProject}
-                        uniqueProjects={uniqueProjects}
+                        uniqueTags={uniqueTags}
                         allTasks={tasks}
                       />
                     </div>
@@ -1255,6 +1250,7 @@ export const Tasks = (
                             uniqueProjects={uniqueProjects}
                             isCreatingNewProject={isCreatingNewProject}
                             setIsCreatingNewProject={setIsCreatingNewProject}
+                            uniqueTags={uniqueTags}
                             onSaveDescription={handleSaveDescription}
                             onSaveTags={handleSaveTags}
                             onSavePriority={handleSavePriority}
@@ -1433,12 +1429,11 @@ export const Tasks = (
                         setIsOpen={setIsAddTaskOpen}
                         newTask={newTask}
                         setNewTask={setNewTask}
-                        tagInput={tagInput}
-                        setTagInput={setTagInput}
                         onSubmit={handleAddTask}
+                        uniqueProjects={uniqueProjects}
                         isCreatingNewProject={isCreatingNewProject}
                         setIsCreatingNewProject={setIsCreatingNewProject}
-                        uniqueProjects={uniqueProjects}
+                        uniqueTags={uniqueTags}
                         allTasks={tasks}
                       />
                     </div>

@@ -24,18 +24,18 @@ import {
 } from '@/components/ui/select';
 import { AddTaskDialogProps } from '@/components/utils/types';
 import { format } from 'date-fns';
+import { SearchAndAddSelector } from './SearchAndAddSelector';
 
 export const AddTaskdialog = ({
   isOpen,
   setIsOpen,
   newTask,
   setNewTask,
-  tagInput,
-  setTagInput,
   onSubmit,
   isCreatingNewProject,
   setIsCreatingNewProject,
   uniqueProjects = [],
+  uniqueTags = [],
   allTasks = [],
 }: AddTaskDialogProps) => {
   const [annotationInput, setAnnotationInput] = useState('');
@@ -99,20 +99,6 @@ export const AddTaskdialog = ({
       annotations: newTask.annotations.filter(
         (annotation) => annotation !== annotationToRemove
       ),
-    });
-  };
-
-  const handleAddTag = () => {
-    if (tagInput && !newTask.tags.includes(tagInput, 0)) {
-      setNewTask({ ...newTask, tags: [...newTask.tags, tagInput] });
-      setTagInput('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setNewTask({
-      ...newTask,
-      tags: newTask.tags.filter((tag) => tag !== tagToRemove),
     });
   };
 
@@ -194,6 +180,7 @@ export const AddTaskdialog = ({
             </Label>
             <div className="col-span-3 space-y-2">
               <Select
+                data-testid="project-select"
                 value={
                   isCreatingNewProject ? '__CREATE_NEW__' : newTask.project
                 }
@@ -210,7 +197,7 @@ export const AddTaskdialog = ({
                   }
                 }}
               >
-                <SelectTrigger id="project" data-testid="project-select">
+                <SelectTrigger id="project">
                   <SelectValue
                     placeholder={
                       uniqueProjects.length
@@ -376,44 +363,18 @@ export const AddTaskdialog = ({
               </select>
             </div>
           </div>
-          <div className="grid grid-cols-8 items-center gap-4">
-            <Label htmlFor="tags" className="text-right col-span-2">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="tags" className="text-right">
               Tags
             </Label>
-            <div className="col-span-6">
-              <Input
-                id="tags"
-                name="tags"
-                placeholder="Add a tag"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
-                required
-                className="col-span-6"
+            <div className="col-span-3 space-y-2">
+              <SearchAndAddSelector
+                options={uniqueTags}
+                selected={newTask.tags}
+                onChange={(tags) => setNewTask({ ...newTask, tags })}
+                placeholder="Search or create tag.."
               />
             </div>
-          </div>
-
-          <div className="mt-2">
-            {newTask.tags.length > 0 && (
-              <div className="grid grid-cols-4 items-center">
-                <div> </div>
-                <div className="flex flex-wrap gap-2 col-span-3">
-                  {newTask.tags.map((tag, index) => (
-                    <Badge key={index}>
-                      <span>{tag}</span>
-                      <button
-                        type="button"
-                        className="ml-2 text-red-500"
-                        onClick={() => handleRemoveTag(tag)}
-                      >
-                        ✖
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
           <div className="grid grid-cols-8 items-center gap-4">
             <Label htmlFor="annotations" className="text-right col-span-2">
