@@ -6,7 +6,6 @@ export const useTaskAutoSync = (props: AutoSyncProps) => {
   const { isLoading, setIsLoading, isAutoSyncEnabled, syncInterval } = props;
   const handleSync = useCallback(async () => {
     if (isLoading) {
-      console.log('Auto-sync: Sync already in progress, skipping.');
       return;
     }
     setIsLoading(true);
@@ -23,7 +22,6 @@ export const useTaskAutoSync = (props: AutoSyncProps) => {
     let intervalId: NodeJS.Timeout | undefined = undefined;
     if (isAutoSyncEnabled) {
       intervalId = setInterval(() => {
-        console.log('Auto-sync: Triggering periodic sync...');
         handleSync();
       }, syncInterval);
     }

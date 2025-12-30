@@ -92,7 +92,15 @@ export const deleteAllTasks = async (props: Props) => {
       draggable: true,
     });
 
-    console.log(`Deleted ${taskCount} tasks for email: ${props.email}`);
+    toast.update(loadingToastId, {
+      render: `All ${taskCount} tasks for ${props.email} deleted successfully!`,
+      type: 'success',
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
   } catch (error) {
     toast.update(loadingToastId, {
       render: `Error deleting tasks for ${props.email}: ${error}`,

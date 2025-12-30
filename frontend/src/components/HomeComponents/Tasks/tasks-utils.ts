@@ -38,7 +38,7 @@ export const markTaskAsCompleted = async (
     });
 
     if (response) {
-      console.log('Task marked as completed successfully!');
+      // Task marked as completed successfully
     } else {
       console.error('Failed to mark task as completed');
     }
@@ -70,7 +70,6 @@ export const bulkMarkTasksAsCompleted = async (
     });
 
     if (response.ok) {
-      console.log('Bulk completion successful!');
       toast.success(
         `${taskUUIDs.length} ${taskUUIDs.length === 1 ? 'task' : 'tasks'} marked as completed.`
       );
@@ -110,7 +109,6 @@ export const bulkMarkTasksAsDeleted = async (
     });
 
     if (response.ok) {
-      console.log('Bulk deletion successful!');
       toast.success(
         `${taskUUIDs.length} ${taskUUIDs.length === 1 ? 'task' : 'tasks'} deleted.`
       );
@@ -147,7 +145,7 @@ export const markTaskAsDeleted = async (
     });
 
     if (response) {
-      console.log('Task marked as deleted successfully!');
+      // Task marked as deleted successfully
     } else {
       console.error('Failed to mark task as deleted');
     }
