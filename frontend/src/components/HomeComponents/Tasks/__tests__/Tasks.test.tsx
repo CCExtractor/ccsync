@@ -1102,11 +1102,11 @@ describe('Tasks Component', () => {
   });
 
   test.each([
-    ['Wait', 'Wait:', 'Pick a date'],
-    ['End', 'End:', 'Select end date'],
-    ['Due', 'Due:', 'Select due date'],
-    ['Start', 'Start:', 'Pick a date'],
-    ['Entry', 'Entry:', 'Pick a date'],
+    ['Wait', 'Wait:', 'Select wait date and time'],
+    ['End', 'End:', 'Select end date and time'],
+    ['Due', 'Due:', 'Select due date and time'],
+    ['Start', 'Start:', 'Select start date and time'],
+    ['Entry', 'Entry:', 'Select entry date and time'],
   ])('shows red when task %s date is edited', async (_, label, placeholder) => {
     render(<Tasks {...mockProps} />);
 
@@ -1135,8 +1135,14 @@ describe('Tasks Component', () => {
     });
 
     const dialog = screen.getByRole('dialog');
-    const day15 = within(dialog).getByText('15');
-    fireEvent.click(day15);
+    // Find the calendar day button (gridcell with name="day"), not the time picker button
+    const day15Button = within(dialog)
+      .getAllByRole('gridcell')
+      .find((el) => el.textContent === '15' && el.getAttribute('name') === 'day');
+    if (!day15Button) {
+      throw new Error('Could not find calendar day button with value 15');
+    }
+    fireEvent.click(day15Button);
 
     const saveButton = screen.getByLabelText('save');
     fireEvent.click(saveButton);
