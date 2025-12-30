@@ -1,7 +1,6 @@
 import { EditTaskDialogProps } from '../../utils/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import {
   Dialog,
