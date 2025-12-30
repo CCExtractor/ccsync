@@ -1103,7 +1103,7 @@ describe('Tasks Component', () => {
 
   test.each([
     ['Wait', 'Wait:', 'Pick a date'],
-    ['End', 'End:', 'Select end date'],
+    ['End', 'End:', 'Select end date and time'],
     ['Due', 'Due:', 'Select due date and time'],
     ['Start', 'Start:', 'Select start date and time'],
     ['Entry', 'Entry:', 'Pick a date'],

@@ -432,7 +432,7 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingEndDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           date={
                             editState.editedEndDate &&
                             editState.editedEndDate !== ''
@@ -440,11 +440,9 @@ export const TaskDialog = ({
                                   try {
                                     const dateStr =
                                       editState.editedEndDate.includes('T')
-                                        ? editState.editedEndDate.split('T')[0]
-                                        : editState.editedEndDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                        ? editState.editedEndDate
+                                        : editState.editedEndDate + 'T00:00:00';
+                                    const parsed = new Date(dateStr);
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -454,14 +452,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) =>
                             onUpdateState({
                               editedEndDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
                             })
                           }
-                          placeholder="Select end date"
+                          placeholder="Select end date and time"
                         />
                         <Button
                           variant="ghost"
@@ -498,11 +498,7 @@ export const TaskDialog = ({
                           onClick={() => {
                             onUpdateState({
                               isEditingEndDate: true,
-                              editedEndDate: task.end
-                                ? task.end.includes('T')
-                                  ? task.end.split('T')[0]
-                                  : task.end
-                                : '',
+                              editedEndDate: task.end || '',
                             });
                           }}
                         >
