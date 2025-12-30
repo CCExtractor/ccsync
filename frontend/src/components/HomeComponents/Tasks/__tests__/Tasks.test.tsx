@@ -1104,7 +1104,7 @@ describe('Tasks Component', () => {
   test.each([
     ['Wait', 'Wait:', 'Pick a date'],
     ['End', 'End:', 'Select end date'],
-    ['Due', 'Due:', 'Select due date'],
+    ['Due', 'Due:', 'Select due date and time'],
     ['Start', 'Start:', 'Select start date and time'],
     ['Entry', 'Entry:', 'Pick a date'],
   ])('shows red when task %s date is edited', async (_, label, placeholder) => {

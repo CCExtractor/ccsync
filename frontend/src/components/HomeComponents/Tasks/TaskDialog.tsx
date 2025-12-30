@@ -266,7 +266,7 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingDueDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           date={
                             editState.editedDueDate &&
                             editState.editedDueDate !== ''
@@ -274,11 +274,9 @@ export const TaskDialog = ({
                                   try {
                                     const dateStr =
                                       editState.editedDueDate.includes('T')
-                                        ? editState.editedDueDate.split('T')[0]
-                                        : editState.editedDueDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                        ? editState.editedDueDate
+                                        : editState.editedDueDate + 'T00:00:00';
+                                    const parsed = new Date(dateStr);
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -288,14 +286,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) =>
                             onUpdateState({
                               editedDueDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
                             })
                           }
-                          placeholder="Select due date"
+                          placeholder="Select due date and time"
                         />
                         <Button
                           variant="ghost"
@@ -332,11 +332,7 @@ export const TaskDialog = ({
                           onClick={() => {
                             onUpdateState({
                               isEditingDueDate: true,
-                              editedDueDate: task.due
-                                ? task.due.includes('T')
-                                  ? task.due.split('T')[0]
-                                  : task.due
-                                : '',
+                              editedDueDate: task.due || '',
                             });
                           }}
                         >
