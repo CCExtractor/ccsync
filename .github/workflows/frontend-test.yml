@@ -12,6 +12,10 @@ on:
 jobs:
   test-and-coverage:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # to add comments to the PRs
+      contents: read
+
     steps:
       - uses: actions/checkout@v4
 
@@ -23,15 +27,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: frontend
-
+      
+      # 1. RUN ONLY TESTS ON PUSH
+      - name: Run frontend tests
+        if: github.event_name == 'push'
+        run: npm test
+        working-directory: frontend
+        
+      # 2. RUN COVERAGE ON PRs
       - name: Run jest with coverage
-        run: npm run coverage
+        if: github.event_name == 'pull_request'
+        run: npx jest --coverage --coverageReporters json-summary
         working-directory: frontend
 
-      - name: Save coverage Artifact for the Workflow
+      # 3. POST COMMENT ON PR
+      - name: Jest Coverage Comment
         if: >
           github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v4
+        uses: MishaKav/jest-coverage-comment@main
         with:
-          name: jest-coverage
-          path: frontend/coverage
+          coverage-summary-path: ./frontend/coverage/coverage-summary.json
+          title: Frontend Coverage Report
