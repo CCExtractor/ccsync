@@ -787,7 +787,10 @@ export const TaskDialog = ({
                             })
                           }
                         >
-                          <SelectTrigger className="flex-grow mr-2">
+                          <SelectTrigger
+                            className="flex-grow mr-2"
+                            data-testid="priority-select"
+                          >
                             <SelectValue placeholder="Select priority" />
                           </SelectTrigger>
                           <SelectContent>
@@ -1221,7 +1224,10 @@ export const TaskDialog = ({
                             onUpdateState({ editedRecur: value })
                           }
                         >
-                          <SelectTrigger className="flex-grow">
+                          <SelectTrigger
+                            className="flex-grow"
+                            data-testid="recur-select"
+                          >
                             <SelectValue placeholder="Select recurrence" />
                           </SelectTrigger>
                           <SelectContent>
@@ -1449,6 +1455,7 @@ export const TaskDialog = ({
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() =>
                             onUpdateState({
                               isEditingAnnotations: true,

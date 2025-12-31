@@ -76,7 +76,7 @@ export const Tasks = (
   const status = ['pending', 'completed', 'deleted', 'overdue'];
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const [newTask, setNewTask] = useState<TaskFormData>({
     description: '',
