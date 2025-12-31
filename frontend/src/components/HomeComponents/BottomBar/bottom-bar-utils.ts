@@ -6,13 +6,13 @@ export interface RouteProps {
 }
 
 export interface BottomBarProps {
-  projects: string[];
+  projects: string[] | { label: string; value: string }[];
   selectedProjects: string[];
   setSelectedProject: Dispatch<SetStateAction<string[]>>;
-  status: string[];
+  status: string[] | { label: string; value: string }[];
   selectedStatuses: string[];
   setSelectedStatus: Dispatch<SetStateAction<string[]>>;
-  tags: string[];
+  tags: string[] | { label: string; value: string }[];
   selectedTags: string[];
   setSelectedTag: Dispatch<SetStateAction<string[]>>;
 }

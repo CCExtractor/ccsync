@@ -19,10 +19,15 @@ import {
 
 const ALL_ITEMS_VALUE = '__ALL__';
 
+interface Option {
+  label: string;
+  value: string;
+}
+
 interface MultiSelectFilterProps {
   id?: string;
   title: string;
-  options: string[];
+  options: Option[] | string[];
   selectedValues: string[];
   onSelectionChange: (values: string[]) => void;
   className?: string;
@@ -51,6 +56,13 @@ export function MultiSelectFilter({
       : [...selectedValues, value];
     onSelectionChange(newSelectedValues);
   };
+
+  const normalizedOptions: Option[] = options.map((option) => {
+    if (typeof option === 'string') {
+      return { label: option, value: option };
+    }
+    return option;
+  });
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -88,12 +100,12 @@ export function MultiSelectFilter({
               >
                 All {title}
               </CommandItem>
-              {options.map((option) => {
-                const isSelected = selectedValues.includes(option);
+              {normalizedOptions.map((option) => {
+                const isSelected = selectedValues.includes(option.value);
                 return (
                   <CommandItem
-                    key={option}
-                    onSelect={() => handleSelect(option)}
+                    key={option.value}
+                    onSelect={() => handleSelect(option.value)}
                   >
                     <Check
                       className={cn(
@@ -101,7 +113,7 @@ export function MultiSelectFilter({
                         isSelected ? 'opacity-100' : 'opacity-0'
                       )}
                     />
-                    {option}
+                    {option.label}
                   </CommandItem>
                 );
               })}
