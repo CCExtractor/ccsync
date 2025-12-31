@@ -183,8 +183,6 @@ export const formattedDate = (dateString: string) => {
 };
 
 export const parseTaskwarriorDate = (dateString: string) => {
-  // Taskwarrior date format: YYYYMMDDTHHMMSSZ
-
   if (!dateString) return null;
 
   const year = dateString.substring(0, 4);

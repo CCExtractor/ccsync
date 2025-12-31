@@ -70,7 +70,7 @@ export const TaskDialog = ({
 }: EditTaskDialogProps) => {
   const handleDialogOpenChange = (open: boolean) => {
     if (open) {
-      onSelectTask(task, index); // Notify parent that this task is selected
+      onSelectTask(task, index);
     }
     onOpenChange(open);
   };
@@ -763,7 +763,7 @@ export const TaskDialog = ({
                               onUpdateState({
                                 isEditingDepends: false,
                                 dependsDropdownOpen: false,
-                                editedDepends: task.depends || [], // reset back to original
+                                editedDepends: task.depends || [],
                               });
                             }}
                           >
@@ -1468,7 +1468,6 @@ export const TaskDialog = ({
           </DialogDescription>
         </div>
 
-        {/* Non-scrollable footer */}
         <DialogFooter className="flex flex-row justify-end pt-4">
           {task.status == 'pending' ? (
             <Dialog>

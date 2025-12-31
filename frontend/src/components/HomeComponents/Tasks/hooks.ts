@@ -78,16 +78,14 @@ export const addTaskToBackend = async ({
     tags,
   };
 
-  // Only include due if it's provided
   if (due !== undefined && due !== '') {
     requestBody.due = due;
   }
 
-  // Only include start if it's provided
   if (start !== undefined && start !== '') {
     requestBody.start = start;
   }
-  // Add dependencies if provided
+
   if (depends && depends.length > 0) {
     requestBody.depends = depends;
   }
@@ -96,12 +94,10 @@ export const addTaskToBackend = async ({
     requestBody.end = end;
   }
 
-  // Only include recur if it's provided
   if (recur !== undefined && recur !== '') {
     requestBody.recur = recur;
   }
 
-  // Add annotations to request body, filtering out empty descriptions
   requestBody.annotations = annotations.filter(
     (annotation) =>
       annotation.description && annotation.description.trim() !== ''

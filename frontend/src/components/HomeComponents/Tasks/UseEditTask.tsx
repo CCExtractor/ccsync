@@ -34,7 +34,6 @@ export const useEditTask = (selectedTask: Task | null) => {
     annotationInput: '',
   });
 
-  // Update edited tags when selected task changes
   useEffect(() => {
     if (selectedTask) {
       setState((prev) => ({

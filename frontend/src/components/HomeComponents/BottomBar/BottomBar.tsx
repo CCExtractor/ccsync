@@ -24,7 +24,6 @@ const BottomBar: React.FC<BottomBarProps> = ({
 }) => {
   return (
     <header className="lg:hidden fixed bottom-0 w-full bg-white border-t-[1px] dark:border-b-slate-700 dark:bg-background shadow-lg flex justify-between items-center p-4 z-40">
-      {/* Nav Links */}
       <NavigationMenu className="mx-auto">
         <div className="flex space-x-4 mr-2">
           <nav className="md:flex gap-2 justify-center flex-2">
@@ -51,7 +50,6 @@ const BottomBar: React.FC<BottomBarProps> = ({
           </nav>
         </div>
 
-        {/* Filters */}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" className="w-auto px-3" aria-label="Filter">

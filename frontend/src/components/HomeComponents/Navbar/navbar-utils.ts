@@ -64,7 +64,6 @@ export const deleteAllTasks = async (props: Props) => {
   });
 
   try {
-    // Count tasks first
     const taskCount = await db.tasks.where('email').equals(props.email).count();
 
     // If no tasks, show Red toast

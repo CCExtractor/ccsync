@@ -158,7 +158,6 @@ jest.mock('../hooks', () => ({
 jest.mock('../Pagination', () => {
   return jest.fn((props) => (
     <div data-testid="mock-pagination">
-      {/* Render props to make them testable */}
       <span data-testid="total-pages">{props.totalPages}</span>
       <span data-testid="current-page">{props.currentPage}</span>
     </div>
