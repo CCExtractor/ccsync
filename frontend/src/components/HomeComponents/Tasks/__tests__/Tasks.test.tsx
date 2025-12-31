@@ -1105,7 +1105,7 @@ describe('Tasks Component', () => {
     ['End', 'End:', 'Select end date and time'],
     ['Due', 'Due:', 'Select due date and time'],
     ['Start', 'Start:', 'Select start date and time'],
-    ['Entry', 'Entry:', 'Pick a date'],
+    ['Entry', 'Entry:', 'Select entry date and time'],
   ])('shows red when task %s date is edited', async (_, label, placeholder) => {
     render(<Tasks {...mockProps} />);
 
