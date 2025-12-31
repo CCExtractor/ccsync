@@ -13,7 +13,7 @@ jobs:
   test-and-coverage:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write # to add comments to the PRs
+      # pull-requests: write # to add comments to the PRs
       contents: read
 
     steps:
@@ -37,14 +37,24 @@ jobs:
       # 2. RUN COVERAGE ON PRs
       - name: Run jest with coverage
         if: github.event_name == 'pull_request'
-        run: npx jest --coverage --coverageReporters json-summary
+        run: npx jest --coverage --coverageReporters=cobertura
         working-directory: frontend
 
-      # 3. POST COMMENT ON PR
-      - name: Jest Coverage Comment
-        if: >
-          github.event_name == 'pull_request'
-        uses: MishaKav/jest-coverage-comment@main
+      # # 3. POST COMMENT ON PR
+      # - name: Jest Coverage Comment
+      #   if: >
+      #     github.event_name == 'pull_request'
+      #   uses: MishaKav/jest-coverage-comment@main
+      #   with:
+      #     coverage-summary-path: ./frontend/coverage/coverage-summary.json
+      #     title: Frontend Coverage Report
+
+      # 3. WRITE COVERAGE SUMMARY TO CHECKS
+      - name: Write Summary from File
+        if: github.event_name == 'pull_request'
+        uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          coverage-summary-path: ./frontend/coverage/coverage-summary.json
-          title: Frontend Coverage Report
+          filename: frontend/coverage/cobertura-coverage.xml
+          badge: true
+          format: markdown
+          output: both
