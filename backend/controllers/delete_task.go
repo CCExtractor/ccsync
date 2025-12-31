@@ -47,10 +47,6 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// if err := tw.DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid); err != nil {
-		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 	return
-		// }
 		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Delete Task",

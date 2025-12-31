@@ -1,4 +1,3 @@
-// import { tasksCollection } from '@/lib/controller';
 import { Task } from '@/components/utils/types';
 import { handleLogout, deleteAllTasks } from '../navbar-utils';
 

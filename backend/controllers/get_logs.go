@@ -39,7 +39,6 @@ func SyncLogsHandler(w http.ResponseWriter, r *http.Request) {
 	logStore := models.GetLogStore()
 	logs := logStore.GetLogs(last)
 
-	// Return logs as JSON
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(logs); err != nil {
 		http.Error(w, "Failed to encode logs", http.StatusInternalServerError)

@@ -1,6 +1,5 @@
 import { toast } from 'react-toastify';
 import {
-  // formattedDate,
   getDisplayedPages,
   handleCopy,
   handleDate,
@@ -71,18 +70,6 @@ describe('sortTasks', () => {
     ]);
   });
 });
-
-// describe('formattedDate', () => {
-//   it('formats valid ISO date string correctly', () => {
-//     const dateString = '2023-06-17T12:00:00Z';
-//     expect(formattedDate(dateString)).toBe('Jun 17, 2023, 5:30:00 PM');
-//   });
-
-//   it('returns input string if date parsing fails', () => {
-//     const invalidDateString = 'invalid-date-string';
-//     expect(formattedDate(invalidDateString)).toBe(invalidDateString);
-//   });
-// });
 
 describe('sortTasksById', () => {
   const tasks: Task[] = [

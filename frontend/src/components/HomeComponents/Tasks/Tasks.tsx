@@ -116,8 +116,6 @@ export const Tasks = (
     resetState: resetEditState,
   } = useEditTask(_selectedTask);
 
-  // Handler for dialog open/close
-
   const debouncedSearch = debounce((value: string) => {
     setDebouncedTerm(value);
     setCurrentPage(1);
@@ -203,7 +201,6 @@ export const Tasks = (
     }
   }, [props.email]);
 
-  // Update the displayed time every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setLastSyncTime((prevTime) => prevTime);
@@ -219,7 +216,6 @@ export const Tasks = (
           .equals(props.email)
           .toArray();
 
-        // Set all tasks
         setTasks(sortTasksById(tasksFromDB, 'desc'));
         setTempTasks(sortTasksById(tasksFromDB, 'desc'));
 
@@ -229,7 +225,6 @@ export const Tasks = (
           .sort((a, b) => (a > b ? 1 : -1));
         setUniqueProjects(filteredProjects);
 
-        //  Extract unique tags
         const tagsSet = new Set(tasksFromDB.flatMap((task) => task.tags || []));
         const filteredTags = Array.from(tagsSet)
           .filter((tag) => tag !== '')
@@ -275,7 +270,6 @@ export const Tasks = (
         setTasks(sortedTasks);
         setTempTasks(sortedTasks);
 
-        // Update unique projects after a successful sync so the Project dropdown is populated
         const projectsSet = new Set(sortedTasks.map((task) => task.project));
         const filteredProjects = Array.from(projectsSet)
           .filter((project) => project !== '')
@@ -283,7 +277,6 @@ export const Tasks = (
         setUniqueProjects(filteredProjects);
       });
 
-      // Store last sync timestamp using hashed key
       const currentTime = Date.now();
       const hashedKey = hashKey('lastSyncTime', user_email);
       localStorage.setItem(hashedKey, currentTime.toString());
@@ -439,7 +432,6 @@ export const Tasks = (
   };
 
   const handleMarkComplete = async (taskuuid: string) => {
-    // Find the task being completed
     const taskToComplete = tasks.find((t) => t.uuid === taskuuid);
     if (!taskToComplete) {
       toast.error('Task not found');
@@ -468,7 +460,6 @@ export const Tasks = (
       }
     }
 
-    // If all dependencies are completed, allow completion
     setUnsyncedTaskUuids((prev) => new Set([...prev, taskuuid]));
 
     await markTaskAsCompleted(
@@ -737,11 +728,9 @@ export const Tasks = (
       const aOverdue = a.status === 'pending' && isOverdue(a.due);
       const bOverdue = b.status === 'pending' && isOverdue(b.due);
 
-      // Overdue always on top
       if (aOverdue && !bOverdue) return -1;
       if (!aOverdue && bOverdue) return 1;
 
-      // Otherwise fall back to ID sort and status sort
       return 0;
     });
   };
@@ -749,14 +738,12 @@ export const Tasks = (
   useEffect(() => {
     let filteredTasks = [...tasks];
 
-    // Project filter
     if (selectedProjects.length > 0) {
       filteredTasks = filteredTasks.filter(
         (task) => task.project && selectedProjects.includes(task.project)
       );
     }
 
-    // Status filter
     if (selectedStatuses.length > 0) {
       filteredTasks = filteredTasks.filter((task) => {
         const isTaskOverdue = task.status === 'pending' && isOverdue(task.due);
@@ -985,7 +972,7 @@ export const Tasks = (
         <Button variant="outline" onClick={() => setShowReports(!showReports)}>
           {showReports ? 'Show Tasks' : 'Show Reports'}
         </Button>
-        {/* Mobile-only Sync button (desktop already shows a Sync button with filters) */}
+        {/* Mobile-only Sync button */}
         <Button
           className="sm:hidden ml-2 relative"
           variant="outline"

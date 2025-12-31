@@ -54,7 +54,6 @@ func Test_OAuthHandler(t *testing.T) {
 
 func Test_OAuthCallbackHandler(t *testing.T) {
 	app := setup()
-	// This part of the test requires mocking the OAuth provider which can be complex. Simplified for demonstration.
 	req, err := http.NewRequest("GET", "/auth/callback?code=testcode", nil)
 	assert.NoError(t, err)
 
@@ -62,14 +61,12 @@ func Test_OAuthCallbackHandler(t *testing.T) {
 	handler := http.HandlerFunc(app.OAuthCallbackHandler)
 	handler.ServeHTTP(rr, req)
 
-	// Since actual OAuth flow can't be tested in unit test, we are focusing on ensuring no panic
 	assert.NotEqual(t, http.StatusInternalServerError, rr.Code)
 }
 
 func Test_UserInfoHandler(t *testing.T) {
 	app := setup()
 
-	// Create a request object to pass to the session store
 	req, err := http.NewRequest("GET", "/api/user", nil)
 	assert.NoError(t, err)
 
@@ -80,7 +77,7 @@ func Test_UserInfoHandler(t *testing.T) {
 		"uuid":              "uuid-test",
 		"encryption_secret": "secret-test",
 	}
-	session.Save(req, httptest.NewRecorder()) // Save the session
+	session.Save(req, httptest.NewRecorder())
 
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(app.UserInfoHandler)
@@ -125,7 +122,6 @@ func Test_LogoutHandler(t *testing.T) {
 }
 
 func Test_AddTaskHandler_WithDueDate(t *testing.T) {
-	// Initialize job queue
 	GlobalJobQueue = NewJobQueue()
 
 	requestBody := map[string]interface{}{
@@ -151,7 +147,6 @@ func Test_AddTaskHandler_WithDueDate(t *testing.T) {
 }
 
 func Test_AddTaskHandler_WithoutDueDate(t *testing.T) {
-	// Initialize job queue
 	GlobalJobQueue = NewJobQueue()
 
 	requestBody := map[string]interface{}{
@@ -197,7 +192,6 @@ func Test_AddTaskHandler_MissingDescription(t *testing.T) {
 	assert.Contains(t, rr.Body.String(), "Description is required")
 }
 
-// Task Dependencies Tests
 func Test_AddTaskHandler_WithDependencies(t *testing.T) {
 	GlobalJobQueue = NewJobQueue()
 
