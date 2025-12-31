@@ -1,4 +1,5 @@
 name: frontend-tests-and-coverage
+
 on:
   push:
     branches:
@@ -7,6 +8,7 @@ on:
     branches:
       - "main"
       - "dev"
+
 jobs:
   test-and-coverage:
     runs-on: ubuntu-latest
@@ -27,8 +29,9 @@ jobs:
         working-directory: frontend
 
       - name: Save coverage Artifact for the Workflow
+        if: >
+          github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
-        with: 
+        with:
           name: jest-coverage
           path: frontend/coverage
-
