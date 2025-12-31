@@ -1,0 +1,34 @@
+name: comment-jest-coverage
+
+on:
+  workflow_run:
+    workflows: ["frontend-tests-and-coverage"]
+    types: [completed]
+
+jobs:
+  coverage-comment:
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+      contents: read
+      issues: write
+
+    steps:
+      - name: download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: jest-coverage
+          path: coverage
+
+      - name: jest coverage comment
+        uses: MishaKav/jest-coverage-comment@v1
+        with:
+          coverage-summary-path: coverage/coverage-summary.json
+          title: Jest Coverage Report
+          create-new-comment: false
+          update-comment: true
+          annotations: true

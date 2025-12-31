@@ -1,4 +1,4 @@
-name: Frontend
+name: frontend-tests-and-coverage
 on:
   push:
     branches:
@@ -8,15 +8,27 @@ on:
       - "main"
       - "dev"
 jobs:
-  prettier:
+  test-and-coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "20.x"
-      - run: npm ci
+
+      - name: Install dependencies
+        run: npm ci
         working-directory: frontend
-      - run: npm test
+
+      - name: Run jest with coverage
+        run: npm run coverage
         working-directory: frontend
+
+      - name: Save coverage Artifact for the Workflow
+        uses: actions/upload-artifact@v4
+        with: 
+          name: jest-coverage
+          path: frontend/coverage
+
