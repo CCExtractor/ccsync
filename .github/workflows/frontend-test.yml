@@ -27,13 +27,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: frontend
-      
+
       # 1. RUN ONLY TESTS ON PUSH
       - name: Run frontend tests
         if: github.event_name == 'push'
         run: npm test
         working-directory: frontend
-        
+
       # 2. RUN COVERAGE ON PRs
       - name: Run jest with coverage
         if: github.event_name == 'pull_request'
