@@ -16,32 +16,32 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks }) => {
   );
 
   const countStatuses = (filterDate: Date) => {
-    return tasks
-      .filter((task) => {
+    return tasks.reduce(
+      (acc, task) => {
+        if (task.status === 'pending' && isOverdue(task.due ?? '')) {
+          acc.overdue += 1;
+          return acc;
+        }
+
         const taskDateStr = task.end || task.due || task.entry;
-        if (!taskDateStr) return false;
+        if (!taskDateStr) return acc;
 
         const parsedDate = parseTaskwarriorDate(taskDateStr);
-        if (!parsedDate) return false;
+        if (!parsedDate) return acc;
 
         const modifiedDate = getStartOfDay(parsedDate);
-        return modifiedDate >= filterDate;
-      })
-      .reduce(
-        (acc, task) => {
-          if (task.status === 'completed') {
-            acc.completed += 1;
-          } else if (task.status === 'pending') {
-            if (isOverdue(task.due)) {
-              acc.overdue += 1;
-            } else {
-              acc.ongoing += 1;
-            }
-          }
-          return acc;
-        },
-        { completed: 0, ongoing: 0, overdue: 0 }
-      );
+        if (modifiedDate < filterDate) return acc;
+
+        if (task.status === 'completed') {
+          acc.completed += 1;
+        } else if (task.status === 'pending') {
+          acc.ongoing += 1;
+        }
+
+        return acc;
+      },
+      { completed: 0, ongoing: 0, overdue: 0 }
+    );
   };
 
   const dailyData = [{ name: 'Today', ...countStatuses(today) }];
