@@ -376,6 +376,7 @@ export const Tasks = (
       setIsAddTaskOpen(false);
     } catch (error) {
       console.error('Failed to edit task:', error);
+      throw error;
     }
   }
 
@@ -655,28 +656,46 @@ export const Tasks = (
     );
   };
 
-  const handleDependsSaveClick = (task: Task, depends: string[]) => {
-    task.depends = depends;
+  const handleDependsSaveClick = async (task: Task, depends: string[]) => {
+    try {
+      setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
-    setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
+      await handleEditTaskOnBackend(
+        props.email,
+        props.encryptionSecret,
+        props.UUID,
+        task.description,
+        task.tags,
+        task.uuid.toString(),
+        task.project,
+        task.start,
+        task.entry || '',
+        task.wait || '',
+        task.end || '',
+        depends,
+        task.due || '',
+        task.recur || '',
+        task.annotations || []
+      );
+    } catch (error) {
+      console.error('Failed to save dependencies:', error);
 
-    handleEditTaskOnBackend(
-      props.email,
-      props.encryptionSecret,
-      props.UUID,
-      task.description,
-      task.tags,
-      task.uuid.toString(),
-      task.project,
-      task.start,
-      task.entry || '',
-      task.wait || '',
-      task.end || '',
-      task.depends,
-      task.due || '',
-      task.recur || '',
-      task.annotations || []
-    );
+      setUnsyncedTaskUuids((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(task.uuid);
+        return newSet;
+      });
+
+      toast.error('Failed to save dependencies. Please try again.', {
+        position: 'bottom-left',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
   };
 
   const handleRecurSaveClick = (task: Task, recur: string) => {

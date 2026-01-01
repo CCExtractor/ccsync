@@ -15,6 +15,8 @@ func ConvertISOToTaskwarriorFormat(isoDatetime string) (string, error) {
 		"2006-01-02T15:04:05.000Z", // "2025-12-27T14:30:00.000Z" (frontend datetime with milliseconds)
 		"2006-01-02T15:04:05Z",     // "2025-12-27T14:30:00Z" (datetime without milliseconds)
 		"2006-01-02",               // "2025-12-27" (date only)
+		"20060102T150405Z",         // "20260128T000000Z" (compact ISO format)
+		"20060102",                 // "20260128" (compact date only)
 	}
 
 	var parsedTime time.Time
@@ -24,8 +26,8 @@ func ConvertISOToTaskwarriorFormat(isoDatetime string) (string, error) {
 	for i, format := range formats {
 		parsedTime, err = time.Parse(format, isoDatetime)
 		if err == nil {
-			// Check if it's date-only format (last format in array)
-			isDateOnly = (i == 2) // "2006-01-02" format
+			// Check if it's date-only format
+			isDateOnly = (i == 2 || i == 4) // "2006-01-02" or "20060102" formats
 			break
 		}
 	}
