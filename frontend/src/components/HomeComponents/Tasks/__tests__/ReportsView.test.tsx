@@ -97,6 +97,9 @@ describe('ReportsView', () => {
     });
 
     it('counts pending tasks with past due date as overdue', () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2023-01-15'));
+
       const todayDate = new Date();
       const today = toTWFormat(todayDate);
 
@@ -119,6 +122,8 @@ describe('ReportsView', () => {
       expect(data[0].overdue).toBe(2);
       expect(data[0].ongoing).toBe(1);
       expect(data[0].completed).toBe(1);
+
+      jest.useRealTimers();
     });
 
     it('treats task with no due date as ongoing', () => {
@@ -235,6 +240,9 @@ describe('ReportsView', () => {
     });
 
     it('handles mixed statuses correctly', () => {
+      jest.useFakeTimers();
+      jest.setSystemTime(new Date('2023-01-15'));
+
       const todayDate = new Date();
       const today = toTWFormat(todayDate);
 
@@ -258,6 +266,8 @@ describe('ReportsView', () => {
       expect(data[0].completed).toBe(1);
       expect(data[0].ongoing).toBe(1);
       expect(data[0].overdue).toBe(1);
+
+      jest.useRealTimers();
     });
   });
 
