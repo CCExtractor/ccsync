@@ -78,8 +78,10 @@ export const HomePage: React.FC = () => {
       try {
         const data = JSON.parse(event.data);
         if (data.status === 'success') {
-          // Refresh tasks after successful operations
-          getTasks(userInfo.email, userInfo.encryption_secret, userInfo.uuid);
+          // Skip refresh for Edit Task to prevent dialog blinking
+          if (data.job !== 'Edit Task') {
+            getTasks(userInfo.email, userInfo.encryption_secret, userInfo.uuid);
+          }
 
           if (data.job === 'Add Task') {
             console.log('Task added successfully');
