@@ -45,6 +45,7 @@ export const useEditTask = (selectedTask: Task | null) => {
         editedRecur: selectedTask.recur || '',
         originalRecur: selectedTask.recur || '',
         editedAnnotations: selectedTask.annotations || [],
+        editedDepends: selectedTask.depends || [],
       }));
     }
   }, [selectedTask]);

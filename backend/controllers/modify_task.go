@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 // ModifyTaskHandler godoc
@@ -61,9 +62,27 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Validate dependencies
-		if err := utils.ValidateDependencies(depends, uuid); err != nil {
-			http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
-			return
+		origin := os.Getenv("CONTAINER_ORIGIN")
+		existingTasks, err := tw.FetchTasksFromTaskwarrior(email, encryptionSecret, origin, uuid)
+		if err != nil {
+			if err := utils.ValidateDependencies(depends, taskUUID); err != nil {
+				http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
+				return
+			}
+		} else {
+			taskDeps := make([]utils.TaskDependency, len(existingTasks))
+			for i, task := range existingTasks {
+				taskDeps[i] = utils.TaskDependency{
+					UUID:    task.UUID,
+					Depends: task.Depends,
+					Status:  task.Status,
+				}
+			}
+
+			if err := utils.ValidateCircularDependencies(depends, taskUUID, taskDeps); err != nil {
+				http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
+				return
+			}
 		}
 
 		// if err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskID); err != nil {
