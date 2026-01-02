@@ -606,7 +606,7 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
               ongoing: 1 
             </span>
             <span>
-              overdue: 0 
+              overdue: 3 
             </span>
           </div>
           <div
@@ -766,7 +766,7 @@ exports[`ReportsView Component using Snapshot renders correctly with only severa
               ongoing: 1 
             </span>
             <span>
-              overdue: 1 
+              overdue: 3 
             </span>
           </div>
           <div

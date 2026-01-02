@@ -1,7 +1,6 @@
 import { EditTaskDialogProps } from '../../utils/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import {
   Dialog,
@@ -513,7 +512,7 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingWaitDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           date={
                             editState.editedWaitDate &&
                             editState.editedWaitDate !== ''
@@ -521,11 +520,10 @@ export const TaskDialog = ({
                                   try {
                                     const dateStr =
                                       editState.editedWaitDate.includes('T')
-                                        ? editState.editedWaitDate.split('T')[0]
-                                        : editState.editedWaitDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                        ? editState.editedWaitDate
+                                        : editState.editedWaitDate +
+                                          'T00:00:00';
+                                    const parsed = new Date(dateStr);
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -535,13 +533,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) =>
                             onUpdateState({
                               editedWaitDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
                             })
                           }
+                          placeholder="Select wait date and time"
                         />
 
                         <Button

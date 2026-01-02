@@ -91,6 +91,12 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		wait, err = utils.ConvertISOToTaskwarriorFormat(wait)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid wait date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
 		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Edit Task",
