@@ -1083,7 +1083,7 @@ export const Tasks = (
                         allTasks={tasks}
                       />
                     </div>
-                    <div className="flex flex-col items-end gap-2">
+                    <div className="hidden lg:flex flex-col items-end gap-2">
                       <Button
                         id="sync-task"
                         variant="outline"
