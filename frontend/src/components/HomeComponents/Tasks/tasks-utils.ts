@@ -37,9 +37,7 @@ export const markTaskAsCompleted = async (
       }),
     });
 
-    if (response) {
-      console.log('Task marked as completed successfully!');
-    } else {
+    if (!response) {
       console.error('Failed to mark task as completed');
     }
   } catch (error) {
@@ -70,9 +68,10 @@ export const bulkMarkTasksAsCompleted = async (
     });
 
     if (response.ok) {
-      console.log('Bulk completion successful!');
       toast.success(
-        `${taskUUIDs.length} ${taskUUIDs.length === 1 ? 'task' : 'tasks'} marked as completed.`
+        `${taskUUIDs.length} ${
+          taskUUIDs.length === 1 ? 'task' : 'tasks'
+        } marked as completed.`
       );
       return true;
     } else {
@@ -110,9 +109,10 @@ export const bulkMarkTasksAsDeleted = async (
     });
 
     if (response.ok) {
-      console.log('Bulk deletion successful!');
       toast.success(
-        `${taskUUIDs.length} ${taskUUIDs.length === 1 ? 'task' : 'tasks'} deleted.`
+        `${taskUUIDs.length} ${
+          taskUUIDs.length === 1 ? 'task' : 'tasks'
+        } deleted.`
       );
       return true;
     } else {
@@ -146,9 +146,7 @@ export const markTaskAsDeleted = async (
       }),
     });
 
-    if (response) {
-      console.log('Task marked as deleted successfully!');
-    } else {
+    if (!response) {
       console.error('Failed to mark task as deleted');
     }
   } catch (error) {
@@ -267,9 +265,13 @@ export const getTimeSinceLastSync = (
   const diffDays = Math.floor(diffHours / 24);
 
   if (diffSeconds < 60) {
-    return `Last updated ${diffSeconds} second${diffSeconds !== 1 ? 's' : ''} ago`;
+    return `Last updated ${diffSeconds} second${
+      diffSeconds !== 1 ? 's' : ''
+    } ago`;
   } else if (diffMinutes < 60) {
-    return `Last updated ${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+    return `Last updated ${diffMinutes} minute${
+      diffMinutes !== 1 ? 's' : ''
+    } ago`;
   } else if (diffHours < 24) {
     return `Last updated ${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
   } else {

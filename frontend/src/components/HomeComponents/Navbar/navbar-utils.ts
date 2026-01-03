@@ -90,8 +90,6 @@ export const deleteAllTasks = async (props: Props) => {
       pauseOnHover: true,
       draggable: true,
     });
-
-    console.log(`Deleted ${taskCount} tasks for email: ${props.email}`);
   } catch (error) {
     toast.update(loadingToastId, {
       render: `Error deleting tasks for ${props.email}: ${error}`,

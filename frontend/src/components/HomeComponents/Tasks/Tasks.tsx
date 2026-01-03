@@ -253,7 +253,6 @@ export const Tasks = (
         UUID,
         backendURL: url.backendURL,
       });
-      console.log(taskwarriorTasks);
 
       await db.transaction('rw', db.tasks, async () => {
         await db.tasks.where('email').equals(user_email).delete();
@@ -314,7 +313,6 @@ export const Tasks = (
         backendURL: url.backendURL,
       });
 
-      console.log('Task added successfully!');
       setNewTask({
         description: '',
         priority: '',
@@ -372,7 +370,6 @@ export const Tasks = (
         annotations,
       });
 
-      console.log('Task edited successfully!');
       setIsAddTaskOpen(false);
     } catch (error) {
       console.error('Failed to edit task:', error);
@@ -808,7 +805,6 @@ export const Tasks = (
     const updatedTags = editedTags.filter((tag) => tag.trim() !== '');
     const tagsToRemove = removedTags.map((tag) => `${tag}`);
     const finalTags = [...updatedTags, ...tagsToRemove];
-    console.log(finalTags);
 
     setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
@@ -872,7 +868,6 @@ export const Tasks = (
         backendURL: url.backendURL,
       });
 
-      console.log('Priority updated successfully!');
       toast.success('Priority updated successfully!');
     } catch (error) {
       console.error('Failed to update priority:', error);

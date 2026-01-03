@@ -55,9 +55,6 @@ export const HomePage: React.FC = () => {
 
   useEffect(() => {
     if (!userInfo || !userInfo.uuid) {
-      console.log(
-        'User info or UUID is not available yet, skipping WebSocket setup.'
-      );
       return;
     }
 
@@ -65,16 +62,14 @@ export const HomePage: React.FC = () => {
       getTasks(userInfo.email, userInfo.encryption_secret, userInfo.uuid);
     }
 
-    console.log('Setting up WebSocket with clientID:', userInfo.uuid);
     const socketURL = `${url.backendURL.replace(/^http/, 'ws')}ws?clientID=${
       userInfo.uuid
     }`;
     const socket = new WebSocket(socketURL);
 
-    socket.onopen = () => console.log('WebSocket connected!');
+    // socket.onopen = () => console.log('WebSocket connected!');
 
     socket.onmessage = (event) => {
-      // console.log("Message received:", event.data);
       try {
         const data = JSON.parse(event.data);
         if (data.status === 'success') {
@@ -84,7 +79,6 @@ export const HomePage: React.FC = () => {
           }
 
           if (data.job === 'Add Task') {
-            console.log('Task added successfully');
             toast.success('Task added successfully!', {
               position: 'bottom-left',
               autoClose: 3000,
@@ -95,7 +89,6 @@ export const HomePage: React.FC = () => {
               progress: undefined,
             });
           } else if (data.job === 'Edit Task') {
-            console.log('Task edited successfully');
             toast.success('Task edited successfully!', {
               position: 'bottom-left',
               autoClose: 3000,
@@ -127,7 +120,6 @@ export const HomePage: React.FC = () => {
             });
           }
         } else if (data.status == 'failure') {
-          console.log(`Failed to ${data.job || 'perform action'}`);
           toast.error(`Failed to ${data.job || 'perform action'}`, {
             position: 'bottom-left',
             autoClose: 3000,
@@ -147,7 +139,6 @@ export const HomePage: React.FC = () => {
     socket.onerror = (error) => console.error('WebSocket error:', error);
 
     return () => {
-      console.log('Cleaning up WebSocket...');
       socket.close();
     };
   }, [userInfo]);

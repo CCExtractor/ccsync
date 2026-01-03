@@ -44,8 +44,6 @@ func (a *App) OAuthHandler(w http.ResponseWriter, r *http.Request) {
 // @Failure 500 {string} string "Internal server error"
 // @Router /auth/callback [get]
 func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
-	utils.Logger.Info("Fetching user info...")
-
 	code := r.URL.Query().Get("code")
 
 	t, err := a.Config.Exchange(context.Background(), code)
@@ -86,8 +84,6 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// utils.Logger.Infof("User Info: %v", userInfo)
-
 	frontendOriginDev := os.Getenv("FRONTEND_ORIGIN_DEV")
 	http.Redirect(w, r, frontendOriginDev+"/home", http.StatusSeeOther)
 }
@@ -109,7 +105,6 @@ func (a *App) UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// utils.Logger.Infof("Sending User Info: %v", userInfo)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(userInfo)
 }
@@ -147,5 +142,4 @@ func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	// utils.Logger.Info("User has logged out")
 }
