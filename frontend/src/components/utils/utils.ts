@@ -5,7 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Debounce utility
 export function debounce<T extends (...args: any[]) => void>(
   func: T,
   wait: number

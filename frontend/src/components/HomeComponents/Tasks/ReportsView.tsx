@@ -26,13 +26,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks }) => {
 
         const modifiedDate = getStartOfDay(parsedDate);
 
-        // Include tasks within the time range
         if (modifiedDate >= filterDate) {
           return true;
         }
 
-        // Also include overdue pending tasks even if their due date is before the filter date
-        // This ensures overdue tasks appear in current reports
         if (task.status === 'pending' && task.due && isOverdue(task.due)) {
           return true;
         }

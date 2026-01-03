@@ -290,7 +290,7 @@ export const Tasks = (
     } finally {
       props.setIsLoading(false);
     }
-  }, [props.email, props.encryptionSecret, props.UUID]); // Add dependencies
+  }, [props.email, props.encryptionSecret, props.UUID]);
 
   async function handleAddTask(task: TaskFormData) {
     try {
@@ -482,7 +482,7 @@ export const Tasks = (
   const handleSelectTask = (task: Task, index: number) => {
     setSelectedTask(task);
     setSelectedIndex(index);
-    resetEditState(); // as before
+    resetEditState();
   };
 
   const handleSaveDescription = (task: Task, description: string) => {
@@ -909,10 +909,8 @@ export const Tasks = (
     if (!showReports && !_isDialogOpen) {
       const task = currentTasks[selectedIndex];
       if (!task) return;
-      // Step 1
       const openBtn = document.getElementById(`task-row-${task.id}`);
       openBtn?.click();
-      // Step 2
       setTimeout(() => {
         const confirmBtn = document.getElementById(
           `mark-task-complete-${task.id}`
@@ -935,10 +933,8 @@ export const Tasks = (
     if (!showReports && !_isDialogOpen) {
       const task = currentTasks[selectedIndex];
       if (!task) return;
-      // Step 1
       const openBtn = document.getElementById(`task-row-${task.id}`);
       openBtn?.click();
-      // Step 2
       setTimeout(() => {
         const confirmBtn = document.getElementById(
           `mark-task-as-deleted-${task.id}`

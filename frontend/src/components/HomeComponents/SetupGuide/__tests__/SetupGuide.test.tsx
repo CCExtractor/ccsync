@@ -1,86 +1,88 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { SetupGuide } from '../SetupGuide';
-import { Props } from '../../../utils/types';
-import { url } from '@/components/utils/URLs';
 
-// Mocking the CopyableCode component
+// Using jest.mock to mock external dependencies
+jest.mock('@/components/utils/URLs', () => ({
+  url: {
+    containerOrigin: 'https://test-container',
+  },
+}));
+
+// Mock CopyableCode component
 jest.mock('../CopyableCode', () => ({
-  CopyableCode: ({
-    text,
-    copyText,
-    isSensitive,
-  }: {
-    text: string;
-    copyText: string;
-    isSensitive?: boolean;
-  }) => (
-    <div
-      data-testid="copyable-code"
-      data-text={text}
-      data-copytext={copyText}
-      data-issensitive={isSensitive}
-    >
-      {text}
-    </div>
+  CopyableCode: ({ text }: { text: string }) => (
+    <div data-testid="copyable-code">{text}</div>
   ),
 }));
 
-const props: Props = {
-  name: 'test-name',
-  encryption_secret: 'test-encryption-secret',
-  uuid: 'test-uuid',
+// Mock exportConfigSetup utility
+const mockExportConfigSetup = jest.fn();
+jest.mock('../utils', () => ({
+  exportConfigSetup: (props: any) => mockExportConfigSetup(props),
+}));
+
+const defaultProps = {
+  name: 'Test User',
+  encryption_secret: 'secret123',
+  uuid: 'uuid-1234',
 };
-describe('SetupGuide Component', () => {
-  test('renders SetupGuide component with correct text', () => {
-    render(<SetupGuide {...props} />);
+
+describe('SetupGuide', () => {
+  test('renders setup guide sections', () => {
+    render(<SetupGuide {...defaultProps} />);
+
+    // Section exists
+    expect(document.querySelector('#setup-guide')).toBeInTheDocument();
+
+    // Sub-section headings
+    expect(screen.getByText('PREREQUISITES')).toBeInTheDocument();
+    expect(screen.getByText('CONFIGURATION')).toBeInTheDocument();
+    expect(screen.getByText('SYNC')).toBeInTheDocument();
   });
 
-  test('renders CopyableCode components with correct props', () => {
-    render(<SetupGuide {...props} />);
+  test('renders configuration commands using props', () => {
+    render(<SetupGuide {...defaultProps} />);
 
-    // Check for CopyableCode components
-    const copyableCodeElements = screen.getAllByTestId('copyable-code');
-    expect(copyableCodeElements.length).toBe(5);
+    expect(
+      screen.getByText(
+        `task config sync.encryption_secret ${defaultProps.encryption_secret}`
+      )
+    ).toBeInTheDocument();
 
-    // Validate the text and copyText props of each CopyableCode component
-    expect(copyableCodeElements[0]).toHaveAttribute(
-      'data-text',
-      'task --version'
-    );
-    expect(copyableCodeElements[0]).toHaveAttribute(
-      'data-copytext',
-      'task --version'
-    );
-    expect(copyableCodeElements[1]).toHaveAttribute(
-      'data-text',
-      `task config sync.encryption_secret ${props.encryption_secret}`
-    );
-    expect(copyableCodeElements[1]).toHaveAttribute(
-      'data-copytext',
-      `task config sync.encryption_secret ${props.encryption_secret}`
-    );
-    expect(copyableCodeElements[2]).toHaveAttribute(
-      'data-text',
-      `task config sync.server.origin ${url.containerOrigin}`
-    );
-    expect(copyableCodeElements[2]).toHaveAttribute(
-      'data-copytext',
-      `task config sync.server.origin ${url.containerOrigin}`
-    );
-    expect(copyableCodeElements[3]).toHaveAttribute(
-      'data-text',
-      `task config sync.server.client_id ${props.uuid}`
-    );
-    expect(copyableCodeElements[3]).toHaveAttribute(
-      'data-copytext',
-      `task config sync.server.client_id ${props.uuid}`
-    );
+    expect(
+      screen.getByText(`task config sync.server.client_id ${defaultProps.uuid}`)
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText('task config sync.server.origin https://test-container')
+    ).toBeInTheDocument();
   });
-});
 
-describe('SetupGuide component using snapshot', () => {
-  test('renders correctly', () => {
-    const { asFragment } = render(<SetupGuide {...props} />);
-    expect(asFragment()).toMatchSnapshot();
+  test('clicking download configuration triggers download logic', () => {
+    mockExportConfigSetup.mockReturnValue('config-content');
+
+    // Polyfill missing browser APIs
+    Object.defineProperty(global.URL, 'createObjectURL', {
+      writable: true,
+      value: jest.fn(() => 'blob:http://localhost/file'),
+    });
+
+    Object.defineProperty(global.URL, 'revokeObjectURL', {
+      writable: true,
+      value: jest.fn(),
+    });
+
+    const appendSpy = jest.spyOn(document.body, 'appendChild');
+    const removeSpy = jest.spyOn(document.body, 'removeChild');
+
+    render(<SetupGuide {...defaultProps} />);
+
+    fireEvent.click(screen.getByText(/DOWNLOAD CONFIGURATION/i));
+
+    expect(mockExportConfigSetup).toHaveBeenCalledWith(defaultProps);
+    expect(URL.createObjectURL).toHaveBeenCalled();
+    expect(URL.revokeObjectURL).toHaveBeenCalled();
+    expect(appendSpy).toHaveBeenCalled();
+    expect(removeSpy).toHaveBeenCalled();
   });
 });

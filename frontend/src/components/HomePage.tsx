@@ -41,14 +41,12 @@ export const HomePage: React.FC = () => {
       console.error('Failed to fetch tasks:', error);
       toast.error('Failed to fetch tasks. Please check your connection.', {
         position: 'bottom-left',
-        // ... toast config
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Launch onboarding tour for new HomePage visitors.
   useEffect(() => {
     fetchUserInfo();
   }, []);
@@ -73,7 +71,6 @@ export const HomePage: React.FC = () => {
       try {
         const data = JSON.parse(event.data);
         if (data.status === 'success') {
-          // Skip refresh for Edit Task to prevent dialog blinking
           if (data.job !== 'Edit Task') {
             getTasks(userInfo.email, userInfo.encryption_secret, userInfo.uuid);
           }

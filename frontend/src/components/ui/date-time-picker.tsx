@@ -32,11 +32,10 @@ export function DateTimePicker({
   const [hasTime, setHasTime] = React.useState(false);
   const isInternalUpdate = React.useRef(false);
 
-  // Update internal date when prop changes (but not from our own updates)
   React.useEffect(() => {
     if (!isInternalUpdate.current) {
       setInternalDate(date);
-      setHasTime(false); // Only reset hasTime for external updates
+      setHasTime(false);
     }
     isInternalUpdate.current = false;
   }, [date]);
@@ -45,7 +44,6 @@ export function DateTimePicker({
 
   const handleDateSelect = (selectedDate: Date | undefined) => {
     if (selectedDate) {
-      // Create a new date using the local date components to avoid timezone issues
       const newDate = new Date(
         selectedDate.getFullYear(),
         selectedDate.getMonth(),
@@ -57,7 +55,6 @@ export function DateTimePicker({
       );
       setInternalDate(newDate);
 
-      // Mark as internal update and send the local date object directly with hasTime = false
       isInternalUpdate.current = true;
       onDateTimeChange(newDate, false);
     } else {
@@ -72,12 +69,10 @@ export function DateTimePicker({
     type: 'hour' | 'minute' | 'ampm',
     value: string
   ) => {
-    // Prevent time selection if no date is selected
     if (!internalDate) {
       return;
     }
 
-    // Mark that user has explicitly selected time
     setHasTime(true);
 
     const newDate = new Date(internalDate);
@@ -88,10 +83,8 @@ export function DateTimePicker({
       const isPM = currentHours >= 12;
 
       if (hour === 12) {
-        // 12 AM = 0, 12 PM = 12
         newDate.setHours(isPM ? 12 : 0);
       } else {
-        // 1-11 AM = 1-11, 1-11 PM = 13-23
         newDate.setHours(isPM ? hour + 12 : hour);
       }
     } else if (type === 'minute') {
@@ -106,7 +99,6 @@ export function DateTimePicker({
     }
 
     setInternalDate(newDate);
-    // Mark as internal update and send full datetime when time is explicitly selected
     isInternalUpdate.current = true;
     onDateTimeChange(newDate, true);
   };

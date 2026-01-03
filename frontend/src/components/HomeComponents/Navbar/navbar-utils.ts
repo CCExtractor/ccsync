@@ -66,7 +66,6 @@ export const deleteAllTasks = async (props: Props) => {
   try {
     const taskCount = await db.tasks.where('email').equals(props.email).count();
 
-    // If no tasks, show Red toast
     if (taskCount === 0) {
       toast.update(loadingToastId, {
         render: `No tasks to delete for ${props.email}.`,

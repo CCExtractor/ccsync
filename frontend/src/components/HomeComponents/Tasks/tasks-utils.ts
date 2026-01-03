@@ -279,17 +279,13 @@ export const getTimeSinceLastSync = (
   }
 };
 
-/**
- * Simple hash function for creating a hash of email + key
- * This prevents storing plain email addresses in localStorage
- */
 export const hashKey = (key: string, email: string): string => {
   const str = key + email;
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash & hash;
   }
   return Math.abs(hash).toString(36);
 };
