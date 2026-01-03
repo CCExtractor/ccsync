@@ -982,13 +982,13 @@ export const Tasks = (
           Tasks
         </span>
       </h2>
-      <div className="flex justify-center md:justify-end w-full px-4 mb-4 mt-4">
+      <div className="flex justify-center lg:justify-end w-full px-4 mb-4 mt-4">
         <Button variant="outline" onClick={() => setShowReports(!showReports)}>
           {showReports ? 'Show Tasks' : 'Show Reports'}
         </Button>
         {/* Mobile-only Sync button */}
         <Button
-          className="sm:hidden ml-2 relative"
+          className="lg:hidden ml-2 relative"
           variant="outline"
           onClick={async () => {
             props.setIsLoading(true);
