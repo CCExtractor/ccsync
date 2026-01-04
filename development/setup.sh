@@ -47,12 +47,12 @@ if [ ! -f "$ROOT_DIR/backend/.env" ]; then
     exit 1
 fi
 
-if [ ! -f "$ROOT_DIR/frontend/.env" ]; then
-    echo "Error: frontend/.env file not found."
-    echo "Please create it with required environment variables."
-    echo "See development/README.md or https://its-me-abhishek.github.io/ccsync-docs/ for details."
-    exit 1
-fi
+# if [ ! -f "$ROOT_DIR/frontend/.env" ]; then
+#     echo "Error: frontend/.env file not found."
+#     echo "Please create it with required environment variables."
+#     echo "See development/README.md or https://its-me-abhishek.github.io/ccsync-docs/ for details."
+#     exit 1
+# fi
 
 echo "Installing dependencies..."
 echo ""

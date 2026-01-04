@@ -10,7 +10,6 @@ const popIn = {
 
 export const HeroCards = () => {
   return (
-    // Prevent overflow at lg breakpoint
     <div className="hidden lg:flex flex-row flex-wrap gap-8 relative lg:w-[560px] lg:h-[480px] xl:w-[700px] xl:h-[500px]">
       <motion.div
         whileHover={'hover'}

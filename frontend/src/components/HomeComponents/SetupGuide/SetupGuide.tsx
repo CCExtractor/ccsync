@@ -73,12 +73,10 @@ export const SetupGuide = (props: Props) => {
                     Configure Taskwarrior with these commands, run these
                     commands one block at a time
                   </div>
-                  {/* Link to container */}
                   <CopyableCode
                     text={`task config sync.server.origin ${url.containerOrigin}`}
                     copyText={`task config sync.server.origin ${url.containerOrigin}`}
                   />
-                  {/* Client ID */}
                   <CopyableCode
                     text={`task config sync.server.client_id ${props.uuid}`}
                     copyText={`task config sync.server.client_id ${props.uuid}`}

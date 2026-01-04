@@ -94,7 +94,6 @@ export const Hero = (props: Props) => {
         </div>
       </div>
 
-      {/* Shadow effect */}
       <div className="shadow"></div>
 
       <ToastNotification />

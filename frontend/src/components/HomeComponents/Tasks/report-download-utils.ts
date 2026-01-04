@@ -54,7 +54,7 @@ export const exportChartToPNG = async (
 
     const canvas = await html2canvas(element, {
       backgroundColor: '#1c1c1c',
-      scale: 2, // Higher quality
+      scale: 2,
       logging: false,
       useCORS: true,
     });

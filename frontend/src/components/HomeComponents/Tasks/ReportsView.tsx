@@ -25,7 +25,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({ tasks }) => {
         if (!parsedDate) return false;
 
         const modifiedDate = getStartOfDay(parsedDate);
-        return modifiedDate >= filterDate;
+
+        if (modifiedDate >= filterDate) {
+          return true;
+        }
+
+        if (task.status === 'pending' && task.due && isOverdue(task.due)) {
+          return true;
+        }
+
+        return false;
       })
       .reduce(
         (acc, task) => {

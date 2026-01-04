@@ -52,7 +52,6 @@ func BulkCompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	logStore := models.GetLogStore()
 
-	// Create a *single* job for all UUIDs
 	job := Job{
 		Name: "Bulk Complete Tasks",
 		Execute: func() error {

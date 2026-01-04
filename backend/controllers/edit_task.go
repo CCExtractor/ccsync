@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 )
 
 // EditTaskHandler godoc
@@ -62,14 +63,56 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Validate dependencies
-		if err := utils.ValidateDependencies(depends, uuid); err != nil {
-			http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
-			return
+		origin := os.Getenv("CONTAINER_ORIGIN")
+		existingTasks, err := tw.FetchTasksFromTaskwarrior(email, encryptionSecret, origin, uuid)
+		if err != nil {
+			if err := utils.ValidateDependencies(depends, taskUUID); err != nil {
+				http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
+				return
+			}
+		} else {
+			taskDeps := make([]utils.TaskDependency, len(existingTasks))
+			for i, task := range existingTasks {
+				taskDeps[i] = utils.TaskDependency{
+					UUID:    task.UUID,
+					Depends: task.Depends,
+					Status:  task.Status,
+				}
+			}
+
+			if err := utils.ValidateCircularDependencies(depends, taskUUID, taskDeps); err != nil {
+				http.Error(w, fmt.Sprintf("Invalid dependencies: %v", err), http.StatusBadRequest)
+				return
+			}
 		}
 
 		start, err = utils.ConvertISOToTaskwarriorFormat(start)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Invalid start date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		due, err = utils.ConvertISOToTaskwarriorFormat(due)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid due date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		end, err = utils.ConvertISOToTaskwarriorFormat(end)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid end date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		entry, err = utils.ConvertISOToTaskwarriorFormat(entry)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid entry date format: %v", err), http.StatusBadRequest)
+			return
+		}
+
+		wait, err = utils.ConvertISOToTaskwarriorFormat(wait)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid wait date format: %v", err), http.StatusBadRequest)
 			return
 		}
 

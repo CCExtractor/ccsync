@@ -36,7 +36,7 @@ export const AddTaskdialog = ({
   isCreatingNewProject,
   setIsCreatingNewProject,
   uniqueProjects = [],
-  allTasks = [], // Add this prop
+  allTasks = [],
 }: AddTaskDialogProps) => {
   const [annotationInput, setAnnotationInput] = useState('');
   const [dependencySearch, setDependencySearch] = useState('');

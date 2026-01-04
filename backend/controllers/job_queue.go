@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"sync"
-
-	"ccsync_backend/utils"
 )
 
 type Job struct {
@@ -37,23 +35,18 @@ func (q *JobQueue) AddJob(job Job) {
 
 func (q *JobQueue) processJobs() {
 	for job := range q.jobChannel {
-		utils.Logger.Infof("Executing job: %s", job.Name)
-
 		go BroadcastJobStatus(JobStatus{
 			Job:    job.Name,
 			Status: "in-progress",
 		})
 
 		if err := job.Execute(); err != nil {
-			utils.Logger.Errorf("Error executing job %s: %v", job.Name, err)
-
 			go BroadcastJobStatus(JobStatus{
 				Job:    job.Name,
 				Status: "failure",
 			})
 		} else {
-			utils.Logger.Infof("Success in executing job %s", job.Name)
-
+			// utils.Logger.Infof("Success in executing job %s", job.Name)
 			go BroadcastJobStatus(JobStatus{
 				Job:    job.Name,
 				Status: "success",

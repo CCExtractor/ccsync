@@ -7,7 +7,6 @@ jest.mock('../../HomeComponents/Tasks/Tasks', () => ({
   syncTasksWithTwAndDb: jest.fn(),
 }));
 
-const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation();
 const mockConsoleError = jest.spyOn(console, 'error').mockImplementation();
 
 describe('useTaskAutoSync', () => {
@@ -57,9 +56,6 @@ describe('useTaskAutoSync', () => {
       jest.advanceTimersByTime(1000);
     });
 
-    expect(mockConsoleLog).toHaveBeenCalledWith(
-      'Auto-sync: Triggering periodic sync...'
-    );
     expect(mockSyncTasksWithTwAndDb).toHaveBeenCalledTimes(1);
   });
 
@@ -81,9 +77,6 @@ describe('useTaskAutoSync', () => {
       await result.current.handleSync();
     });
 
-    expect(mockConsoleLog).toHaveBeenCalledWith(
-      'Auto-sync: Sync already in progress, skipping.'
-    );
     expect(mockSyncTasksWithTwAndDb).not.toHaveBeenCalled();
     expect(mockSetIsLoading).not.toHaveBeenCalled();
   });

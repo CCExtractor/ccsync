@@ -158,7 +158,6 @@ jest.mock('../hooks', () => ({
 jest.mock('../Pagination', () => {
   return jest.fn((props) => (
     <div data-testid="mock-pagination">
-      {/* Render props to make them testable */}
       <span data-testid="total-pages">{props.totalPages}</span>
       <span data-testid="current-page">{props.currentPage}</span>
     </div>
@@ -1102,11 +1101,11 @@ describe('Tasks Component', () => {
   });
 
   test.each([
-    ['Wait', 'Wait:', 'Pick a date'],
-    ['End', 'End:', 'Select end date'],
-    ['Due', 'Due:', 'Select due date'],
+    ['Wait', 'Wait:', 'Select wait date and time'],
+    ['End', 'End:', 'Select end date and time'],
+    ['Due', 'Due:', 'Select due date and time'],
     ['Start', 'Start:', 'Select start date and time'],
-    ['Entry', 'Entry:', 'Pick a date'],
+    ['Entry', 'Entry:', 'Select entry date and time'],
   ])('shows red when task %s date is edited', async (_, label, placeholder) => {
     render(<Tasks {...mockProps} />);
 

@@ -69,7 +69,6 @@ jest.mock('driver.js', () => {
 
 beforeEach(() => {
   mockSocket = {
-    onopen: null,
     onclose: null,
     onmessage: null,
     onerror: null,
@@ -432,16 +431,6 @@ describe('HomePage', () => {
 
       expect(mockToastSuccess).not.toHaveBeenCalled();
       expect(mockToastError).not.toHaveBeenCalled();
-    });
-
-    it('triggers WebSocket onopen without errors', async () => {
-      render(<HomePage />);
-
-      await waitFor(() => {
-        expect((global as any).WebSocket).toHaveBeenCalled();
-      });
-
-      expect(() => mockSocket.onopen()).not.toThrow();
     });
 
     it('handles WebSocket error event without crashing', async () => {

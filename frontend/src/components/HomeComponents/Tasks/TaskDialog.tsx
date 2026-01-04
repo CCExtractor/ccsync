@@ -1,7 +1,6 @@
 import { EditTaskDialogProps } from '../../utils/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import {
   Dialog,
@@ -236,7 +235,7 @@ export const TaskDialog = ({
 
   const handleDialogOpenChange = (open: boolean) => {
     if (open) {
-      onSelectTask(task, index); // Notify parent that this task is selected
+      onSelectTask(task, index);
     }
     onOpenChange(open);
   };
@@ -256,6 +255,13 @@ export const TaskDialog = ({
       isEditing: true,
       editedDescription: description,
     });
+  };
+
+  const handledropdown = (type: FieldKey) => {
+    if (type === 'priority') {
+      const btn = document.getElementById('priority');
+      btn?.click();
+    }
   };
 
   return (
@@ -469,11 +475,9 @@ export const TaskDialog = ({
                                   try {
                                     const dateStr =
                                       editState.editedDueDate.includes('T')
-                                        ? editState.editedDueDate.split('T')[0]
-                                        : editState.editedDueDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                        ? editState.editedDueDate
+                                        : editState.editedDueDate + 'T00:00:00';
+                                    const parsed = new Date(dateStr);
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -483,14 +487,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateTimeChange={(date) =>
+                          onDateTimeChange={(date, hasTime) =>
                             onUpdateState({
                               editedDueDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
                             })
                           }
-                          placeholder="Select due date"
+                          placeholder="Select due date and time"
                         />
                         <Button
                           variant="ghost"
@@ -528,11 +534,7 @@ export const TaskDialog = ({
                           onClick={() => {
                             onUpdateState({
                               isEditingDueDate: true,
-                              editedDueDate: task.due
-                                ? task.due.includes('T')
-                                  ? task.due.split('T')[0]
-                                  : task.due
-                                : '',
+                              editedDueDate: task.due || '',
                             });
                           }}
                         >
@@ -640,7 +642,7 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingEndDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           ref={(el) => (inputRefs.current.end = el)}
                           date={
                             editState.editedEndDate &&
@@ -649,11 +651,9 @@ export const TaskDialog = ({
                                   try {
                                     const dateStr =
                                       editState.editedEndDate.includes('T')
-                                        ? editState.editedEndDate.split('T')[0]
-                                        : editState.editedEndDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                        ? editState.editedEndDate
+                                        : editState.editedEndDate + 'T00:00:00';
+                                    const parsed = new Date(dateStr);
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -663,14 +663,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) =>
                             onUpdateState({
                               editedEndDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
                             })
                           }
-                          placeholder="Select end date"
+                          placeholder="Select end date and time"
                         />
                         <Button
                           variant="ghost"
@@ -708,11 +710,7 @@ export const TaskDialog = ({
                           onClick={() => {
                             onUpdateState({
                               isEditingEndDate: true,
-                              editedEndDate: task.end
-                                ? task.end.includes('T')
-                                  ? task.end.split('T')[0]
-                                  : task.end
-                                : '',
+                              editedEndDate: task.end || '',
                             });
                           }}
                         >
@@ -729,7 +727,7 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingWaitDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           ref={(el) => (inputRefs.current.wait = el)}
                           date={
                             editState.editedWaitDate &&
@@ -738,11 +736,10 @@ export const TaskDialog = ({
                                   try {
                                     const dateStr =
                                       editState.editedWaitDate.includes('T')
-                                        ? editState.editedWaitDate.split('T')[0]
-                                        : editState.editedWaitDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                        ? editState.editedWaitDate
+                                        : editState.editedWaitDate +
+                                          'T00:00:00';
+                                    const parsed = new Date(dateStr);
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -752,13 +749,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) =>
                             onUpdateState({
                               editedWaitDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
                             })
                           }
+                          placeholder="Select wait date and time"
                         />
 
                         <Button
@@ -849,9 +849,12 @@ export const TaskDialog = ({
                           onClick={() => {
                             onUpdateState({
                               isEditingDepends: true,
-                              dependsDropdownOpen: true,
                               editedDepends: task.depends || [],
                             });
+
+                            setTimeout(() => {
+                              onUpdateState({ dependsDropdownOpen: true });
+                            }, 0);
 
                             requestAnimationFrame(() => {
                               inputRefs.current.depends?.focus();
@@ -902,8 +905,7 @@ export const TaskDialog = ({
                               size="sm"
                               onClick={() =>
                                 onUpdateState({
-                                  dependsDropdownOpen:
-                                    !editState.dependsDropdownOpen,
+                                  dependsDropdownOpen: true,
                                 })
                               }
                               className="w-full justify-start"
@@ -1012,7 +1014,7 @@ export const TaskDialog = ({
                               onUpdateState({
                                 isEditingDepends: false,
                                 dependsDropdownOpen: false,
-                                editedDepends: task.depends || [], // reset back to original
+                                editedDepends: task.depends || [],
                               });
                             }}
                           >
@@ -1031,7 +1033,6 @@ export const TaskDialog = ({
                     {editState.isEditingPriority ? (
                       <div className="flex items-center">
                         <Select
-                          defaultOpen
                           value={editState.editedPriority}
                           onValueChange={(value) =>
                             onUpdateState({
@@ -1092,12 +1093,13 @@ export const TaskDialog = ({
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
-                          onClick={() =>
+                          onClick={() => {
                             onUpdateState({
                               editedPriority: task.priority || 'NONE',
                               isEditingPriority: true,
-                            })
-                          }
+                            });
+                            handledropdown('priority');
+                          }}
                         >
                           <PencilIcon className="h-4 w-4 text-gray-500" />
                         </Button>
@@ -1114,7 +1116,6 @@ export const TaskDialog = ({
                       <>
                         <div className="col-span-3 space-y-2 w-[300px]">
                           <Select
-                            defaultOpen
                             value={
                               isCreatingNewProject
                                 ? '__CREATE_NEW__'
@@ -1388,7 +1389,7 @@ export const TaskDialog = ({
                   <TableCell>
                     {editState.isEditingEntryDate ? (
                       <div className="flex items-center gap-2">
-                        <DatePicker
+                        <DateTimePicker
                           ref={(el) => (editButtonRef.current.entry = el)}
                           date={
                             editState.editedEntryDate &&
@@ -1398,13 +1399,10 @@ export const TaskDialog = ({
                                     // Handle YYYY-MM-DD format
                                     const dateStr =
                                       editState.editedEntryDate.includes('T')
-                                        ? editState.editedEntryDate.split(
-                                            'T'
-                                          )[0]
-                                        : editState.editedEntryDate;
-                                    const parsed = new Date(
-                                      dateStr + 'T00:00:00'
-                                    );
+                                        ? editState.editedEntryDate
+                                        : editState.editedEntryDate +
+                                          'T00:00:00';
+                                    const parsed = new Date(dateStr);
                                     return isNaN(parsed.getTime())
                                       ? undefined
                                       : parsed;
@@ -1414,13 +1412,16 @@ export const TaskDialog = ({
                                 })()
                               : undefined
                           }
-                          onDateChange={(date) =>
+                          onDateTimeChange={(date, hasTime) =>
                             onUpdateState({
                               editedEntryDate: date
-                                ? format(date, 'yyyy-MM-dd')
+                                ? hasTime
+                                  ? date.toISOString()
+                                  : format(date, 'yyyy-MM-dd')
                                 : '',
                             })
                           }
+                          placeholder="Select entry date and time"
                         />
 
                         <Button
@@ -1441,12 +1442,8 @@ export const TaskDialog = ({
                           aria-label="cancel"
                           onClick={() =>
                             onUpdateState({
+                              editedEntryDate: task.entry || '',
                               isEditingEntryDate: false,
-                              editedEntryDate: task.entry
-                                ? task.entry.includes('T')
-                                  ? task.entry.split('T')[0]
-                                  : task.entry
-                                : '',
                             })
                           }
                         >
@@ -1461,16 +1458,12 @@ export const TaskDialog = ({
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
-                          onClick={() =>
+                          onClick={() => {
                             onUpdateState({
                               isEditingEntryDate: true,
-                              editedEntryDate: task.entry
-                                ? task.entry.includes('T')
-                                  ? task.entry.split('T')[0]
-                                  : task.entry
-                                : '',
-                            })
-                          }
+                              editedEntryDate: task.entry || '',
+                            });
+                          }}
                         >
                           <PencilIcon className="h-4 w-4 text-gray-500" />
                         </Button>
@@ -1486,7 +1479,6 @@ export const TaskDialog = ({
                     {editState.isEditingRecur ? (
                       <div className="flex items-center gap-2">
                         <Select
-                          defaultOpen
                           value={editState.editedRecur || 'none'}
                           onValueChange={(value) =>
                             onUpdateState({ editedRecur: value })
@@ -1745,7 +1737,6 @@ export const TaskDialog = ({
           </DialogDescription>
         </div>
 
-        {/* Non-scrollable footer */}
         <DialogFooter className="flex flex-row justify-end pt-4">
           {task.status == 'pending' ? (
             <Dialog>

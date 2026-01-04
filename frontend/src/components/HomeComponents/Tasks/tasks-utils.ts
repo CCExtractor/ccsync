@@ -37,9 +37,7 @@ export const markTaskAsCompleted = async (
       }),
     });
 
-    if (response) {
-      console.log('Task marked as completed successfully!');
-    } else {
+    if (!response) {
       console.error('Failed to mark task as completed');
     }
   } catch (error) {
@@ -70,9 +68,10 @@ export const bulkMarkTasksAsCompleted = async (
     });
 
     if (response.ok) {
-      console.log('Bulk completion successful!');
       toast.success(
-        `${taskUUIDs.length} ${taskUUIDs.length === 1 ? 'task' : 'tasks'} marked as completed.`
+        `${taskUUIDs.length} ${
+          taskUUIDs.length === 1 ? 'task' : 'tasks'
+        } marked as completed.`
       );
       return true;
     } else {
@@ -110,9 +109,10 @@ export const bulkMarkTasksAsDeleted = async (
     });
 
     if (response.ok) {
-      console.log('Bulk deletion successful!');
       toast.success(
-        `${taskUUIDs.length} ${taskUUIDs.length === 1 ? 'task' : 'tasks'} deleted.`
+        `${taskUUIDs.length} ${
+          taskUUIDs.length === 1 ? 'task' : 'tasks'
+        } deleted.`
       );
       return true;
     } else {
@@ -146,9 +146,7 @@ export const markTaskAsDeleted = async (
       }),
     });
 
-    if (response) {
-      console.log('Task marked as deleted successfully!');
-    } else {
+    if (!response) {
       console.error('Failed to mark task as deleted');
     }
   } catch (error) {
@@ -183,8 +181,6 @@ export const formattedDate = (dateString: string) => {
 };
 
 export const parseTaskwarriorDate = (dateString: string) => {
-  // Taskwarrior date format: YYYYMMDDTHHMMSSZ
-
   if (!dateString) return null;
 
   const year = dateString.substring(0, 4);
@@ -269,9 +265,13 @@ export const getTimeSinceLastSync = (
   const diffDays = Math.floor(diffHours / 24);
 
   if (diffSeconds < 60) {
-    return `Last updated ${diffSeconds} second${diffSeconds !== 1 ? 's' : ''} ago`;
+    return `Last updated ${diffSeconds} second${
+      diffSeconds !== 1 ? 's' : ''
+    } ago`;
   } else if (diffMinutes < 60) {
-    return `Last updated ${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+    return `Last updated ${diffMinutes} minute${
+      diffMinutes !== 1 ? 's' : ''
+    } ago`;
   } else if (diffHours < 24) {
     return `Last updated ${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
   } else {
@@ -279,17 +279,13 @@ export const getTimeSinceLastSync = (
   }
 };
 
-/**
- * Simple hash function for creating a hash of email + key
- * This prevents storing plain email addresses in localStorage
- */
 export const hashKey = (key: string, email: string): string => {
   const str = key + email;
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
+    hash = hash & hash;
   }
   return Math.abs(hash).toString(36);
 };

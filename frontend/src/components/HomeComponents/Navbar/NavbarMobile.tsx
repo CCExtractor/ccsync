@@ -221,10 +221,6 @@ export const NavbarMobile = (
             <Dialog open={isDevLogsOpen} onOpenChange={setIsDevLogsOpen}>
               <DialogTrigger>
                 <div
-                  // onClick={() => {
-                  //   setIsDevLogsOpen(true);
-                  //   props.setIsOpen(false);
-                  // }}
                   className={`w-[130px] cursor-pointer border ${buttonVariants({
                     variant: 'secondary',
                   })}`}

@@ -31,31 +31,25 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	defer ws.Close()
 
 	clients[ws] = true
-	utils.Logger.Info("New WebSocket connection established!")
-
 	for {
 		_, _, err := ws.ReadMessage()
 		if err != nil {
 			delete(clients, ws)
-			utils.Logger.Info("WebSocket connection closed:", err)
 			break
 		}
 	}
 }
 
 func BroadcastJobStatus(jobStatus JobStatus) {
-	utils.Logger.Infof("Broadcasting: %+v", jobStatus)
 	broadcast <- jobStatus
 }
 
 func JobStatusManager() {
 	for {
 		jobStatus := <-broadcast
-		utils.Logger.Infof("Sending to clients: %+v", jobStatus)
 		for client := range clients {
 			err := client.WriteJSON(jobStatus)
 			if err != nil {
-				utils.Logger.Errorf("WebSocket Write Error: %v", err)
 				client.Close()
 				delete(clients, client)
 			}
