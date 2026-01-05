@@ -8,14 +8,6 @@ import {
 } from '@testing-library/react';
 import { Tasks } from '../Tasks';
 
-// beforeEach(() => {
-//   jest.useFakeTimers();
-// });
-
-// afterEach(() => {
-//   jest.useRealTimers();
-// });
-
 // Mock props for the Tasks component
 const mockProps = {
   origin: '',

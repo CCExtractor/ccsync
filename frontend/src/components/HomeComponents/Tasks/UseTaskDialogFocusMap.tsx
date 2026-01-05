@@ -12,7 +12,6 @@ export function useTaskDialogFocusMap<F extends readonly string[]>({
 
       el.focus();
 
-      // click only where needed
       if (
         field === 'due' ||
         field === 'start' ||

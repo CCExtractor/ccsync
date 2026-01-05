@@ -1,9 +1,5 @@
-import {
-  Task,
-  // UseTaskDialogFocusMapProps
-} from '@/components/utils/types';
+import { Task } from '@/components/utils/types';
 import Dexie from 'dexie';
-// import React from 'react';
 
 export const fetchTaskwarriorTasks = async ({
   email,
