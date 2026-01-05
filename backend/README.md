@@ -23,6 +23,11 @@
   # Else if using npm
   FRONTEND_ORIGIN_DEV="http://localhost:5173"
   CONTAINER_ORIGIN="http://localhost:8080/"
+  
+  # Job Queue Configuration (Optional)
+  CLEANUP_CRON_SCHEDULE="0 0 * * *"    
+  CLEANUP_RETENTION_DAYS="7"           
+  QUEUE_DB_PATH="/app/data/queue.db" 
   ```
 
   Common pitfall: use the value
@@ -84,6 +89,28 @@
   - **Local development**: Not needed (loopback is trusted by default)
   - **Production with nginx on same server**: Not needed (loopback is trusted)
   - **Production with external load balancer**: Set to your load balancer's IP/range
+
+## Persistent Job Queue
+
+The backend includes a persistent job queue system that ensures task operations survive server restarts and provides automatic cleanup of old job logs.
+
+### Features
+
+- **Persistence**: Jobs are stored in a bbolt database and survive backend restarts
+- **Automatic Cleanup**: Old completed and failed job logs are automatically cleaned up
+- **Configurable**: Cleanup schedule and retention period can be customized
+
+### Configuration
+
+The job queue system uses the following environment variables:
+
+- `CLEANUP_CRON_SCHEDULE`: Cron schedule for cleanup job (default: "0 0 * * *" - daily at midnight)
+- `CLEANUP_RETENTION_DAYS`: Number of days to keep job logs (default: 7)
+- `QUEUE_DB_PATH`: Path to the queue database file (default: "/app/data/queue.db")
+
+### Database Location
+
+The queue database is stored at `/app/data/queue.db` inside the container, which is mounted to `./backend/data/queue.db` on the host system via Docker volume.
 
 - Run the application:
 
