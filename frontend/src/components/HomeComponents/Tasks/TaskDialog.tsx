@@ -1,4 +1,4 @@
-import { EditTaskDialogProps } from '../../utils/types';
+import { EditTaskDialogProps, FieldKey } from '../../utils/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
@@ -35,23 +35,8 @@ import {
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { formattedDate, handleCopy } from './tasks-utils';
 import { useEffect, useRef, useState } from 'react';
-
-const FIELDS = [
-  'description',
-  'due',
-  'start',
-  'end',
-  'wait',
-  'depends',
-  'priority',
-  'project',
-  'tags',
-  'entry',
-  'recur',
-  'annotations',
-] as const;
-
-type FieldKey = (typeof FIELDS)[number];
+import { useTaskDialFocusMap, useTaskDialogKeyboard } from './hooks';
+import { FIELDS } from './constants';
 
 export const TaskDialog = ({
   index,
@@ -109,104 +94,6 @@ export const TaskDialog = ({
 
   const focusedField = FIELDS[focusedFieldIndex];
 
-  useEffect(() => {
-    const el = editButtonRef.current[focusedField];
-    if (!el) return;
-
-    el.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-    });
-  }, [focusedField]);
-
-  const focusMap: Record<string, () => void> = {
-    description: () => inputRefs.current.description?.focus(),
-
-    due: () => {
-      const el = inputRefs.current.due;
-      el?.focus();
-      el?.click();
-    },
-
-    start: () => {
-      const el = inputRefs.current.start;
-      el?.focus();
-      el?.click();
-    },
-
-    end: () => {
-      const el = inputRefs.current.end;
-      el?.focus();
-      el?.click();
-    },
-
-    wait: () => {
-      const el = inputRefs.current.wait;
-      el?.focus();
-      el?.click();
-    },
-
-    entry: () => {
-      const el = inputRefs.current.entry;
-      el?.focus();
-      el?.click();
-    },
-
-    tags: () => inputRefs.current.tags?.focus(),
-
-    annotations: () => inputRefs.current.annotations?.focus(),
-  };
-
-  useEffect(() => {
-    focusMap[focusedField]?.();
-  }, [
-    focusedField,
-    editState.isEditing,
-    editState.isEditingDueDate,
-    editState.isEditingStartDate,
-    editState.isEditingEndDate,
-    editState.isEditingWaitDate,
-    editState.isEditingEntryDate,
-    editState.isEditingTags,
-    editState.isEditingAnnotations,
-  ]);
-
-  const handleDialogKeyDown = (e: React.KeyboardEvent) => {
-    const target = e.target as HTMLElement;
-
-    const isTyping =
-      target.tagName === 'INPUT' ||
-      target.tagName === 'TEXTAREA' ||
-      target.isContentEditable;
-    // ⛔ allow normal typing
-    if (isTyping) return;
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        if (isEditingAny) return;
-        setFocusedFieldIndex((i) => Math.min(i + 1, FIELDS.length - 1));
-        break;
-
-      case 'ArrowUp':
-        e.preventDefault();
-        if (isEditingAny) return;
-        setFocusedFieldIndex((i) => Math.max(i - 1, 0));
-        break;
-
-      case 'Enter':
-        if (isEditingAny) return;
-        e.preventDefault();
-        triggerEditForField(FIELDS[focusedFieldIndex]);
-        break;
-
-      case 'Escape':
-        e.preventDefault();
-        stopEditing();
-        break;
-    }
-  };
-
   const stopEditing = () => {
     onUpdateState({
       isEditing: false,
@@ -228,8 +115,46 @@ export const TaskDialog = ({
     editButtonRef.current[field]?.click();
   };
 
-  const saveAndExit = (fn: () => void) => {
-    fn();
+  useEffect(() => {
+    const el = editButtonRef.current[focusedField];
+    if (!el) return;
+
+    el.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  }, [focusedField]);
+
+  useEffect(() => {
+    focusMap(focusedField);
+  }, [
+    focusedField,
+    editState.isEditing,
+    editState.isEditingDueDate,
+    editState.isEditingStartDate,
+    editState.isEditingEndDate,
+    editState.isEditingWaitDate,
+    editState.isEditingEntryDate,
+    editState.isEditingTags,
+    editState.isEditingAnnotations,
+  ]);
+
+  const focusMap = useTaskDialFocusMap({
+    feilds: FIELDS,
+    inputRef: inputRefs,
+  });
+
+  const handleDialogKeyDown = useTaskDialogKeyboard({
+    fields: FIELDS,
+    focusedFieldIndex: focusedFieldIndex,
+    setFocusedFieldIndex: setFocusedFieldIndex,
+    isEditingAny: isEditingAny,
+    stopEditing: stopEditing,
+    triggerEditForField: triggerEditForField,
+  });
+
+  const saveAndExit = (onSave: () => void) => {
+    onSave();
     stopEditing();
   };
 
@@ -255,13 +180,6 @@ export const TaskDialog = ({
       isEditing: true,
       editedDescription: description,
     });
-  };
-
-  const handledropdown = (type: FieldKey) => {
-    if (type === 'priority') {
-      const btn = document.getElementById('priority');
-      btn?.click();
-    }
   };
 
   return (
@@ -982,7 +900,6 @@ export const TaskDialog = ({
                                           t.uuid
                                         )}
                                         readOnly
-                                        tabIndex={-1}
                                       />
                                       <span className="text-sm">
                                         {t.description}
@@ -1098,7 +1015,6 @@ export const TaskDialog = ({
                               editedPriority: task.priority || 'NONE',
                               isEditingPriority: true,
                             });
-                            handledropdown('priority');
                           }}
                         >
                           <PencilIcon className="h-4 w-4 text-gray-500" />
