@@ -54,6 +54,12 @@ func main() {
 	}
 
 	controllers.GlobalJobQueue = controllers.NewJobQueue()
+	if controllers.GlobalJobQueue != nil && controllers.GlobalJobQueue.GetPersistentQueue() != nil {
+		maintenanceWorker := utils.NewMaintenanceWorker(controllers.GlobalJobQueue.GetPersistentQueue())
+		if err := maintenanceWorker.Start(); err != nil {
+			utils.Logger.Errorf("Failed to start maintenance worker: %v", err)
+		}
+	}
 	// OAuth2 client credentials
 	clientID := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SEC")
