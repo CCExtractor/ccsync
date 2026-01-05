@@ -35,8 +35,9 @@ import {
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { formattedDate, handleCopy } from './tasks-utils';
 import { useEffect, useRef, useState } from 'react';
-import { useTaskDialFocusMap, useTaskDialogKeyboard } from './hooks';
+import { useTaskDialogKeyboard } from './UseTaskDialogKeyboard';
 import { FIELDS } from './constants';
+import { useTaskDialogFocusMap } from './UseTaskDialogFocusMap';
 
 export const TaskDialog = ({
   index,
@@ -116,10 +117,10 @@ export const TaskDialog = ({
   };
 
   useEffect(() => {
-    const el = editButtonRef.current[focusedField];
-    if (!el) return;
+    const element = editButtonRef.current[focusedField];
+    if (!element) return;
 
-    el.scrollIntoView({
+    element.scrollIntoView({
       behavior: 'smooth',
       block: 'nearest',
     });
@@ -139,9 +140,9 @@ export const TaskDialog = ({
     editState.isEditingAnnotations,
   ]);
 
-  const focusMap = useTaskDialFocusMap({
-    feilds: FIELDS,
-    inputRef: inputRefs,
+  const focusMap = useTaskDialogFocusMap({
+    fields: FIELDS,
+    inputRefs: inputRefs,
   });
 
   const handleDialogKeyDown = useTaskDialogKeyboard({
@@ -325,7 +326,9 @@ export const TaskDialog = ({
                                 });
                               }
                             }}
-                            ref={(el) => (inputRefs.current.description = el)}
+                            ref={(element) =>
+                              (inputRefs.current.description = element)
+                            }
                             id={`description-${task.id}`}
                             name={`description-${task.id}`}
                             type="text"
@@ -365,7 +368,9 @@ export const TaskDialog = ({
                       <>
                         <span>{task.description}</span>
                         <Button
-                          ref={(el) => (editButtonRef.current.description = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.description = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -385,7 +390,7 @@ export const TaskDialog = ({
                     {editState.isEditingDueDate ? (
                       <div className="flex items-center gap-2">
                         <DateTimePicker
-                          ref={(el) => (inputRefs.current.due = el)}
+                          ref={(element) => (inputRefs.current.due = element)}
                           date={
                             editState.editedDueDate &&
                             editState.editedDueDate !== ''
@@ -445,7 +450,9 @@ export const TaskDialog = ({
                       <>
                         <span>{formattedDate(task.due)}</span>
                         <Button
-                          ref={(el) => (editButtonRef.current.due = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.due = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -470,8 +477,8 @@ export const TaskDialog = ({
                     {editState.isEditingStartDate ? (
                       <div className="flex items-center gap-2">
                         <DateTimePicker
-                          ref={(el: HTMLButtonElement | null) =>
-                            (inputRefs.current.start = el)
+                          ref={(element: HTMLButtonElement | null) =>
+                            (inputRefs.current.start = element)
                           }
                           date={
                             editState.editedStartDate &&
@@ -536,7 +543,9 @@ export const TaskDialog = ({
                       <>
                         <span>{formattedDate(task.start)}</span>
                         <Button
-                          ref={(el) => (editButtonRef.current.start = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.start = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -561,7 +570,7 @@ export const TaskDialog = ({
                     {editState.isEditingEndDate ? (
                       <div className="flex items-center gap-2">
                         <DateTimePicker
-                          ref={(el) => (inputRefs.current.end = el)}
+                          ref={(element) => (inputRefs.current.end = element)}
                           date={
                             editState.editedEndDate &&
                             editState.editedEndDate !== ''
@@ -621,7 +630,9 @@ export const TaskDialog = ({
                       <div className="flex items-center">
                         <span>{formattedDate(task.end)}</span>
                         <Button
-                          ref={(el) => (editButtonRef.current.end = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.end = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -646,7 +657,7 @@ export const TaskDialog = ({
                     {editState.isEditingWaitDate ? (
                       <div className="flex items-center gap-2">
                         <DateTimePicker
-                          ref={(el) => (inputRefs.current.wait = el)}
+                          ref={(element) => (inputRefs.current.wait = element)}
                           date={
                             editState.editedWaitDate &&
                             editState.editedWaitDate !== ''
@@ -709,7 +720,9 @@ export const TaskDialog = ({
                       <>
                         <span>{formattedDate(task.wait)}</span>
                         <Button
-                          ref={(el) => (editButtonRef.current.wait = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.wait = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -760,7 +773,9 @@ export const TaskDialog = ({
                           );
                         })}
                         <Button
-                          ref={(el) => (editButtonRef.current.depends = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.depends = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -816,8 +831,8 @@ export const TaskDialog = ({
                         <div className="flex items-center gap-2">
                           <div className="relative flex-1">
                             <Button
-                              ref={(el) => {
-                                editButtonRef.current.depends = el;
+                              ref={(element) => {
+                                editButtonRef.current.depends = element;
                               }}
                               variant="outline"
                               size="sm"
@@ -837,7 +852,9 @@ export const TaskDialog = ({
                                 className="absolute left-0 top-full mt-1 z-50 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto"
                               >
                                 <Input
-                                  ref={(el) => (inputRefs.current.depends = el)}
+                                  ref={(element) =>
+                                    (inputRefs.current.depends = element)
+                                  }
                                   type="text"
                                   placeholder="Search tasks..."
                                   value={editState.dependsSearchTerm}
@@ -1006,7 +1023,9 @@ export const TaskDialog = ({
                             : 'None'}
                         </span>
                         <Button
-                          ref={(el) => (editButtonRef.current.priority = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.priority = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -1089,8 +1108,8 @@ export const TaskDialog = ({
                           {isCreatingNewProject && (
                             <div className="flex gap-4 justify-center items-center">
                               <Input
-                                ref={(el) => {
-                                  inputRefs.current.project = el;
+                                ref={(element) => {
+                                  inputRefs.current.project = element;
                                 }}
                                 id="project-name"
                                 placeholder="New project name"
@@ -1139,7 +1158,9 @@ export const TaskDialog = ({
                       <>
                         <span>{task.project}</span>
                         <Button
-                          ref={(el) => (editButtonRef.current.project = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.project = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -1169,7 +1190,9 @@ export const TaskDialog = ({
                       <div>
                         <div className="flex items-center w-full">
                           <Input
-                            ref={(el) => (inputRefs.current.tags = el)}
+                            ref={(element) =>
+                              (inputRefs.current.tags = element)
+                            }
                             type="text"
                             value={editState.editTagInput}
                             onChange={(e) => {
@@ -1280,7 +1303,9 @@ export const TaskDialog = ({
                           <span>No Tags</span>
                         )}
                         <Button
-                          ref={(el) => (editButtonRef.current.tags = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.tags = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -1306,7 +1331,7 @@ export const TaskDialog = ({
                     {editState.isEditingEntryDate ? (
                       <div className="flex items-center gap-2">
                         <DateTimePicker
-                          ref={(el) => (editButtonRef.current.entry = el)}
+                          ref={(element) => (inputRefs.current.entry = element)}
                           date={
                             editState.editedEntryDate &&
                             editState.editedEntryDate !== ''
@@ -1370,7 +1395,9 @@ export const TaskDialog = ({
                       <>
                         <span>{formattedDate(task.entry)}</span>
                         <Button
-                          ref={(el) => (editButtonRef.current.entry = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.entry = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -1466,7 +1493,9 @@ export const TaskDialog = ({
                       <div className="flex items-center">
                         <span>{task.recur || 'None'}</span>
                         <Button
-                          ref={(el) => (editButtonRef.current.recur = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.recur = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -1522,7 +1551,9 @@ export const TaskDialog = ({
                       <div>
                         <div className="flex items-center w-full">
                           <Input
-                            ref={(el) => (inputRefs.current.annotations = el)}
+                            ref={(element) =>
+                              (inputRefs.current.annotations = element)
+                            }
                             type="text"
                             value={editState.annotationInput}
                             onChange={(e) => {
@@ -1630,7 +1661,9 @@ export const TaskDialog = ({
                           <span>No Annotations</span>
                         )}
                         <Button
-                          ref={(el) => (editButtonRef.current.annotations = el)}
+                          ref={(element) =>
+                            (editButtonRef.current.annotations = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"

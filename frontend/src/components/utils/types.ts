@@ -174,7 +174,7 @@ export type FieldKey = (typeof FIELDS)[number];
 
 export type RefMap = Record<string, HTMLElement | null>;
 
-export interface UseTaskDialFocusMapProps<F extends readonly string[]> {
-  feilds: F;
-  inputRef: React.MutableRefObject<RefMap>;
+export interface UseTaskDialogFocusMapProps<F extends readonly string[]> {
+  fields: F;
+  inputRefs: React.MutableRefObject<RefMap>;
 }

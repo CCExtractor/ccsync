@@ -1,10 +1,9 @@
 import {
   Task,
-  UseTaskDialFocusMapProps,
-  UseTaskDialogKeyboardProps,
+  // UseTaskDialogFocusMapProps
 } from '@/components/utils/types';
 import Dexie from 'dexie';
-import * as React from 'react';
+// import React from 'react';
 
 export const fetchTaskwarriorTasks = async ({
   email,
@@ -253,75 +252,4 @@ export class TasksDatabase extends Dexie {
     });
     this.tasks = this.table('tasks');
   }
-}
-
-export function useTaskDialogKeyboard<F extends readonly string[]>({
-  fields,
-  focusedFieldIndex,
-  setFocusedFieldIndex,
-  isEditingAny,
-  triggerEditForField,
-  stopEditing,
-}: UseTaskDialogKeyboardProps<F>) {
-  return React.useCallback(
-    (e: React.KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-
-      const isTyping =
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable;
-
-      if (isTyping) return;
-
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault();
-          if (isEditingAny) return;
-          setFocusedFieldIndex((i) => Math.min(i + 1, fields.length - 1));
-          break;
-
-        case 'ArrowUp':
-          e.preventDefault();
-          if (isEditingAny) return;
-          setFocusedFieldIndex((i) => Math.max(i - 1, 0));
-          break;
-
-        case 'Enter':
-          if (isEditingAny) return;
-          e.preventDefault();
-          triggerEditForField(fields[focusedFieldIndex]);
-          break;
-
-        case 'Escape':
-          e.preventDefault();
-          stopEditing();
-          break;
-      }
-    },
-    [
-      fields,
-      focusedFieldIndex,
-      isEditingAny,
-      setFocusedFieldIndex,
-      stopEditing,
-      triggerEditForField,
-    ]
-  );
-}
-
-export function useTaskDialFocusMap<F extends readonly string[]>({
-  feilds,
-  inputRef,
-}: UseTaskDialFocusMapProps<F>) {
-  return React.useCallback(
-    (feild: F[number]) => {
-      const el = inputRef.current[feild];
-      if (!el) return;
-
-      el.focus();
-      el.click();
-    },
-    [feilds, inputRef]
-  );
 }
