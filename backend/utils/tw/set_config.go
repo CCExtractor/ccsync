@@ -9,7 +9,7 @@ import (
 func SetTaskwarriorConfig(tempDir, encryptionSecret, origin, UUID string) error {
 	configCmds := [][]string{
 		{"task", "config", "sync.encryption_secret", encryptionSecret, "rc.confirmation=off"},
-		{"task", "config", "sync.server.origin", origin, "rc.confirmation=off"},
+		{"task", "config", "sync.server.url", origin, "rc.confirmation=off"},
 		{"task", "config", "sync.server.client_id", UUID, "rc.confirmation=off"},
 	}
 
