@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { FAQ } from '../FAQ';
 import { FAQList } from '../faq-utils';
+import { url } from '@/components/utils/URLs';
 
 jest.mock('../faq-utils', () => ({
   FAQList: [
@@ -57,7 +58,7 @@ describe('FAQ component', () => {
     render(<FAQ />);
     const contactLink = screen.getByText(/Contact us/i);
     expect(contactLink).toBeInTheDocument();
-    expect(contactLink).toHaveAttribute('href', '#contact');
+    expect(contactLink).toHaveAttribute('href', url.zulipURL);
   });
 });
 
