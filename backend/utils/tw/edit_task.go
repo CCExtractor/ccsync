@@ -13,6 +13,11 @@ func EditTaskInTaskwarrior(
 	req models.EditTaskRequestBody,
 ) error {
 
+	// This preserves existing behavior and avoids stale task data
+	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
+		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
+	}
+
 	tempDir, err := os.MkdirTemp("", "taskwarrior-"+req.Email)
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
