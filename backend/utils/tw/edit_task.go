@@ -10,27 +10,22 @@ import (
 )
 
 func EditTaskInTaskwarrior(
-	uuid, description, email, encryptionSecret, taskUUID string,
-	tags []string,
-	project string,
-	start string,
-	entry string,
-	wait string,
-	end string,
-	depends []string,
-	due string,
-	recur string,
-	annotations []models.Annotation,
+	req models.EditTaskRequestBody,
 ) error {
 
-	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	tempDir, err := os.MkdirTemp("", "taskwarrior-"+req.Email)
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
 	}
 	defer os.RemoveAll(tempDir)
 
 	origin := os.Getenv("CONTAINER_ORIGIN")
-	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
+	if err := SetTaskwarriorConfig(
+		tempDir,
+		req.EncryptionSecret,
+		origin,
+		req.UUID,
+	); err != nil {
 		return err
 	}
 
@@ -38,77 +33,90 @@ func EditTaskInTaskwarrior(
 		return err
 	}
 
-	args := []string{"modify", taskUUID}
+	// build single modify command
+	args := []string{"modify", req.TaskUUID}
 
-	if description != "" {
-		args = append(args, description)
+	if req.Description != "" {
+		args = append(args, req.Description)
 	}
 
-	if project != "" {
-		args = append(args, "project:"+project)
+	if req.Project != "" {
+		args = append(args, "project:"+req.Project)
 	}
 
-	if start != "" {
-		args = append(args, "start:"+start)
+	if req.Start != "" {
+		args = append(args, "start:"+req.Start)
 	}
 
-	if entry != "" {
-		args = append(args, "entry:"+entry)
+	if req.Entry != "" {
+		args = append(args, "entry:"+req.Entry)
 	}
 
-	if wait != "" {
-		args = append(args, "wait:"+wait)
+	// wait date logic (explicitly requested in review)
+	if req.Wait != "" {
+		formattedWait := req.Wait + "T00:00:00"
+		args = append(args, "wait:"+formattedWait)
 	}
 
-	if end != "" {
-		args = append(args, "end:"+end)
+	if req.End != "" {
+		args = append(args, "end:"+req.End)
 	}
 
-	if len(depends) > 0 {
-		args = append(args, "depends:"+strings.Join(depends, ","))
+	if len(req.Depends) > 0 {
+		args = append(args, "depends:"+strings.Join(req.Depends, ","))
 	}
 
-	if due != "" {
-		args = append(args, "due:"+due)
+	if req.Due != "" {
+		args = append(args, "due:"+req.Due)
 	}
 
-	if recur != "" {
-		args = append(args, "recur:"+recur)
+	if req.Recur != "" {
+		args = append(args, "recur:"+req.Recur)
 	}
 
-	for _, tag := range tags {
+	for _, tag := range req.Tags {
 		if strings.HasPrefix(tag, "+") || strings.HasPrefix(tag, "-") {
 			args = append(args, tag)
-		} else {
+		} else if tag != "" {
 			args = append(args, "+"+tag)
 		}
 	}
 
-	if err := utils.ExecCommand("task", args...); err != nil {
-		return fmt.Errorf("failed to edit task %s: %v", taskUUID, err)
+	if err := utils.ExecCommandInDir(tempDir, "task", args...); err != nil {
+		return fmt.Errorf("failed to edit task %s: %v", req.TaskUUID, err)
 	}
 
-	if len(annotations) >= 0 {
-		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", taskUUID, "export")
-		if err == nil {
-			var tasks []map[string]interface{}
-			if err := json.Unmarshal(output, &tasks); err == nil && len(tasks) > 0 {
-				if existingAnnotations, ok := tasks[0]["annotations"].([]interface{}); ok {
-					for _, ann := range existingAnnotations {
-						if annMap, ok := ann.(map[string]interface{}); ok {
-							if desc, ok := annMap["description"].(string); ok {
-								utils.ExecCommand("task", taskUUID, "denotate", desc)
-							}
-						}
-					}
-				}
-			}
+	// rewritten annotation handling (as requested)
+	if len(req.Annotations) > 0 {
+		output, err := utils.ExecCommandForOutputInDir(
+			tempDir,
+			"task",
+			req.TaskUUID,
+			"export",
+		)
+		if err != nil {
+			return fmt.Errorf("failed to export task: %v", err)
 		}
 
-		for _, annotation := range annotations {
+		var tasks []map[string]interface{}
+		if err := json.Unmarshal(output, &tasks); err != nil || len(tasks) == 0 {
+			return fmt.Errorf("invalid export output for annotations")
+		}
+
+		for _, annotation := range req.Annotations {
 			if annotation.Description != "" {
-				if err := utils.ExecCommand("task", taskUUID, "annotate", annotation.Description); err != nil {
-					return fmt.Errorf("failed to add annotation %s: %v", annotation.Description, err)
+				if err := utils.ExecCommandInDir(
+					tempDir,
+					"task",
+					req.TaskUUID,
+					"annotate",
+					annotation.Description,
+				); err != nil {
+					return fmt.Errorf(
+						"failed to add annotation %s: %v",
+						annotation.Description,
+						err,
+					)
 				}
 			}
 		}
