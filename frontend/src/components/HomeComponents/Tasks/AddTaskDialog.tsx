@@ -201,6 +201,9 @@ export const AddTaskdialog = ({
                   if (value === '__CREATE_NEW__') {
                     setIsCreatingNewProject(true);
                     setNewTask({ ...newTask, project: '' });
+                  } else if (value === '__NONE__') {
+                    setIsCreatingNewProject(false);
+                    setNewTask({ ...newTask, project: '' });
                   } else {
                     setIsCreatingNewProject(false);
                     setNewTask({ ...newTask, project: value });
