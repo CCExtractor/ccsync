@@ -202,6 +202,21 @@ describe('AddTaskDialog Component', () => {
   });
 
   describe('Project Field', () => {
+    test('sets project to empty string when "No project" is selected', () => {
+      mockProps.isOpen = true;
+      mockProps.uniqueProjects = ['Work', 'Personal'];
+      render(<AddTaskdialog {...mockProps} />);
+
+      const projectSelect = screen.getByTestId('project-select');
+      fireEvent.change(projectSelect, { target: { value: '__NONE__' } });
+
+      expect(mockProps.setIsCreatingNewProject).toHaveBeenCalledWith(false);
+      expect(mockProps.setNewTask).toHaveBeenCalledWith({
+        ...mockProps.newTask,
+        project: '',
+      });
+    });
+
     test('updates project when user types in project field', async () => {
       mockProps.isOpen = true;
       mockProps.isCreatingNewProject = true;
