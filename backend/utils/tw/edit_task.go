@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -13,7 +14,6 @@ func EditTaskInTaskwarrior(
 	req models.EditTaskRequestBody,
 ) error {
 
-	// This preserves existing behavior and avoids stale task data
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
@@ -38,7 +38,6 @@ func EditTaskInTaskwarrior(
 		return err
 	}
 
-	// build single modify command
 	args := []string{"modify", req.TaskUUID}
 
 	if req.Description != "" {
@@ -57,7 +56,6 @@ func EditTaskInTaskwarrior(
 		args = append(args, "entry:"+req.Entry)
 	}
 
-	// wait date logic (explicitly requested in review)
 	if req.Wait != "" {
 		formattedWait := req.Wait + "T00:00:00"
 		args = append(args, "wait:"+formattedWait)
@@ -91,21 +89,27 @@ func EditTaskInTaskwarrior(
 		return fmt.Errorf("failed to edit task %s: %v", req.TaskUUID, err)
 	}
 
-	// rewritten annotation handling (as requested)
 	if len(req.Annotations) > 0 {
-		output, err := utils.ExecCommandForOutputInDir(
-			tempDir,
-			"task",
-			req.TaskUUID,
-			"export",
-		)
+		cmd := exec.Command("task", req.TaskUUID, "export")
+		cmd.Dir = tempDir
+
+		stdout, err := cmd.StdoutPipe()
 		if err != nil {
-			return fmt.Errorf("failed to export task: %v", err)
+			return fmt.Errorf("failed to get export output: %v", err)
+		}
+
+		if err := cmd.Start(); err != nil {
+			return fmt.Errorf("failed to start export command: %v", err)
 		}
 
 		var tasks []map[string]interface{}
-		if err := json.Unmarshal(output, &tasks); err != nil || len(tasks) == 0 {
+		decoder := json.NewDecoder(stdout)
+		if err := decoder.Decode(&tasks); err != nil || len(tasks) == 0 {
 			return fmt.Errorf("invalid export output for annotations")
+		}
+
+		if err := cmd.Wait(); err != nil {
+			return fmt.Errorf("export command failed: %v", err)
 		}
 
 		for _, annotation := range req.Annotations {
