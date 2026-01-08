@@ -106,6 +106,8 @@ describe('TaskDialog Component', () => {
     onMarkDeleted: jest.fn(),
     isOverdue: jest.fn(() => false),
     isUnsynced: false,
+    isPinned: false,
+    onTogglePin: jest.fn(),
   };
 
   beforeEach(() => {
