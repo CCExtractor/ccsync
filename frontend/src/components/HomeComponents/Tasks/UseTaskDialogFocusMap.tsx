@@ -7,10 +7,10 @@ export function useTaskDialogFocusMap<F extends readonly string[]>({
 }: UseTaskDialogFocusMapProps<F>) {
   return React.useCallback(
     (field: F[number]) => {
-      const el = inputRefs.current[field];
-      if (!el) return;
+      const element = inputRefs.current[field];
+      if (!element) return;
 
-      el.focus();
+      element.focus();
 
       if (
         field === 'due' ||
@@ -19,7 +19,7 @@ export function useTaskDialogFocusMap<F extends readonly string[]>({
         field === 'wait' ||
         field === 'entry'
       ) {
-        el.click();
+        element.click();
       }
     },
     [fields, inputRefs]

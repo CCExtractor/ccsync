@@ -71,12 +71,12 @@ export const TaskDialog = ({
   isOverdue,
   isUnsynced,
 }: EditTaskDialogProps) => {
-  const editButtonRef = useRef<Record<FieldKey, HTMLButtonElement | null>>(
-    {} as any
-  );
+  const editButtonRef = useRef<
+    Partial<Record<FieldKey, HTMLButtonElement | null>>
+  >({});
   const inputRefs = useRef<
-    Record<FieldKey, HTMLInputElement | HTMLButtonElement | null>
-  >({} as any);
+    Partial<Record<FieldKey, HTMLInputElement | HTMLButtonElement | null>>
+  >({});
   const [focusedFieldIndex, setFocusedFieldIndex] = useState(0);
 
   const isEditingAny =
