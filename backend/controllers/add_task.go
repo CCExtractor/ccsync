@@ -75,6 +75,13 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		requestBody.Start = startStr
 
+		waitStr, err := utils.ConvertISOToTaskwarriorFormat(requestBody.WaitDate)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Invalid wait date format: %v", err), http.StatusBadRequest)
+			return
+		}
+		requestBody.WaitDate = waitStr
+
 		logStore := models.GetLogStore()
 		job := Job{
 			Name: "Add Task",
