@@ -132,6 +132,15 @@ export interface AddTaskDialogProps {
   allTasks?: Task[];
 }
 
+export interface TagMultiSelectProps {
+  availableTags: string[];
+  selectedTags: string[];
+  onTagsChange: (tags: string[]) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+}
+
 export interface EditTaskDialogProps {
   index: number;
   task: Task;
