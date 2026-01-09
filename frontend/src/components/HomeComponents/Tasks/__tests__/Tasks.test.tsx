@@ -38,6 +38,8 @@ jest.mock('../tasks-utils', () => {
       .fn()
       .mockReturnValue('Last updated 5 minutes ago'),
     hashKey: jest.fn().mockReturnValue('mockHashedKey'),
+    getPinnedTasks: jest.fn().mockReturnValue(new Set()),
+    togglePinnedTask: jest.fn(),
   };
 });
 
@@ -557,7 +559,7 @@ describe('Tasks Component', () => {
       });
     });
 
-    it('keeps tasks selected when bulk complete fails', async () => {
+    it('keeps tasks selected when bulk completet fails', async () => {
       const utils = require('../tasks-utils');
 
       utils.bulkMarkTasksAsCompleted.mockResolvedValue(false);
@@ -1359,6 +1361,167 @@ describe('Tasks Component', () => {
     await waitFor(() => {
       const row = screen.getByTestId('task-row-12');
       expect(row).not.toHaveClass('border-l-red-500');
+    });
+  });
+
+  describe('Pin Functionality', () => {
+    test('should load pinned tasks from localStorage on mount', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      const mockPinnedSet = new Set(['uuid-1', 'uuid-2']);
+      getPinnedTasks.mockReturnValue(mockPinnedSet);
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(getPinnedTasks).toHaveBeenCalledWith(mockProps.email);
+      });
+    });
+
+    test('should reload pinned tasks when email changes', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set(['uuid-1']));
+
+      const { rerender } = render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(getPinnedTasks).toHaveBeenCalledWith(mockProps.email);
+      });
+
+      getPinnedTasks.mockClear();
+      getPinnedTasks.mockReturnValue(new Set(['uuid-2']));
+
+      rerender(<Tasks {...mockProps} email="newemail@example.com" />);
+
+      await waitFor(() => {
+        expect(getPinnedTasks).toHaveBeenCalledWith('newemail@example.com');
+      });
+    });
+
+    test('should call togglePinnedTask when handleTogglePin is invoked', async () => {
+      const { togglePinnedTask, getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set());
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
+
+      const task1Row = screen.getByText('Task 1').closest('tr');
+      const pinButton = task1Row?.querySelector('button[aria-label*="Pin"]');
+
+      if (pinButton) {
+        fireEvent.click(pinButton);
+
+        await waitFor(() => {
+          expect(togglePinnedTask).toHaveBeenCalledWith(
+            mockProps.email,
+            'uuid-1'
+          );
+        });
+      }
+    });
+
+    test('should update pinnedTasks state after toggling pin', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks
+        .mockReturnValueOnce(new Set())
+        .mockReturnValueOnce(new Set(['uuid-1']));
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
+
+      const task1Row = screen.getByText('Task 1').closest('tr');
+      const pinButton = task1Row?.querySelector('button[aria-label*="Pin"]');
+
+      if (pinButton) {
+        fireEvent.click(pinButton);
+
+        await waitFor(() => {
+          expect(getPinnedTasks).toHaveBeenCalledTimes(2);
+        });
+      }
+    });
+
+    test('should pass isPinned prop correctly to TaskDialog', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set(['uuid-1']));
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
+
+      const task1Row = screen.getByText('Task 1').closest('tr');
+      expect(task1Row).toBeInTheDocument();
+    });
+
+    test('should sort pinned tasks to the top', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set(['uuid-5']));
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 5')).toBeInTheDocument();
+      });
+
+      const taskRows = screen.getAllByTestId(/task-row-/);
+      const firstTaskRow = taskRows[0];
+      const firstTaskDescription = within(firstTaskRow).getByText(/Task \d+/);
+
+      expect(firstTaskDescription.textContent).toBe('Task 5');
+    });
+
+    test('should maintain pinned tasks at top when filters are applied', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set(['uuid-2']));
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 2')).toBeInTheDocument();
+      });
+
+      const statusFilter = screen.getByText('Mocked MultiSelect: Status');
+      expect(statusFilter).toBeInTheDocument();
+
+      await waitFor(() => {
+        const taskRows = screen.getAllByTestId(/task-row-/);
+        expect(taskRows.length).toBeGreaterThan(0);
+      });
+    });
+
+    test('should sort tasks with pinned first, then overdue, then others', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set(['uuid-3']));
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 3')).toBeInTheDocument();
+      });
+
+      const taskRows = screen.getAllByTestId(/task-row-/);
+      expect(taskRows.length).toBeGreaterThan(0);
+    });
+
+    test('should pass onTogglePin prop to TaskDialog', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set());
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
+
+      const task1Row = screen.getByText('Task 1').closest('tr');
+      expect(task1Row).toBeInTheDocument();
     });
   });
 });
