@@ -170,7 +170,7 @@ export const Tasks = (
         setSelectedIndex((prev) => Math.max(prev - 1, 0));
       }
 
-      if (e.key === 'e') {
+      if (e.key === 'Enter') {
         e.preventDefault();
         const task = currentTasks[selectedIndex];
         if (task) {

@@ -1,3 +1,5 @@
+import { FIELDS } from '../HomeComponents/Tasks/constants';
+
 export interface User {
   name: string;
   email: string;
@@ -159,4 +161,22 @@ export interface EditTaskDialogProps {
   isUnsynced: boolean;
   isPinned: boolean;
   onTogglePin: (uuid: string) => void;
+}
+
+export interface UseTaskDialogKeyboardProps<F extends readonly string[]> {
+  fields: F;
+  focusedFieldIndex: number;
+  setFocusedFieldIndex: React.Dispatch<React.SetStateAction<number>>;
+  isEditingAny: boolean;
+  triggerEditForField: (field: F[number]) => void;
+  stopEditing: () => void;
+}
+
+export type FieldKey = (typeof FIELDS)[number];
+
+export type RefMap = Record<string, HTMLElement | null>;
+
+export interface UseTaskDialogFocusMapProps<F extends readonly string[]> {
+  fields: F;
+  inputRefs: React.MutableRefObject<RefMap>;
 }
