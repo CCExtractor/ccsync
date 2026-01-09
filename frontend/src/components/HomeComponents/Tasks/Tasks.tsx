@@ -95,7 +95,6 @@ export const Tasks = (
   const [isCreatingNewProject, setIsCreatingNewProject] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [_isDialogOpen, setIsDialogOpen] = useState(false);
-  const [tagInput, setTagInput] = useState('');
   const [_selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [editedTags, setEditedTags] = useState<string[]>(
     _selectedTask?.tags || []
@@ -1070,12 +1069,11 @@ export const Tasks = (
                         setIsOpen={setIsAddTaskOpen}
                         newTask={newTask}
                         setNewTask={setNewTask}
-                        tagInput={tagInput}
-                        setTagInput={setTagInput}
                         onSubmit={handleAddTask}
                         isCreatingNewProject={isCreatingNewProject}
                         setIsCreatingNewProject={setIsCreatingNewProject}
                         uniqueProjects={uniqueProjects}
+                        uniqueTags={uniqueTags}
                         allTasks={tasks}
                       />
                     </div>
@@ -1378,12 +1376,11 @@ export const Tasks = (
                         setIsOpen={setIsAddTaskOpen}
                         newTask={newTask}
                         setNewTask={setNewTask}
-                        tagInput={tagInput}
-                        setTagInput={setTagInput}
                         onSubmit={handleAddTask}
                         isCreatingNewProject={isCreatingNewProject}
                         setIsCreatingNewProject={setIsCreatingNewProject}
                         uniqueProjects={uniqueProjects}
+                        uniqueTags={uniqueTags}
                         allTasks={tasks}
                       />
                     </div>
