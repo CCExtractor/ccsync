@@ -42,8 +42,15 @@ jest.mock('../tasks-utils', () => {
 });
 
 jest.mock('@/components/ui/multi-select', () => ({
-  MultiSelectFilter: jest.fn(({ title }) => (
-    <div>Mocked MultiSelect: {title}</div>
+  MultiSelectFilter: jest.fn(({ title, completionStats }) => (
+    <div data-testid={`multi-select-${title.toLowerCase()}`}>
+      Mocked MultiSelect: {title}
+      {completionStats && (
+        <span data-testid={`stats-${title.toLowerCase()}`}>
+          {JSON.stringify(completionStats)}
+        </span>
+      )}
+    </div>
   )),
 }));
 
@@ -1359,6 +1366,155 @@ describe('Tasks Component', () => {
     await waitFor(() => {
       const row = screen.getByTestId('task-row-12');
       expect(row).not.toHaveClass('border-l-red-500');
+    });
+  });
+
+  test('calculates and passes project completion stats to MultiSelectFilter', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    });
+
+    const { MultiSelectFilter } = require('@/components/ui/multi-select');
+
+    // Find the Projects filter call
+    const projectsFilterCall = MultiSelectFilter.mock.calls.find(
+      (call: any) => call[0].title === 'Projects'
+    );
+
+    expect(projectsFilterCall).toBeDefined();
+    expect(projectsFilterCall[0].completionStats).toBeDefined();
+
+    const stats = projectsFilterCall[0].completionStats;
+
+    // ProjectA has tasks: 1,3,5,7,9,11 (pending) + task 16 (completed) = 1 completed out of 7 total
+    expect(stats['ProjectA']).toBeDefined();
+    expect(stats['ProjectA'].completed).toBeGreaterThanOrEqual(1);
+    expect(stats['ProjectA'].total).toBeGreaterThanOrEqual(1);
+    expect(stats['ProjectA'].percentage).toBeGreaterThanOrEqual(0);
+    expect(stats['ProjectA'].percentage).toBeLessThanOrEqual(100);
+
+    // ProjectB has tasks: 2,4,6,8,10,12 (pending) + task 17 (deleted) = 0 completed
+    expect(stats['ProjectB']).toBeDefined();
+    expect(stats['ProjectB'].total).toBeGreaterThanOrEqual(1);
+  });
+
+  test('calculates and passes tag completion stats to MultiSelectFilter', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    });
+
+    const { MultiSelectFilter } = require('@/components/ui/multi-select');
+
+    // Find the Tags filter call
+    const tagsFilterCall = MultiSelectFilter.mock.calls.find(
+      (call: any) => call[0].title === 'Tags'
+    );
+
+    expect(tagsFilterCall).toBeDefined();
+    expect(tagsFilterCall[0].completionStats).toBeDefined();
+
+    const stats = tagsFilterCall[0].completionStats;
+
+    // Verify stats structure
+    Object.keys(stats).forEach((tag) => {
+      expect(stats[tag]).toHaveProperty('completed');
+      expect(stats[tag]).toHaveProperty('total');
+      expect(stats[tag]).toHaveProperty('percentage');
+      expect(typeof stats[tag].completed).toBe('number');
+      expect(typeof stats[tag].total).toBe('number');
+      expect(typeof stats[tag].percentage).toBe('number');
+      expect(stats[tag].percentage).toBeGreaterThanOrEqual(0);
+      expect(stats[tag].percentage).toBeLessThanOrEqual(100);
+    });
+  });
+
+  test('recalculates completion stats after sync', async () => {
+    const hooks = require('../hooks');
+
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    });
+
+    const { MultiSelectFilter } = require('@/components/ui/multi-select');
+
+    hooks.fetchTaskwarriorTasks.mockResolvedValueOnce([
+      {
+        id: 1,
+        description: 'Task 1',
+        status: 'completed',
+        project: 'ProjectA',
+        tags: ['tag1'],
+        uuid: 'uuid-1',
+      },
+      {
+        id: 2,
+        description: 'Task 2',
+        status: 'completed',
+        project: 'ProjectB',
+        tags: ['tag2'],
+        uuid: 'uuid-2',
+      },
+    ]);
+
+    MultiSelectFilter.mockClear();
+
+    const syncButtons = screen.getAllByText('Sync');
+    fireEvent.click(syncButtons[0]);
+
+    await waitFor(() => {
+      const projectsCall = MultiSelectFilter.mock.calls.find(
+        (call: any) => call[0].title === 'Projects'
+      );
+      expect(projectsCall).toBeDefined();
+    });
+
+    const updatedProjectsCall = MultiSelectFilter.mock.calls.find(
+      (call: any) => call[0].title === 'Projects'
+    );
+
+    expect(updatedProjectsCall).toBeDefined();
+    expect(updatedProjectsCall[0].completionStats).toBeDefined();
+
+    const updatedStats = updatedProjectsCall[0].completionStats;
+    expect(updatedStats['ProjectA']).toBeDefined();
+    expect(updatedStats['ProjectB']).toBeDefined();
+  });
+
+  test('completion stats structure is correct', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    });
+
+    const { MultiSelectFilter } = require('@/components/ui/multi-select');
+
+    const projectsCall = MultiSelectFilter.mock.calls.find(
+      (call: any) => call[0].title === 'Projects'
+    );
+
+    expect(projectsCall).toBeDefined();
+    const stats = projectsCall[0].completionStats;
+
+    // Verify stats structure for any project that exists
+    Object.keys(stats).forEach((project) => {
+      expect(stats[project]).toHaveProperty('completed');
+      expect(stats[project]).toHaveProperty('total');
+      expect(stats[project]).toHaveProperty('percentage');
+      expect(typeof stats[project].completed).toBe('number');
+      expect(typeof stats[project].total).toBe('number');
+      expect(typeof stats[project].percentage).toBe('number');
+      expect(stats[project].completed).toBeLessThanOrEqual(
+        stats[project].total
+      );
+      expect(stats[project].percentage).toBeGreaterThanOrEqual(0);
+      expect(stats[project].percentage).toBeLessThanOrEqual(100);
     });
   });
 });

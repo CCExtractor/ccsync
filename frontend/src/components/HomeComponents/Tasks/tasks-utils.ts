@@ -290,10 +290,6 @@ export const hashKey = (key: string, email: string): string => {
   return Math.abs(hash).toString(36);
 };
 
-/**
- * Calculate completion statistics for projects
- * Returns an object with completion stats for each project
- */
 export const calculateProjectStats = (
   tasks: Task[]
 ): Record<string, { completed: number; total: number; percentage: number }> => {
@@ -316,7 +312,6 @@ export const calculateProjectStats = (
     }
   });
 
-  // Calculate percentages
   Object.keys(stats).forEach((project) => {
     const { completed, total } = stats[project];
     stats[project].percentage =
@@ -326,10 +321,6 @@ export const calculateProjectStats = (
   return stats;
 };
 
-/**
- * Calculate completion statistics for tags
- * Returns an object with completion stats for each tag
- */
 export const calculateTagStats = (
   tasks: Task[]
 ): Record<string, { completed: number; total: number; percentage: number }> => {
@@ -354,7 +345,6 @@ export const calculateTagStats = (
     });
   });
 
-  // Calculate percentages
   Object.keys(stats).forEach((tag) => {
     const { completed, total } = stats[tag];
     stats[tag].percentage =
