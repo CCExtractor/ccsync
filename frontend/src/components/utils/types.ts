@@ -123,12 +123,11 @@ export interface AddTaskDialogProps {
   setIsOpen: (value: boolean) => void;
   newTask: TaskFormData;
   setNewTask: (task: TaskFormData) => void;
-  tagInput: string;
-  setTagInput: (value: string) => void;
   onSubmit: (task: TaskFormData) => void;
   isCreatingNewProject: boolean;
   setIsCreatingNewProject: (value: boolean) => void;
   uniqueProjects: string[];
+  uniqueTags: string[];
   allTasks?: Task[];
 }
 
