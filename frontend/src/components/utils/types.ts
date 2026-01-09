@@ -134,6 +134,10 @@ export interface TagMultiSelectProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  autoOpen?: boolean;
+  showActions?: boolean;
+  onSave?: () => void;
+  onCancel?: () => void;
 }
 
 export interface EditTaskDialogProps {

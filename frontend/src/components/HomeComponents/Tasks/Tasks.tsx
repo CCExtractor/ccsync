@@ -96,9 +96,6 @@ export const Tasks = (
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [_isDialogOpen, setIsDialogOpen] = useState(false);
   const [_selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [editedTags, setEditedTags] = useState<string[]>(
-    _selectedTask?.tags || []
-  );
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
@@ -188,7 +185,7 @@ export const Tasks = (
   }, [props.email]);
   useEffect(() => {
     if (_selectedTask) {
-      setEditedTags(_selectedTask.tags || []);
+      // Task selection effect - no longer needed for editedTags
     }
   }, [_selectedTask]);
 
@@ -273,6 +270,12 @@ export const Tasks = (
           .filter((project) => project !== '')
           .sort((a, b) => (a > b ? 1 : -1));
         setUniqueProjects(filteredProjects);
+
+        const tagsSet = new Set(sortedTasks.flatMap((task) => task.tags || []));
+        const filteredTags = Array.from(tagsSet)
+          .filter((tag) => tag !== '')
+          .sort((a, b) => (a > b ? 1 : -1));
+        setUniqueTags(filteredTags);
       });
 
       const currentTime = Date.now();
@@ -799,11 +802,7 @@ export const Tasks = (
   }, [selectedProjects, selectedTags, selectedStatuses, tasks, debouncedTerm]);
 
   const handleSaveTags = (task: Task, tags: string[]) => {
-    const currentTags = tags || [];
-    const removedTags = currentTags.filter((tag) => !editedTags.includes(tag));
-    const updatedTags = editedTags.filter((tag) => tag.trim() !== '');
-    const tagsToRemove = removedTags.map((tag) => `${tag}`);
-    const finalTags = [...updatedTags, ...tagsToRemove];
+    const updatedTags = tags.filter((tag) => tag.trim() !== '');
 
     setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
@@ -812,7 +811,7 @@ export const Tasks = (
       props.encryptionSecret,
       props.UUID,
       task.description,
-      finalTags,
+      updatedTags,
       task.uuid.toString(),
       task.project,
       task.start,

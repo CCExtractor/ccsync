@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagMultiSelectProps } from '@/components/utils/types';
-import { ChevronDown, Plus } from 'lucide-react';
+import { ChevronDown, Plus, Check, X } from 'lucide-react';
 
 export const TagMultiSelect = ({
   availableTags,
@@ -12,8 +12,12 @@ export const TagMultiSelect = ({
   placeholder = 'Select or create tags',
   disabled = false,
   className = '',
+  autoOpen = false,
+  showActions = false,
+  onSave,
+  onCancel,
 }: TagMultiSelectProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(autoOpen);
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -67,12 +71,15 @@ export const TagMultiSelect = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      const filteredTags = getFilteredTags();
-      if (filteredTags.length > 0) {
-        handleTagSelect(filteredTags[0]);
-      } else if (searchTerm.trim()) {
-        handleNewTagCreate();
+      if (searchTerm.trim()) {
+        const filteredTags = getFilteredTags();
+        if (filteredTags.length > 0) {
+          handleTagSelect(filteredTags[0]);
+        } else {
+          handleNewTagCreate();
+        }
       }
+      // Do nothing if search is empty
     } else if (e.key === 'Escape') {
       setIsOpen(false);
       setSearchTerm('');
@@ -92,6 +99,7 @@ export const TagMultiSelect = ({
         onClick={() => setIsOpen(!isOpen)}
         disabled={disabled}
         className="w-full justify-between text-left font-normal"
+        aria-label="Select tags"
       >
         <span className="truncate">
           {selectedTags.length > 0
@@ -100,6 +108,50 @@ export const TagMultiSelect = ({
         </span>
         <ChevronDown className="h-4 w-4 opacity-50" />
       </Button>
+
+      {/* Selected tags displayed below button with optional action buttons */}
+      {selectedTags.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 mt-2">
+          {selectedTags.map((tag) => (
+            <Badge key={tag} className="flex items-center gap-1">
+              <span>{tag}</span>
+              <button
+                type="button"
+                onClick={() => handleTagRemove(tag)}
+                className="ml-1 text-red-500 hover:text-red-700 text-xs"
+                disabled={disabled}
+                aria-label={`Remove ${tag}`}
+              >
+                ✖
+              </button>
+            </Badge>
+          ))}
+          {showActions && onSave && onCancel && (
+            <div className="flex items-center gap-1 whitespace-nowrap">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={onSave}
+                className="h-8 w-8"
+                aria-label="Save tags"
+              >
+                <Check className="h-4 w-4 text-green-500" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={onCancel}
+                className="h-8 w-8"
+                aria-label="Cancel"
+              >
+                <X className="h-4 w-4 text-red-500" />
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       {isOpen && (
         <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-hidden">
@@ -119,16 +171,10 @@ export const TagMultiSelect = ({
             {getFilteredTags().map((tag) => (
               <div
                 key={tag}
-                className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent transition-colors"
+                className="px-3 py-2 cursor-pointer hover:bg-accent transition-colors"
                 onClick={() => handleTagSelect(tag)}
               >
-                <input
-                  type="checkbox"
-                  checked={false}
-                  readOnly
-                  className="h-4 w-4"
-                />
-                <span className="flex-1 text-sm">{tag}</span>
+                <span className="text-sm">{tag}</span>
               </div>
             ))}
 
@@ -150,28 +196,6 @@ export const TagMultiSelect = ({
               </div>
             )}
           </div>
-        </div>
-      )}
-
-      {selectedTags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-2">
-          {selectedTags.map((tag) => (
-            <Badge
-              key={tag}
-              variant="secondary"
-              className="flex items-center gap-1"
-            >
-              <span>{tag}</span>
-              <button
-                type="button"
-                onClick={() => handleTagRemove(tag)}
-                className="ml-1 text-red-500 hover:text-red-700 text-xs"
-                disabled={disabled}
-              >
-                ✖
-              </button>
-            </Badge>
-          ))}
         </div>
       )}
     </div>

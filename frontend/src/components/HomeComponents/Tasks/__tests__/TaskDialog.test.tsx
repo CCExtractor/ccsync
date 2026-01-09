@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { TaskDialog } from '../TaskDialog';
 import { Task, EditTaskState } from '../../../utils/types';
 
@@ -88,6 +88,7 @@ describe('TaskDialog Component', () => {
     onUpdateState: jest.fn(),
     allTasks: mockAllTasks,
     uniqueProjects: [],
+    uniqueTags: ['work', 'urgent', 'personal'],
     isCreatingNewProject: false,
     setIsCreatingNewProject: jest.fn(),
     onSaveDescription: jest.fn(),
@@ -344,11 +345,10 @@ describe('TaskDialog Component', () => {
       }
     });
 
-    test('should add new tag on Enter key press', () => {
+    test('should display TagMultiSelect when editing', () => {
       const editingState = {
         ...mockEditState,
         isEditingTags: true,
-        editTagInput: 'newtag',
         editedTags: ['tag1', 'tag2'],
       };
 
@@ -356,33 +356,56 @@ describe('TaskDialog Component', () => {
         <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
-      const input = screen.getByPlaceholderText(
-        'Add a tag (press enter to add)'
-      );
-      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(screen.getByText('2 tags selected')).toBeInTheDocument();
+    });
 
-      expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
-        editedTags: ['tag1', 'tag2', 'newtag'],
-        editTagInput: '',
+    test('should show available tags in dropdown when editing', async () => {
+      const editingState = {
+        ...mockEditState,
+        isEditingTags: true,
+        editedTags: [],
+      };
+
+      render(
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
+      );
+
+      const dropdownButton = screen.getByRole('button', {
+        name: /select tags/i,
+      });
+      fireEvent.click(dropdownButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('work')).toBeInTheDocument();
+        expect(screen.getByText('urgent')).toBeInTheDocument();
+        expect(screen.getByText('personal')).toBeInTheDocument();
       });
     });
 
-    test('should remove tag when X button is clicked', () => {
+    test('should update tags when TagMultiSelect changes', async () => {
       const editingState = {
         ...mockEditState,
         isEditingTags: true,
-        editedTags: ['tag1', 'tag2'],
+        editedTags: [],
       };
 
       render(
         <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
-      const removeButtons = screen.getAllByText('✖');
-      if (removeButtons.length > 0) {
-        fireEvent.click(removeButtons[0]);
-        expect(defaultProps.onUpdateState).toHaveBeenCalled();
-      }
+      const dropdownButton = screen.getByRole('button', {
+        name: /select tags/i,
+      });
+      fireEvent.click(dropdownButton);
+
+      await waitFor(() => {
+        const workTag = screen.getByText('work');
+        fireEvent.click(workTag);
+      });
+
+      expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
+        editedTags: ['work'],
+      });
     });
 
     test('should save tags when check icon is clicked', () => {
@@ -398,7 +421,7 @@ describe('TaskDialog Component', () => {
 
       const saveButton = screen
         .getAllByRole('button')
-        .find((btn) => btn.getAttribute('aria-label') === 'Save tags');
+        .find((btn) => btn.querySelector('.text-green-500'));
 
       if (saveButton) {
         fireEvent.click(saveButton);
@@ -407,6 +430,33 @@ describe('TaskDialog Component', () => {
           'tag2',
           'tag3',
         ]);
+        expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
+          isEditingTags: false,
+        });
+      }
+    });
+
+    test('should cancel editing when X icon is clicked', () => {
+      const editingState = {
+        ...mockEditState,
+        isEditingTags: true,
+        editedTags: ['tag1', 'tag2', 'tag3'],
+      };
+
+      render(
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
+      );
+
+      const cancelButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('.text-red-500'));
+
+      if (cancelButton) {
+        fireEvent.click(cancelButton);
+        expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
+          isEditingTags: false,
+          editedTags: mockTask.tags || [],
+        });
       }
     });
   });
