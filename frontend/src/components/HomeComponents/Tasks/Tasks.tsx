@@ -1252,6 +1252,7 @@ export const Tasks = (
                             onUpdateState={updateEditState}
                             allTasks={tasks}
                             uniqueProjects={uniqueProjects}
+                            uniqueTags={uniqueTags}
                             isCreatingNewProject={isCreatingNewProject}
                             setIsCreatingNewProject={setIsCreatingNewProject}
                             onSaveDescription={handleSaveDescription}
