@@ -1035,7 +1035,7 @@ export const Tasks = (
                       onChange={handleSearchChange}
                       className="flex-1 min-w-[150px]"
                       data-testid="task-search-bar"
-                      icon={<Key lable="f" />}
+                      icon={<Key label="f" />}
                     />
                     <MultiSelectFilter
                       id="projects"
@@ -1044,7 +1044,7 @@ export const Tasks = (
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
                       className="hidden lg:flex min-w-[140px]"
-                      icon={<Key lable="p" />}
+                      icon={<Key label="p" />}
                     />
                     <MultiSelectFilter
                       id="status"
@@ -1053,7 +1053,7 @@ export const Tasks = (
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
                       className="hidden lg:flex min-w-[140px]"
-                      icon={<Key lable="s" />}
+                      icon={<Key label="s" />}
                     />
                     <MultiSelectFilter
                       id="tags"
@@ -1062,7 +1062,7 @@ export const Tasks = (
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
                       className="hidden lg:flex min-w-[140px]"
-                      icon={<Key lable="t" />}
+                      icon={<Key label="t" />}
                     />
                     <div className="flex justify-center">
                       <AddTaskdialog
@@ -1091,7 +1091,7 @@ export const Tasks = (
                         }}
                       >
                         Sync
-                        <Key lable="r" />
+                        <Key label="r" />
                         {unsyncedTaskUuids.size > 0 && (
                           <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
                             {unsyncedTaskUuids.size}

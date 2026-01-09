@@ -125,7 +125,7 @@ export const AddTaskdialog = ({
           onClick={() => setIsOpen(true)}
         >
           Add Task
-          <Key lable="a" />
+          <Key label="a" />
         </Button>
       </DialogTrigger>
       <DialogContent>
