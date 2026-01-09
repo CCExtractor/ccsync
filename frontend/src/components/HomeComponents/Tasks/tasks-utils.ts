@@ -289,3 +289,77 @@ export const hashKey = (key: string, email: string): string => {
   }
   return Math.abs(hash).toString(36);
 };
+
+/**
+ * Calculate completion statistics for projects
+ * Returns an object with completion stats for each project
+ */
+export const calculateProjectStats = (
+  tasks: Task[]
+): Record<string, { completed: number; total: number; percentage: number }> => {
+  const stats: Record<
+    string,
+    { completed: number; total: number; percentage: number }
+  > = {};
+
+  tasks.forEach((task) => {
+    const project = task.project;
+    if (project && project !== '') {
+      if (!stats[project]) {
+        stats[project] = { completed: 0, total: 0, percentage: 0 };
+      }
+
+      stats[project].total += 1;
+      if (task.status === 'completed') {
+        stats[project].completed += 1;
+      }
+    }
+  });
+
+  // Calculate percentages
+  Object.keys(stats).forEach((project) => {
+    const { completed, total } = stats[project];
+    stats[project].percentage =
+      total > 0 ? Math.round((completed / total) * 100) : 0;
+  });
+
+  return stats;
+};
+
+/**
+ * Calculate completion statistics for tags
+ * Returns an object with completion stats for each tag
+ */
+export const calculateTagStats = (
+  tasks: Task[]
+): Record<string, { completed: number; total: number; percentage: number }> => {
+  const stats: Record<
+    string,
+    { completed: number; total: number; percentage: number }
+  > = {};
+
+  tasks.forEach((task) => {
+    const tags = task.tags || [];
+    tags.forEach((tag) => {
+      if (tag && tag !== '') {
+        if (!stats[tag]) {
+          stats[tag] = { completed: 0, total: 0, percentage: 0 };
+        }
+
+        stats[tag].total += 1;
+        if (task.status === 'completed') {
+          stats[tag].completed += 1;
+        }
+      }
+    });
+  });
+
+  // Calculate percentages
+  Object.keys(stats).forEach((tag) => {
+    const { completed, total } = stats[tag];
+    stats[tag].percentage =
+      total > 0 ? Math.round((completed / total) * 100) : 0;
+  });
+
+  return stats;
+};
