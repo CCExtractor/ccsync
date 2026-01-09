@@ -290,9 +290,6 @@ export const hashKey = (key: string, email: string): string => {
   return Math.abs(hash).toString(36);
 };
 
-/**
- * Get the set of pinned task UUIDs from localStorage
- */
 export const getPinnedTasks = (email: string): Set<string> => {
   const hashedKey = hashKey('pinnedTasks', email);
   const stored = localStorage.getItem(hashedKey);
@@ -304,9 +301,6 @@ export const getPinnedTasks = (email: string): Set<string> => {
   }
 };
 
-/**
- * Save the set of pinned task UUIDs to localStorage
- */
 export const savePinnedTasks = (
   email: string,
   pinnedUuids: Set<string>
@@ -315,10 +309,6 @@ export const savePinnedTasks = (
   localStorage.setItem(hashedKey, JSON.stringify([...pinnedUuids]));
 };
 
-/**
- * Toggle the pinned status of a task
- * Returns the new pinned state
- */
 export const togglePinnedTask = (email: string, taskUuid: string): boolean => {
   const pinnedTasks = getPinnedTasks(email);
   const isPinned = pinnedTasks.has(taskUuid);
@@ -333,9 +323,6 @@ export const togglePinnedTask = (email: string, taskUuid: string): boolean => {
   return !isPinned;
 };
 
-/**
- * Check if a task is pinned
- */
 export const isTaskPinned = (email: string, taskUuid: string): boolean => {
   return getPinnedTasks(email).has(taskUuid);
 };
