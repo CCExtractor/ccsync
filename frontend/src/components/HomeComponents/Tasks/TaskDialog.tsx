@@ -315,6 +315,7 @@ export const TaskDialog = ({
                       <>
                         <div className="flex items-center">
                           <Input
+                            aria-label="description"
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') {
                                 e.preventDefault();

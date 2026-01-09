@@ -126,6 +126,7 @@ export const DateTimePicker = React.forwardRef<
     <Popover open={isOpen} onOpenChange={setIsOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
+          aria-label="calender-button"
           ref={ref}
           variant="outline"
           className={cn(
