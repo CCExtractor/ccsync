@@ -201,6 +201,9 @@ export const AddTaskdialog = ({
                   if (value === '__CREATE_NEW__') {
                     setIsCreatingNewProject(true);
                     setNewTask({ ...newTask, project: '' });
+                  } else if (value === '__NONE__') {
+                    setIsCreatingNewProject(false);
+                    setNewTask({ ...newTask, project: '' });
                   } else {
                     setIsCreatingNewProject(false);
                     setNewTask({ ...newTask, project: value });
@@ -467,9 +470,6 @@ export const AddTaskdialog = ({
                 onFocus={() =>
                   setShowDependencyResults(dependencySearch.trim() !== '')
                 }
-                onBlur={() =>
-                  setTimeout(() => setShowDependencyResults(false), 200)
-                }
               />
 
               {/* Search results dropdown */}
@@ -490,7 +490,8 @@ export const AddTaskdialog = ({
                       <div
                         key={task.uuid}
                         className="p-3 cursor-pointer hover:bg-accent transition-colors"
-                        onClick={() => {
+                        onMouseDown={(e) => {
+                          e.preventDefault(); // prevents blur
                           setNewTask({
                             ...newTask,
                             depends: [...newTask.depends, task.uuid],
