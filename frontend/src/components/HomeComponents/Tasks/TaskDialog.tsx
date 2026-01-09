@@ -40,7 +40,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTaskDialogKeyboard } from './UseTaskDialogKeyboard';
 import { EDITTASKDIALOG_FIELDS } from './constants';
 import { useTaskDialogFocusMap } from './UseTaskDialogFocusMap';
-import { TagMultiSelect } from './TagMultiSelect';
+import { MultiSelect } from './MultiSelect';
 
 export const TaskDialog = ({
   index,
@@ -1215,42 +1215,25 @@ export const TaskDialog = ({
                   <TableCell>Tags:</TableCell>
                   <TableCell>
                     {editState.isEditingTags ? (
-                      <div className="space-y-2">
-                        <TagMultiSelect
-                          availableTags={uniqueTags}
-                          selectedTags={editState.editedTags}
-                          onTagsChange={(tags) =>
-                            onUpdateState({ editedTags: tags })
-                          }
-                          placeholder="Select or create tags"
-                        />
-                        <div className="flex items-center gap-2 whitespace-nowrap">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="save"
-                            onClick={() => {
-                              onSaveTags(task, editState.editedTags);
-                              onUpdateState({ isEditingTags: false });
-                            }}
-                          >
-                            <CheckIcon className="h-4 w-4 text-green-500" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="cancel"
-                            onClick={() =>
-                              onUpdateState({
-                                isEditingTags: false,
-                                editedTags: task.tags || [],
-                              })
-                            }
-                          >
-                            <XIcon className="h-4 w-4 text-red-500" />
-                          </Button>
-                        </div>
-                      </div>
+                      <MultiSelect
+                        availableItems={uniqueTags}
+                        selectedItems={editState.editedTags}
+                        onItemsChange={(tags) =>
+                          onUpdateState({ editedTags: tags })
+                        }
+                        placeholder="Select or create tags"
+                        showActions={true}
+                        onSave={() => {
+                          onSaveTags(task, editState.editedTags);
+                          onUpdateState({ isEditingTags: false });
+                        }}
+                        onCancel={() =>
+                          onUpdateState({
+                            isEditingTags: false,
+                            editedTags: task.tags || [],
+                          })
+                        }
+                      />
                     ) : (
                       <div className="flex items-center flex-wrap">
                         {task.tags !== null && task.tags.length >= 1 ? (

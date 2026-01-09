@@ -31,7 +31,7 @@ import { format } from 'date-fns';
 import { ADDTASKDIALOG_FIELDS } from './constants';
 import { useAddTaskDialogKeyboard } from './UseTaskDialogKeyboard';
 import { useAddTaskDialogFocusMap } from './UseTaskDialogFocusMap';
-import { TagMultiSelect } from './TagMultiSelect';
+import { MultiSelect } from './MultiSelect';
 
 export const AddTaskdialog = ({
   onOpenChange,
@@ -513,10 +513,12 @@ export const AddTaskdialog = ({
                 Tags
               </Label>
               <div className="col-span-3">
-                <TagMultiSelect
-                  availableTags={uniqueTags}
-                  selectedTags={newTask.tags}
-                  onTagsChange={(tags: string[]) => setNewTask({ ...newTask, tags })}
+                <MultiSelect
+                  availableItems={uniqueTags}
+                  selectedItems={newTask.tags}
+                  onItemsChange={(tags: string[]) =>
+                    setNewTask({ ...newTask, tags })
+                  }
                   placeholder="Select or create tags"
                 />
               </div>

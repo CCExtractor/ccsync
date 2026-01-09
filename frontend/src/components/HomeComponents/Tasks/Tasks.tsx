@@ -106,9 +106,6 @@ export const Tasks = (
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [_isDialogOpen, setIsDialogOpen] = useState(false);
   const [_selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [editedTags, setEditedTags] = useState<string[]>(
-    _selectedTask?.tags || []
-  );
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
@@ -199,7 +196,6 @@ export const Tasks = (
   }, [props.email]);
   useEffect(() => {
     if (_selectedTask) {
-      setEditedTags(_selectedTask.tags || []);
     }
   }, [_selectedTask]);
 
@@ -215,13 +211,6 @@ export const Tasks = (
   useEffect(() => {
     setPinnedTasks(getPinnedTasks(props.email));
   }, [props.email]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLastSyncTime((prevTime) => prevTime);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     const fetchTasksForEmail = async () => {
@@ -240,11 +229,26 @@ export const Tasks = (
           .sort((a, b) => (a > b ? 1 : -1));
         setUniqueProjects(filteredProjects);
 
-        const tagsSet = new Set(tasksFromDB.flatMap((task) => task.tags || []));
-        const filteredTags = Array.from(tagsSet)
-          .filter((tag) => tag !== '')
-          .sort((a, b) => (a > b ? 1 : -1));
+        const currentTags = new Set(
+          tasksFromDB.flatMap((task) => task.tags || [])
+        );
+        const currentTagsArray = Array.from(currentTags).filter(
+          (tag) => tag !== ''
+        );
+
+        const tagHistoryKey = hashKey('tagHistory', props.email);
+        const storedTagHistory = localStorage.getItem(tagHistoryKey);
+        const historicalTags = storedTagHistory
+          ? JSON.parse(storedTagHistory)
+          : [];
+
+        const allTags = new Set([...historicalTags, ...currentTagsArray]);
+        const filteredTags = Array.from(allTags).sort((a, b) =>
+          a > b ? 1 : -1
+        );
         setUniqueTags(filteredTags);
+
+        localStorage.setItem(tagHistoryKey, JSON.stringify(filteredTags));
 
         // Calculate completion stats
         setProjectStats(calculateProjectStats(tasksFromDB));
@@ -294,11 +298,26 @@ export const Tasks = (
           .sort((a, b) => (a > b ? 1 : -1));
         setUniqueProjects(filteredProjects);
 
-        const tagsSet = new Set(sortedTasks.flatMap((task) => task.tags || []));
-        const filteredTags = Array.from(tagsSet)
-          .filter((tag) => tag !== '')
-          .sort((a, b) => (a > b ? 1 : -1));
+        const currentTags = new Set(
+          sortedTasks.flatMap((task) => task.tags || [])
+        );
+        const currentTagsArray = Array.from(currentTags).filter(
+          (tag) => tag !== ''
+        );
+
+        const tagHistoryKey = hashKey('tagHistory', user_email);
+        const storedTagHistory = localStorage.getItem(tagHistoryKey);
+        const historicalTags = storedTagHistory
+          ? JSON.parse(storedTagHistory)
+          : [];
+
+        const allTags = new Set([...historicalTags, ...currentTagsArray]);
+        const filteredTags = Array.from(allTags).sort((a, b) =>
+          a > b ? 1 : -1
+        );
         setUniqueTags(filteredTags);
+
+        localStorage.setItem(tagHistoryKey, JSON.stringify(filteredTags));
 
         // Calculate completion stats
         setProjectStats(calculateProjectStats(sortedTasks));
@@ -341,6 +360,20 @@ export const Tasks = (
         depends: task.depends,
         backendURL: url.backendURL,
       });
+
+      if (task.tags && task.tags.length > 0) {
+        const tagHistoryKey = hashKey('tagHistory', props.email);
+        const storedTagHistory = localStorage.getItem(tagHistoryKey);
+        const historicalTags = storedTagHistory
+          ? JSON.parse(storedTagHistory)
+          : [];
+        const allTags = new Set([...historicalTags, ...task.tags]);
+        const updatedTags = Array.from(allTags).sort((a, b) =>
+          a > b ? 1 : -1
+        );
+        localStorage.setItem(tagHistoryKey, JSON.stringify(updatedTags));
+        setUniqueTags(updatedTags);
+      }
 
       setNewTask({
         description: '',
@@ -849,12 +882,45 @@ export const Tasks = (
     pinnedTasks,
   ]);
 
-  const handleSaveTags = (task: Task, tags: string[]) => {
-    const currentTags = tags || [];
-    const removedTags = currentTags.filter((tag) => !editedTags.includes(tag));
-    const updatedTags = editedTags.filter((tag) => tag.trim() !== '');
-    const tagsToRemove = removedTags.map((tag) => `${tag}`);
-    const finalTags = [...updatedTags, ...tagsToRemove];
+  const handleSaveTags = (task: Task, updatedTags: string[]) => {
+    const filteredUpdatedTags = updatedTags.filter((tag) => tag.trim() !== '');
+    const originalTags = task.tags || [];
+
+    // Calculate tag diff for backend (expects +tag for additions, -tag for removals)
+    const tagsToRemove = originalTags.filter(
+      (tag) => !filteredUpdatedTags.includes(tag)
+    );
+
+    const tagsToAdd = filteredUpdatedTags.filter(
+      (tag) => !originalTags.includes(tag)
+    );
+
+    const tagDiff = [
+      ...tagsToRemove.map((tag) => `-${tag}`),
+      ...tagsToAdd.map((tag) => `+${tag}`),
+    ];
+
+    task.tags = filteredUpdatedTags;
+
+    // Recalculate uniqueTags from all current tasks + history (follows same pattern as initial load)
+    const currentTags = new Set(
+      tasks.flatMap((t) =>
+        t.uuid === task.uuid ? filteredUpdatedTags : t.tags || []
+      )
+    );
+    const currentTagsArray = Array.from(currentTags).filter(
+      (tag) => tag !== ''
+    );
+
+    const tagHistoryKey = hashKey('tagHistory', props.email);
+    const storedTagHistory = localStorage.getItem(tagHistoryKey);
+    const historicalTags = storedTagHistory ? JSON.parse(storedTagHistory) : [];
+
+    const allTags = new Set([...historicalTags, ...currentTagsArray]);
+    const filteredTags = Array.from(allTags).sort((a, b) => (a > b ? 1 : -1));
+    setUniqueTags(filteredTags);
+
+    localStorage.setItem(tagHistoryKey, JSON.stringify(filteredTags));
 
     setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
@@ -863,7 +929,7 @@ export const Tasks = (
       props.encryptionSecret,
       props.UUID,
       task.description,
-      finalTags,
+      tagDiff,
       task.uuid.toString(),
       task.project,
       task.start,

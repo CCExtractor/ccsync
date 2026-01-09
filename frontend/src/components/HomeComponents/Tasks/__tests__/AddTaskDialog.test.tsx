@@ -100,10 +100,9 @@ describe('AddTaskDialog Component', () => {
         depends: [],
       },
       setNewTask: jest.fn(),
-      tagInput: '',
-      setTagInput: jest.fn(),
       onSubmit: jest.fn(),
       uniqueProjects: [],
+      uniqueTags: ['work', 'urgent', 'personal'],
       allTasks: [],
       isCreatingNewProject: false,
       setIsCreatingNewProject: jest.fn(),
@@ -317,51 +316,22 @@ describe('AddTaskDialog Component', () => {
   });
 
   describe('Tags', () => {
-    test('adds a tag when user types and presses Enter', () => {
+    test('displays TagMultiSelect component', () => {
       mockProps.isOpen = true;
-      mockProps.tagInput = 'urgent';
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagsInput = screen.getByPlaceholderText(/add a tag/i);
-
-      fireEvent.keyDown(tagsInput, { key: 'Enter', code: 'Enter' });
-
-      expect(mockProps.setNewTask).toHaveBeenCalledWith({
-        ...mockProps.newTask,
-        tags: ['urgent'],
-      });
-
-      expect(mockProps.setTagInput).toHaveBeenCalledWith('');
+      expect(screen.getByText('Select or create tags')).toBeInTheDocument();
     });
 
-    test('does not add duplicate tags', () => {
+    test('shows selected tags count when tags are selected', () => {
       mockProps.isOpen = true;
-      mockProps.tagInput = 'urgent';
-      mockProps.newTask.tags = ['urgent'];
+      mockProps.newTask.tags = ['urgent', 'work'];
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagsInput = screen.getByPlaceholderText(/add a tag/i);
-      fireEvent.keyDown(tagsInput, { key: 'Enter', code: 'Enter' });
-
-      expect(mockProps.setNewTask).not.toHaveBeenCalled();
+      expect(screen.getByText('2 items selected')).toBeInTheDocument();
     });
 
-    test('removes a tag when user clicks the remove button', () => {
-      mockProps.isOpen = true;
-      mockProps.newTask.tags = ['urgent', 'important'];
-      render(<AddTaskdialog {...mockProps} />);
-
-      const removeButtons = screen.getAllByText('✖');
-
-      fireEvent.click(removeButtons[0]);
-
-      expect(mockProps.setNewTask).toHaveBeenCalledWith({
-        ...mockProps.newTask,
-        tags: ['important'],
-      });
-    });
-
-    test('displays tags as badges', () => {
+    test('displays selected tags as badges', () => {
       mockProps.isOpen = true;
       mockProps.newTask.tags = ['urgent', 'work'];
       render(<AddTaskdialog {...mockProps} />);
@@ -370,25 +340,75 @@ describe('AddTaskDialog Component', () => {
       expect(screen.getByText('work')).toBeInTheDocument();
     });
 
-    test('updates tagInput when user types in tag field', () => {
+    test('removes a tag when user clicks the remove button', () => {
       mockProps.isOpen = true;
+      mockProps.newTask.tags = ['urgent', 'important'];
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagsInput = screen.getByPlaceholderText(/add a tag/i);
-      fireEvent.change(tagsInput, { target: { value: 'new-tag' } });
+      const removeButtons = screen.getAllByText('✖');
+      fireEvent.click(removeButtons[0]);
 
-      expect(mockProps.setTagInput).toHaveBeenCalledWith('new-tag');
+      expect(mockProps.setNewTask).toHaveBeenCalledWith({
+        ...mockProps.newTask,
+        tags: ['important'],
+      });
     });
 
-    test('does not add empty tag when tagInput is empty', () => {
+    test('opens dropdown when TagMultiSelect button is clicked', () => {
       mockProps.isOpen = true;
-      mockProps.tagInput = '';
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagsInput = screen.getByPlaceholderText(/add a tag/i);
-      fireEvent.keyDown(tagsInput, { key: 'Enter', code: 'Enter' });
+      const tagButton = screen.getByText('Select or create tags');
+      fireEvent.click(tagButton);
 
-      expect(mockProps.setNewTask).not.toHaveBeenCalled();
+      expect(
+        screen.getByPlaceholderText('Search or create...')
+      ).toBeInTheDocument();
+    });
+
+    test('shows available tags in dropdown', () => {
+      mockProps.isOpen = true;
+      render(<AddTaskdialog {...mockProps} />);
+
+      const tagButton = screen.getByText('Select or create tags');
+      fireEvent.click(tagButton);
+
+      expect(screen.getByText('work')).toBeInTheDocument();
+      expect(screen.getByText('urgent')).toBeInTheDocument();
+      expect(screen.getByText('personal')).toBeInTheDocument();
+    });
+
+    test('adds tag when selected from dropdown', () => {
+      mockProps.isOpen = true;
+      render(<AddTaskdialog {...mockProps} />);
+
+      const tagButton = screen.getByText('Select or create tags');
+      fireEvent.click(tagButton);
+
+      const workTag = screen.getByText('work');
+      fireEvent.click(workTag);
+
+      expect(mockProps.setNewTask).toHaveBeenCalledWith({
+        ...mockProps.newTask,
+        tags: ['work'],
+      });
+    });
+
+    test('creates new tag when typed and Enter pressed', () => {
+      mockProps.isOpen = true;
+      render(<AddTaskdialog {...mockProps} />);
+
+      const tagButton = screen.getByText('Select or create tags');
+      fireEvent.click(tagButton);
+
+      const searchInput = screen.getByPlaceholderText('Search or create...');
+      fireEvent.change(searchInput, { target: { value: 'newtag' } });
+      fireEvent.keyDown(searchInput, { key: 'Enter' });
+
+      expect(mockProps.setNewTask).toHaveBeenCalledWith({
+        ...mockProps.newTask,
+        tags: ['newtag'],
+      });
     });
   });
 
