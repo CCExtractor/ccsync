@@ -28,6 +28,8 @@ import {
   CopyIcon,
   Folder,
   PencilIcon,
+  Pin,
+  PinOff,
   Tag,
   Trash2Icon,
   XIcon,
@@ -70,6 +72,8 @@ export const TaskDialog = ({
   onMarkDeleted,
   isOverdue,
   isUnsynced,
+  isPinned,
+  onTogglePin,
 }: EditTaskDialogProps) => {
   const editButtonRef = useRef<
     Partial<Record<FieldKey, HTMLButtonElement | null>>
@@ -199,7 +203,10 @@ export const TaskDialog = ({
             onSelectTask(task, index);
           }}
         >
-          <TableCell className="py-2" onClick={(e) => e.stopPropagation()}>
+          <TableCell
+            className="py-3 md:py-2 align-top"
+            onClick={(e) => e.stopPropagation()}
+          >
             <input
               type="checkbox"
               checked={selectedTaskUUIDs.includes(task.uuid)}
@@ -211,59 +218,77 @@ export const TaskDialog = ({
             />
           </TableCell>
 
-          {/* Display task details */}
-          <TableCell className="py-2">
-            <span
-              className={`px-3 py-1 rounded-md font-semibold ${
-                task.status === 'pending' && isOverdue(task.due)
-                  ? 'bg-red-600/80 text-white'
-                  : 'dark:text-white text-black'
-              }`}
-            >
-              {task.id}
-            </span>
-          </TableCell>
-          <TableCell className="flex items-center space-x-2 py-2">
-            {task.priority === 'H' && (
-              <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3"></div>
-            )}
-            {task.priority === 'M' && (
-              <div className="flex items-center justify-center w-3 h-3 bg-yellow-500 rounded-full border-0 min-w-3"></div>
-            )}
-            {task.priority != 'H' && task.priority != 'M' && (
-              <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
-            )}
-            <span className="text-s text-foreground">{task.description}</span>
-            {task.project != '' && (
-              <Badge variant={'secondary'}>
-                <Folder className="pr-2" />
-                {task.project === '' ? '' : task.project}
-              </Badge>
-            )}
-          </TableCell>
-          <TableCell className="py-2">
-            <Badge
-              className={
-                task.status === 'pending' && isOverdue(task.due)
-                  ? 'bg-orange-500 text-white'
-                  : ''
-              }
-              variant={
-                task.status === 'deleted'
-                  ? 'destructive'
-                  : task.status === 'completed'
-                    ? 'default'
-                    : 'secondary'
-              }
-            >
-              {task.status === 'pending' && isOverdue(task.due)
-                ? 'O'
-                : task.status === 'completed'
-                  ? 'C'
-                  : task.status === 'deleted'
-                    ? 'D'
-                    : 'P'}
-            </Badge>
+          {/* Desktop: single row layout, Mobile: 2-row layout */}
+          <TableCell className="py-2" colSpan={3}>
+            <div className="flex items-center gap-4">
+              <span
+                className={`px-3 py-1 rounded-md font-semibold ${
+                  task.status === 'pending' && isOverdue(task.due)
+                    ? 'bg-red-600/80 text-white'
+                    : 'dark:text-white text-black'
+                }`}
+              >
+                {task.id}
+              </span>
+              <div className="flex items-center space-x-2 flex-1 min-w-0">
+                {task.priority === 'H' && (
+                  <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3"></div>
+                )}
+                {task.priority === 'M' && (
+                  <div className="flex items-center justify-center w-3 h-3 bg-yellow-500 rounded-full border-0 min-w-3"></div>
+                )}
+                {task.priority != 'H' && task.priority != 'M' && (
+                  <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
+                )}
+                <span className="text-s text-foreground">
+                  {task.description}
+                </span>
+                {task.project != '' && (
+                  <Badge variant={'secondary'}>
+                    <Folder className="pr-2" />
+                    {task.project === '' ? '' : task.project}
+                  </Badge>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge
+                  className={
+                    task.status === 'pending' && isOverdue(task.due)
+                      ? 'bg-orange-500 text-white'
+                      : ''
+                  }
+                  variant={
+                    task.status === 'deleted'
+                      ? 'destructive'
+                      : task.status === 'completed'
+                        ? 'default'
+                        : 'secondary'
+                  }
+                >
+                  {task.status === 'pending' && isOverdue(task.due)
+                    ? 'O'
+                    : task.status === 'completed'
+                      ? 'C'
+                      : task.status === 'deleted'
+                        ? 'D'
+                        : 'P'}
+                </Badge>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTogglePin(task.uuid);
+                  }}
+                  className="p-1 hover:bg-muted rounded transition-colors"
+                  aria-label={isPinned ? 'Unpin task' : 'Pin task'}
+                >
+                  {isPinned ? (
+                    <Pin className="h-4 w-4 text-amber-500 fill-amber-500" />
+                  ) : (
+                    <Pin className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+              </div>
+            </div>
           </TableCell>
         </TableRow>
       </DialogTrigger>
@@ -1688,6 +1713,24 @@ export const TaskDialog = ({
         </div>
 
         <DialogFooter className="flex flex-row justify-end pt-4">
+          <Button
+            variant="outline"
+            onClick={() => onTogglePin(task.uuid)}
+            className="mr-auto"
+            aria-label={isPinned ? 'Unpin task' : 'Pin task'}
+          >
+            {isPinned ? (
+              <>
+                <PinOff className="h-4 w-4 mr-1" />
+                Unpin
+              </>
+            ) : (
+              <>
+                <Pin className="h-4 w-4 mr-1" />
+                Pin
+              </>
+            )}
+          </Button>
           {task.status == 'pending' ? (
             <Dialog>
               <DialogTrigger asChild className="mr-5">
