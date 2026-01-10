@@ -17,6 +17,8 @@ import {
   savePinnedTasks,
   togglePinnedTask,
   isTaskPinned,
+  calculateProjectStats,
+  calculateTagStats,
 } from '../tasks-utils';
 import { Task } from '@/components/utils/types';
 
@@ -638,6 +640,265 @@ describe('isOverdue', () => {
 
   it('returns false for invalid date format', () => {
     expect(isOverdue('invalid-date')).toBe(false);
+  });
+});
+
+describe('calculateProjectStats', () => {
+  it('calculates stats for single project with all completed tasks', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'ProjectA', []),
+      createTask(2, 'completed', 'Task 2', 'ProjectA', []),
+      createTask(3, 'completed', 'Task 3', 'ProjectA', []),
+    ];
+
+    const stats = calculateProjectStats(tasks);
+
+    expect(stats['ProjectA']).toEqual({
+      completed: 3,
+      total: 3,
+      percentage: 100,
+    });
+  });
+
+  it('calculates stats for single project with mixed completion', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'ProjectA', []),
+      createTask(2, 'pending', 'Task 2', 'ProjectA', []),
+      createTask(3, 'completed', 'Task 3', 'ProjectA', []),
+      createTask(4, 'pending', 'Task 4', 'ProjectA', []),
+    ];
+
+    const stats = calculateProjectStats(tasks);
+
+    expect(stats['ProjectA']).toEqual({
+      completed: 2,
+      total: 4,
+      percentage: 50,
+    });
+  });
+
+  it('calculates stats for multiple projects independently', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'ProjectA', []),
+      createTask(2, 'pending', 'Task 2', 'ProjectA', []),
+      createTask(3, 'completed', 'Task 3', 'ProjectB', []),
+      createTask(4, 'completed', 'Task 4', 'ProjectB', []),
+      createTask(5, 'completed', 'Task 5', 'ProjectB', []),
+    ];
+
+    const stats = calculateProjectStats(tasks);
+
+    expect(stats['ProjectA']).toEqual({
+      completed: 1,
+      total: 2,
+      percentage: 50,
+    });
+
+    expect(stats['ProjectB']).toEqual({
+      completed: 3,
+      total: 3,
+      percentage: 100,
+    });
+  });
+
+  it('ignores tasks with empty project names', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', '', []),
+      createTask(2, 'completed', 'Task 2', 'ProjectA', []),
+    ];
+
+    const stats = calculateProjectStats(tasks);
+
+    expect(stats['']).toBeUndefined();
+    expect(stats['ProjectA']).toEqual({
+      completed: 1,
+      total: 1,
+      percentage: 100,
+    });
+  });
+
+  it('returns empty object for empty task list', () => {
+    const stats = calculateProjectStats([]);
+    expect(stats).toEqual({});
+  });
+
+  it('handles project with zero completed tasks', () => {
+    const tasks: Task[] = [
+      createTask(1, 'pending', 'Task 1', 'ProjectA', []),
+      createTask(2, 'pending', 'Task 2', 'ProjectA', []),
+    ];
+
+    const stats = calculateProjectStats(tasks);
+
+    expect(stats['ProjectA']).toEqual({
+      completed: 0,
+      total: 2,
+      percentage: 0,
+    });
+  });
+
+  it('rounds percentage correctly', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'ProjectA', []),
+      createTask(2, 'pending', 'Task 2', 'ProjectA', []),
+      createTask(3, 'pending', 'Task 3', 'ProjectA', []),
+    ];
+
+    const stats = calculateProjectStats(tasks);
+
+    expect(stats['ProjectA'].percentage).toBe(33);
+  });
+});
+
+describe('calculateTagStats', () => {
+  it('calculates stats for single tag with all completed tasks', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'Project', ['urgent']),
+      createTask(2, 'completed', 'Task 2', 'Project', ['urgent']),
+      createTask(3, 'completed', 'Task 3', 'Project', ['urgent']),
+    ];
+
+    const stats = calculateTagStats(tasks);
+
+    expect(stats['urgent']).toEqual({
+      completed: 3,
+      total: 3,
+      percentage: 100,
+    });
+  });
+
+  it('calculates stats for single tag with mixed completion', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'Project', ['urgent']),
+      createTask(2, 'pending', 'Task 2', 'Project', ['urgent']),
+      createTask(3, 'completed', 'Task 3', 'Project', ['urgent']),
+      createTask(4, 'pending', 'Task 4', 'Project', ['urgent']),
+      createTask(5, 'pending', 'Task 5', 'Project', ['urgent']),
+    ];
+
+    const stats = calculateTagStats(tasks);
+
+    expect(stats['urgent']).toEqual({
+      completed: 2,
+      total: 5,
+      percentage: 40,
+    });
+  });
+
+  it('calculates stats for multiple tags independently', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'Project', ['urgent']),
+      createTask(2, 'pending', 'Task 2', 'Project', ['urgent']),
+      createTask(3, 'completed', 'Task 3', 'Project', ['backend']),
+      createTask(4, 'completed', 'Task 4', 'Project', ['backend']),
+      createTask(5, 'completed', 'Task 5', 'Project', ['backend']),
+    ];
+
+    const stats = calculateTagStats(tasks);
+
+    expect(stats['urgent']).toEqual({
+      completed: 1,
+      total: 2,
+      percentage: 50,
+    });
+
+    expect(stats['backend']).toEqual({
+      completed: 3,
+      total: 3,
+      percentage: 100,
+    });
+  });
+
+  it('handles tasks with multiple tags correctly', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'Project', ['urgent', 'backend']),
+      createTask(2, 'pending', 'Task 2', 'Project', ['urgent', 'frontend']),
+      createTask(3, 'completed', 'Task 3', 'Project', ['backend']),
+    ];
+
+    const stats = calculateTagStats(tasks);
+
+    expect(stats['urgent']).toEqual({
+      completed: 1,
+      total: 2,
+      percentage: 50,
+    });
+
+    expect(stats['backend']).toEqual({
+      completed: 2,
+      total: 2,
+      percentage: 100,
+    });
+
+    expect(stats['frontend']).toEqual({
+      completed: 0,
+      total: 1,
+      percentage: 0,
+    });
+  });
+
+  it('ignores tasks with empty tags array', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'Project', []),
+      createTask(2, 'completed', 'Task 2', 'Project', ['urgent']),
+    ];
+
+    const stats = calculateTagStats(tasks);
+
+    expect(Object.keys(stats)).toHaveLength(1);
+    expect(stats['urgent']).toEqual({
+      completed: 1,
+      total: 1,
+      percentage: 100,
+    });
+  });
+
+  it('ignores empty string tags', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'Project', ['', 'urgent']),
+      createTask(2, 'completed', 'Task 2', 'Project', ['urgent']),
+    ];
+
+    const stats = calculateTagStats(tasks);
+
+    expect(stats['']).toBeUndefined();
+    expect(stats['urgent']).toEqual({
+      completed: 2,
+      total: 2,
+      percentage: 100,
+    });
+  });
+
+  it('returns empty object for empty task list', () => {
+    const stats = calculateTagStats([]);
+    expect(stats).toEqual({});
+  });
+
+  it('handles tag with zero completed tasks', () => {
+    const tasks: Task[] = [
+      createTask(1, 'pending', 'Task 1', 'Project', ['urgent']),
+      createTask(2, 'pending', 'Task 2', 'Project', ['urgent']),
+    ];
+
+    const stats = calculateTagStats(tasks);
+
+    expect(stats['urgent']).toEqual({
+      completed: 0,
+      total: 2,
+      percentage: 0,
+    });
+  });
+
+  it('rounds percentage correctly', () => {
+    const tasks: Task[] = [
+      createTask(1, 'completed', 'Task 1', 'Project', ['urgent']),
+      createTask(2, 'pending', 'Task 2', 'Project', ['urgent']),
+      createTask(3, 'pending', 'Task 3', 'Project', ['urgent']),
+    ];
+
+    const stats = calculateTagStats(tasks);
+
+    expect(stats['urgent'].percentage).toBe(33);
   });
 });
 

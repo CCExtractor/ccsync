@@ -39,6 +39,8 @@ import {
   isOverdue,
   getPinnedTasks,
   togglePinnedTask,
+  calculateProjectStats,
+  calculateTagStats,
 } from './tasks-utils';
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
@@ -76,6 +78,12 @@ export const Tasks = (
   const [tempTasks, setTempTasks] = useState<Task[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const status = ['pending', 'completed', 'deleted', 'overdue'];
+  const [projectStats, setProjectStats] = useState<
+    Record<string, { completed: number; total: number; percentage: number }>
+  >({});
+  const [tagStats, setTagStats] = useState<
+    Record<string, { completed: number; total: number; percentage: number }>
+  >({});
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -238,6 +246,10 @@ export const Tasks = (
           .filter((tag) => tag !== '')
           .sort((a, b) => (a > b ? 1 : -1));
         setUniqueTags(filteredTags);
+
+        // Calculate completion stats
+        setProjectStats(calculateProjectStats(tasksFromDB));
+        setTagStats(calculateTagStats(tasksFromDB));
       } catch (error) {
         console.error('Error fetching tasks:', error);
       }
@@ -282,6 +294,16 @@ export const Tasks = (
           .filter((project) => project !== '')
           .sort((a, b) => (a > b ? 1 : -1));
         setUniqueProjects(filteredProjects);
+
+        const tagsSet = new Set(sortedTasks.flatMap((task) => task.tags || []));
+        const filteredTags = Array.from(tagsSet)
+          .filter((tag) => tag !== '')
+          .sort((a, b) => (a > b ? 1 : -1));
+        setUniqueTags(filteredTags);
+
+        // Calculate completion stats
+        setProjectStats(calculateProjectStats(sortedTasks));
+        setTagStats(calculateTagStats(sortedTasks));
       });
 
       const currentTime = Date.now();
@@ -1074,6 +1096,7 @@ export const Tasks = (
                       onSelectionChange={setSelectedProjects}
                       className="hidden lg:flex min-w-[140px]"
                       icon={<Key label="p" />}
+                      completionStats={projectStats}
                     />
                     <MultiSelectFilter
                       id="status"
@@ -1092,6 +1115,7 @@ export const Tasks = (
                       onSelectionChange={setSelectedTags}
                       className="hidden lg:flex min-w-[140px]"
                       icon={<Key label="t" />}
+                      completionStats={tagStats}
                     />
                     <div className="flex justify-center">
                       <AddTaskdialog
