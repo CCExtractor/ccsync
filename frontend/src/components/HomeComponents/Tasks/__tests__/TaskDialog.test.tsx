@@ -689,4 +689,106 @@ describe('TaskDialog Component', () => {
       expect(screen.getByText('O')).toBeInTheDocument();
     });
   });
+
+  describe('Testing Shortcuts', () => {
+    beforeEach(() => {
+      Element.prototype.scrollIntoView = jest.fn();
+    });
+
+    test('ArrowDown moves focus to next field', async () => {
+      render(<TaskDialog {...defaultProps} isOpen />);
+
+      const dialog = await screen.findByRole('dialog');
+
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+
+      // description → due
+      const dueRow = screen.getByText('Due:').closest('tr');
+      expect(dueRow).toHaveClass('bg-black/15');
+    });
+
+    test('Enter opens edit mode for focused field', async () => {
+      const editStateWithEditingOn = {
+        ...defaultProps.editState,
+        isEditing: true,
+        editedDescription: defaultProps.task.description,
+      };
+
+      render(
+        <TaskDialog
+          {...defaultProps}
+          isOpen
+          editState={editStateWithEditingOn}
+        />
+      );
+
+      await screen.findByRole('dialog');
+
+      const descriptionInput = screen.getByLabelText('description');
+      expect(descriptionInput).toBeInTheDocument();
+      expect(descriptionInput).toHaveAttribute('type', 'text');
+      expect(descriptionInput).toHaveValue(defaultProps.task.description);
+    });
+
+    test('Arrow keys do not navigate while editing', () => {
+      render(<TaskDialog {...defaultProps} isOpen />);
+
+      const dialog = screen.getByRole('dialog');
+
+      fireEvent.keyDown(dialog, { key: 'Enter' });
+
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+
+      const descriptionRow = screen.getByText('Description:').closest('tr');
+      expect(descriptionRow).toBeInTheDocument();
+    });
+
+    test('Escape exits edit mode before closing dialog', () => {
+      const editStateWithEditingOn = {
+        ...defaultProps.editState,
+        isEditing: true,
+        editedDescription: defaultProps.task.description,
+      };
+
+      render(
+        <TaskDialog
+          {...defaultProps}
+          isOpen
+          editState={editStateWithEditingOn}
+        />
+      );
+
+      const dialog = screen.getByRole('dialog');
+
+      fireEvent.keyDown(dialog, { key: 'Enter' });
+      const descriptionInput = screen.getByLabelText('description');
+      expect(descriptionInput).toBeInTheDocument();
+
+      fireEvent.keyDown(dialog, { key: 'Escape' });
+
+      expect(dialog).toBeInTheDocument();
+    });
+
+    test('DateTimePicker is visible when any date field is in edit mode', async () => {
+      const editStateWithDueDateEditing = {
+        ...defaultProps.editState,
+        isEditingDueDate: true,
+        editedDueDate: defaultProps.task.due || '',
+      };
+
+      render(
+        <TaskDialog
+          {...defaultProps}
+          isOpen
+          editState={editStateWithDueDateEditing}
+        />
+      );
+
+      await screen.findByRole('dialog');
+
+      expect(
+        await screen.findByRole('button', { name: /calender-button/i })
+      ).toBeInTheDocument();
+    });
+  });
 });

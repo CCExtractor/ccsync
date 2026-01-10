@@ -175,7 +175,7 @@ export const Tasks = (
         setSelectedIndex((prev) => Math.max(prev - 1, 0));
       }
 
-      if (e.key === 'e') {
+      if (e.key === 'Enter') {
         e.preventDefault();
         const task = currentTasks[selectedIndex];
         if (task) {
@@ -1057,7 +1057,7 @@ export const Tasks = (
                       onChange={handleSearchChange}
                       className="flex-1 min-w-[150px]"
                       data-testid="task-search-bar"
-                      icon={<Key lable="f" />}
+                      icon={<Key label="f" />}
                     />
                     <MultiSelectFilter
                       id="projects"
@@ -1076,7 +1076,7 @@ export const Tasks = (
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
                       className="hidden lg:flex min-w-[140px]"
-                      icon={<Key lable="s" />}
+                      icon={<Key label="s" />}
                     />
                     <MultiSelectFilter
                       id="tags"
@@ -1115,7 +1115,7 @@ export const Tasks = (
                         }}
                       >
                         Sync
-                        <Key lable="r" />
+                        <Key label="r" />
                         {unsyncedTaskUuids.size > 0 && (
                           <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
                             {unsyncedTaskUuids.size}
