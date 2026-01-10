@@ -1695,7 +1695,7 @@ export const TaskDialog = ({
                   id={`mark-task-complete-${task.id}`}
                   aria-label="complete task"
                 >
-                  Mark As Completed <Key lable="c" />
+                  Mark As Completed <Key label="c" />
                 </Button>
               </DialogTrigger>
               <DialogContent>
@@ -1737,7 +1737,7 @@ export const TaskDialog = ({
                   aria-label="delete task"
                 >
                   <Trash2Icon />
-                  <Key lable="d" />
+                  <Key label="d" />
                 </Button>
               </DialogTrigger>
               <DialogContent>
