@@ -37,6 +37,8 @@ import {
   getTimeSinceLastSync,
   hashKey,
   isOverdue,
+  getPinnedTasks,
+  togglePinnedTask,
   calculateProjectStats,
   calculateTagStats,
 } from './tasks-utils';
@@ -111,6 +113,7 @@ export const Tasks = (
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
+  const [pinnedTasks, setPinnedTasks] = useState<Set<string>>(new Set());
   const [selectedTaskUUIDs, setSelectedTaskUUIDs] = useState<string[]>([]);
   const [unsyncedTaskUuids, setUnsyncedTaskUuids] = useState<Set<string>>(
     new Set()
@@ -207,6 +210,11 @@ export const Tasks = (
     if (storedLastSyncTime) {
       setLastSyncTime(parseInt(storedLastSyncTime, 10));
     }
+  }, [props.email]);
+
+  // Load pinned tasks from localStorage
+  useEffect(() => {
+    setPinnedTasks(getPinnedTasks(props.email));
   }, [props.email]);
 
   useEffect(() => {
@@ -501,6 +509,12 @@ export const Tasks = (
     );
   };
 
+  const handleTogglePin = (taskUuid: string) => {
+    togglePinnedTask(props.email, taskUuid);
+    // Update the local state to trigger re-render
+    setPinnedTasks(getPinnedTasks(props.email));
+  };
+
   const handleSelectTask = (task: Task, index: number) => {
     setSelectedTask(task);
     setSelectedIndex(index);
@@ -761,11 +775,19 @@ export const Tasks = (
     }
   };
 
-  const sortWithOverdueOnTop = (tasks: Task[]) => {
+  const sortWithPinnedAndOverdueOnTop = (tasks: Task[]) => {
     return [...tasks].sort((a, b) => {
+      const aPinned = pinnedTasks.has(a.uuid);
+      const bPinned = pinnedTasks.has(b.uuid);
+
+      // Pinned tasks always on top
+      if (aPinned && !bPinned) return -1;
+      if (!aPinned && bPinned) return 1;
+
       const aOverdue = a.status === 'pending' && isOverdue(a.due);
       const bOverdue = b.status === 'pending' && isOverdue(b.due);
 
+      // Overdue tasks next (after pinned)
       if (aOverdue && !bOverdue) return -1;
       if (!aOverdue && bOverdue) return 1;
 
@@ -817,9 +839,16 @@ export const Tasks = (
       filteredTasks = results.map((r) => r.item);
     }
 
-    filteredTasks = sortWithOverdueOnTop(filteredTasks);
+    filteredTasks = sortWithPinnedAndOverdueOnTop(filteredTasks);
     setTempTasks(filteredTasks);
-  }, [selectedProjects, selectedTags, selectedStatuses, tasks, debouncedTerm]);
+  }, [
+    selectedProjects,
+    selectedTags,
+    selectedStatuses,
+    tasks,
+    debouncedTerm,
+    pinnedTasks,
+  ]);
 
   const handleSaveTags = (task: Task, tags: string[]) => {
     const currentTags = tags || [];
@@ -1242,6 +1271,8 @@ export const Tasks = (
                             onMarkDeleted={handleMarkDelete}
                             isOverdue={isOverdue}
                             isUnsynced={unsyncedTaskUuids.has(task.uuid)}
+                            isPinned={pinnedTasks.has(task.uuid)}
+                            onTogglePin={handleTogglePin}
                           />
                         ))
                       )}

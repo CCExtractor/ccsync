@@ -106,6 +106,8 @@ describe('TaskDialog Component', () => {
     onMarkDeleted: jest.fn(),
     isOverdue: jest.fn(() => false),
     isUnsynced: false,
+    isPinned: false,
+    onTogglePin: jest.fn(),
   };
 
   beforeEach(() => {
@@ -690,6 +692,94 @@ describe('TaskDialog Component', () => {
     });
   });
 
+  describe('Pin Functionality', () => {
+    test('should display pin button in dialog footer when task is not pinned', () => {
+      render(<TaskDialog {...defaultProps} isOpen={true} isPinned={false} />);
+
+      const pinButton = screen.getByRole('button', { name: /pin task/i });
+      expect(pinButton).toBeInTheDocument();
+      expect(screen.getByText('Pin')).toBeInTheDocument();
+    });
+
+    test('should display unpin button in dialog footer when task is pinned', () => {
+      render(<TaskDialog {...defaultProps} isOpen={true} isPinned={true} />);
+
+      const unpinButton = screen.getByRole('button', { name: /unpin task/i });
+      expect(unpinButton).toBeInTheDocument();
+      expect(screen.getByText('Unpin')).toBeInTheDocument();
+    });
+
+    test('should call onTogglePin when pin button is clicked', () => {
+      render(<TaskDialog {...defaultProps} isOpen={true} isPinned={false} />);
+
+      const pinButton = screen.getByRole('button', { name: /pin task/i });
+      fireEvent.click(pinButton);
+
+      expect(defaultProps.onTogglePin).toHaveBeenCalledWith(mockTask.uuid);
+    });
+
+    test('should call onTogglePin when unpin button is clicked', () => {
+      render(<TaskDialog {...defaultProps} isOpen={true} isPinned={true} />);
+
+      const unpinButton = screen.getByRole('button', { name: /unpin task/i });
+      fireEvent.click(unpinButton);
+
+      expect(defaultProps.onTogglePin).toHaveBeenCalledWith(mockTask.uuid);
+    });
+
+    test('should display pin icon in task row when task is not pinned', () => {
+      const { container } = render(
+        <TaskDialog {...defaultProps} isPinned={false} />
+      );
+
+      const pinIcon = container.querySelector('.lucide-pin');
+      expect(pinIcon).toBeInTheDocument();
+    });
+
+    test('should display pin icon in task row when task is pinned', () => {
+      const { container } = render(
+        <TaskDialog {...defaultProps} isPinned={true} />
+      );
+
+      const pinIcon = container.querySelector('.lucide-pin');
+      expect(pinIcon).toBeInTheDocument();
+    });
+
+    test('should call onTogglePin when pin icon in task row is clicked', () => {
+      const { container } = render(
+        <TaskDialog {...defaultProps} isPinned={false} />
+      );
+
+      const pinIcon = container.querySelector('.lucide-pin');
+      expect(pinIcon).toBeInTheDocument();
+
+      if (pinIcon?.parentElement) {
+        fireEvent.click(pinIcon.parentElement);
+        expect(defaultProps.onTogglePin).toHaveBeenCalledWith(mockTask.uuid);
+      }
+    });
+
+    test('should not open dialog when pin icon in task row is clicked', () => {
+      const { container } = render(
+        <TaskDialog {...defaultProps} isPinned={false} />
+      );
+
+      const pinIcon = container.querySelector('.lucide-pin');
+
+      if (pinIcon?.parentElement) {
+        fireEvent.click(pinIcon.parentElement);
+        expect(defaultProps.onSelectTask).not.toHaveBeenCalled();
+      }
+    });
+
+    test('pin button should have mr-auto class for left alignment', () => {
+      render(<TaskDialog {...defaultProps} isOpen={true} isPinned={false} />);
+
+      const pinButton = screen.getByRole('button', { name: /pin task/i });
+      expect(pinButton).toHaveClass('mr-auto');
+    });
+  });
+
   describe('Testing Shortcuts', () => {
     beforeEach(() => {
       Element.prototype.scrollIntoView = jest.fn();
@@ -699,10 +789,8 @@ describe('TaskDialog Component', () => {
       render(<TaskDialog {...defaultProps} isOpen />);
 
       const dialog = await screen.findByRole('dialog');
-
       fireEvent.keyDown(dialog, { key: 'ArrowDown' });
 
-      // description → due
       const dueRow = screen.getByText('Due:').closest('tr');
       expect(dueRow).toHaveClass('bg-black/15');
     });
@@ -734,9 +822,7 @@ describe('TaskDialog Component', () => {
       render(<TaskDialog {...defaultProps} isOpen />);
 
       const dialog = screen.getByRole('dialog');
-
       fireEvent.keyDown(dialog, { key: 'Enter' });
-
       fireEvent.keyDown(dialog, { key: 'ArrowDown' });
 
       const descriptionRow = screen.getByText('Description:').closest('tr');
@@ -759,8 +845,8 @@ describe('TaskDialog Component', () => {
       );
 
       const dialog = screen.getByRole('dialog');
-
       fireEvent.keyDown(dialog, { key: 'Enter' });
+
       const descriptionInput = screen.getByLabelText('description');
       expect(descriptionInput).toBeInTheDocument();
 

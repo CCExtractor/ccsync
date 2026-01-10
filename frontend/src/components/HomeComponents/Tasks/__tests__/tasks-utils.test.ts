@@ -13,6 +13,10 @@ import {
   hashKey,
   parseTaskwarriorDate,
   isOverdue,
+  getPinnedTasks,
+  savePinnedTasks,
+  togglePinnedTask,
+  isTaskPinned,
   calculateProjectStats,
   calculateTagStats,
 } from '../tasks-utils';
@@ -895,5 +899,310 @@ describe('calculateTagStats', () => {
     const stats = calculateTagStats(tasks);
 
     expect(stats['urgent'].percentage).toBe(33);
+  });
+});
+
+describe('Pin Functionality', () => {
+  const testEmail = 'test@example.com';
+  const taskUuid1 = 'task-uuid-123';
+  const taskUuid2 = 'task-uuid-456';
+  const taskUuid3 = 'task-uuid-789';
+
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  describe('getPinnedTasks', () => {
+    it('returns empty Set when no pinned tasks exist', () => {
+      const result = getPinnedTasks(testEmail);
+      expect(result).toBeInstanceOf(Set);
+      expect(result.size).toBe(0);
+    });
+
+    it('retrieves pinned tasks from localStorage', () => {
+      const pinnedUuids = [taskUuid1, taskUuid2];
+      const hashedKey = hashKey('pinnedTasks', testEmail);
+      localStorage.setItem(hashedKey, JSON.stringify(pinnedUuids));
+
+      const result = getPinnedTasks(testEmail);
+      expect(result).toBeInstanceOf(Set);
+      expect(result.size).toBe(2);
+      expect(result.has(taskUuid1)).toBe(true);
+      expect(result.has(taskUuid2)).toBe(true);
+    });
+
+    it('returns empty Set when localStorage data is corrupted', () => {
+      const hashedKey = hashKey('pinnedTasks', testEmail);
+      localStorage.setItem(hashedKey, 'invalid-json');
+
+      const result = getPinnedTasks(testEmail);
+      expect(result).toBeInstanceOf(Set);
+      expect(result.size).toBe(0);
+    });
+
+    it('uses hashed key for privacy', () => {
+      const pinnedUuids = [taskUuid1];
+      const hashedKey = hashKey('pinnedTasks', testEmail);
+      localStorage.setItem(hashedKey, JSON.stringify(pinnedUuids));
+
+      expect(localStorage.getItem('pinnedTasks')).toBeNull();
+      expect(localStorage.getItem(hashedKey)).not.toBeNull();
+    });
+
+    it('returns different pinned tasks for different users', () => {
+      const email1 = 'user1@example.com';
+      const email2 = 'user2@example.com';
+
+      savePinnedTasks(email1, new Set([taskUuid1]));
+      savePinnedTasks(email2, new Set([taskUuid2]));
+
+      const result1 = getPinnedTasks(email1);
+      const result2 = getPinnedTasks(email2);
+
+      expect(result1.has(taskUuid1)).toBe(true);
+      expect(result1.has(taskUuid2)).toBe(false);
+      expect(result2.has(taskUuid2)).toBe(true);
+      expect(result2.has(taskUuid1)).toBe(false);
+    });
+  });
+
+  describe('savePinnedTasks', () => {
+    it('saves pinned tasks to localStorage', () => {
+      const pinnedTasks = new Set([taskUuid1, taskUuid2]);
+      savePinnedTasks(testEmail, pinnedTasks);
+
+      const hashedKey = hashKey('pinnedTasks', testEmail);
+      const stored = localStorage.getItem(hashedKey);
+      expect(stored).not.toBeNull();
+
+      const parsed = JSON.parse(stored!);
+      expect(parsed).toContain(taskUuid1);
+      expect(parsed).toContain(taskUuid2);
+      expect(parsed.length).toBe(2);
+    });
+
+    it('saves empty Set correctly', () => {
+      const pinnedTasks = new Set<string>();
+      savePinnedTasks(testEmail, pinnedTasks);
+
+      const hashedKey = hashKey('pinnedTasks', testEmail);
+      const stored = localStorage.getItem(hashedKey);
+      expect(stored).toBe('[]');
+    });
+
+    it('overwrites existing pinned tasks', () => {
+      savePinnedTasks(testEmail, new Set([taskUuid1, taskUuid2]));
+      savePinnedTasks(testEmail, new Set([taskUuid3]));
+
+      const result = getPinnedTasks(testEmail);
+      expect(result.size).toBe(1);
+      expect(result.has(taskUuid3)).toBe(true);
+      expect(result.has(taskUuid1)).toBe(false);
+      expect(result.has(taskUuid2)).toBe(false);
+    });
+
+    it('converts Set to Array for JSON serialization', () => {
+      const pinnedTasks = new Set([taskUuid1, taskUuid2, taskUuid3]);
+      savePinnedTasks(testEmail, pinnedTasks);
+
+      const hashedKey = hashKey('pinnedTasks', testEmail);
+      const stored = localStorage.getItem(hashedKey);
+      const parsed = JSON.parse(stored!);
+
+      expect(Array.isArray(parsed)).toBe(true);
+      expect(parsed.length).toBe(3);
+    });
+  });
+
+  describe('togglePinnedTask', () => {
+    it('pins an unpinned task', () => {
+      const result = togglePinnedTask(testEmail, taskUuid1);
+
+      expect(result).toBe(true);
+      const pinnedTasks = getPinnedTasks(testEmail);
+      expect(pinnedTasks.has(taskUuid1)).toBe(true);
+    });
+
+    it('unpins a pinned task', () => {
+      savePinnedTasks(testEmail, new Set([taskUuid1]));
+
+      const result = togglePinnedTask(testEmail, taskUuid1);
+
+      expect(result).toBe(false);
+      const pinnedTasks = getPinnedTasks(testEmail);
+      expect(pinnedTasks.has(taskUuid1)).toBe(false);
+    });
+
+    it('returns true when pinning', () => {
+      const result = togglePinnedTask(testEmail, taskUuid1);
+      expect(result).toBe(true);
+    });
+
+    it('returns false when unpinning', () => {
+      togglePinnedTask(testEmail, taskUuid1);
+      const result = togglePinnedTask(testEmail, taskUuid1);
+      expect(result).toBe(false);
+    });
+
+    it('persists changes to localStorage', () => {
+      togglePinnedTask(testEmail, taskUuid1);
+
+      const hashedKey = hashKey('pinnedTasks', testEmail);
+      const stored = localStorage.getItem(hashedKey);
+      expect(stored).not.toBeNull();
+
+      const parsed = JSON.parse(stored!);
+      expect(parsed).toContain(taskUuid1);
+    });
+
+    it('maintains other pinned tasks when toggling', () => {
+      savePinnedTasks(testEmail, new Set([taskUuid1, taskUuid2]));
+      togglePinnedTask(testEmail, taskUuid3);
+
+      const pinnedTasks = getPinnedTasks(testEmail);
+      expect(pinnedTasks.has(taskUuid1)).toBe(true);
+      expect(pinnedTasks.has(taskUuid2)).toBe(true);
+      expect(pinnedTasks.has(taskUuid3)).toBe(true);
+    });
+
+    it('removes only the toggled task when unpinning', () => {
+      savePinnedTasks(testEmail, new Set([taskUuid1, taskUuid2, taskUuid3]));
+      togglePinnedTask(testEmail, taskUuid2);
+
+      const pinnedTasks = getPinnedTasks(testEmail);
+      expect(pinnedTasks.has(taskUuid1)).toBe(true);
+      expect(pinnedTasks.has(taskUuid2)).toBe(false);
+      expect(pinnedTasks.has(taskUuid3)).toBe(true);
+      expect(pinnedTasks.size).toBe(2);
+    });
+
+    it('handles multiple toggles correctly', () => {
+      togglePinnedTask(testEmail, taskUuid1);
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(true);
+
+      togglePinnedTask(testEmail, taskUuid1);
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(false);
+
+      togglePinnedTask(testEmail, taskUuid1);
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(true);
+    });
+  });
+
+  describe('isTaskPinned', () => {
+    it('returns false for unpinned task', () => {
+      const result = isTaskPinned(testEmail, taskUuid1);
+      expect(result).toBe(false);
+    });
+
+    it('returns true for pinned task', () => {
+      savePinnedTasks(testEmail, new Set([taskUuid1]));
+      const result = isTaskPinned(testEmail, taskUuid1);
+      expect(result).toBe(true);
+    });
+
+    it('returns false when no pinned tasks exist', () => {
+      const result = isTaskPinned(testEmail, taskUuid1);
+      expect(result).toBe(false);
+    });
+
+    it('returns false for task not in pinned list', () => {
+      savePinnedTasks(testEmail, new Set([taskUuid1, taskUuid2]));
+      const result = isTaskPinned(testEmail, taskUuid3);
+      expect(result).toBe(false);
+    });
+
+    it('returns correct status after toggling', () => {
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(false);
+
+      togglePinnedTask(testEmail, taskUuid1);
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(true);
+
+      togglePinnedTask(testEmail, taskUuid1);
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(false);
+    });
+
+    it('handles multiple pinned tasks correctly', () => {
+      savePinnedTasks(testEmail, new Set([taskUuid1, taskUuid2, taskUuid3]));
+
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(true);
+      expect(isTaskPinned(testEmail, taskUuid2)).toBe(true);
+      expect(isTaskPinned(testEmail, taskUuid3)).toBe(true);
+      expect(isTaskPinned(testEmail, 'non-existent-uuid')).toBe(false);
+    });
+
+    it('is case-sensitive for UUIDs', () => {
+      savePinnedTasks(testEmail, new Set([taskUuid1.toLowerCase()]));
+      expect(isTaskPinned(testEmail, taskUuid1.toUpperCase())).toBe(false);
+    });
+  });
+
+  describe('Integration Tests', () => {
+    it('complete pin workflow for single task', () => {
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(false);
+
+      togglePinnedTask(testEmail, taskUuid1);
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(true);
+
+      const pinnedTasks = getPinnedTasks(testEmail);
+      expect(pinnedTasks.has(taskUuid1)).toBe(true);
+      expect(pinnedTasks.size).toBe(1);
+
+      togglePinnedTask(testEmail, taskUuid1);
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(false);
+
+      const emptyPinned = getPinnedTasks(testEmail);
+      expect(emptyPinned.size).toBe(0);
+    });
+
+    it('complete pin workflow for multiple tasks', () => {
+      togglePinnedTask(testEmail, taskUuid1);
+      togglePinnedTask(testEmail, taskUuid2);
+      togglePinnedTask(testEmail, taskUuid3);
+
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(true);
+      expect(isTaskPinned(testEmail, taskUuid2)).toBe(true);
+      expect(isTaskPinned(testEmail, taskUuid3)).toBe(true);
+
+      const pinnedTasks = getPinnedTasks(testEmail);
+      expect(pinnedTasks.size).toBe(3);
+
+      togglePinnedTask(testEmail, taskUuid2);
+      expect(isTaskPinned(testEmail, taskUuid2)).toBe(false);
+      expect(getPinnedTasks(testEmail).size).toBe(2);
+    });
+
+    it('handles multiple users independently', () => {
+      const email1 = 'user1@example.com';
+      const email2 = 'user2@example.com';
+
+      togglePinnedTask(email1, taskUuid1);
+      togglePinnedTask(email2, taskUuid2);
+
+      expect(isTaskPinned(email1, taskUuid1)).toBe(true);
+      expect(isTaskPinned(email1, taskUuid2)).toBe(false);
+      expect(isTaskPinned(email2, taskUuid1)).toBe(false);
+      expect(isTaskPinned(email2, taskUuid2)).toBe(true);
+
+      expect(getPinnedTasks(email1).size).toBe(1);
+      expect(getPinnedTasks(email2).size).toBe(1);
+    });
+
+    it('persists across function calls', () => {
+      togglePinnedTask(testEmail, taskUuid1);
+      expect(isTaskPinned(testEmail, taskUuid1)).toBe(true);
+
+      const retrieved = getPinnedTasks(testEmail);
+      expect(retrieved.has(taskUuid1)).toBe(true);
+
+      savePinnedTasks(testEmail, new Set([taskUuid1, taskUuid2]));
+      expect(isTaskPinned(testEmail, taskUuid2)).toBe(true);
+
+      const final = getPinnedTasks(testEmail);
+      expect(final.size).toBe(2);
+    });
   });
 });
