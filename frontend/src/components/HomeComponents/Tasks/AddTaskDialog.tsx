@@ -288,15 +288,27 @@ export const AddTaskdialog = ({
               Start
             </Label>
             <div className="col-span-3">
-              <DatePicker
-                date={newTask.start ? new Date(newTask.start) : undefined}
-                onDateChange={(date) => {
+              <DateTimePicker
+                date={
+                  newTask.start
+                    ? new Date(
+                        newTask.start.includes('T')
+                          ? newTask.start
+                          : `${newTask.start}T00:00:00`
+                      )
+                    : undefined
+                }
+                onDateTimeChange={(date, hasTime) => {
                   setNewTask({
                     ...newTask,
-                    start: date ? format(date, 'yyyy-MM-dd') : '',
+                    start: date
+                      ? hasTime
+                        ? date.toISOString()
+                        : format(date, 'yyyy-MM-dd')
+                      : '',
                   });
                 }}
-                placeholder="Select a start date"
+                placeholder="Select start date and time"
               />
             </div>
           </div>
@@ -322,15 +334,27 @@ export const AddTaskdialog = ({
               Entry
             </Label>
             <div className="col-span-3">
-              <DatePicker
-                date={newTask.entry ? new Date(newTask.entry) : undefined}
-                onDateChange={(date) => {
+              <DateTimePicker
+                date={
+                  newTask.entry
+                    ? new Date(
+                        newTask.entry.includes('T')
+                          ? newTask.entry
+                          : `${newTask.entry}T00:00:00`
+                      )
+                    : undefined
+                }
+                onDateTimeChange={(date, hasTime) => {
                   setNewTask({
                     ...newTask,
-                    entry: date ? format(date, 'yyyy-MM-dd') : '',
+                    entry: date
+                      ? hasTime
+                        ? date.toISOString()
+                        : format(date, 'yyyy-MM-dd')
+                      : '',
                   });
                 }}
-                placeholder="Select an entry date"
+                placeholder="Select entry date and time"
               />
             </div>
           </div>
