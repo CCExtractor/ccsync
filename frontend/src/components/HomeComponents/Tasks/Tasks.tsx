@@ -1066,7 +1066,7 @@ export const Tasks = (
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
                       className="hidden lg:flex min-w-[140px]"
-                      icon={<Key lable="p" />}
+                      icon={<Key label="p" />}
                       completionStats={projectStats}
                     />
                     <MultiSelectFilter
@@ -1085,7 +1085,7 @@ export const Tasks = (
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
                       className="hidden lg:flex min-w-[140px]"
-                      icon={<Key lable="t" />}
+                      icon={<Key label="t" />}
                       completionStats={tagStats}
                     />
                     <div className="flex justify-center">
