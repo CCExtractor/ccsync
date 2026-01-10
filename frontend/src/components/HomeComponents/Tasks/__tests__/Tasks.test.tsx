@@ -559,7 +559,7 @@ describe('Tasks Component', () => {
       });
     });
 
-    it('keeps tasks selected when bulk completet fails', async () => {
+    it('keeps tasks selected when bulk complete fails', async () => {
       const utils = require('../tasks-utils');
 
       utils.bulkMarkTasksAsCompleted.mockResolvedValue(false);
