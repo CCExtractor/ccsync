@@ -336,8 +336,13 @@ describe('Tasks Component', () => {
       const pencilButton = within(tagsRow).getByRole('button');
       fireEvent.click(pencilButton);
 
+      const tagSelectButton = await screen.findByRole('button', {
+        name: /select tags/i,
+      });
+      fireEvent.click(tagSelectButton);
+
       const editInput = await screen.findByPlaceholderText(
-        'Add a tag (press enter to add)'
+        'Search or create tags...'
       );
 
       fireEvent.change(editInput, { target: { value: 'newtag' } });
@@ -363,8 +368,13 @@ describe('Tasks Component', () => {
       const pencilButton = within(tagsRow).getByRole('button');
       fireEvent.click(pencilButton);
 
+      const tagSelectButton = await screen.findByRole('button', {
+        name: /select tags/i,
+      });
+      fireEvent.click(tagSelectButton);
+
       const editInput = await screen.findByPlaceholderText(
-        'Add a tag (press enter to add)'
+        'Search or create tags...'
       );
 
       fireEvent.change(editInput, { target: { value: 'addedtag' } });
@@ -373,7 +383,7 @@ describe('Tasks Component', () => {
       expect(await screen.findByText('addedtag')).toBeInTheDocument();
 
       const saveButton = await screen.findByRole('button', {
-        name: /save tags/i,
+        name: /save/i,
       });
       fireEvent.click(saveButton);
 
@@ -406,8 +416,13 @@ describe('Tasks Component', () => {
       const pencilButton = within(tagsRow).getByRole('button');
       fireEvent.click(pencilButton);
 
+      const tagSelectButton = await screen.findByRole('button', {
+        name: /select tags/i,
+      });
+      fireEvent.click(tagSelectButton);
+
       const editInput = await screen.findByPlaceholderText(
-        'Add a tag (press enter to add)'
+        'Search or create tags...'
       );
 
       fireEvent.change(editInput, { target: { value: 'newtag' } });
@@ -422,10 +437,18 @@ describe('Tasks Component', () => {
       const removeButton = within(badgeContainer).getByText('✖');
       fireEvent.click(removeButton);
 
-      expect(screen.queryByText('tag2')).not.toBeInTheDocument();
+      await waitFor(() => {
+        // Check that tag1 is not in the selected tags badges area
+        const selectedTagsArea = screen
+          .getByText('newtag')
+          .closest('div')?.parentElement;
+        expect(
+          within(selectedTagsArea as HTMLElement).queryByText('tag1')
+        ).not.toBeInTheDocument();
+      });
 
       const saveButton = await screen.findByRole('button', {
-        name: /save tags/i,
+        name: /save/i,
       });
       fireEvent.click(saveButton);
 
@@ -439,7 +462,7 @@ describe('Tasks Component', () => {
 
       const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
 
-      expect(callArg.tags).toEqual(expect.arrayContaining(['newtag', 'tag1']));
+      expect(callArg.tags).toEqual(expect.arrayContaining(['newtag']));
     });
 
     it('clicking checkbox does not open task detail dialog', async () => {
@@ -1246,8 +1269,14 @@ describe('Tasks Component', () => {
     const editButton = within(tagsRow).getByLabelText('edit');
     fireEvent.click(editButton);
 
+    // Click the TagMultiSelect button to open dropdown
+    const tagSelectButton = await screen.findByRole('button', {
+      name: /select tags/i,
+    });
+    fireEvent.click(tagSelectButton);
+
     const editInput = await screen.findByPlaceholderText(
-      'Add a tag (press enter to add)'
+      'Search or create tags...'
     );
 
     fireEvent.change(editInput, { target: { value: 'unsyncedtag' } });

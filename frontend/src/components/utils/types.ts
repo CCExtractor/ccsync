@@ -119,13 +119,25 @@ export interface AddTaskDialogProps {
   setIsOpen: (value: boolean) => void;
   newTask: TaskFormData;
   setNewTask: (task: TaskFormData) => void;
-  tagInput: string;
-  setTagInput: (value: string) => void;
   onSubmit: (task: TaskFormData) => void;
   isCreatingNewProject: boolean;
   setIsCreatingNewProject: (value: boolean) => void;
   uniqueProjects: string[];
+  uniqueTags: string[];
   allTasks?: Task[];
+}
+
+export interface TagMultiSelectProps {
+  availableTags: string[];
+  selectedTags: string[];
+  onTagsChange: (tags: string[]) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  className?: string;
+  autoOpen?: boolean;
+  showActions?: boolean;
+  onSave?: () => void;
+  onCancel?: () => void;
 }
 
 export interface EditTaskDialogProps {
@@ -141,6 +153,7 @@ export interface EditTaskDialogProps {
   onUpdateState: (updates: Partial<EditTaskState>) => void;
   allTasks: Task[];
   uniqueProjects: string[];
+  uniqueTags: string[];
   isCreatingNewProject: boolean;
   setIsCreatingNewProject: (value: boolean) => void;
   onSaveDescription: (task: Task, description: string) => void;

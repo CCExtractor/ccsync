@@ -105,11 +105,7 @@ export const Tasks = (
   const [isCreatingNewProject, setIsCreatingNewProject] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [_isDialogOpen, setIsDialogOpen] = useState(false);
-  const [tagInput, setTagInput] = useState('');
   const [_selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [editedTags, setEditedTags] = useState<string[]>(
-    _selectedTask?.tags || []
-  );
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
@@ -200,7 +196,7 @@ export const Tasks = (
   }, [props.email]);
   useEffect(() => {
     if (_selectedTask) {
-      setEditedTags(_selectedTask.tags || []);
+      // Task selection effect - no longer needed for editedTags
     }
   }, [_selectedTask]);
 
@@ -851,11 +847,7 @@ export const Tasks = (
   ]);
 
   const handleSaveTags = (task: Task, tags: string[]) => {
-    const currentTags = tags || [];
-    const removedTags = currentTags.filter((tag) => !editedTags.includes(tag));
-    const updatedTags = editedTags.filter((tag) => tag.trim() !== '');
-    const tagsToRemove = removedTags.map((tag) => `${tag}`);
-    const finalTags = [...updatedTags, ...tagsToRemove];
+    const updatedTags = tags.filter((tag) => tag.trim() !== '');
 
     setUnsyncedTaskUuids((prev) => new Set([...prev, task.uuid]));
 
@@ -864,7 +856,7 @@ export const Tasks = (
       props.encryptionSecret,
       props.UUID,
       task.description,
-      finalTags,
+      updatedTags,
       task.uuid.toString(),
       task.project,
       task.start,
@@ -1123,12 +1115,11 @@ export const Tasks = (
                         setIsOpen={setIsAddTaskOpen}
                         newTask={newTask}
                         setNewTask={setNewTask}
-                        tagInput={tagInput}
-                        setTagInput={setTagInput}
                         onSubmit={handleAddTask}
                         isCreatingNewProject={isCreatingNewProject}
                         setIsCreatingNewProject={setIsCreatingNewProject}
                         uniqueProjects={uniqueProjects}
+                        uniqueTags={uniqueTags}
                         allTasks={tasks}
                       />
                     </div>
@@ -1253,6 +1244,7 @@ export const Tasks = (
                             onUpdateState={updateEditState}
                             allTasks={tasks}
                             uniqueProjects={uniqueProjects}
+                            uniqueTags={uniqueTags}
                             isCreatingNewProject={isCreatingNewProject}
                             setIsCreatingNewProject={setIsCreatingNewProject}
                             onSaveDescription={handleSaveDescription}
@@ -1433,12 +1425,11 @@ export const Tasks = (
                         setIsOpen={setIsAddTaskOpen}
                         newTask={newTask}
                         setNewTask={setNewTask}
-                        tagInput={tagInput}
-                        setTagInput={setTagInput}
                         onSubmit={handleAddTask}
                         isCreatingNewProject={isCreatingNewProject}
                         setIsCreatingNewProject={setIsCreatingNewProject}
                         uniqueProjects={uniqueProjects}
+                        uniqueTags={uniqueTags}
                         allTasks={tasks}
                       />
                     </div>
