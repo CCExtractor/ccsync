@@ -23,6 +23,12 @@ export const ReportChart: React.FC<ReportChartProps> = ({
 }) => {
   const [isExporting, setIsExporting] = useState(false);
 
+  const isDark =
+    typeof document !== 'undefined' &&
+    document.documentElement.classList.contains('dark');
+
+  const labelColor = isDark ? '#ffffff' : '#111111';
+
   const handleCSVExport = () => {
     exportReportToCSV(data, title);
   };
@@ -90,19 +96,19 @@ export const ReportChart: React.FC<ReportChartProps> = ({
             dataKey="completed"
             fill="#E776CB"
             name="Completed"
-            label={{ position: 'top', fill: 'white', fontSize: 12 }}
+            label={{ position: 'top', fill: labelColor, fontSize: 12 }}
           />
           <Bar
             dataKey="ongoing"
             fill="#5FD9FA"
             name="Ongoing"
-            label={{ position: 'top', fill: 'white', fontSize: 12 }}
+            label={{ position: 'top', fill: labelColor, fontSize: 12 }}
           />
           <Bar
             dataKey="overdue"
             fill="#F33434"
             name="Overdue"
-            label={{ position: 'top', fill: 'white', fontSize: 12 }}
+            label={{ position: 'top', fill: labelColor, fontSize: 12 }}
           />
         </BarChart>
       </ResponsiveContainer>
