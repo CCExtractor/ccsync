@@ -88,7 +88,7 @@ export const Footer = () => {
 
       <section className="container pb-14 text-center">
         <h3>
-          &copy; 2025{' '}
+          &copy; 2026{' '}
           <a
             rel="noreferrer noopener"
             target="_blank"

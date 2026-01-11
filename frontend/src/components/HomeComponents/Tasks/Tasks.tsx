@@ -37,6 +37,10 @@ import {
   getTimeSinceLastSync,
   hashKey,
   isOverdue,
+  getPinnedTasks,
+  togglePinnedTask,
+  calculateProjectStats,
+  calculateTagStats,
 } from './tasks-utils';
 import Pagination from './Pagination';
 import { url } from '@/components/utils/URLs';
@@ -74,6 +78,12 @@ export const Tasks = (
   const [tempTasks, setTempTasks] = useState<Task[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const status = ['pending', 'completed', 'deleted', 'overdue'];
+  const [projectStats, setProjectStats] = useState<
+    Record<string, { completed: number; total: number; percentage: number }>
+  >({});
+  const [tagStats, setTagStats] = useState<
+    Record<string, { completed: number; total: number; percentage: number }>
+  >({});
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [idSortOrder, setIdSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -99,6 +109,7 @@ export const Tasks = (
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedTerm, setDebouncedTerm] = useState('');
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
+  const [pinnedTasks, setPinnedTasks] = useState<Set<string>>(new Set());
   const [selectedTaskUUIDs, setSelectedTaskUUIDs] = useState<string[]>([]);
   const [unsyncedTaskUuids, setUnsyncedTaskUuids] = useState<Set<string>>(
     new Set()
@@ -197,6 +208,11 @@ export const Tasks = (
     }
   }, [props.email]);
 
+  // Load pinned tasks from localStorage
+  useEffect(() => {
+    setPinnedTasks(getPinnedTasks(props.email));
+  }, [props.email]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setLastSyncTime((prevTime) => prevTime);
@@ -226,6 +242,10 @@ export const Tasks = (
           .filter((tag) => tag !== '')
           .sort((a, b) => (a > b ? 1 : -1));
         setUniqueTags(filteredTags);
+
+        // Calculate completion stats
+        setProjectStats(calculateProjectStats(tasksFromDB));
+        setTagStats(calculateTagStats(tasksFromDB));
       } catch (error) {
         console.error('Error fetching tasks:', error);
       }
@@ -276,6 +296,10 @@ export const Tasks = (
           .filter((tag) => tag !== '')
           .sort((a, b) => (a > b ? 1 : -1));
         setUniqueTags(filteredTags);
+
+        // Calculate completion stats
+        setProjectStats(calculateProjectStats(sortedTasks));
+        setTagStats(calculateTagStats(sortedTasks));
       });
 
       const currentTime = Date.now();
@@ -479,6 +503,12 @@ export const Tasks = (
       props.UUID,
       taskuuid
     );
+  };
+
+  const handleTogglePin = (taskUuid: string) => {
+    togglePinnedTask(props.email, taskUuid);
+    // Update the local state to trigger re-render
+    setPinnedTasks(getPinnedTasks(props.email));
   };
 
   const handleSelectTask = (task: Task, index: number) => {
@@ -741,11 +771,19 @@ export const Tasks = (
     }
   };
 
-  const sortWithOverdueOnTop = (tasks: Task[]) => {
+  const sortWithPinnedAndOverdueOnTop = (tasks: Task[]) => {
     return [...tasks].sort((a, b) => {
+      const aPinned = pinnedTasks.has(a.uuid);
+      const bPinned = pinnedTasks.has(b.uuid);
+
+      // Pinned tasks always on top
+      if (aPinned && !bPinned) return -1;
+      if (!aPinned && bPinned) return 1;
+
       const aOverdue = a.status === 'pending' && isOverdue(a.due);
       const bOverdue = b.status === 'pending' && isOverdue(b.due);
 
+      // Overdue tasks next (after pinned)
       if (aOverdue && !bOverdue) return -1;
       if (!aOverdue && bOverdue) return 1;
 
@@ -797,9 +835,16 @@ export const Tasks = (
       filteredTasks = results.map((r) => r.item);
     }
 
-    filteredTasks = sortWithOverdueOnTop(filteredTasks);
+    filteredTasks = sortWithPinnedAndOverdueOnTop(filteredTasks);
     setTempTasks(filteredTasks);
-  }, [selectedProjects, selectedTags, selectedStatuses, tasks, debouncedTerm]);
+  }, [
+    selectedProjects,
+    selectedTags,
+    selectedStatuses,
+    tasks,
+    debouncedTerm,
+    pinnedTasks,
+  ]);
 
   const handleSaveTags = (task: Task, tags: string[]) => {
     const updatedTags = tags.filter((tag) => tag.trim() !== '');
@@ -1033,7 +1078,7 @@ export const Tasks = (
                       onChange={handleSearchChange}
                       className="flex-1 min-w-[150px]"
                       data-testid="task-search-bar"
-                      icon={<Key lable="f" />}
+                      icon={<Key label="f" />}
                     />
                     <MultiSelectFilter
                       id="projects"
@@ -1042,7 +1087,8 @@ export const Tasks = (
                       selectedValues={selectedProjects}
                       onSelectionChange={setSelectedProjects}
                       className="hidden lg:flex min-w-[140px]"
-                      icon={<Key lable="p" />}
+                      icon={<Key label="p" />}
+                      completionStats={projectStats}
                     />
                     <MultiSelectFilter
                       id="status"
@@ -1051,7 +1097,7 @@ export const Tasks = (
                       selectedValues={selectedStatuses}
                       onSelectionChange={setSelectedStatuses}
                       className="hidden lg:flex min-w-[140px]"
-                      icon={<Key lable="s" />}
+                      icon={<Key label="s" />}
                     />
                     <MultiSelectFilter
                       id="tags"
@@ -1060,7 +1106,8 @@ export const Tasks = (
                       selectedValues={selectedTags}
                       onSelectionChange={setSelectedTags}
                       className="hidden lg:flex min-w-[140px]"
-                      icon={<Key lable="t" />}
+                      icon={<Key label="t" />}
+                      completionStats={tagStats}
                     />
                     <div className="flex justify-center">
                       <AddTaskdialog
@@ -1088,7 +1135,7 @@ export const Tasks = (
                         }}
                       >
                         Sync
-                        <Key lable="r" />
+                        <Key label="r" />
                         {unsyncedTaskUuids.size > 0 && (
                           <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] text-white font-bold shadow-sm">
                             {unsyncedTaskUuids.size}
@@ -1216,6 +1263,8 @@ export const Tasks = (
                             onMarkDeleted={handleMarkDelete}
                             isOverdue={isOverdue}
                             isUnsynced={unsyncedTaskUuids.has(task.uuid)}
+                            isPinned={pinnedTasks.has(task.uuid)}
+                            onTogglePin={handleTogglePin}
                           />
                         ))
                       )}

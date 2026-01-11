@@ -19,6 +19,12 @@ import {
 
 const ALL_ITEMS_VALUE = '__ALL__';
 
+interface CompletionStat {
+  completed: number;
+  total: number;
+  percentage: number;
+}
+
 interface MultiSelectFilterProps {
   id?: string;
   title: string;
@@ -27,6 +33,7 @@ interface MultiSelectFilterProps {
   onSelectionChange: (values: string[]) => void;
   className?: string;
   icon?: React.ReactNode;
+  completionStats?: Record<string, CompletionStat>;
 }
 
 export function MultiSelectFilter({
@@ -37,6 +44,7 @@ export function MultiSelectFilter({
   onSelectionChange,
   className,
   icon,
+  completionStats,
 }: MultiSelectFilterProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -90,6 +98,7 @@ export function MultiSelectFilter({
               </CommandItem>
               {options.map((option) => {
                 const isSelected = selectedValues.includes(option);
+                const stats = completionStats?.[option];
                 return (
                   <CommandItem
                     key={option}
@@ -101,7 +110,15 @@ export function MultiSelectFilter({
                         isSelected ? 'opacity-100' : 'opacity-0'
                       )}
                     />
-                    {option}
+                    <div className="flex flex-col flex-1">
+                      <span>{option}</span>
+                      {stats && (
+                        <span className="text-xs text-muted-foreground">
+                          {stats.completed}/{stats.total} tasks,{' '}
+                          {stats.percentage}%
+                        </span>
+                      )}
+                    </div>
                   </CommandItem>
                 );
               })}

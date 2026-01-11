@@ -172,6 +172,8 @@ export interface EditTaskDialogProps {
   onMarkDeleted: (uuid: string) => void;
   isOverdue: (due?: string) => boolean;
   isUnsynced: boolean;
+  isPinned: boolean;
+  onTogglePin: (uuid: string) => void;
 }
 
 export interface UseTaskDialogKeyboardProps<F extends readonly string[]> {
