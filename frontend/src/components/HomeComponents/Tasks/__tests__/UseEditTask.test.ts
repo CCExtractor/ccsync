@@ -33,7 +33,6 @@ describe('useEditTask Hook', () => {
       editedDescription: '',
       isEditingTags: false,
       editedTags: [],
-      editTagInput: '',
       isEditingPriority: false,
       editedPriority: 'NONE',
       isEditingProject: false,
