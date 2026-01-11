@@ -28,6 +28,25 @@ jest.mock('@/components/ui/date-picker', () => ({
   ),
 }));
 
+jest.mock('@/components/ui/date-time-picker', () => ({
+  DateTimePicker: ({ onDateTimeChange, placeholder }: any) => (
+    <div>
+      <input
+        data-testid="date-time-picker"
+        placeholder={placeholder}
+        onChange={(e) => {
+          if (e.target.value) {
+            const hasTime = e.target.value.includes('T');
+            onDateTimeChange(new Date(e.target.value), hasTime);
+          } else {
+            onDateTimeChange(undefined, false);
+          }
+        }}
+      />
+    </div>
+  ),
+}));
+
 jest.mock('@/components/ui/select', () => {
   return {
     Select: ({ children, onValueChange, value }: any) => {
@@ -374,102 +393,188 @@ describe('AddTaskDialog Component', () => {
   });
 
   describe('Date Fields', () => {
-    const dateFields = [
-      { name: 'due', label: 'Due', placeholder: 'Select a due date' },
-      { name: 'start', label: 'Start', placeholder: 'Select a start date' },
-      { name: 'end', label: 'End', placeholder: 'Select an end date' },
-      { name: 'entry', label: 'Entry', placeholder: 'Select an entry date' },
-      { name: 'wait', label: 'Wait', placeholder: 'Select a wait date' },
-    ];
+    describe('DateTime Fields', () => {
+      const dateTimeFields = [
+        { name: 'due', label: 'Due', placeholder: 'Select due date and time' },
+        {
+          name: 'start',
+          label: 'Start',
+          placeholder: 'Select start date and time',
+        },
+      ];
 
-    test.each(dateFields.filter((field) => field.name !== 'due'))(
-      'renders $name date picker with correct placeholder',
-      ({ placeholder }) => {
-        mockProps.isOpen = true;
-        render(<AddTaskdialog {...mockProps} />);
+      test.each(dateTimeFields)(
+        'renders $name date-time picker with correct placeholder',
+        ({ placeholder }) => {
+          mockProps.isOpen = true;
+          render(<AddTaskdialog {...mockProps} />);
 
-        const datePicker = screen.getByPlaceholderText(placeholder);
-        expect(datePicker).toBeInTheDocument();
-      }
-    );
+          const picker = screen.getByPlaceholderText(placeholder);
+          expect(picker).toBeInTheDocument();
+        }
+      );
 
-    test('renders due date picker with correct placeholder', () => {
-      mockProps.isOpen = true;
-      render(<AddTaskdialog {...mockProps} />);
+      test.each(dateTimeFields)(
+        'updates $name with date only when no time is selected',
+        ({ name, placeholder }) => {
+          mockProps.isOpen = true;
+          render(<AddTaskdialog {...mockProps} />);
 
-      const dueDateButton = screen.getByText('Select due date and time');
-      expect(dueDateButton).toBeInTheDocument();
+          const picker = screen.getByPlaceholderText(placeholder);
+          fireEvent.change(picker, { target: { value: '2025-12-25' } });
+
+          expect(mockProps.setNewTask).toHaveBeenLastCalledWith({
+            ...mockProps.newTask,
+            [name]: '2025-12-25',
+          });
+        }
+      );
+
+      test.each(dateTimeFields)(
+        'updates $name with full datetime when time is selected',
+        ({ name, placeholder }) => {
+          mockProps.isOpen = true;
+          render(<AddTaskdialog {...mockProps} />);
+          const picker = screen.getByPlaceholderText(placeholder);
+
+          fireEvent.change(picker, {
+            target: { value: '2025-12-25T14:30:00' },
+          });
+          expect(mockProps.setNewTask).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              [name]: expect.any(String),
+            })
+          );
+
+          const callArgs = mockProps.setNewTask.mock.calls.at(-1)![0];
+          expect(callArgs[name]).toContain('T');
+        }
+      );
+
+      test.each(dateTimeFields)(
+        'allows empty $name date (optional field)',
+        ({ name, placeholder }) => {
+          mockProps.isOpen = true;
+          render(<AddTaskdialog {...mockProps} />);
+
+          const picker = screen.getByPlaceholderText(placeholder);
+
+          fireEvent.change(picker, {
+            target: { value: '2025-12-25T14:30:00' },
+          });
+          mockProps.setNewTask.mockClear();
+          fireEvent.change(picker, { target: { value: '' } });
+
+          expect(mockProps.setNewTask).toHaveBeenLastCalledWith({
+            ...mockProps.newTask,
+            [name]: '',
+          });
+        }
+      );
+
+      test.each(dateTimeFields)(
+        'submits task with $name date when provided',
+        ({ name }) => {
+          mockProps.isOpen = true;
+          mockProps.newTask = {
+            ...mockProps.newTask,
+            [name]: '2025-12-25T14:30:00.000Z',
+          };
+          render(<AddTaskdialog {...mockProps} />);
+
+          const picker = screen.getByPlaceholderText(
+            `Select ${name} date and time`
+          );
+          fireEvent.change(picker, {
+            target: { value: '2025-12-25T14:30:00' },
+          });
+
+          const submitButton = screen.getByRole('button', {
+            name: /add task/i,
+          });
+          fireEvent.click(submitButton);
+
+          expect(mockProps.onSubmit).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+              [name]: '2025-12-25T14:30:00.000Z',
+            })
+          );
+        }
+      );
     });
 
-    test.each(dateFields.filter((field) => field.name !== 'due'))(
-      'updates $name when user selects a date',
-      ({ name, placeholder }) => {
-        mockProps.isOpen = true;
-        render(<AddTaskdialog {...mockProps} />);
+    describe('DatePicker fields', () => {
+      const dateOnlyFields = [
+        { name: 'end', label: 'End', placeholder: 'Select an end date' },
+        { name: 'entry', label: 'Entry', placeholder: 'Select an entry date' },
+        { name: 'wait', label: 'Wait', placeholder: 'Select a wait date' },
+      ];
 
-        const datePicker = screen.getByPlaceholderText(placeholder);
-        fireEvent.change(datePicker, { target: { value: '2025-12-25' } });
+      test.each(dateOnlyFields)(
+        'renders $name date picker with correct placeholder',
+        ({ placeholder }) => {
+          mockProps.isOpen = true;
+          render(<AddTaskdialog {...mockProps} />);
 
-        expect(mockProps.setNewTask).toHaveBeenCalledWith({
-          ...mockProps.newTask,
-          [name]: '2025-12-25',
-        });
-      }
-    );
+          const datePicker = screen.getByPlaceholderText(placeholder);
+          expect(datePicker).toBeInTheDocument();
+        }
+      );
 
-    // Special test for due date with DateTimePicker
-    test('updates due when user selects a date and time', () => {
-      mockProps.isOpen = true;
-      render(<AddTaskdialog {...mockProps} />);
+      test.each(dateOnlyFields)(
+        'updates $name when user selects a date',
+        ({ name, placeholder }) => {
+          mockProps.isOpen = true;
+          render(<AddTaskdialog {...mockProps} />);
 
-      const dueDateButton = screen.getByText('Select due date and time');
-      expect(dueDateButton).toBeInTheDocument();
+          const datePicker = screen.getByPlaceholderText(placeholder);
+          fireEvent.change(datePicker, { target: { value: '2025-12-25' } });
+
+          expect(mockProps.setNewTask).toHaveBeenCalledWith({
+            ...mockProps.newTask,
+            [name]: '2025-12-25',
+          });
+        }
+      );
+
+      test.each(dateOnlyFields)(
+        'allows empty $name date (optional field)',
+        ({ name, placeholder }) => {
+          mockProps.isOpen = true;
+          render(<AddTaskdialog {...mockProps} />);
+
+          const datePicker = screen.getByPlaceholderText(placeholder);
+
+          fireEvent.change(datePicker, { target: { value: '2025-12-25' } });
+          mockProps.setNewTask.mockClear();
+          fireEvent.change(datePicker, { target: { value: '' } });
+
+          expect(mockProps.setNewTask).toHaveBeenCalledWith({
+            ...mockProps.newTask,
+            [name]: '',
+          });
+        }
+      );
+
+      test.each(dateOnlyFields)(
+        'submits task with $name date when provided',
+        ({ name }) => {
+          mockProps.isOpen = true;
+          mockProps.newTask = {
+            ...mockProps.newTask,
+            [name]: '2025-12-25',
+          };
+          render(<AddTaskdialog {...mockProps} />);
+
+          const submitButton = screen.getByRole('button', {
+            name: /add task/i,
+          });
+          fireEvent.click(submitButton);
+
+          expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
+        }
+      );
     });
-
-    test.each(dateFields.filter((field) => field.name !== 'due'))(
-      'allows empty $name date (optional field)',
-      ({ name, placeholder }) => {
-        mockProps.isOpen = true;
-        render(<AddTaskdialog {...mockProps} />);
-
-        const datePicker = screen.getByPlaceholderText(placeholder);
-
-        fireEvent.change(datePicker, { target: { value: '2025-12-25' } });
-        mockProps.setNewTask.mockClear();
-        fireEvent.change(datePicker, { target: { value: '' } });
-
-        expect(mockProps.setNewTask).toHaveBeenCalledWith({
-          ...mockProps.newTask,
-          [name]: '',
-        });
-      }
-    );
-
-    // Special test for due date with DateTimePicker
-    test('allows empty due date (optional field)', () => {
-      mockProps.isOpen = true;
-      render(<AddTaskdialog {...mockProps} />);
-
-      const dueDateButton = screen.getByText('Select due date and time');
-      expect(dueDateButton).toBeInTheDocument();
-    });
-
-    test.each(dateFields)(
-      'submits task with $name date when provided',
-      ({ name }) => {
-        mockProps.isOpen = true;
-        mockProps.newTask = {
-          ...mockProps.newTask,
-          [name]: '2025-12-25',
-        };
-        render(<AddTaskdialog {...mockProps} />);
-
-        const submitButton = screen.getByRole('button', { name: /add task/i });
-        fireEvent.click(submitButton);
-
-        expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
-      }
-    );
   });
 
   describe('Depends Field', () => {

@@ -40,7 +40,11 @@ func AddTaskToTaskwarrior(req models.AddTaskRequestBody, dueDate string) error {
 		cmdArgs = append(cmdArgs, "due:"+dueDate)
 	}
 	if req.Start != "" {
-		cmdArgs = append(cmdArgs, "start:"+req.Start)
+		start, err := utils.ConvertISOToTaskwarriorFormat(req.Start)
+		if err != nil {
+			return fmt.Errorf("unexpected date format error: %v", err)
+		}
+		cmdArgs = append(cmdArgs, "start:"+start)
 	}
 	if len(req.Depends) > 0 {
 		dependsStr := strings.Join(req.Depends, ",")
