@@ -2,7 +2,6 @@ package tw
 
 import (
 	"ccsync_backend/models"
-	"fmt"
 	"testing"
 )
 
@@ -10,8 +9,6 @@ func TestSetTaskwarriorConfig(t *testing.T) {
 	err := SetTaskwarriorConfig("./", "encryption_secret", "container_origin", "client_id")
 	if err != nil {
 		t.Errorf("SetTaskwarriorConfig() failed: %v", err)
-	} else {
-		fmt.Println("SetTaskwarriorConfig test passed")
 	}
 }
 
@@ -19,8 +16,30 @@ func TestSyncTaskwarrior(t *testing.T) {
 	err := SyncTaskwarrior("./")
 	if err != nil {
 		t.Errorf("SyncTaskwarrior failed: %v", err)
-	} else {
-		fmt.Println("Sync Dir test passed")
+	}
+}
+
+func TestAddTaskToTaskwarrior(t *testing.T) {
+	err := AddTaskToTaskwarrior(
+		"email",
+		"encryption_secret",
+		"clientId",
+		"description",
+		"",
+		"H",
+		"2025-03-03",
+		"2025-03-03T10:30:00",
+		"2025-03-01",
+		"2025-03-01",
+		"2025-03-01",
+		"daily",
+		[]string{},
+		[]models.Annotation{{Description: "note"}},
+		[]string{},
+	)
+
+	if err != nil {
+		t.Errorf("AddTaskToTaskwarrior failed: %v", err)
 	}
 }
 
@@ -49,9 +68,7 @@ func TestEditTaskInATaskwarrior(t *testing.T) {
 
 func TestExportTasks(t *testing.T) {
 	task, err := ExportTasks("./")
-	if task != nil && err == nil {
-		fmt.Println("Task export test passed")
-	} else {
+	if task == nil || err != nil {
 		t.Errorf("ExportTasks() failed: %v", err)
 	}
 }
