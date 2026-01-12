@@ -3,6 +3,7 @@ import { FAQItem } from './FAQItem';
 import { FAQList } from './faq-utils';
 import { BlueHeading } from '@/lib/utils';
 import { HighlightLink } from '@/components/ui/link-highlight';
+import { url } from '@/components/utils/URLs';
 
 export const FAQ = () => {
   return (
@@ -25,7 +26,7 @@ export const FAQ = () => {
 
       <h3 className="font-medium mt-4">
         Still have questions?{' '}
-        <HighlightLink rel="noreferrer noopener" href={'#contact'}>
+        <HighlightLink rel="noreferrer noopener" href={url.zulipURL}>
           Contact us
         </HighlightLink>
       </h3>

@@ -40,7 +40,7 @@ exports[`FAQ component using snapshot renders correctly 1`] = `
       Still have questions? 
       <a
         class="opacity-60 hover:opacity-100 relative inline-block"
-        href="#contact"
+        href="https://ccextractor.org/public/general/support/"
         rel="noreferrer noopener"
       >
         Contact us
