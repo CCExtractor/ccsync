@@ -54,7 +54,11 @@ func AddTaskToTaskwarrior(req models.AddTaskRequestBody, dueDate string) error {
 		cmdArgs = append(cmdArgs, "entry:"+req.EntryDate)
 	}
 	if req.WaitDate != "" {
-		cmdArgs = append(cmdArgs, "wait:"+req.WaitDate)
+		wait, err := utils.ConvertISOToTaskwarriorFormat(req.WaitDate)
+		if err != nil {
+			return fmt.Errorf("unexpected date format error: %v", err)
+		}
+		cmdArgs = append(cmdArgs, "wait:"+wait)
 	}
 	if req.End != "" {
 		cmdArgs = append(cmdArgs, "end:"+req.End)

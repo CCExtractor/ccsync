@@ -401,6 +401,11 @@ describe('AddTaskDialog Component', () => {
           label: 'Start',
           placeholder: 'Select start date and time',
         },
+        {
+          name: 'wait',
+          label: 'Wait',
+          placeholder: 'Select wait date and time',
+        },
       ];
 
       test.each(dateTimeFields)(
@@ -507,7 +512,6 @@ describe('AddTaskDialog Component', () => {
       const dateOnlyFields = [
         { name: 'end', label: 'End', placeholder: 'Select an end date' },
         { name: 'entry', label: 'Entry', placeholder: 'Select an entry date' },
-        { name: 'wait', label: 'Wait', placeholder: 'Select a wait date' },
       ];
 
       test.each(dateOnlyFields)(
