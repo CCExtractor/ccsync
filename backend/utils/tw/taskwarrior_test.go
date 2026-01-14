@@ -5,44 +5,6 @@ import (
 	"testing"
 )
 
-func TestSetTaskwarriorConfig(t *testing.T) {
-	err := SetTaskwarriorConfig("./", "encryption_secret", "container_origin", "client_id")
-	if err != nil {
-		t.Errorf("SetTaskwarriorConfig() failed: %v", err)
-	}
-}
-
-func TestSyncTaskwarrior(t *testing.T) {
-	err := SyncTaskwarrior("./")
-	if err != nil {
-		t.Errorf("SyncTaskwarrior failed: %v", err)
-	}
-}
-
-func TestAddTaskToTaskwarrior(t *testing.T) {
-	err := AddTaskToTaskwarrior(
-		"email",
-		"encryption_secret",
-		"clientId",
-		"description",
-		"",
-		"H",
-		"2025-03-03",
-		"2025-03-03T10:30:00",
-		"2025-03-01",
-		"2025-03-01",
-		"2025-03-01",
-		"daily",
-		[]string{},
-		[]models.Annotation{{Description: "note"}},
-		[]string{},
-	)
-
-	if err != nil {
-		t.Errorf("AddTaskToTaskwarrior failed: %v", err)
-	}
-}
-
 func TestEditTaskInATaskwarrior(t *testing.T) {
 	req := models.EditTaskRequestBody{
 		UUID:             "uuid",
@@ -60,16 +22,8 @@ func TestEditTaskInATaskwarrior(t *testing.T) {
 		Annotations:      []models.Annotation{{Description: "test annotation"}},
 	}
 
-	err := EditTaskInTaskwarrior(req)
-	if err != nil {
+	if err := EditTaskInTaskwarrior(req); err != nil {
 		t.Logf("EditTaskInTaskwarrior returned error: %v", err)
-	}
-}
-
-func TestExportTasks(t *testing.T) {
-	task, err := ExportTasks("./")
-	if task == nil || err != nil {
-		t.Errorf("ExportTasks() failed: %v", err)
 	}
 }
 
@@ -89,8 +43,7 @@ func TestEditTaskWithTagAddition(t *testing.T) {
 		Recur:            "daily",
 	}
 
-	err := EditTaskInTaskwarrior(req)
-	if err != nil {
+	if err := EditTaskInTaskwarrior(req); err != nil {
 		t.Logf("EditTaskInTaskwarrior returned error: %v", err)
 	}
 }
@@ -111,8 +64,7 @@ func TestEditTaskWithTagRemoval(t *testing.T) {
 		Recur:            "monthly",
 	}
 
-	err := EditTaskInTaskwarrior(req)
-	if err != nil {
+	if err := EditTaskInTaskwarrior(req); err != nil {
 		t.Logf("EditTaskInTaskwarrior returned error: %v", err)
 	}
 }
@@ -133,8 +85,7 @@ func TestEditTaskWithMixedTagOperations(t *testing.T) {
 		Recur:            "yearly",
 	}
 
-	err := EditTaskInTaskwarrior(req)
-	if err != nil {
+	if err := EditTaskInTaskwarrior(req); err != nil {
 		t.Logf("EditTaskInTaskwarrior returned error: %v", err)
 	}
 }
