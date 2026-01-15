@@ -69,19 +69,12 @@ export function useAddTaskDialogKeyboard<F extends readonly string[]>({
   return React.useCallback(
     (e: React.KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      // const field = fields[focusedFieldIndex];
-
-      // if (field === "project" && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
-      //   e.preventDefault();
-      //   e.stopPropagation(); // ✅ Radix won't receive it
-      // }
 
       const isTyping =
         target.tagName === 'INPUT' ||
         target.tagName === 'TEXTAREA' ||
         target.isContentEditable;
 
-      // if (isTyping && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) return;
       if (isTyping && (e.key === 'Enter' || e.key === 'Escape')) return;
 
       switch (e.key) {
