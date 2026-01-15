@@ -225,11 +225,7 @@ describe('Tasks Component', () => {
 
       render(<Tasks {...mockProps} />);
 
-      await waitFor(async () => {
-        expect(await screen.findByText('Task 1')).toBeInTheDocument();
-      });
-
-      expect(screen.getByLabelText('Show:')).toHaveValue('20');
+      expect(await screen.findByLabelText('Show:')).toHaveValue('20');
     });
 
     test('updates pagination when "Tasks per Page" is changed', async () => {

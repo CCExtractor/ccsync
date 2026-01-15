@@ -1,4 +1,4 @@
-import { FIELDS } from '../HomeComponents/Tasks/constants';
+import { ADD_FIELDS, FIELDS } from '../HomeComponents/Tasks/constants';
 
 export interface User {
   name: string;
@@ -115,6 +115,7 @@ export interface TaskFormData {
 }
 
 export interface AddTaskDialogProps {
+  onOpenChange: (open: boolean) => void;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   newTask: TaskFormData;
@@ -171,6 +172,16 @@ export interface UseTaskDialogKeyboardProps<F extends readonly string[]> {
   triggerEditForField: (field: F[number]) => void;
   stopEditing: () => void;
 }
+
+export type AddTaskProps<F extends readonly string[]> = {
+  fields: F;
+  focusedFieldIndex: number;
+  setFocusedFieldIndex: React.Dispatch<React.SetStateAction<number>>;
+  onEnter: (field: F[number]) => void;
+  closeDialog: () => void;
+};
+
+export type AddFieldKey = (typeof ADD_FIELDS)[number];
 
 export type FieldKey = (typeof FIELDS)[number];
 

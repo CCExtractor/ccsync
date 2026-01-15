@@ -25,3 +25,18 @@ export function useTaskDialogFocusMap<F extends readonly string[]>({
     [fields, inputRefs]
   );
 }
+
+export function useAddTaskDialogFocusMap<F extends readonly string[]>({
+  fields,
+  inputRefs,
+}: UseTaskDialogFocusMapProps<F>) {
+  return React.useCallback(
+    (field: F[number]) => {
+      const element = inputRefs.current[field];
+      if (!element) return;
+
+      element.focus();
+    },
+    [fields, inputRefs]
+  );
+}

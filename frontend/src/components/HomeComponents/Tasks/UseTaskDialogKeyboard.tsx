@@ -1,4 +1,7 @@
-import { UseTaskDialogKeyboardProps } from '@/components/utils/types';
+import {
+  AddTaskProps,
+  UseTaskDialogKeyboardProps,
+} from '@/components/utils/types';
 import React from 'react';
 
 export function useTaskDialogKeyboard<F extends readonly string[]>({
@@ -53,5 +56,58 @@ export function useTaskDialogKeyboard<F extends readonly string[]>({
       stopEditing,
       triggerEditForField,
     ]
+  );
+}
+
+export function useAddTaskDialogKeyboard<F extends readonly string[]>({
+  fields,
+  focusedFieldIndex,
+  setFocusedFieldIndex,
+  onEnter,
+  closeDialog,
+}: AddTaskProps<F>) {
+  return React.useCallback(
+    (e: React.KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      // const field = fields[focusedFieldIndex];
+
+      // if (field === "project" && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+      //   e.preventDefault();
+      //   e.stopPropagation(); // ✅ Radix won't receive it
+      // }
+
+      const isTyping =
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable;
+
+      // if (isTyping && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) return;
+      if (isTyping && (e.key === 'Enter' || e.key === 'Escape')) return;
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setFocusedFieldIndex((i) => Math.min(i + 1, fields.length - 1));
+          break;
+
+        case 'ArrowUp':
+          e.preventDefault();
+          setFocusedFieldIndex((i) => Math.max(i - 1, 0));
+          break;
+
+        case 'Enter':
+          e.preventDefault();
+          e.stopPropagation();
+          const field = fields[focusedFieldIndex];
+          onEnter(field);
+          break;
+
+        case 'Escape':
+          e.preventDefault();
+          closeDialog();
+          break;
+      }
+    },
+    [fields, focusedFieldIndex, setFocusedFieldIndex, onEnter, closeDialog]
   );
 }
