@@ -437,16 +437,28 @@ export const AddTaskdialog = ({
                 Entry
               </Label>
               <div className="col-span-3">
-                <DatePicker
+                <DateTimePicker
                   ref={(element) => (inputRefs.current.entry = element)}
-                  date={newTask.entry ? new Date(newTask.entry) : undefined}
-                  onDateChange={(date) => {
+                  date={
+                    newTask.entry
+                      ? new Date(
+                          newTask.entry.includes('T')
+                            ? newTask.entry
+                            : `${newTask.entry}T00:00:00`
+                        )
+                      : undefined
+                  }
+                  onDateTimeChange={(date, hasTime) => {
                     setNewTask({
                       ...newTask,
-                      entry: date ? format(date, 'yyyy-MM-dd') : '',
+                      entry: date
+                        ? hasTime
+                          ? date.toISOString()
+                          : format(date, 'yyyy-MM-dd')
+                        : '',
                     });
                   }}
-                  placeholder="Select an entry date"
+                  placeholder="Select entry date and time"
                 />
               </div>
             </div>
@@ -457,16 +469,28 @@ export const AddTaskdialog = ({
                 Wait
               </Label>
               <div className="col-span-3">
-                <DatePicker
+                <DateTimePicker
                   ref={(element) => (inputRefs.current.wait = element)}
-                  date={newTask.wait ? new Date(newTask.wait) : undefined}
-                  onDateChange={(date) => {
+                  date={
+                    newTask.wait
+                      ? new Date(
+                          newTask.wait.includes('T')
+                            ? newTask.wait
+                            : `${newTask.wait}T00:00:00`
+                        )
+                      : undefined
+                  }
+                  onDateTimeChange={(date, hasTime) => {
                     setNewTask({
                       ...newTask,
-                      wait: date ? format(date, 'yyyy-MM-dd') : '',
+                      wait: date
+                        ? hasTime
+                          ? date.toISOString()
+                          : format(date, 'yyyy-MM-dd')
+                        : '',
                     });
                   }}
-                  placeholder="Select a wait date"
+                  placeholder="Select wait date and time"
                 />
               </div>
             </div>
