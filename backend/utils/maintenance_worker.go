@@ -20,11 +20,21 @@ func NewMaintenanceWorker(queue PersistentJobQueue) *MaintenanceWorker {
 }
 
 func (mw *MaintenanceWorker) Start() error {
+	// CLEANUP_CRON_SCHEDULE: Cron expression for cleanup schedule
+	// Format: "minute hour day month weekday"
+	// Examples:
+	//   "0 0 * * *"   - Daily at midnight (default)
+	//   "0 */6 * * *" - Every 6 hours
+	//   "0 2 * * *"   - Daily at 2 AM
+	//   "0 0 * * 0"   - Weekly on Sunday
 	schedule := os.Getenv("CLEANUP_CRON_SCHEDULE")
 	if schedule == "" {
 		schedule = "0 0 * * *"
 	}
 
+	// CLEANUP_RETENTION_DAYS: Number of days to keep completed/failed job logs
+	// Default: 7 days
+	// Set to higher value to keep logs longer, lower to cleanup more frequently
 	retentionDaysStr := os.Getenv("CLEANUP_RETENTION_DAYS")
 	retentionDays := 7
 	if retentionDaysStr != "" {
