@@ -1,12 +1,14 @@
 module ccsync_backend
 
-go 1.23
+go 1.19
 
 require (
 	github.com/charmbracelet/log v0.4.2
 	github.com/gorilla/sessions v1.2.2
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.3
+	go.etcd.io/bbolt v1.3.7
 	golang.org/x/oauth2 v0.20.0
 )
 
@@ -33,10 +35,8 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	go.etcd.io/bbolt v1.4.3 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
