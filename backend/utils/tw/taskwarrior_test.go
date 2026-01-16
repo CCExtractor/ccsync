@@ -21,7 +21,6 @@ func TestEditTaskInATaskwarrior(t *testing.T) {
 		Recur:            "weekly",
 		Annotations:      []models.Annotation{{Description: "test annotation"}},
 	}
-
 	if err := EditTaskInTaskwarrior(req); err != nil {
 		t.Logf("EditTaskInTaskwarrior returned error: %v", err)
 	}
