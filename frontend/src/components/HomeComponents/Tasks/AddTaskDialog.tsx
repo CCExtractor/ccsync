@@ -28,7 +28,7 @@ import {
   FieldKey,
 } from '@/components/utils/types';
 import { format } from 'date-fns';
-import { ADD_FIELDS } from './constants';
+import { ADDTASKDIALOG_FIELDS } from './constants';
 import { useAddTaskDialogKeyboard } from './UseTaskDialogKeyboard';
 import { useAddTaskDialogFocusMap } from './UseTaskDialogFocusMap';
 
@@ -60,7 +60,7 @@ export const AddTaskdialog = ({
   >({});
   const [focusedFieldIndex, setFocusedFieldIndex] = useState(0);
 
-  const focusedField = ADD_FIELDS[focusedFieldIndex];
+  const focusedField = ADDTASKDIALOG_FIELDS[focusedFieldIndex];
 
   const handleDialogOpenChange = (open: boolean) => {
     onOpenChange?.(open);
@@ -78,7 +78,7 @@ export const AddTaskdialog = ({
   }, [focusedField]);
 
   const focusMap = useAddTaskDialogFocusMap({
-    fields: ADD_FIELDS,
+    fields: ADDTASKDIALOG_FIELDS,
     inputRefs: inputRefs as any,
   });
 
@@ -97,7 +97,7 @@ export const AddTaskdialog = ({
   };
 
   const handleDialogKeyDown = useAddTaskDialogKeyboard({
-    fields: ADD_FIELDS,
+    fields: ADDTASKDIALOG_FIELDS,
     focusedFieldIndex,
     setFocusedFieldIndex,
     onEnter,
@@ -293,8 +293,6 @@ export const AddTaskdialog = ({
                       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                         e.preventDefault();
                       }
-
-                      // ✅ allow enter to open dropdown
                       if (e.key === 'Enter') {
                         (e.currentTarget as HTMLButtonElement).click();
                       }

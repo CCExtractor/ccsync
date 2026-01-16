@@ -927,4 +927,57 @@ describe('AddTaskDialog Component', () => {
       });
     });
   });
+
+  describe('Testing Shortcuts', () => {
+    beforeEach(() => {
+      Element.prototype.scrollIntoView = jest.fn();
+    });
+
+    test('ArrowDown moves focus to next field', async () => {
+      render(<AddTaskdialog {...mockProps} isOpen />);
+
+      const dialog = await screen.findByRole('dialog');
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+
+      const prioritySelect = screen.getByLabelText(/priority/i);
+      const priorityRow = prioritySelect.closest('div.grid');
+      expect(priorityRow).toHaveClass('bg-black/15');
+    });
+
+    test('Enter focuses priority select when priority row is focused', async () => {
+      render(<AddTaskdialog {...mockProps} isOpen />);
+
+      const dialog = await screen.findByRole('dialog');
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+      fireEvent.keyDown(dialog, { key: 'Enter' });
+
+      const prioritySelect = screen.getByLabelText(/priority/i);
+      expect(prioritySelect).toHaveFocus();
+    });
+
+    test('Arrow keys do navigate while editing', () => {
+      render(<AddTaskdialog {...mockProps} isOpen />);
+
+      const dialog = screen.getByRole('dialog');
+      fireEvent.keyDown(dialog, { key: 'Enter' });
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+
+      const descriptionRow = screen.getByText(/priority/i);
+      expect(descriptionRow).toBeInTheDocument();
+    });
+
+    test('DateTimePicker is visible when any date field is in edit mode', async () => {
+      render(<AddTaskdialog {...mockProps} isOpen />);
+
+      const dialog = screen.getByRole('dialog');
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+      fireEvent.keyDown(dialog, { key: 'Enter' });
+
+      expect(
+        screen.getByPlaceholderText('Select due date and time')
+      ).toBeInTheDocument();
+    });
+  });
 });

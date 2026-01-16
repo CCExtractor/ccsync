@@ -1,4 +1,4 @@
-export const FIELDS = [
+export const EDITTASKDIALOG_FIELDS = [
   'description',
   'due',
   'start',
@@ -13,7 +13,7 @@ export const FIELDS = [
   'annotations',
 ] as const;
 
-export const ADD_FIELDS = [
+export const ADDTASKDIALOG_FIELDS = [
   'description',
   'priority',
   'project',

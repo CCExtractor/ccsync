@@ -1,4 +1,7 @@
-import { ADD_FIELDS, FIELDS } from '../HomeComponents/Tasks/constants';
+import {
+  ADDTASKDIALOG_FIELDS,
+  EDITTASKDIALOG_FIELDS,
+} from '../HomeComponents/Tasks/constants';
 
 export interface User {
   name: string;
@@ -181,9 +184,9 @@ export type AddTaskProps<F extends readonly string[]> = {
   closeDialog: () => void;
 };
 
-export type AddFieldKey = (typeof ADD_FIELDS)[number];
+export type AddFieldKey = (typeof ADDTASKDIALOG_FIELDS)[number];
 
-export type FieldKey = (typeof FIELDS)[number];
+export type FieldKey = (typeof EDITTASKDIALOG_FIELDS)[number];
 
 export type RefMap = Record<string, HTMLElement | null>;
 
