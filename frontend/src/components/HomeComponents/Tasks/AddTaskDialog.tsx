@@ -195,7 +195,7 @@ export const AddTaskdialog = ({
         <DialogHeader>
           <DialogTitle>
             <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
-              <span className="inline bg-gradient-to-r from-[#D247BF]  to-[#b95fad] text-transparent bg-clip-text">
+              <span className="inline bg-gradient-to-r from-[#F596D3]  to-[#D247BF] text-transparent bg-clip-text">
                 Add a{' '}
               </span>
               new task
