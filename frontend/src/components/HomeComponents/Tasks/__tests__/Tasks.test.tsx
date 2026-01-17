@@ -173,6 +173,14 @@ jest.mock('../Pagination', () => {
   ));
 });
 
+// Mock TaskSkeleton component
+jest.mock('../TaskSkeleton', () => {
+  return {
+    __esModule: true,
+    Taskskeleton: () => <div data-testid="task-skeleton" />,
+  };
+});
+
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
 
 describe('Tasks Component', () => {
@@ -216,6 +224,13 @@ describe('Tasks Component', () => {
       const dropdown = screen.getByLabelText('Show:');
       expect(dropdown).toBeInTheDocument();
       expect(dropdown).toHaveValue('10');
+    });
+
+    test('does not render tasks when loading is true', () => {
+      render(<Tasks {...mockProps} isLoading={true} />);
+
+      // No task rows should be rendered while loading
+      expect(screen.queryByRole('row')).not.toBeInTheDocument();
     });
   });
 
