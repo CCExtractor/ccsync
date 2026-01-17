@@ -173,7 +173,6 @@ jest.mock('../Pagination', () => {
   ));
 });
 
-// Mock TaskSkeleton component
 jest.mock('../TaskSkeleton', () => {
   return {
     __esModule: true,
@@ -213,7 +212,7 @@ describe('Tasks Component', () => {
       expect(screen.getByTestId('tasks')).toBeInTheDocument();
       expect(screen.getByText('Mocked BottomBar')).toBeInTheDocument();
     });
-
+    
     test('renders the "Tasks per Page" dropdown with default value', async () => {
       await act(async () => {
         render(<Tasks {...mockProps} />);
@@ -228,8 +227,6 @@ describe('Tasks Component', () => {
 
     test('does not render tasks when loading is true', () => {
       render(<Tasks {...mockProps} isLoading={true} />);
-
-      // No task rows should be rendered while loading
       expect(screen.queryByRole('row')).not.toBeInTheDocument();
     });
   });
