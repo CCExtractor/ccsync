@@ -31,6 +31,7 @@ import { format } from 'date-fns';
 import { ADDTASKDIALOG_FIELDS } from './constants';
 import { useAddTaskDialogKeyboard } from './UseTaskDialogKeyboard';
 import { useAddTaskDialogFocusMap } from './UseTaskDialogFocusMap';
+import { MultiSelect } from './MultiSelect';
 
 export const AddTaskdialog = ({
   onOpenChange,
@@ -38,12 +39,11 @@ export const AddTaskdialog = ({
   setIsOpen,
   newTask,
   setNewTask,
-  tagInput,
-  setTagInput,
   onSubmit,
   isCreatingNewProject,
   setIsCreatingNewProject,
   uniqueProjects = [],
+  uniqueTags = [],
   allTasks = [],
 }: AddTaskDialogProps) => {
   const [annotationInput, setAnnotationInput] = useState('');
@@ -161,20 +161,6 @@ export const AddTaskdialog = ({
       annotations: newTask.annotations.filter(
         (annotation) => annotation !== annotationToRemove
       ),
-    });
-  };
-
-  const handleAddTag = () => {
-    if (tagInput && !newTask.tags.includes(tagInput, 0)) {
-      setNewTask({ ...newTask, tags: [...newTask.tags, tagInput] });
-      setTagInput('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setNewTask({
-      ...newTask,
-      tags: newTask.tags.filter((tag) => tag !== tagToRemove),
     });
   };
 
@@ -523,43 +509,20 @@ export const AddTaskdialog = ({
             <div
               className={`grid grid-cols-4 items-center gap-4 border-b py-6 px-2 w-full ${focusedField === 'tags' ? 'dark:bg-muted/50 bg-black/15' : ''} `}
             >
-              <Label htmlFor="tags" className="text-left col-spa w-[77px]">
+              <Label htmlFor="tags" className="text-left col-span-1 w-[77px]">
                 Tags
               </Label>
               <div className="col-span-3">
-                <Input
-                  ref={(element) => (inputRefs.current.tags = element)}
-                  id="tags"
-                  name="tags"
-                  placeholder="Add a tag"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
-                  required
-                  className="col-span-6"
+                <MultiSelect
+                  availableItems={uniqueTags}
+                  selectedItems={newTask.tags}
+                  onItemsChange={(tags: string[]) =>
+                    setNewTask({ ...newTask, tags })
+                  }
+                  placeholder="Select or create tags"
                 />
               </div>
             </div>
-
-            {newTask.tags.length > 0 && (
-              <div className="grid grid-cols-4 items-center">
-                <div> </div>
-                <div className="flex flex-wrap gap-2 col-span-3">
-                  {newTask.tags.map((tag, index) => (
-                    <Badge key={index}>
-                      <span>{tag}</span>
-                      <button
-                        type="button"
-                        className="ml-2 text-red-500"
-                        onClick={() => handleRemoveTag(tag)}
-                      >
-                        ✖
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div
               className={`grid grid-cols-4 items-center gap-4 border-b py-6 px-2 w-full ${focusedField === 'annotations' ? 'dark:bg-muted/50 bg-black/15' : ''} `}

@@ -332,8 +332,13 @@ describe('Tasks Component', () => {
       const pencilButton = within(tagsRow).getByRole('button');
       fireEvent.click(pencilButton);
 
+      const tagSelectButton = await screen.findByRole('button', {
+        name: /select items/i,
+      });
+      fireEvent.click(tagSelectButton);
+
       const editInput = await screen.findByPlaceholderText(
-        'Add a tag (press enter to add)'
+        'Search or create...'
       );
 
       fireEvent.change(editInput, { target: { value: 'newtag' } });
@@ -359,8 +364,13 @@ describe('Tasks Component', () => {
       const pencilButton = within(tagsRow).getByRole('button');
       fireEvent.click(pencilButton);
 
+      const tagSelectButton = await screen.findByRole('button', {
+        name: /select items/i,
+      });
+      fireEvent.click(tagSelectButton);
+
       const editInput = await screen.findByPlaceholderText(
-        'Add a tag (press enter to add)'
+        'Search or create...'
       );
 
       fireEvent.change(editInput, { target: { value: 'addedtag' } });
@@ -369,7 +379,7 @@ describe('Tasks Component', () => {
       expect(await screen.findByText('addedtag')).toBeInTheDocument();
 
       const saveButton = await screen.findByRole('button', {
-        name: /save tags/i,
+        name: /save/i,
       });
       fireEvent.click(saveButton);
 
@@ -382,9 +392,8 @@ describe('Tasks Component', () => {
       expect(hooks.editTaskOnBackend).toHaveBeenCalled();
 
       const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
-      expect(callArg.tags).toEqual(
-        expect.arrayContaining(['tag1', 'addedtag'])
-      );
+      // Tags should be sent as a diff with + prefix for additions
+      expect(callArg.tags).toEqual(['+addedtag']);
     });
 
     test('removes a tag while editing and saves updated tags to backend', async () => {
@@ -402,8 +411,13 @@ describe('Tasks Component', () => {
       const pencilButton = within(tagsRow).getByRole('button');
       fireEvent.click(pencilButton);
 
+      const tagSelectButton = await screen.findByRole('button', {
+        name: /select items/i,
+      });
+      fireEvent.click(tagSelectButton);
+
       const editInput = await screen.findByPlaceholderText(
-        'Add a tag (press enter to add)'
+        'Search or create...'
       );
 
       fireEvent.change(editInput, { target: { value: 'newtag' } });
@@ -418,10 +432,17 @@ describe('Tasks Component', () => {
       const removeButton = within(badgeContainer).getByText('✖');
       fireEvent.click(removeButton);
 
-      expect(screen.queryByText('tag2')).not.toBeInTheDocument();
+      await waitFor(() => {
+        const selectedTagsArea = screen
+          .getByText('newtag')
+          .closest('div')?.parentElement;
+        expect(
+          within(selectedTagsArea as HTMLElement).queryByText('tag1')
+        ).not.toBeInTheDocument();
+      });
 
       const saveButton = await screen.findByRole('button', {
-        name: /save tags/i,
+        name: /save/i,
       });
       fireEvent.click(saveButton);
 
@@ -435,7 +456,10 @@ describe('Tasks Component', () => {
 
       const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
 
-      expect(callArg.tags).toEqual(expect.arrayContaining(['newtag', 'tag1']));
+      // Tags should be sent as a diff with - prefix for removals and + prefix for additions
+      expect(callArg.tags).toEqual(
+        expect.arrayContaining(['-tag1', '+newtag'])
+      );
     });
 
     it('clicking checkbox does not open task detail dialog', async () => {
@@ -1242,14 +1266,17 @@ describe('Tasks Component', () => {
     const editButton = within(tagsRow).getByLabelText('edit');
     fireEvent.click(editButton);
 
-    const editInput = await screen.findByPlaceholderText(
-      'Add a tag (press enter to add)'
-    );
+    const tagSelectButton = await screen.findByRole('button', {
+      name: /select items/i,
+    });
+    fireEvent.click(tagSelectButton);
+
+    const editInput = await screen.findByPlaceholderText('Search or create...');
 
     fireEvent.change(editInput, { target: { value: 'unsyncedtag' } });
     fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
 
-    const saveButton = screen.getByLabelText('Save tags');
+    const saveButton = screen.getByLabelText('Save items');
     fireEvent.click(saveButton);
 
     await waitFor(() => {
