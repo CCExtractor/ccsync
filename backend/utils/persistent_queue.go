@@ -10,6 +10,8 @@ import (
 	"go.etcd.io/bbolt"
 )
 
+// IMP ==> JobState and PersistentJob remain in utils due to import cycle with models/logs.go
+
 type JobState string
 
 const (

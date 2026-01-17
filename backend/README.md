@@ -82,7 +82,7 @@ The job queue system uses the following environment variables:
 
 ### Database Location
 
-The queue database is stored at `/app/data/queue.db` inside the container, which is mounted to `./backend/data/queue.db` on the host system via Docker volume.
+The queue database is stored at `/app/data/queue.db` inside the container, which is mounted to `./backend/data/queue.db` on the host system via Docker volume. The `QUEUE_DB_PATH` environment variable can be used to customize this location if needed.
 
 - Run the application:
 

@@ -119,7 +119,10 @@ func (q *JobQueue) restorePendingJobs() {
 				return nil
 			},
 		}
-		q.AddJob(job)
+		q.wg.Add(1)
+		go func(j Job) {
+			q.jobChannel <- j
+		}(job)
 	}
 }
 func (q *JobQueue) GetPersistentQueue() utils.PersistentJobQueue {
