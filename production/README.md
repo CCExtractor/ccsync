@@ -9,6 +9,11 @@ REDIRECT_URL_DEV="http://localhost:8000/auth/callback"
 SESSION_KEY="generate a secret key using 'openssl rand -hex 32'"
 FRONTEND_ORIGIN_DEV="http://localhost" # URL of the web frontend to avoid CORS errors
 CONTAINER_ORIGIN="http://YOUR_CONTAINER_NAME:8080/" # Deployed taskchampion-sync-server container, default is production-syncserver-1
+
+# Job Queue Configuration (optional, defaults shown)
+CLEANUP_CRON_SCHEDULE="0 0 * * *" # Daily at midnight
+CLEANUP_RETENTION_DAYS="7" # Keep logs for 7 days
+QUEUE_DB_PATH="/app/data/queue.db" # Queue database location, mounted via Docker volume
 ```
 
 2. Run docker-compose pull to pull the CCSync images.
