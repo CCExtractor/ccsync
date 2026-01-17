@@ -38,7 +38,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { formattedDate, handleCopy } from './tasks-utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTaskDialogKeyboard } from './UseTaskDialogKeyboard';
-import { FIELDS } from './constants';
+import { EDITTASKDIALOG_FIELDS } from './constants';
 import { useTaskDialogFocusMap } from './UseTaskDialogFocusMap';
 
 export const TaskDialog = ({
@@ -97,7 +97,7 @@ export const TaskDialog = ({
     editState.isEditingRecur ||
     editState.isEditingAnnotations;
 
-  const focusedField = FIELDS[focusedFieldIndex];
+  const focusedField = EDITTASKDIALOG_FIELDS[focusedFieldIndex];
 
   const stopEditing = () => {
     onUpdateState({
@@ -145,12 +145,12 @@ export const TaskDialog = ({
   ]);
 
   const focusMap = useTaskDialogFocusMap({
-    fields: FIELDS,
+    fields: EDITTASKDIALOG_FIELDS,
     inputRefs: inputRefs,
   });
 
   const handleDialogKeyDown = useTaskDialogKeyboard({
-    fields: FIELDS,
+    fields: EDITTASKDIALOG_FIELDS,
     focusedFieldIndex: focusedFieldIndex,
     setFocusedFieldIndex: setFocusedFieldIndex,
     isEditingAny: isEditingAny,

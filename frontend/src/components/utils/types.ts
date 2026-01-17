@@ -1,4 +1,7 @@
-import { FIELDS } from '../HomeComponents/Tasks/constants';
+import {
+  ADDTASKDIALOG_FIELDS,
+  EDITTASKDIALOG_FIELDS,
+} from '../HomeComponents/Tasks/constants';
 
 export interface User {
   name: string;
@@ -115,6 +118,7 @@ export interface TaskFormData {
 }
 
 export interface AddTaskDialogProps {
+  onOpenChange: (open: boolean) => void;
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   newTask: TaskFormData;
@@ -172,7 +176,17 @@ export interface UseTaskDialogKeyboardProps<F extends readonly string[]> {
   stopEditing: () => void;
 }
 
-export type FieldKey = (typeof FIELDS)[number];
+export type AddTaskProps<F extends readonly string[]> = {
+  fields: F;
+  focusedFieldIndex: number;
+  setFocusedFieldIndex: React.Dispatch<React.SetStateAction<number>>;
+  onEnter: (field: F[number]) => void;
+  closeDialog: () => void;
+};
+
+export type AddFieldKey = (typeof ADDTASKDIALOG_FIELDS)[number];
+
+export type FieldKey = (typeof EDITTASKDIALOG_FIELDS)[number];
 
 export type RefMap = Record<string, HTMLElement | null>;
 

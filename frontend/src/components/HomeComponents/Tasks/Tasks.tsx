@@ -1119,6 +1119,7 @@ export const Tasks = (
                     />
                     <div className="flex justify-center">
                       <AddTaskdialog
+                        onOpenChange={handleDialogOpenChange}
                         isOpen={isAddTaskOpen}
                         setIsOpen={setIsAddTaskOpen}
                         newTask={newTask}
@@ -1429,6 +1430,7 @@ export const Tasks = (
                   <div className="flex items-center justify-left">
                     <div className="pr-2">
                       <AddTaskdialog
+                        onOpenChange={handleDialogOpenChange}
                         isOpen={isAddTaskOpen}
                         setIsOpen={setIsAddTaskOpen}
                         newTask={newTask}
