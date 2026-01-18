@@ -173,6 +173,13 @@ jest.mock('../Pagination', () => {
   ));
 });
 
+jest.mock('../TaskSkeleton', () => {
+  return {
+    __esModule: true,
+    Taskskeleton: () => <div data-testid="task-skeleton" />,
+  };
+});
+
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
 
 describe('Tasks Component', () => {
@@ -216,6 +223,33 @@ describe('Tasks Component', () => {
       const dropdown = screen.getByLabelText('Show:');
       expect(dropdown).toBeInTheDocument();
       expect(dropdown).toHaveValue('10');
+    });
+
+    test('does not render tasks when loading is true', () => {
+      render(<Tasks {...mockProps} isLoading={true} />);
+      expect(screen.queryByRole('row')).not.toBeInTheDocument();
+    });
+
+    test('renders tasks container when loading is false', () => {
+      render(<Tasks {...mockProps} isLoading={false} />);
+      expect(screen.getByTestId('tasks')).toBeInTheDocument();
+    });
+
+    test('renders BottomBar component', () => {
+      render(<Tasks {...mockProps} />);
+      expect(screen.getByText('Mocked BottomBar')).toBeInTheDocument();
+    });
+
+    test('renders tasks section with correct id', () => {
+      render(<Tasks {...mockProps} />);
+      const section = document.querySelector('section#tasks');
+      expect(section).toBeInTheDocument();
+    });
+
+    test('renders Tasks component without crashing', () => {
+      expect(() => {
+        render(<Tasks {...mockProps} />);
+      }).not.toThrow();
     });
   });
 
