@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { DatePicker } from '@/components/ui/date-picker';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
 import {
   Dialog,
@@ -401,17 +400,36 @@ export const AddTaskdialog = ({
                 End
               </Label>
               <div className="col-span-3">
-                <DatePicker
+                <DateTimePicker
                   ref={(element) => (inputRefs.current.end = element)}
-                  date={newTask.end ? new Date(newTask.end) : undefined}
-                  onDateChange={(date) => {
+                  date={
+                    newTask.end
+                      ? new Date(
+                          newTask.end.includes('T')
+                            ? newTask.end
+                            : `${newTask.end}T00:00:00`
+                        )
+                      : undefined
+                  }
+                  onDateTimeChange={(date, hasTime) => {
                     setNewTask({
                       ...newTask,
-                      end: date ? format(date, 'yyyy-MM-dd') : '',
+                      end: date
+                        ? hasTime
+                          ? date.toISOString()
+                          : format(date, 'yyyy-MM-dd')
+                        : '',
                     });
                   }}
-                  placeholder="Select an end date"
+                  placeholder="Select end date and time"
                 />
+                {newTask.end && (
+                  <div className="mt-1.5 pl-2.5 border-l-2 border-amber-500/60">
+                    <p className="text-xs text-amber-400 leading-tight">
+                      Task will be marked as completed
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
             <div
