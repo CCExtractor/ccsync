@@ -229,6 +229,16 @@ describe('Tasks Component', () => {
       render(<Tasks {...mockProps} isLoading={true} />);
       expect(screen.queryByRole('row')).not.toBeInTheDocument();
     });
+
+    test('renders tasks container when loading is false', () => {
+      render(<Tasks {...mockProps} isLoading={false} />);
+      expect(screen.getByTestId('tasks')).toBeInTheDocument();
+    });
+
+    test('renders BottomBar component', () => {
+      render(<Tasks {...mockProps} />);
+      expect(screen.getByText('Mocked BottomBar')).toBeInTheDocument();
+    });
   });
 
   describe('LocalStorage', () => {
