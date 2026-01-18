@@ -120,16 +120,52 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		job := Job{
 			Name: "Edit Task",
 			Execute: func() error {
-				logStore.AddLog("INFO", fmt.Sprintf("Editing task ID: %s", taskUUID), uuid, "Edit Task")
-				err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskUUID, tags, project, start, entry, wait, end, depends, due, recur, annotations)
+				logStore.AddLog(
+					"INFO",
+					fmt.Sprintf("Editing task ID: %s", taskUUID),
+					uuid,
+					"Edit Task",
+				)
+
+				req := models.EditTaskRequestBody{
+					UUID:             uuid,
+					Email:            email,
+					EncryptionSecret: encryptionSecret,
+					TaskUUID:         taskUUID,
+					Description:      description,
+					Project:          project,
+					Start:            start,
+					Entry:            entry,
+					Wait:             wait,
+					End:              end,
+					Depends:          depends,
+					Due:              due,
+					Recur:            recur,
+					Tags:             tags,
+					Annotations:      annotations,
+				}
+
+				err := tw.EditTaskInTaskwarrior(req)
 				if err != nil {
-					logStore.AddLog("ERROR", fmt.Sprintf("Failed to edit task ID %s: %v", taskUUID, err), uuid, "Edit Task")
+					logStore.AddLog(
+						"ERROR",
+						fmt.Sprintf("Failed to edit task ID %s: %v", taskUUID, err),
+						uuid,
+						"Edit Task",
+					)
 					return err
 				}
-				logStore.AddLog("INFO", fmt.Sprintf("Successfully edited task ID: %s", taskUUID), uuid, "Edit Task")
+
+				logStore.AddLog(
+					"INFO",
+					fmt.Sprintf("Successfully edited task ID: %s", taskUUID),
+					uuid,
+					"Edit Task",
+				)
 				return nil
 			},
 		}
+
 		GlobalJobQueue.AddJob(job)
 		w.WriteHeader(http.StatusAccepted)
 
