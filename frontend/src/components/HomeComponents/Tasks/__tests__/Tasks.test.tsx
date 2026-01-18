@@ -212,7 +212,7 @@ describe('Tasks Component', () => {
       expect(screen.getByTestId('tasks')).toBeInTheDocument();
       expect(screen.getByText('Mocked BottomBar')).toBeInTheDocument();
     });
-    
+
     test('renders the "Tasks per Page" dropdown with default value', async () => {
       await act(async () => {
         render(<Tasks {...mockProps} />);
