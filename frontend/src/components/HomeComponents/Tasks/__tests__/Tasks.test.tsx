@@ -239,6 +239,18 @@ describe('Tasks Component', () => {
       render(<Tasks {...mockProps} />);
       expect(screen.getByText('Mocked BottomBar')).toBeInTheDocument();
     });
+
+    test('renders tasks section with correct id', () => {
+      render(<Tasks {...mockProps} />);
+      const section = document.querySelector('section#tasks');
+      expect(section).toBeInTheDocument();
+    });
+
+    test('renders Tasks component without crashing', () => {
+      expect(() => {
+        render(<Tasks {...mockProps} />);
+      }).not.toThrow();
+    });
   });
 
   describe('LocalStorage', () => {
