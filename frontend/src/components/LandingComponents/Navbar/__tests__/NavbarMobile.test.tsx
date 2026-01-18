@@ -38,12 +38,9 @@ describe('NavbarMobile component test', () => {
 
     fireEvent.click(screen.getByTestId('menu-icon'));
 
-    // click the first route label (example)
-    // replace "Home" with your real first label from routeList
     const firstRoute = screen.getByRole('link', { name: /home/i });
     fireEvent.click(firstRoute);
 
-    // menu should close
     expect(screen.queryByTestId('route-list')).not.toBeInTheDocument();
   });
 });
