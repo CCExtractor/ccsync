@@ -179,6 +179,21 @@ describe('TaskDialog Component', () => {
       expect(screen.getByText('ID:')).toBeInTheDocument();
       expect(screen.getByText('Description:')).toBeInTheDocument();
     });
+
+    test('should not render dialog-specific content when closed', () => {
+      render(<TaskDialog {...defaultProps} isOpen={false} />);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    test('renders task id in the task row', () => {
+      render(<TaskDialog {...defaultProps} />);
+      expect(screen.getByText(mockTask.id.toString())).toBeInTheDocument();
+    });
+
+    test('renders project name in the task row', () => {
+      render(<TaskDialog {...defaultProps} />);
+      expect(screen.getByText(mockTask.project)).toBeInTheDocument();
+    });
   });
 
   describe('Dialog Interactions', () => {
