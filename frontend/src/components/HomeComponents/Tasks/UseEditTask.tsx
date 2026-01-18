@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { EditTaskState, Task } from '../../utils/types';
 
 export const useEditTask = (selectedTask: Task | null) => {
@@ -34,23 +34,29 @@ export const useEditTask = (selectedTask: Task | null) => {
     annotationInput: '',
   });
 
+  const previousTaskUuidRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (selectedTask) {
-      setState((prev) => ({
-        ...prev,
-        editedTags: selectedTask.tags || [],
-        editedDescription: selectedTask.description || '',
-        editedPriority: selectedTask.priority || 'NONE',
-        editedProject: selectedTask.project || '',
-        editedRecur: selectedTask.recur || '',
-        originalRecur: selectedTask.recur || '',
-        editedAnnotations: selectedTask.annotations || [],
-        editedDepends: selectedTask.depends || [],
-      }));
+      if (previousTaskUuidRef.current !== selectedTask.uuid) {
+        previousTaskUuidRef.current = selectedTask.uuid;
+        setState((prev) => ({
+          ...prev,
+          editedTags: selectedTask.tags || [],
+          editedDescription: selectedTask.description || '',
+          editedPriority: selectedTask.priority || 'NONE',
+          editedProject: selectedTask.project || '',
+          editedRecur: selectedTask.recur || '',
+          originalRecur: selectedTask.recur || '',
+          editedAnnotations: selectedTask.annotations || [],
+          editedDepends: selectedTask.depends || [],
+        }));
+      }
     }
   }, [selectedTask]);
 
   const resetState = () => {
+    previousTaskUuidRef.current = null;
     setState({
       isEditing: false,
       editedDescription: '',
