@@ -15,7 +15,7 @@ import (
 // @Tags Logs
 // @Accept json
 // @Produce json
-// @Param last query int false "Number of latest log entries to return (default: 100)"
+// @Param last query int false "Number of latest log entries to return (default: 20, max: 20)"
 // @Success 200 {array} models.LogEntry "List of log entries"
 // @Failure 400 {string} string "Invalid last parameter"
 // @Failure 401 {string} string "Authentication required"
@@ -43,9 +43,10 @@ func SyncLogsHandler(store *sessions.CookieStore) http.HandlerFunc {
 		// Get user's UUID to filter logs
 		userUUID, _ := userInfo["uuid"].(string)
 
-		// Get the 'last' query parameter, default to 100
+		// Get the 'last' query parameter, default to 20, max 20
+		const maxLogs = 20
 		lastParam := r.URL.Query().Get("last")
-		last := 100
+		last := maxLogs
 		if lastParam != "" {
 			parsedLast, err := strconv.Atoi(lastParam)
 			if err != nil || parsedLast < 0 {
@@ -53,6 +54,10 @@ func SyncLogsHandler(store *sessions.CookieStore) http.HandlerFunc {
 				return
 			}
 			last = parsedLast
+		}
+		// Enforce hard cap to prevent resource exhaustion
+		if last > maxLogs {
+			last = maxLogs
 		}
 
 		// Get the log store and retrieve logs filtered by user UUID
