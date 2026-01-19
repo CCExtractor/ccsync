@@ -48,21 +48,24 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	t, err := a.Config.Exchange(context.Background(), code)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utils.Logger.Errorf("OAuth token exchange failed: %v", err)
+		http.Error(w, "Authentication failed", http.StatusBadRequest)
 		return
 	}
 
 	client := a.Config.Client(context.Background(), t)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v2/userinfo")
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utils.Logger.Errorf("Failed to fetch user info from Google: %v", err)
+		http.Error(w, "Authentication failed", http.StatusBadRequest)
 		return
 	}
 	defer resp.Body.Close()
 
 	var userInfo map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.Logger.Errorf("Failed to decode user info: %v", err)
+		http.Error(w, "Authentication failed", http.StatusInternalServerError)
 		return
 	}
 
@@ -80,7 +83,8 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := a.SessionStore.Get(r, "session-name")
 	session.Values["user"] = userInfo
 	if err := session.Save(r, w); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.Logger.Errorf("Failed to save session: %v", err)
+		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
 	}
 
@@ -137,7 +141,8 @@ func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := a.SessionStore.Get(r, "session-name")
 	session.Options.MaxAge = -1
 	if err := session.Save(r, w); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.Logger.Errorf("Failed to clear session on logout: %v", err)
+		http.Error(w, "Logout failed", http.StatusInternalServerError)
 		return
 	}
 

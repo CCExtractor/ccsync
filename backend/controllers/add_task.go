@@ -27,7 +27,8 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		var requestBody models.AddTaskRequestBody
 		if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
-			http.Error(w, fmt.Sprintf("error decoding request body: %v", err), http.StatusBadRequest)
+			utils.Logger.Warnf("Failed to decode add task request: %v", err)
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
 		defer r.Body.Close()
