@@ -89,19 +89,30 @@ func main() {
 	limiter := middleware.NewRateLimiter(30*time.Second, 50)
 	rateLimitedHandler := middleware.RateLimitMiddleware(limiter)
 
+	// Auth middleware validates session and ensures request credentials match session
+	authHandler := middleware.AuthMiddleware(store)
+
+	// Helper to compose rate limiting + auth middleware
+	authenticatedHandler := func(h http.Handler) http.Handler {
+		return rateLimitedHandler(authHandler(h))
+	}
+
+	// Auth endpoints (no auth middleware - these handle authentication)
 	mux.Handle("/auth/oauth", rateLimitedHandler(http.HandlerFunc(app.OAuthHandler)))
 	mux.Handle("/auth/callback", rateLimitedHandler(http.HandlerFunc(app.OAuthCallbackHandler)))
 	mux.Handle("/api/user", rateLimitedHandler(http.HandlerFunc(app.UserInfoHandler)))
 	mux.Handle("/auth/logout", rateLimitedHandler(http.HandlerFunc(app.LogoutHandler)))
-	mux.Handle("/tasks", rateLimitedHandler(http.HandlerFunc(controllers.TasksHandler)))
-	mux.Handle("/add-task", rateLimitedHandler(http.HandlerFunc(controllers.AddTaskHandler)))
-	mux.Handle("/edit-task", rateLimitedHandler(http.HandlerFunc(controllers.EditTaskHandler)))
-	mux.Handle("/modify-task", rateLimitedHandler(http.HandlerFunc(controllers.ModifyTaskHandler)))
-	mux.Handle("/complete-task", rateLimitedHandler(http.HandlerFunc(controllers.CompleteTaskHandler)))
-	mux.Handle("/delete-task", rateLimitedHandler(http.HandlerFunc(controllers.DeleteTaskHandler)))
+
+	// Task endpoints - require authentication and credential validation
+	mux.Handle("/tasks", authenticatedHandler(http.HandlerFunc(controllers.TasksHandler)))
+	mux.Handle("/add-task", authenticatedHandler(http.HandlerFunc(controllers.AddTaskHandler)))
+	mux.Handle("/edit-task", authenticatedHandler(http.HandlerFunc(controllers.EditTaskHandler)))
+	mux.Handle("/modify-task", authenticatedHandler(http.HandlerFunc(controllers.ModifyTaskHandler)))
+	mux.Handle("/complete-task", authenticatedHandler(http.HandlerFunc(controllers.CompleteTaskHandler)))
+	mux.Handle("/delete-task", authenticatedHandler(http.HandlerFunc(controllers.DeleteTaskHandler)))
 	mux.Handle("/sync/logs", rateLimitedHandler(http.HandlerFunc(controllers.SyncLogsHandler)))
-	mux.Handle("/complete-tasks", rateLimitedHandler(http.HandlerFunc(controllers.BulkCompleteTaskHandler)))
-	mux.Handle("/delete-tasks", rateLimitedHandler(http.HandlerFunc(controllers.BulkDeleteTaskHandler)))
+	mux.Handle("/complete-tasks", authenticatedHandler(http.HandlerFunc(controllers.BulkCompleteTaskHandler)))
+	mux.Handle("/delete-tasks", authenticatedHandler(http.HandlerFunc(controllers.BulkDeleteTaskHandler)))
 
 	mux.HandleFunc("/health", controllers.HealthCheckHandler)
 
