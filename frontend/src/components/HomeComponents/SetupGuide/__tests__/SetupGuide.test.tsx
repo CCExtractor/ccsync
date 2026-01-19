@@ -54,7 +54,7 @@ describe('SetupGuide', () => {
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText('task config sync.server.origin https://test-container')
+      screen.getByText('task config sync.server.url https://test-container')
     ).toBeInTheDocument();
   });
 
