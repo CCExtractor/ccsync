@@ -109,7 +109,7 @@ func main() {
 	mux.Handle("/modify-task", rateLimitedHandler(http.HandlerFunc(controllers.ModifyTaskHandler)))
 	mux.Handle("/complete-task", rateLimitedHandler(http.HandlerFunc(controllers.CompleteTaskHandler)))
 	mux.Handle("/delete-task", rateLimitedHandler(http.HandlerFunc(controllers.DeleteTaskHandler)))
-	mux.Handle("/sync/logs", rateLimitedHandler(http.HandlerFunc(controllers.SyncLogsHandler)))
+	mux.Handle("/sync/logs", rateLimitedHandler(controllers.SyncLogsHandler(store)))
 	mux.Handle("/complete-tasks", rateLimitedHandler(http.HandlerFunc(controllers.BulkCompleteTaskHandler)))
 	mux.Handle("/delete-tasks", rateLimitedHandler(http.HandlerFunc(controllers.BulkDeleteTaskHandler)))
 

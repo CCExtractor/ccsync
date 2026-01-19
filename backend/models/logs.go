@@ -95,3 +95,30 @@ func (ls *LogStore) GetLogs(last int) []LogEntry {
 	}
 	return result
 }
+
+// GetLogsByUser returns the last N log entries for a specific user (filtered by SyncID/UUID)
+func (ls *LogStore) GetLogsByUser(last int, userUUID string) []LogEntry {
+	ls.mu.RLock()
+	defer ls.mu.RUnlock()
+
+	// Filter entries by user UUID
+	var userEntries []LogEntry
+	for _, entry := range ls.entries {
+		if entry.SyncID == userUUID {
+			userEntries = append(userEntries, entry)
+		}
+	}
+
+	// Determine how many to return
+	count := last
+	if count <= 0 || count > len(userEntries) {
+		count = len(userEntries)
+	}
+
+	// Return last N entries in reverse order (newest first)
+	result := make([]LogEntry, count)
+	for i := 0; i < count; i++ {
+		result[i] = userEntries[len(userEntries)-1-i]
+	}
+	return result
+}
