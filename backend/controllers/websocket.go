@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"net/http"
+	"os"
+	"strings"
 
 	"ccsync_backend/utils"
 
@@ -13,10 +15,43 @@ type JobStatus struct {
 	Status string `json:"status"`
 }
 
-var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
+// checkWebSocketOrigin validates the Origin header against allowed origins
+func checkWebSocketOrigin(r *http.Request) bool {
+	origin := r.Header.Get("Origin")
+	if origin == "" {
+		// No origin header - could be same-origin or non-browser client
 		return true
-	},
+	}
+
+	// Get allowed origin from environment (e.g., "https://taskwarrior-server.ccextractor.org")
+	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
+
+	// In development, allow localhost origins
+	if os.Getenv("ENV") != "production" {
+		if strings.HasPrefix(origin, "http://localhost") ||
+			strings.HasPrefix(origin, "http://127.0.0.1") {
+			return true
+		}
+	}
+
+	// Check against configured allowed origin
+	if allowedOrigin != "" && origin == allowedOrigin {
+		return true
+	}
+
+	// If no ALLOWED_ORIGIN configured, check if origin matches the request host
+	// This provides same-origin protection as fallback
+	host := r.Host
+	if strings.Contains(origin, host) {
+		return true
+	}
+
+	utils.Logger.Warnf("WebSocket connection rejected from origin: %s", origin)
+	return false
+}
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: checkWebSocketOrigin,
 }
 
 var clients = make(map[*websocket.Conn]bool)
