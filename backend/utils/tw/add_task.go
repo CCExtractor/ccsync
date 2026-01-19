@@ -14,7 +14,7 @@ func AddTaskToTaskwarrior(req models.AddTaskRequestBody, dueDate string) error {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
 
-	tempDir, err := os.MkdirTemp("", "taskwarrior-"+req.Email)
+	tempDir, err := os.MkdirTemp("", utils.SafeTempDirPrefix("taskwarrior-", req.Email))
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
 	}

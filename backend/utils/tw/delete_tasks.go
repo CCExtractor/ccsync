@@ -13,7 +13,7 @@ func DeleteTasksInTaskwarrior(email, encryptionSecret, uuid string, taskUUIDs []
 		return nil, fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
 
-	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	tempDir, err := os.MkdirTemp("", utils.SafeTempDirPrefix("taskwarrior-", email))
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temporary directory: %v", err)
