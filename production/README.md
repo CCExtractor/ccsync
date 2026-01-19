@@ -61,24 +61,21 @@ sudo systemctl start nginx
    sudo systemctl reload nginx
    ```
 
-### Step 4: Update docker-compose.yml
+### Step 4: Use production Docker Compose override
 
-Modify the port bindings to listen only on localhost (nginx will handle external traffic):
+The `production/docker-compose.production.yml` file binds all ports to localhost only, so nginx handles external traffic. Use it as an override file (do not modify the base `docker-compose.yml`):
 
-```yaml
-services:
-  frontend:
-    ports:
-      - "127.0.0.1:3000:80"  # Changed from "80:80"
-
-  backend:
-    ports:
-      - "127.0.0.1:8000:8000"  # Bind to localhost only
-
-  syncserver:
-    ports:
-      - "127.0.0.1:8081:8080"  # Changed from "8080:8080"
+```bash
+# From the project root directory:
+docker compose -f docker-compose.yml -f production/docker-compose.production.yml up -d
 ```
+
+This applies the following port changes:
+| Service | Development | Production |
+|---------|-------------|------------|
+| frontend | `80:80` | `127.0.0.1:3000:80` |
+| backend | `8000:8000` | `127.0.0.1:8000:8000` |
+| syncserver | `8080:8080` | `127.0.0.1:8081:8080` |
 
 ### Step 5: Create environment files
 
@@ -107,11 +104,26 @@ In Google Cloud Console, add the redirect URI:
 ### Step 7: Deploy
 
 ```bash
-docker-compose pull
-docker-compose up -d
+# Pull latest images
+docker compose pull
+
+# Start with production override (localhost-only ports)
+docker compose -f docker-compose.yml -f production/docker-compose.production.yml up -d
 ```
 
 Your CCSync instance should now be available at `https://your-domain.com`
+
+**Useful commands:**
+```bash
+# View logs
+docker compose -f docker-compose.yml -f production/docker-compose.production.yml logs -f
+
+# Restart services
+docker compose -f docker-compose.yml -f production/docker-compose.production.yml restart
+
+# Rebuild and restart (after code changes)
+docker compose -f docker-compose.yml -f production/docker-compose.production.yml up -d --build
+```
 
 ---
 
