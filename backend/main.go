@@ -127,7 +127,7 @@ func main() {
 
 	mux.HandleFunc("/health", controllers.HealthCheckHandler)
 
-	mux.HandleFunc("/ws", controllers.WebSocketHandler)
+	mux.HandleFunc("/ws", controllers.AuthenticatedWebSocketHandler(store))
 
 	// API documentation endpoint
 	mux.HandleFunc("/api/docs/", httpSwagger.WrapHandler)

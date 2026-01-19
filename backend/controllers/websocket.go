@@ -8,6 +8,7 @@ import (
 
 	"ccsync_backend/utils"
 
+	"github.com/gorilla/sessions"
 	"github.com/gorilla/websocket"
 )
 
@@ -73,6 +74,45 @@ var upgrader = websocket.Upgrader{
 var clients = make(map[*websocket.Conn]bool)
 var broadcast = make(chan JobStatus)
 
+// AuthenticatedWebSocketHandler creates a WebSocket handler that requires authentication
+func AuthenticatedWebSocketHandler(store *sessions.CookieStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Validate session before upgrading to WebSocket
+		session, err := store.Get(r, "session-name")
+		if err != nil {
+			utils.Logger.Warnf("WebSocket auth failed: could not get session: %v", err)
+			http.Error(w, "Authentication required", http.StatusUnauthorized)
+			return
+		}
+
+		userInfo, ok := session.Values["user"].(map[string]interface{})
+		if !ok || userInfo == nil {
+			utils.Logger.Warnf("WebSocket auth failed: no user in session")
+			http.Error(w, "Authentication required", http.StatusUnauthorized)
+			return
+		}
+
+		// User is authenticated, proceed with WebSocket upgrade
+		ws, err := upgrader.Upgrade(w, r, nil)
+		if err != nil {
+			utils.Logger.Error("WebSocket Upgrade Error:", err)
+			return
+		}
+		defer ws.Close()
+
+		clients[ws] = true
+		for {
+			_, _, err := ws.ReadMessage()
+			if err != nil {
+				delete(clients, ws)
+				break
+			}
+		}
+	}
+}
+
+// WebSocketHandler is kept for backward compatibility but should not be used
+// Use AuthenticatedWebSocketHandler instead
 func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
