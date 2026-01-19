@@ -12,9 +12,10 @@ export const url = isTesting
       taskchampionSyncServerURL: '',
     }
   : {
-      backendURL: 'http://localhost:8000/',
-      frontendURL: 'http://localhost:80',
-      containerOrigin: 'http://localhost:8080/',
+      backendURL: import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000/',
+      frontendURL: import.meta.env.VITE_FRONTEND_URL || 'http://localhost:80',
+      containerOrigin:
+        import.meta.env.VITE_CONTAINER_ORIGIN || 'http://localhost:8080/',
       githubRepoURL: 'https://github.com/CCExtractor/ccsync',
       githubDocsURL: 'https://its-me-abhishek.github.io/ccsync-docs/',
       zulipURL: 'https://ccextractor.org/public/general/support/',
