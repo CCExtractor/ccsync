@@ -84,8 +84,8 @@ func main() {
 	// Configure secure cookie options
 	store.Options = &sessions.Options{
 		Path:     "/",
-		MaxAge:   86400 * 7, // 7 days
-		HttpOnly: true,      // Prevent JavaScript access
+		MaxAge:   86400 * 7,                        // 7 days
+		HttpOnly: true,                             // Prevent JavaScript access
 		Secure:   os.Getenv("ENV") == "production", // HTTPS only in production
 		SameSite: http.SameSiteLaxMode,             // CSRF protection (Lax allows OAuth redirects)
 	}
