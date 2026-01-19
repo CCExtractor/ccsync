@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
@@ -18,31 +19,46 @@ type JobStatus struct {
 // checkWebSocketOrigin validates the Origin header against allowed origins
 func checkWebSocketOrigin(r *http.Request) bool {
 	origin := r.Header.Get("Origin")
-	if origin == "" {
-		// No origin header - could be same-origin or non-browser client
-		return true
-	}
 
-	// Get allowed origin from environment (e.g., "https://taskwarrior-server.ccextractor.org")
-	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
-
-	// In development, allow localhost origins
+	// In development mode, be more permissive
 	if os.Getenv("ENV") != "production" {
-		if strings.HasPrefix(origin, "http://localhost") ||
+		if origin == "" ||
+			strings.HasPrefix(origin, "http://localhost") ||
 			strings.HasPrefix(origin, "http://127.0.0.1") {
 			return true
 		}
 	}
 
-	// Check against configured allowed origin
+	// In production, require an origin header
+	if origin == "" {
+		utils.Logger.Warn("WebSocket connection rejected: missing Origin header in production")
+		return false
+	}
+
+	// Check against configured allowed origin (exact match)
+	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
 	if allowedOrigin != "" && origin == allowedOrigin {
 		return true
 	}
 
-	// If no ALLOWED_ORIGIN configured, check if origin matches the request host
-	// This provides same-origin protection as fallback
-	host := r.Host
-	if strings.Contains(origin, host) {
+	// Fallback: parse origin and compare hostname exactly with request host
+	parsedOrigin, err := url.Parse(origin)
+	if err != nil {
+		utils.Logger.Warnf("WebSocket connection rejected: invalid origin URL: %s", origin)
+		return false
+	}
+
+	// Extract hostname from request Host header (may include port)
+	requestHost := r.Host
+	if idx := strings.LastIndex(requestHost, ":"); idx != -1 {
+		// Be careful with IPv6 addresses like [::1]:8080
+		if !strings.HasPrefix(requestHost, "[") || idx > strings.Index(requestHost, "]") {
+			requestHost = requestHost[:idx]
+		}
+	}
+
+	// Exact hostname comparison
+	if parsedOrigin.Hostname() == requestHost {
 		return true
 	}
 
