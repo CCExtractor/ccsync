@@ -12,6 +12,15 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+// getEnv returns the environment mode, defaulting to "development"
+func getEnv() string {
+	env := os.Getenv("ENV")
+	if env == "" {
+		return "development"
+	}
+	return env
+}
+
 type JobStatus struct {
 	Job    string `json:"job"`
 	Status string `json:"status"`
@@ -22,7 +31,7 @@ func checkWebSocketOrigin(r *http.Request) bool {
 	origin := r.Header.Get("Origin")
 
 	// In development mode, be more permissive
-	if os.Getenv("ENV") != "production" {
+	if getEnv() != "production" {
 		if origin == "" ||
 			strings.HasPrefix(origin, "http://localhost") ||
 			strings.HasPrefix(origin, "http://127.0.0.1") {
