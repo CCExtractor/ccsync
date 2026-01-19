@@ -153,6 +153,7 @@ func (a *App) EnableCORS(handler http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-User-Email, X-Encryption-Secret, X-User-UUID")
 		w.Header().Set("Access-Control-Allow-Credentials", "true") // to allow credentials
+		w.Header().Add("Vary", "Origin")                           // prevent caching issues with different origins
 
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
