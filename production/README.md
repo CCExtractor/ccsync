@@ -90,6 +90,12 @@ REDIRECT_URL_DEV="https://your-domain.com/auth/callback"
 SESSION_KEY="$(openssl rand -hex 32)"
 FRONTEND_ORIGIN_DEV="https://your-domain.com"
 CONTAINER_ORIGIN="http://syncserver:8080/"
+ENV="production"
+
+# Rate limiting: Trusted proxies for correct client IP detection
+# Not needed if nginx runs on the same server (loopback is trusted by default)
+# Only set this if using an external load balancer:
+# TRUSTED_PROXIES="10.0.0.0/8,192.168.0.0/16"
 ```
 
 Create `.frontend.env` (see `example.frontend.env`):
