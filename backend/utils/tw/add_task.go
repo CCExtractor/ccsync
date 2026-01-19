@@ -3,7 +3,6 @@ package tw
 import (
 	"ccsync_backend/models"
 	"ccsync_backend/utils"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -64,9 +63,6 @@ func AddTaskToTaskwarrior(req models.AddTaskRequestBody, dueDate string) error {
 		}
 		cmdArgs = append(cmdArgs, "wait:"+wait)
 	}
-	if req.End != "" {
-		cmdArgs = append(cmdArgs, "end:"+req.End)
-	}
 	if req.Recur != "" && dueDate != "" {
 		cmdArgs = append(cmdArgs, "recur:"+req.Recur)
 	}
@@ -83,24 +79,28 @@ func AddTaskToTaskwarrior(req models.AddTaskRequestBody, dueDate string) error {
 		return fmt.Errorf("failed to add task: %v\n %v", err, cmdArgs)
 	}
 
-	if len(req.Annotations) > 0 {
-		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", "export")
+	var taskID string
+	if req.End != "" || len(req.Annotations) > 0 {
+		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", "+LATEST", "_ids")
 		if err != nil {
-			return fmt.Errorf("failed to export tasks: %v", err)
+			return fmt.Errorf("failed to get latest task Id: %v", err)
 		}
 
-		var tasks []models.Task
-		if err := json.Unmarshal(output, &tasks); err != nil {
-			return fmt.Errorf("failed to parse exported tasks: %v", err)
+		taskID = strings.TrimSpace(string(output))
+	}
+
+	if req.End != "" {
+		end, err := utils.ConvertISOToTaskwarriorFormat(req.End)
+		if err != nil {
+			return fmt.Errorf("unexpected end date format error: %v", err)
 		}
-
-		if len(tasks) == 0 {
-			return fmt.Errorf("no tasks found after creation")
+		doneArgs := []string{"rc.confirmation=off", taskID, "done", "end:" + end}
+		if err := utils.ExecCommandInDir(tempDir, "task", doneArgs...); err != nil {
+			return fmt.Errorf("failed to complete task with end date: %v", err)
 		}
+	}
 
-		lastTask := tasks[len(tasks)-1]
-		taskID := fmt.Sprintf("%d", lastTask.ID)
-
+	if len(req.Annotations) > 0 {
 		for _, annotation := range req.Annotations {
 			if annotation.Description != "" {
 				annotateArgs := []string{"rc.confirmation=off", taskID, "annotate", annotation.Description}

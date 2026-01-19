@@ -12,22 +12,6 @@ jest.mock('date-fns', () => ({
   }),
 }));
 
-jest.mock('@/components/ui/date-picker', () => ({
-  DatePicker: ({ onDateChange, placeholder }: any) => (
-    <input
-      data-testid="date-picker"
-      placeholder={placeholder}
-      onChange={(e) => {
-        if (e.target.value) {
-          onDateChange(new Date(e.target.value));
-        } else {
-          onDateChange(null);
-        }
-      }}
-    />
-  ),
-}));
-
 jest.mock('@/components/ui/date-time-picker', () => ({
   DateTimePicker: ({ onDateTimeChange, placeholder }: any) => (
     <div>
@@ -431,6 +415,11 @@ describe('AddTaskDialog Component', () => {
           label: 'Entry',
           placeholder: 'Select entry date and time',
         },
+        {
+          name: 'end',
+          label: 'End',
+          placeholder: 'Select end date and time',
+        },
       ];
 
       test.each(dateTimeFields)(
@@ -533,75 +522,27 @@ describe('AddTaskDialog Component', () => {
       );
     });
 
-    describe('DatePicker fields', () => {
-      const dateOnlyFields = [
-        { name: 'end', label: 'End', placeholder: 'Select an end date' },
-      ];
+    describe('End date warning message', () => {
+      test('should show warning when end date is selected', () => {
+        mockProps.isOpen = true;
+        mockProps.newTask.end = '2026-01-18';
 
-      test.each(dateOnlyFields)(
-        'renders $name date picker with correct placeholder',
-        ({ placeholder }) => {
-          mockProps.isOpen = true;
-          render(<AddTaskdialog {...mockProps} />);
+        render(<AddTaskdialog {...mockProps} />);
 
-          const datePicker = screen.getByPlaceholderText(placeholder);
-          expect(datePicker).toBeInTheDocument();
-        }
-      );
+        expect(
+          screen.getByText(/task will be marked as completed/i)
+        ).toBeInTheDocument();
+      });
 
-      test.each(dateOnlyFields)(
-        'updates $name when user selects a date',
-        ({ name, placeholder }) => {
-          mockProps.isOpen = true;
-          render(<AddTaskdialog {...mockProps} />);
+      test('should not show warning when end date is empty', () => {
+        mockProps.isOpen = true;
 
-          const datePicker = screen.getByPlaceholderText(placeholder);
-          fireEvent.change(datePicker, { target: { value: '2025-12-25' } });
+        render(<AddTaskdialog {...mockProps} />);
 
-          expect(mockProps.setNewTask).toHaveBeenCalledWith({
-            ...mockProps.newTask,
-            [name]: '2025-12-25',
-          });
-        }
-      );
-
-      test.each(dateOnlyFields)(
-        'allows empty $name date (optional field)',
-        ({ name, placeholder }) => {
-          mockProps.isOpen = true;
-          render(<AddTaskdialog {...mockProps} />);
-
-          const datePicker = screen.getByPlaceholderText(placeholder);
-
-          fireEvent.change(datePicker, { target: { value: '2025-12-25' } });
-          mockProps.setNewTask.mockClear();
-          fireEvent.change(datePicker, { target: { value: '' } });
-
-          expect(mockProps.setNewTask).toHaveBeenCalledWith({
-            ...mockProps.newTask,
-            [name]: '',
-          });
-        }
-      );
-
-      test.each(dateOnlyFields)(
-        'submits task with $name date when provided',
-        ({ name }) => {
-          mockProps.isOpen = true;
-          mockProps.newTask = {
-            ...mockProps.newTask,
-            [name]: '2025-12-25',
-          };
-          render(<AddTaskdialog {...mockProps} />);
-
-          const submitButton = screen.getByRole('button', {
-            name: /add task/i,
-          });
-          fireEvent.click(submitButton);
-
-          expect(mockProps.onSubmit).toHaveBeenCalledWith(mockProps.newTask);
-        }
-      );
+        expect(
+          screen.queryByText(/task will be marked as completed/i)
+        ).not.toBeInTheDocument();
+      });
     });
   });
 
