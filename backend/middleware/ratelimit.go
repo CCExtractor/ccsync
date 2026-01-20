@@ -2,7 +2,9 @@ package middleware
 
 import (
 	"fmt"
+	"net"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -103,23 +105,86 @@ func RateLimitMiddleware(limiter *RateLimiter) func(http.Handler) http.Handler {
 	}
 }
 
-func getRealIP(r *http.Request) string {
-	ip := r.Header.Get("X-Real-IP")
-	if ip != "" {
-		return ip
+// isTrustedProxy checks if the request is from a trusted proxy.
+// In production, we trust localhost connections (nginx running on same server).
+// The TRUSTED_PROXIES env var can specify additional trusted proxy IPs (comma-separated).
+func isTrustedProxy(remoteAddr string) bool {
+	// Extract IP from remoteAddr (format: "ip:port" or just "ip")
+	host, _, err := net.SplitHostPort(remoteAddr)
+	if err != nil {
+		host = remoteAddr
 	}
 
-	ip = r.Header.Get("X-Forwarded-For")
-	if ip != "" {
-		ips := strings.Split(ip, ",")
-		if len(ips) > 0 {
-			return strings.TrimSpace(ips[0])
+	// Parse the IP
+	ip := net.ParseIP(host)
+	if ip == nil {
+		return false
+	}
+
+	// In production, trust loopback (nginx on same server)
+	if ip.IsLoopback() {
+		return true
+	}
+
+	// Check against TRUSTED_PROXIES env var
+	trustedProxies := os.Getenv("TRUSTED_PROXIES")
+	if trustedProxies != "" {
+		for _, trusted := range strings.Split(trustedProxies, ",") {
+			trusted = strings.TrimSpace(trusted)
+			// Support CIDR notation
+			if strings.Contains(trusted, "/") {
+				_, network, err := net.ParseCIDR(trusted)
+				if err == nil && network.Contains(ip) {
+					return true
+				}
+			} else {
+				trustedIP := net.ParseIP(trusted)
+				if trustedIP != nil && trustedIP.Equal(ip) {
+					return true
+				}
+			}
 		}
 	}
 
-	ip = r.RemoteAddr
-	if idx := strings.Index(ip, ":"); idx != -1 {
-		ip = ip[:idx]
+	// In Docker environments, common bridge networks
+	// 172.17.0.0/16 is the default Docker bridge network
+	// 10.0.0.0/8 is commonly used for internal networks
+	if os.Getenv("ENV") == "production" {
+		// Trust Docker internal networks in production
+		dockerBridge := &net.IPNet{
+			IP:   net.ParseIP("172.16.0.0"),
+			Mask: net.CIDRMask(12, 32),
+		}
+		if dockerBridge.Contains(ip) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func getRealIP(r *http.Request) string {
+	// Only trust proxy headers if request is from a trusted proxy
+	if isTrustedProxy(r.RemoteAddr) {
+		// X-Real-IP is set by nginx
+		if ip := r.Header.Get("X-Real-IP"); ip != "" {
+			return ip
+		}
+
+		// X-Forwarded-For contains a list of IPs, take the first (original client)
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			ips := strings.Split(xff, ",")
+			if len(ips) > 0 {
+				return strings.TrimSpace(ips[0])
+			}
+		}
+	}
+
+	// For direct connections or untrusted proxies, use RemoteAddr
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		// RemoteAddr might not have a port
+		return r.RemoteAddr
 	}
 
 	return ip
