@@ -514,6 +514,7 @@ export const AddTaskdialog = ({
               </Label>
               <div className="col-span-3">
                 <MultiSelect
+                  ref={(element) => (inputRefs.current.tags = element)}
                   availableItems={uniqueTags}
                   selectedItems={newTask.tags}
                   onItemsChange={(tags: string[]) =>
