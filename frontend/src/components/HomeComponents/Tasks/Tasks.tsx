@@ -432,6 +432,10 @@ export const Tasks = (
         annotations,
       });
 
+      // Wait for backend job to complete before syncing (job queue is async)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      await syncTasksWithTwAndDb();
       setIsAddTaskOpen(false);
     } catch (error) {
       console.error('Failed to edit task:', error);
