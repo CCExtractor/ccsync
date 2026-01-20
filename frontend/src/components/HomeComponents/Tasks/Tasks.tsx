@@ -114,6 +114,7 @@ export const Tasks = (
   const [unsyncedTaskUuids, setUnsyncedTaskUuids] = useState<Set<string>>(
     new Set()
   );
+  const [autoSyncOnEdit, setAutoSyncOnEdit] = useState(true);
   const tableRef = useRef<HTMLDivElement>(null);
   const [hotkeysEnabled, setHotkeysEnabled] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -210,6 +211,30 @@ export const Tasks = (
   // Load pinned tasks from localStorage
   useEffect(() => {
     setPinnedTasks(getPinnedTasks(props.email));
+  }, [props.email]);
+
+  // Load setting and listen for changes from navbar
+  useEffect(() => {
+    const hashedKey = hashKey('autoSyncOnEdit', props.email);
+    const stored = localStorage.getItem(hashedKey);
+    if (stored !== null) {
+      setAutoSyncOnEdit(stored === 'true');
+    } else {
+      localStorage.setItem(hashedKey, 'true');
+      setAutoSyncOnEdit(true);
+    }
+
+    const handleStorageChange = () => {
+      const updated = localStorage.getItem(hashedKey);
+      if (updated !== null) {
+        setAutoSyncOnEdit(updated === 'true');
+      }
+    };
+
+    window.addEventListener('autoSyncOnEditChanged', handleStorageChange);
+    return () => {
+      window.removeEventListener('autoSyncOnEditChanged', handleStorageChange);
+    };
   }, [props.email]);
 
   useEffect(() => {
@@ -431,6 +456,12 @@ export const Tasks = (
         recur,
         annotations,
       });
+
+      // Auto-sync after edit if enabled (on by default)
+      if (autoSyncOnEdit) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await syncTasksWithTwAndDb();
+      }
 
       setIsAddTaskOpen(false);
     } catch (error) {

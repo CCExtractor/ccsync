@@ -37,7 +37,7 @@ jest.mock('../tasks-utils', () => {
     getTimeSinceLastSync: jest
       .fn()
       .mockReturnValue('Last updated 5 minutes ago'),
-    hashKey: jest.fn().mockReturnValue('mockHashedKey'),
+    hashKey: jest.fn((key: string) => `mockHashedKey-${key}`),
     getPinnedTasks: jest.fn().mockReturnValue(new Set()),
     togglePinnedTask: jest.fn(),
   };
@@ -203,6 +203,8 @@ describe('Tasks Component', () => {
   beforeEach(() => {
     localStorageMock.clear();
     jest.clearAllMocks();
+    // Disable auto-sync on edit for tests (to avoid unexpected sync calls)
+    localStorageMock.setItem('mockHashedKey-autoSyncOnEdit', 'false');
   });
 
   describe('Rendering & Basic UI', () => {
@@ -255,7 +257,7 @@ describe('Tasks Component', () => {
 
   describe('LocalStorage', () => {
     test('loads "tasksPerPage" from localStorage on initial render', async () => {
-      localStorageMock.setItem('mockHashedKey', '20');
+      localStorageMock.setItem('mockHashedKey-tasksPerPage', '20');
 
       render(<Tasks {...mockProps} />);
 
@@ -277,7 +279,7 @@ describe('Tasks Component', () => {
       expect(screen.getByTestId('total-pages')).toHaveTextContent('4');
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
-        'mockHashedKey',
+        'mockHashedKey-tasksPerPage',
         '5'
       );
 
