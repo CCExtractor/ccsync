@@ -5,6 +5,7 @@
 1. Create a file named `.backend.env` with the following attributes:
 
 ```bash
+ENV="production" # Required for secure HTTPS-only cookies
 CLIENT_ID="client_ID" # Google Auth Secret from Prerequisites
 CLIENT_SEC="client_SECRET" # Google Auth Secret from Prerequisites
 REDIRECT_URL_DEV="http://localhost:8000/auth/callback"
@@ -84,6 +85,7 @@ services:
 
 Create `.backend.env`:
 ```bash
+ENV="production"
 CLIENT_ID="your-google-client-id"
 CLIENT_SEC="your-google-client-secret"
 REDIRECT_URL_DEV="https://your-domain.com/auth/callback"
