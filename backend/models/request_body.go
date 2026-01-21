@@ -48,6 +48,26 @@ type EditTaskRequestBody struct {
 	Recur            string       `json:"recur"`
 	Annotations      []Annotation `json:"annotations"`
 }
+
+// EditTaskParams encapsulates all parameters needed to edit a task in Taskwarrior
+// This struct is used to reduce parameter bloat and improve maintainability
+type EditTaskParams struct {
+	UUID             string       // User's UUID for Taskwarrior sync
+	TaskUUID         string       // Task's permanent UUID (used instead of volatile taskID)
+	Email            string       // User's email for temp directory naming
+	EncryptionSecret string       // Encryption secret for Taskwarrior sync
+	Description      string       // Task description
+	Tags             []string     // Tags to add/remove (prefix with +/-)
+	Project          string       // Project name
+	Start            string       // Start date
+	Entry            string       // Entry date
+	Wait             string       // Wait date
+	End              string       // End date
+	Depends          []string     // Task dependencies (UUIDs)
+	Due              string       // Due date
+	Recur            string       // Recurrence pattern
+	Annotations      []Annotation // Task annotations
+}
 type CompleteTaskRequestBody struct {
 	Email            string `json:"email"`
 	EncryptionSecret string `json:"encryptionSecret"`
