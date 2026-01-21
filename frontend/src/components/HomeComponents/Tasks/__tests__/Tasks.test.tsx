@@ -509,27 +509,6 @@ describe('Tasks Component', () => {
     });
   });
 
-  describe('Overdue UI', () => {
-    test('shows red background on task ID and Overdue badge for overdue tasks', async () => {
-      render(<Tasks {...mockProps} />);
-
-      await screen.findByText('Task 12');
-
-      const dropdown = screen.getByLabelText('Show:');
-      fireEvent.change(dropdown, { target: { value: '20' } });
-
-      const task1Description = screen.getByText('Task 1');
-      const row = task1Description.closest('tr');
-      const idElement = row?.querySelector('span');
-
-      expect(idElement).toHaveClass('bg-red-600/80');
-      fireEvent.click(idElement!);
-
-      const overdueBadge = await screen.findByText('Overdue');
-      expect(overdueBadge).toBeInTheDocument();
-    });
-  });
-
   describe('Selection Logic', () => {
     it('adds a task UUID to selectedTaskUUIDs when an individual checkbox is clicked', async () => {
       render(<Tasks {...mockProps} />);
@@ -843,129 +822,156 @@ describe('Tasks Component', () => {
     });
   });
 
-  test('shows "overdue" in status filter options', async () => {
-    render(<Tasks {...mockProps} />);
+  describe('Overdue', () => {
+    test('shows "overdue" in status filter options', async () => {
+      render(<Tasks {...mockProps} />);
 
-    expect(await screen.findByText('Mocked BottomBar')).toBeInTheDocument();
+      expect(await screen.findByText('Mocked BottomBar')).toBeInTheDocument();
 
-    const multiSelectFilter = require('@/components/ui/multi-select');
+      const multiSelectFilter = require('@/components/ui/multi-select');
 
-    expect(multiSelectFilter.MultiSelectFilter).toHaveBeenCalledWith(
-      expect.objectContaining({
-        title: 'Status',
-        options: expect.arrayContaining(['overdue']),
-      }),
-      {}
-    );
-  });
-
-  test('filters tasks to show only overdue tasks when status "overdue" is selected', async () => {
-    const MultiSelectFilter =
-      require('@/components/ui/multi-select').MultiSelectFilter;
-
-    MultiSelectFilter.mockImplementation(({ title }: { title: string }) => {
-      return <div data-testid={`ms-${title}`}>Mocked MultiSelect: {title}</div>;
+      expect(multiSelectFilter.MultiSelectFilter).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: 'Status',
+          options: expect.arrayContaining(['overdue']),
+        }),
+        {}
+      );
     });
 
-    render(<Tasks {...mockProps} />);
+    test('filters tasks to show only overdue tasks when status "overdue" is selected', async () => {
+      const MultiSelectFilter =
+        require('@/components/ui/multi-select').MultiSelectFilter;
 
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      MultiSelectFilter.mockImplementation(({ title }: { title: string }) => {
+        return (
+          <div data-testid={`ms-${title}`}>Mocked MultiSelect: {title}</div>
+        );
+      });
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
+
+      const lastCall = MultiSelectFilter.mock.calls.find(
+        (call: any[]) => call[0].title === 'Status'
+      );
+
+      const onSelectionChange = lastCall[0].onSelectionChange;
+
+      act(() => {
+        onSelectionChange(['overdue']);
+      });
+
+      const overdueTask = screen.getByText('Task 1');
+      expect(overdueTask).toBeInTheDocument();
+      expect(screen.queryByText('Task 2')).not.toBeInTheDocument();
     });
 
-    const lastCall = MultiSelectFilter.mock.calls.find(
-      (call: any[]) => call[0].title === 'Status'
-    );
+    test('shows red background on task ID and Overdue badge for overdue tasks', async () => {
+      render(<Tasks {...mockProps} />);
 
-    const onSelectionChange = lastCall[0].onSelectionChange;
+      await screen.findByText('Task 12');
 
-    act(() => {
-      onSelectionChange(['overdue']);
+      const dropdown = screen.getByLabelText('Show:');
+      fireEvent.change(dropdown, { target: { value: '20' } });
+
+      const task1Description = screen.getByText('Task 1');
+      const row = task1Description.closest('tr');
+      const idElement = row?.querySelector('span');
+
+      expect(idElement).toHaveClass('bg-red-600/80');
+      fireEvent.click(idElement!);
+
+      const overdueBadge = await screen.findByText('Overdue');
+      expect(overdueBadge).toBeInTheDocument();
     });
 
-    const overdueTask = screen.getByText('Task 1');
-    expect(overdueTask).toBeInTheDocument();
-    expect(screen.queryByText('Task 2')).not.toBeInTheDocument();
-  });
+    test('shows "O" badge for overdue tasks in status column', async () => {
+      render(<Tasks {...mockProps} />);
 
-  test('shows "O" badge for overdue tasks in status column', async () => {
-    render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 12');
 
-    await screen.findByText('Task 12');
+      const dropdown = screen.getByLabelText('Show:');
+      fireEvent.change(dropdown, { target: { value: '20' } });
 
-    const dropdown = screen.getByLabelText('Show:');
-    fireEvent.change(dropdown, { target: { value: '20' } });
+      const row = screen.getByText('Task 1').closest('tr')!;
+      const statusCell = within(row).getByText('O');
 
-    const row = screen.getByText('Task 1').closest('tr')!;
-    const statusCell = within(row).getByText('O');
-
-    expect(statusCell).toBeInTheDocument();
-  });
-
-  test('does not show "O" badge for non-overdue pending tasks', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await screen.findByText('Task 12');
-
-    const dropdown = screen.getByLabelText('Show:');
-    fireEvent.change(dropdown, { target: { value: '20' } });
-
-    expect(await screen.findByText('Task 2')).toBeInTheDocument();
-
-    const row = screen.getByText('Task 2').closest('tr')!;
-    const statusCell = within(row).getByText('P');
-
-    expect(statusCell).toBeInTheDocument();
-  });
-
-  test('overdue tasks appear at the top of the list', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await screen.findByText('Task 12');
-
-    const dropdown = screen.getByLabelText('Show:');
-    fireEvent.change(dropdown, { target: { value: '20' } });
-
-    const firstRow = screen.getAllByRole('row')[1];
-    expect(within(firstRow).getByText('Task 1')).toBeInTheDocument();
-  });
-
-  test('project dropdown lists existing projects and create-new option', async () => {
-    render(<Tasks {...mockProps} />);
-
-    expect(await screen.findByText('Task 1')).toBeInTheDocument();
-
-    const addTaskButton = screen.getByRole('button', { name: /add task/i });
-    fireEvent.click(addTaskButton);
-
-    const projectSelect = await screen.findByTestId('project-select');
-    expect(
-      within(projectSelect).getByText('Select a project')
-    ).toBeInTheDocument();
-    expect(within(projectSelect).getByText('Engineering')).toBeInTheDocument();
-    expect(within(projectSelect).getByText('ProjectA')).toBeInTheDocument();
-    expect(
-      within(projectSelect).getByText('+ Create new project…')
-    ).toBeInTheDocument();
-  });
-
-  test('selecting "+ Create new project…" reveals inline input', async () => {
-    render(<Tasks {...mockProps} />);
-
-    expect(await screen.findByText('Task 1')).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button', { name: /add task/i }));
-
-    const projectSelect = await screen.findByTestId('project-select');
-    fireEvent.change(projectSelect, { target: { value: '__CREATE_NEW__' } }); // Empty string triggers "create new project" mode
-
-    const newProjectInput =
-      await screen.findByPlaceholderText('New project name');
-    fireEvent.change(newProjectInput, {
-      target: { value: 'My Fresh Project' },
+      expect(statusCell).toBeInTheDocument();
     });
 
-    expect(newProjectInput).toHaveValue('My Fresh Project');
+    test('does not show "O" badge for non-overdue pending tasks', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await screen.findByText('Task 12');
+
+      const dropdown = screen.getByLabelText('Show:');
+      fireEvent.change(dropdown, { target: { value: '20' } });
+
+      expect(await screen.findByText('Task 2')).toBeInTheDocument();
+
+      const row = screen.getByText('Task 2').closest('tr')!;
+      const statusCell = within(row).getByText('P');
+
+      expect(statusCell).toBeInTheDocument();
+    });
+
+    test('overdue tasks appear at the top of the list', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await screen.findByText('Task 12');
+
+      const dropdown = screen.getByLabelText('Show:');
+      fireEvent.change(dropdown, { target: { value: '20' } });
+
+      const firstRow = screen.getAllByRole('row')[1];
+      expect(within(firstRow).getByText('Task 1')).toBeInTheDocument();
+    });
+  });
+
+  describe('Add Task Dialog', () => {
+    test('project dropdown lists existing projects and create-new option', async () => {
+      render(<Tasks {...mockProps} />);
+
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+      const addTaskButton = screen.getByRole('button', { name: /add task/i });
+      fireEvent.click(addTaskButton);
+
+      const projectSelect = await screen.findByTestId('project-select');
+      expect(
+        within(projectSelect).getByText('Select a project')
+      ).toBeInTheDocument();
+      expect(
+        within(projectSelect).getByText('Engineering')
+      ).toBeInTheDocument();
+      expect(within(projectSelect).getByText('ProjectA')).toBeInTheDocument();
+      expect(
+        within(projectSelect).getByText('+ Create new project…')
+      ).toBeInTheDocument();
+    });
+
+    test('selecting "+ Create new project…" reveals inline input', async () => {
+      render(<Tasks {...mockProps} />);
+
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: /add task/i }));
+
+      const projectSelect = await screen.findByTestId('project-select');
+      fireEvent.change(projectSelect, { target: { value: '__CREATE_NEW__' } }); // Empty string triggers "create new project" mode
+
+      const newProjectInput =
+        await screen.findByPlaceholderText('New project name');
+      fireEvent.change(newProjectInput, {
+        target: { value: 'My Fresh Project' },
+      });
+
+      expect(newProjectInput).toHaveValue('My Fresh Project');
+    });
   });
 
   // Task Dependencies Tests
@@ -1006,574 +1012,585 @@ describe('Tasks Component', () => {
     });
   });
 
-  test('shows red border when task is marked as completed', async () => {
-    render(<Tasks {...mockProps} />);
+  describe('Unsync', () => {
+    test('shows red border when task is marked as completed', async () => {
+      render(<Tasks {...mockProps} />);
 
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
+
+      const task12 = screen.getByText('Task 12');
+      fireEvent.click(task12);
+
+      await waitFor(() => {
+        const completeButton = screen.getByLabelText('complete task');
+        fireEvent.click(completeButton);
+      });
+
+      const yesButton = screen.getAllByText('Yes')[0];
+      fireEvent.click(yesButton);
+
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).toHaveClass('border-l-red-500');
+      });
     });
 
-    const task12 = screen.getByText('Task 12');
-    fireEvent.click(task12);
+    test('shows red border when task is deleted', async () => {
+      render(<Tasks {...mockProps} />);
 
-    await waitFor(() => {
-      const completeButton = screen.getByLabelText('complete task');
-      fireEvent.click(completeButton);
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
+
+      const task12 = screen.getByText('Task 12');
+      fireEvent.click(task12);
+
+      await waitFor(() => {
+        const deleteButton = screen.getByLabelText('delete task');
+        fireEvent.click(deleteButton);
+      });
+
+      await waitFor(() => {
+        const yesButtons = screen.getAllByText('Yes');
+        if (yesButtons.length > 0) fireEvent.click(yesButtons[0]);
+      });
+
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).toHaveClass('border-l-red-500');
+      });
     });
 
-    const yesButton = screen.getAllByText('Yes')[0];
-    fireEvent.click(yesButton);
+    test('shows unsynced count after bulk delete', async () => {
+      render(<Tasks {...mockProps} />);
 
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-  });
+      await screen.findByText('Task 1');
+      const checkboxes = screen.getAllByRole('checkbox');
 
-  test('shows red border when task is deleted', async () => {
-    render(<Tasks {...mockProps} />);
+      fireEvent.click(checkboxes[1]);
+      fireEvent.click(checkboxes[2]);
 
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
-    });
+      const deleteBtn = screen.getByText(/Delete 2 Tasks/i);
+      fireEvent.click(deleteBtn);
 
-    const task12 = screen.getByText('Task 12');
-    fireEvent.click(task12);
+      const yesButton = await screen.findByText('Yes');
+      fireEvent.click(yesButton);
 
-    await waitFor(() => {
-      const deleteButton = screen.getByLabelText('delete task');
-      fireEvent.click(deleteButton);
+      await waitFor(() => {
+        const syncButton = document.getElementById('sync-task');
+        expect(within(syncButton!).getByText('2')).toBeInTheDocument();
+      });
     });
 
-    await waitFor(() => {
-      const yesButtons = screen.getAllByText('Yes');
-      if (yesButtons.length > 0) fireEvent.click(yesButtons[0]);
+    test('shows unsynced count after bulk complete', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await screen.findByText('Task 1');
+      const checkboxes = screen.getAllByRole('checkbox');
+
+      fireEvent.click(checkboxes[1]);
+      fireEvent.click(checkboxes[2]);
+
+      const bulkButton = screen.getByTestId('bulk-complete-btn');
+      fireEvent.click(bulkButton);
+
+      const yesButton = await screen.findByText('Yes');
+      fireEvent.click(yesButton);
+
+      await waitFor(() => {
+        const syncButton = document.getElementById('sync-task');
+        expect(within(syncButton!).getByText('2')).toBeInTheDocument();
+      });
     });
 
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-  });
+    test('shows red border when task description is edited', async () => {
+      render(<Tasks {...mockProps} />);
 
-  test('shows unsynced count after bulk delete', async () => {
-    render(<Tasks {...mockProps} />);
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
 
-    await screen.findByText('Task 1');
-    const checkboxes = screen.getAllByRole('checkbox');
+      const task12 = screen.getByText('Task 12');
 
-    fireEvent.click(checkboxes[1]);
-    fireEvent.click(checkboxes[2]);
+      fireEvent.click(task12);
 
-    const deleteBtn = screen.getByText(/Delete 2 Tasks/i);
-    fireEvent.click(deleteBtn);
+      await waitFor(() => {
+        expect(screen.getByText('Description:')).toBeInTheDocument();
+      });
 
-    const yesButton = await screen.findByText('Yes');
-    fireEvent.click(yesButton);
+      const descriptionLabel = screen.getByText('Description:');
+      const descRow = descriptionLabel.closest('tr') as HTMLElement;
+      const editButton = within(descRow).getByLabelText('edit');
 
-    await waitFor(() => {
-      const syncButton = document.getElementById('sync-task');
-      expect(within(syncButton!).getByText('2')).toBeInTheDocument();
-    });
-  });
+      fireEvent.click(editButton);
 
-  test('shows unsynced count after bulk complete', async () => {
-    render(<Tasks {...mockProps} />);
+      const input = await screen.findByDisplayValue('Task 12');
 
-    await screen.findByText('Task 1');
-    const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.change(input, { target: { value: 'Updated Task 12' } });
 
-    fireEvent.click(checkboxes[1]);
-    fireEvent.click(checkboxes[2]);
+      const saveButton = screen.getByLabelText('save');
 
-    const bulkButton = screen.getByTestId('bulk-complete-btn');
-    fireEvent.click(bulkButton);
+      fireEvent.click(saveButton);
 
-    const yesButton = await screen.findByText('Yes');
-    fireEvent.click(yesButton);
-
-    await waitFor(() => {
-      const syncButton = document.getElementById('sync-task');
-      expect(within(syncButton!).getByText('2')).toBeInTheDocument();
-    });
-  });
-
-  test('shows red border when task description is edited', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).toHaveClass('border-l-red-500');
+      });
     });
 
-    const task12 = screen.getByText('Task 12');
+    test('shows red border when task project is edited', async () => {
+      render(<Tasks {...mockProps} />);
 
-    fireEvent.click(task12);
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
 
-    await waitFor(() => {
-      expect(screen.getByText('Description:')).toBeInTheDocument();
+      const task12 = screen.getByText('Task 12');
+      fireEvent.click(task12);
+
+      await waitFor(() => {
+        expect(screen.getByText('Project:')).toBeInTheDocument();
+      });
+
+      const projectLabel = screen.getByText('Project:');
+      const projectRow = projectLabel.closest('tr') as HTMLElement;
+      const editButton = within(projectRow).getByLabelText('edit');
+      fireEvent.click(editButton);
+
+      const projectSelect = await screen.findByTestId('project-select');
+      fireEvent.change(projectSelect, { target: { value: 'ProjectA' } });
+
+      fireEvent.keyDown(document.body, { key: 'Escape' });
+
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).toHaveClass('border-l-red-500');
+      });
     });
 
-    const descriptionLabel = screen.getByText('Description:');
-    const descRow = descriptionLabel.closest('tr') as HTMLElement;
-    const editButton = within(descRow).getByLabelText('edit');
-
-    fireEvent.click(editButton);
-
-    const input = await screen.findByDisplayValue('Task 12');
-
-    fireEvent.change(input, { target: { value: 'Updated Task 12' } });
-
-    const saveButton = screen.getByLabelText('save');
-
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-  });
-
-  test('shows red border when task project is edited', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
-    });
-
-    const task12 = screen.getByText('Task 12');
-    fireEvent.click(task12);
-
-    await waitFor(() => {
-      expect(screen.getByText('Project:')).toBeInTheDocument();
-    });
-
-    const projectLabel = screen.getByText('Project:');
-    const projectRow = projectLabel.closest('tr') as HTMLElement;
-    const editButton = within(projectRow).getByLabelText('edit');
-    fireEvent.click(editButton);
-
-    const projectSelect = await screen.findByTestId('project-select');
-    fireEvent.change(projectSelect, { target: { value: 'ProjectA' } });
-
-    fireEvent.keyDown(document.body, { key: 'Escape' });
-
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-  });
-
-  test.each([
-    ['Wait', 'Wait:', 'Select wait date and time'],
-    ['End', 'End:', 'Select end date and time'],
-    ['Due', 'Due:', 'Select due date and time'],
-    ['Start', 'Start:', 'Select start date and time'],
-    ['Entry', 'Entry:', 'Select entry date and time'],
-  ])('shows red when task %s date is edited', async (_, label, placeholder) => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
-    });
-
-    const task12 = screen.getByText('Task 12');
-    fireEvent.click(task12);
-
-    await waitFor(() => {
-      expect(screen.getByText(label)).toBeInTheDocument();
-    });
-
-    const dateLabel = screen.getByText(label);
-    const dateRow = dateLabel.closest('tr') as HTMLElement;
-
-    const editButton = within(dateRow).getByLabelText('edit');
-    fireEvent.click(editButton);
-
-    const dateButton = within(dateRow).getByText(placeholder).closest('button');
-    fireEvent.click(dateButton!);
-
-    await waitFor(() => {
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
-    });
-
-    const dialog = screen.getByRole('dialog');
-    const day15 = within(dialog).getAllByText('15')[0];
-    fireEvent.click(day15);
-
-    const saveButton = screen.getByLabelText('save');
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-  });
-
-  test('shows red border when task priority is edited', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
-    });
-
-    const task12 = screen.getByText('Task 12');
-    fireEvent.click(task12);
-
-    await waitFor(() => {
-      expect(screen.getByText('Priority:')).toBeInTheDocument();
-    });
-
-    const priorityLabel = screen.getByText('Priority:');
-    const priorityRow = priorityLabel.closest('tr') as HTMLElement;
-
-    const editButton = within(priorityRow).getByLabelText('edit');
-    fireEvent.click(editButton);
-
-    const select = within(priorityRow).getByTestId('project-select');
-    fireEvent.change(select, { target: { value: 'H' } });
-
-    const saveButton = screen.getByLabelText('save');
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-  });
-
-  test('shows red border when task dependencies are edited', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
-    });
-
-    const task12 = screen.getByText('Task 12');
-    fireEvent.click(task12);
-
-    await waitFor(() => {
-      expect(screen.getByText('Depends:')).toBeInTheDocument();
-    });
-
-    const dependsLabel = screen.getByText('Depends:');
-    const dependsRow = dependsLabel.closest('tr') as HTMLElement;
-
-    const editButton = within(dependsRow).getByLabelText('edit');
-    fireEvent.click(editButton);
-
-    const addDependecyButton = within(dependsRow)
-      .getByText('Add Dependency')
-      .closest('button');
-    fireEvent.click(addDependecyButton!);
-
-    const dropdown = within(dependsRow).getByTestId('dependency-dropdown');
-
-    fireEvent.click(within(dropdown).getByText('Task 11'));
-    fireEvent.click(within(dropdown).getByText('Task 10'));
-
-    const saveButton = screen.getByLabelText('save');
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-  });
-
-  test('shows red border when task tags are edited', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
-    });
-
-    const task12 = screen.getByText('Task 12');
-    fireEvent.click(task12);
-
-    await waitFor(() => {
-      expect(screen.getByText('Tags:')).toBeInTheDocument();
-    });
-
-    const tagsLabel = screen.getByText('Tags:');
-    const tagsRow = tagsLabel.closest('tr') as HTMLElement;
-
-    const editButton = within(tagsRow).getByLabelText('edit');
-    fireEvent.click(editButton);
-
-    const tagSelectButton = await screen.findByRole('button', {
-      name: /select items/i,
-    });
-    fireEvent.click(tagSelectButton);
-
-    const editInput = await screen.findByPlaceholderText('Search or create...');
-
-    fireEvent.change(editInput, { target: { value: 'unsyncedtag' } });
-    fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
-
-    const saveButton = screen.getByLabelText('Save items');
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-  });
-
-  test('shows red border when task recur is edited', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
-    });
-
-    const task12 = screen.getByText('Task 12');
-    fireEvent.click(task12);
-
-    await waitFor(() => {
-      expect(screen.getByText('Recur:')).toBeInTheDocument();
-    });
-
-    const recurLabel = screen.getByText('Recur:');
-    const recurRow = recurLabel.closest('tr') as HTMLElement;
-
-    const editButton = within(recurRow).getByLabelText('edit');
-    fireEvent.click(editButton);
-
-    const select = within(recurRow).getByTestId('project-select');
-    fireEvent.change(select, { target: { value: 'weekly' } });
-
-    const saveButton = screen.getByLabelText('save');
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-  });
-
-  test('shows and updates notification badge count on Sync button', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
-    });
-
-    const task12 = screen.getByText('Task 12');
-    fireEvent.click(task12);
-
-    await waitFor(() => {
-      const completeButton = screen.getByLabelText('complete task');
-      fireEvent.click(completeButton);
-    });
-
-    const yesButton = screen.getAllByText('Yes')[0];
-    fireEvent.click(yesButton);
-
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-
-    const syncButtons = screen.getAllByText('Sync');
-    const syncBtnContainer = syncButtons[0].closest('button');
-
-    if (syncBtnContainer) {
-      expect(within(syncBtnContainer).getByText('1')).toBeInTheDocument();
-    } else {
-      throw new Error('Sync button not found');
-    }
-  });
-
-  test('clears red border after sync', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 12')).toBeInTheDocument();
-    });
-
-    const task12 = screen.getByText('Task 12');
-    fireEvent.click(task12);
-
-    await waitFor(() => {
-      const completeButton = screen.getByLabelText('complete task');
-      fireEvent.click(completeButton);
-    });
-
-    const yesButton = screen.getAllByText('Yes')[0];
-    fireEvent.click(yesButton);
-
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).toHaveClass('border-l-red-500');
-    });
-
-    const hooks = require('../hooks');
-    hooks.fetchTaskwarriorTasks.mockResolvedValueOnce([
-      {
-        id: 12,
-        description: 'Task 12',
-        status: 'completed',
-        project: 'ProjectA',
-        tags: ['tag1'],
-        uuid: 'uuid-12',
-      },
-    ]);
-
-    const syncButtons = screen.getAllByText('Sync');
-    fireEvent.click(syncButtons[0]);
-
-    await waitFor(() => {
-      const row = screen.getByTestId('task-row-12');
-      expect(row).not.toHaveClass('border-l-red-500');
-    });
-  });
-
-  test('calculates and passes project completion stats to MultiSelectFilter', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 1')).toBeInTheDocument();
-    });
-
-    const { MultiSelectFilter } = require('@/components/ui/multi-select');
-
-    // Find the Projects filter call
-    const projectsFilterCall = MultiSelectFilter.mock.calls.find(
-      (call: any) => call[0].title === 'Projects'
+    test.each([
+      ['Wait', 'Wait:', 'Select wait date and time'],
+      ['End', 'End:', 'Select end date and time'],
+      ['Due', 'Due:', 'Select due date and time'],
+      ['Start', 'Start:', 'Select start date and time'],
+      ['Entry', 'Entry:', 'Select entry date and time'],
+    ])(
+      'shows red when task %s date is edited',
+      async (_, label, placeholder) => {
+        render(<Tasks {...mockProps} />);
+
+        await waitFor(async () => {
+          expect(await screen.findByText('Task 12')).toBeInTheDocument();
+        });
+
+        const task12 = screen.getByText('Task 12');
+        fireEvent.click(task12);
+
+        await waitFor(() => {
+          expect(screen.getByText(label)).toBeInTheDocument();
+        });
+
+        const dateLabel = screen.getByText(label);
+        const dateRow = dateLabel.closest('tr') as HTMLElement;
+
+        const editButton = within(dateRow).getByLabelText('edit');
+        fireEvent.click(editButton);
+
+        const dateButton = within(dateRow)
+          .getByText(placeholder)
+          .closest('button');
+        fireEvent.click(dateButton!);
+
+        await waitFor(() => {
+          expect(screen.getByRole('dialog')).toBeInTheDocument();
+        });
+
+        const dialog = screen.getByRole('dialog');
+        const day15 = within(dialog).getAllByText('15')[0];
+        fireEvent.click(day15);
+
+        const saveButton = screen.getByLabelText('save');
+        fireEvent.click(saveButton);
+
+        await waitFor(() => {
+          const row = screen.getByTestId('task-row-12');
+          expect(row).toHaveClass('border-l-red-500');
+        });
+      }
     );
 
-    expect(projectsFilterCall).toBeDefined();
-    expect(projectsFilterCall[0].completionStats).toBeDefined();
+    test('shows red border when task priority is edited', async () => {
+      render(<Tasks {...mockProps} />);
 
-    const stats = projectsFilterCall[0].completionStats;
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
 
-    // ProjectA has tasks: 1,3,5,7,9,11 (pending) + task 16 (completed) = 1 completed out of 7 total
-    expect(stats['ProjectA']).toBeDefined();
-    expect(stats['ProjectA'].completed).toBeGreaterThanOrEqual(1);
-    expect(stats['ProjectA'].total).toBeGreaterThanOrEqual(1);
-    expect(stats['ProjectA'].percentage).toBeGreaterThanOrEqual(0);
-    expect(stats['ProjectA'].percentage).toBeLessThanOrEqual(100);
+      const task12 = screen.getByText('Task 12');
+      fireEvent.click(task12);
 
-    // ProjectB has tasks: 2,4,6,8,10,12 (pending) + task 17 (deleted) = 0 completed
-    expect(stats['ProjectB']).toBeDefined();
-    expect(stats['ProjectB'].total).toBeGreaterThanOrEqual(1);
+      await waitFor(() => {
+        expect(screen.getByText('Priority:')).toBeInTheDocument();
+      });
+
+      const priorityLabel = screen.getByText('Priority:');
+      const priorityRow = priorityLabel.closest('tr') as HTMLElement;
+
+      const editButton = within(priorityRow).getByLabelText('edit');
+      fireEvent.click(editButton);
+
+      const select = within(priorityRow).getByTestId('project-select');
+      fireEvent.change(select, { target: { value: 'H' } });
+
+      const saveButton = screen.getByLabelText('save');
+      fireEvent.click(saveButton);
+
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).toHaveClass('border-l-red-500');
+      });
+    });
+
+    test('shows red border when task dependencies are edited', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
+
+      const task12 = screen.getByText('Task 12');
+      fireEvent.click(task12);
+
+      await waitFor(() => {
+        expect(screen.getByText('Depends:')).toBeInTheDocument();
+      });
+
+      const dependsLabel = screen.getByText('Depends:');
+      const dependsRow = dependsLabel.closest('tr') as HTMLElement;
+
+      const editButton = within(dependsRow).getByLabelText('edit');
+      fireEvent.click(editButton);
+
+      const addDependecyButton = within(dependsRow)
+        .getByText('Add Dependency')
+        .closest('button');
+      fireEvent.click(addDependecyButton!);
+
+      const dropdown = within(dependsRow).getByTestId('dependency-dropdown');
+
+      fireEvent.click(within(dropdown).getByText('Task 11'));
+      fireEvent.click(within(dropdown).getByText('Task 10'));
+
+      const saveButton = screen.getByLabelText('save');
+      fireEvent.click(saveButton);
+
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).toHaveClass('border-l-red-500');
+      });
+    });
+
+    test('shows red border when task tags are edited', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
+
+      const task12 = screen.getByText('Task 12');
+      fireEvent.click(task12);
+
+      await waitFor(() => {
+        expect(screen.getByText('Tags:')).toBeInTheDocument();
+      });
+
+      const tagsLabel = screen.getByText('Tags:');
+      const tagsRow = tagsLabel.closest('tr') as HTMLElement;
+
+      const editButton = within(tagsRow).getByLabelText('edit');
+      fireEvent.click(editButton);
+
+      const tagSelectButton = await screen.findByRole('button', {
+        name: /select items/i,
+      });
+      fireEvent.click(tagSelectButton);
+
+      const editInput = await screen.findByPlaceholderText(
+        'Search or create...'
+      );
+
+      fireEvent.change(editInput, { target: { value: 'unsyncedtag' } });
+      fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
+
+      const saveButton = screen.getByLabelText('Save items');
+      fireEvent.click(saveButton);
+
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).toHaveClass('border-l-red-500');
+      });
+    });
+
+    test('shows red border when task recur is edited', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
+
+      const task12 = screen.getByText('Task 12');
+      fireEvent.click(task12);
+
+      await waitFor(() => {
+        expect(screen.getByText('Recur:')).toBeInTheDocument();
+      });
+
+      const recurLabel = screen.getByText('Recur:');
+      const recurRow = recurLabel.closest('tr') as HTMLElement;
+
+      const editButton = within(recurRow).getByLabelText('edit');
+      fireEvent.click(editButton);
+
+      const select = within(recurRow).getByTestId('project-select');
+      fireEvent.change(select, { target: { value: 'weekly' } });
+
+      const saveButton = screen.getByLabelText('save');
+      fireEvent.click(saveButton);
+
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).toHaveClass('border-l-red-500');
+      });
+    });
+
+    test('shows and updates notification badge count on Sync button', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
+
+      const task12 = screen.getByText('Task 12');
+      fireEvent.click(task12);
+
+      await waitFor(() => {
+        const completeButton = screen.getByLabelText('complete task');
+        fireEvent.click(completeButton);
+      });
+
+      const yesButton = screen.getAllByText('Yes')[0];
+      fireEvent.click(yesButton);
+
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).toHaveClass('border-l-red-500');
+      });
+
+      const syncButtons = screen.getAllByText('Sync');
+      const syncBtnContainer = syncButtons[0].closest('button');
+
+      if (syncBtnContainer) {
+        expect(within(syncBtnContainer).getByText('1')).toBeInTheDocument();
+      } else {
+        throw new Error('Sync button not found');
+      }
+    });
+
+    test('clears red border after sync', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 12')).toBeInTheDocument();
+      });
+
+      const task12 = screen.getByText('Task 12');
+      fireEvent.click(task12);
+
+      await waitFor(() => {
+        const completeButton = screen.getByLabelText('complete task');
+        fireEvent.click(completeButton);
+      });
+
+      const yesButton = screen.getAllByText('Yes')[0];
+      fireEvent.click(yesButton);
+
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).toHaveClass('border-l-red-500');
+      });
+
+      const hooks = require('../hooks');
+      hooks.fetchTaskwarriorTasks.mockResolvedValueOnce([
+        {
+          id: 12,
+          description: 'Task 12',
+          status: 'completed',
+          project: 'ProjectA',
+          tags: ['tag1'],
+          uuid: 'uuid-12',
+        },
+      ]);
+
+      const syncButtons = screen.getAllByText('Sync');
+      fireEvent.click(syncButtons[0]);
+
+      await waitFor(() => {
+        const row = screen.getByTestId('task-row-12');
+        expect(row).not.toHaveClass('border-l-red-500');
+      });
+    });
   });
 
-  test('calculates and passes tag completion stats to MultiSelectFilter', async () => {
-    render(<Tasks {...mockProps} />);
+  describe('Completion Stats', () => {
+    test('calculates and passes project completion stats to MultiSelectFilter', async () => {
+      render(<Tasks {...mockProps} />);
 
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
+
+      const { MultiSelectFilter } = require('@/components/ui/multi-select');
+
+      // Find the Projects filter call
+      const projectsFilterCall = MultiSelectFilter.mock.calls.find(
+        (call: any) => call[0].title === 'Projects'
+      );
+
+      expect(projectsFilterCall).toBeDefined();
+      expect(projectsFilterCall[0].completionStats).toBeDefined();
+
+      const stats = projectsFilterCall[0].completionStats;
+
+      // ProjectA has tasks: 1,3,5,7,9,11 (pending) + task 16 (completed) = 1 completed out of 7 total
+      expect(stats['ProjectA']).toBeDefined();
+      expect(stats['ProjectA'].completed).toBeGreaterThanOrEqual(1);
+      expect(stats['ProjectA'].total).toBeGreaterThanOrEqual(1);
+      expect(stats['ProjectA'].percentage).toBeGreaterThanOrEqual(0);
+      expect(stats['ProjectA'].percentage).toBeLessThanOrEqual(100);
+
+      // ProjectB has tasks: 2,4,6,8,10,12 (pending) + task 17 (deleted) = 0 completed
+      expect(stats['ProjectB']).toBeDefined();
+      expect(stats['ProjectB'].total).toBeGreaterThanOrEqual(1);
     });
 
-    const { MultiSelectFilter } = require('@/components/ui/multi-select');
+    test('calculates and passes tag completion stats to MultiSelectFilter', async () => {
+      render(<Tasks {...mockProps} />);
 
-    // Find the Tags filter call
-    const tagsFilterCall = MultiSelectFilter.mock.calls.find(
-      (call: any) => call[0].title === 'Tags'
-    );
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
 
-    expect(tagsFilterCall).toBeDefined();
-    expect(tagsFilterCall[0].completionStats).toBeDefined();
+      const { MultiSelectFilter } = require('@/components/ui/multi-select');
 
-    const stats = tagsFilterCall[0].completionStats;
+      // Find the Tags filter call
+      const tagsFilterCall = MultiSelectFilter.mock.calls.find(
+        (call: any) => call[0].title === 'Tags'
+      );
 
-    // Verify stats structure
-    Object.keys(stats).forEach((tag) => {
-      expect(stats[tag]).toHaveProperty('completed');
-      expect(stats[tag]).toHaveProperty('total');
-      expect(stats[tag]).toHaveProperty('percentage');
-      expect(typeof stats[tag].completed).toBe('number');
-      expect(typeof stats[tag].total).toBe('number');
-      expect(typeof stats[tag].percentage).toBe('number');
-      expect(stats[tag].percentage).toBeGreaterThanOrEqual(0);
-      expect(stats[tag].percentage).toBeLessThanOrEqual(100);
-    });
-  });
+      expect(tagsFilterCall).toBeDefined();
+      expect(tagsFilterCall[0].completionStats).toBeDefined();
 
-  test('recalculates completion stats after sync', async () => {
-    const hooks = require('../hooks');
+      const stats = tagsFilterCall[0].completionStats;
 
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      // Verify stats structure
+      Object.keys(stats).forEach((tag) => {
+        expect(stats[tag]).toHaveProperty('completed');
+        expect(stats[tag]).toHaveProperty('total');
+        expect(stats[tag]).toHaveProperty('percentage');
+        expect(typeof stats[tag].completed).toBe('number');
+        expect(typeof stats[tag].total).toBe('number');
+        expect(typeof stats[tag].percentage).toBe('number');
+        expect(stats[tag].percentage).toBeGreaterThanOrEqual(0);
+        expect(stats[tag].percentage).toBeLessThanOrEqual(100);
+      });
     });
 
-    const { MultiSelectFilter } = require('@/components/ui/multi-select');
+    test('recalculates completion stats after sync', async () => {
+      const hooks = require('../hooks');
 
-    hooks.fetchTaskwarriorTasks.mockResolvedValueOnce([
-      {
-        id: 1,
-        description: 'Task 1',
-        status: 'completed',
-        project: 'ProjectA',
-        tags: ['tag1'],
-        uuid: 'uuid-1',
-      },
-      {
-        id: 2,
-        description: 'Task 2',
-        status: 'completed',
-        project: 'ProjectB',
-        tags: ['tag2'],
-        uuid: 'uuid-2',
-      },
-    ]);
+      render(<Tasks {...mockProps} />);
 
-    MultiSelectFilter.mockClear();
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
 
-    const syncButtons = screen.getAllByText('Sync');
-    fireEvent.click(syncButtons[0]);
+      const { MultiSelectFilter } = require('@/components/ui/multi-select');
 
-    await waitFor(() => {
+      hooks.fetchTaskwarriorTasks.mockResolvedValueOnce([
+        {
+          id: 1,
+          description: 'Task 1',
+          status: 'completed',
+          project: 'ProjectA',
+          tags: ['tag1'],
+          uuid: 'uuid-1',
+        },
+        {
+          id: 2,
+          description: 'Task 2',
+          status: 'completed',
+          project: 'ProjectB',
+          tags: ['tag2'],
+          uuid: 'uuid-2',
+        },
+      ]);
+
+      MultiSelectFilter.mockClear();
+
+      const syncButtons = screen.getAllByText('Sync');
+      fireEvent.click(syncButtons[0]);
+
+      await waitFor(() => {
+        const projectsCall = MultiSelectFilter.mock.calls.find(
+          (call: any) => call[0].title === 'Projects'
+        );
+        expect(projectsCall).toBeDefined();
+      });
+
+      const updatedProjectsCall = MultiSelectFilter.mock.calls.find(
+        (call: any) => call[0].title === 'Projects'
+      );
+
+      expect(updatedProjectsCall).toBeDefined();
+      expect(updatedProjectsCall[0].completionStats).toBeDefined();
+
+      const updatedStats = updatedProjectsCall[0].completionStats;
+      expect(updatedStats['ProjectA']).toBeDefined();
+      expect(updatedStats['ProjectB']).toBeDefined();
+    });
+
+    test('completion stats structure is correct', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
+
+      const { MultiSelectFilter } = require('@/components/ui/multi-select');
+
       const projectsCall = MultiSelectFilter.mock.calls.find(
         (call: any) => call[0].title === 'Projects'
       );
+
       expect(projectsCall).toBeDefined();
-    });
+      const stats = projectsCall[0].completionStats;
 
-    const updatedProjectsCall = MultiSelectFilter.mock.calls.find(
-      (call: any) => call[0].title === 'Projects'
-    );
-
-    expect(updatedProjectsCall).toBeDefined();
-    expect(updatedProjectsCall[0].completionStats).toBeDefined();
-
-    const updatedStats = updatedProjectsCall[0].completionStats;
-    expect(updatedStats['ProjectA']).toBeDefined();
-    expect(updatedStats['ProjectB']).toBeDefined();
-  });
-
-  test('completion stats structure is correct', async () => {
-    render(<Tasks {...mockProps} />);
-
-    await waitFor(async () => {
-      expect(await screen.findByText('Task 1')).toBeInTheDocument();
-    });
-
-    const { MultiSelectFilter } = require('@/components/ui/multi-select');
-
-    const projectsCall = MultiSelectFilter.mock.calls.find(
-      (call: any) => call[0].title === 'Projects'
-    );
-
-    expect(projectsCall).toBeDefined();
-    const stats = projectsCall[0].completionStats;
-
-    // Verify stats structure for any project that exists
-    Object.keys(stats).forEach((project) => {
-      expect(stats[project]).toHaveProperty('completed');
-      expect(stats[project]).toHaveProperty('total');
-      expect(stats[project]).toHaveProperty('percentage');
-      expect(typeof stats[project].completed).toBe('number');
-      expect(typeof stats[project].total).toBe('number');
-      expect(typeof stats[project].percentage).toBe('number');
-      expect(stats[project].completed).toBeLessThanOrEqual(
-        stats[project].total
-      );
-      expect(stats[project].percentage).toBeGreaterThanOrEqual(0);
-      expect(stats[project].percentage).toBeLessThanOrEqual(100);
+      // Verify stats structure for any project that exists
+      Object.keys(stats).forEach((project) => {
+        expect(stats[project]).toHaveProperty('completed');
+        expect(stats[project]).toHaveProperty('total');
+        expect(stats[project]).toHaveProperty('percentage');
+        expect(typeof stats[project].completed).toBe('number');
+        expect(typeof stats[project].total).toBe('number');
+        expect(typeof stats[project].percentage).toBe('number');
+        expect(stats[project].completed).toBeLessThanOrEqual(
+          stats[project].total
+        );
+        expect(stats[project].percentage).toBeGreaterThanOrEqual(0);
+        expect(stats[project].percentage).toBeLessThanOrEqual(100);
+      });
     });
   });
 
