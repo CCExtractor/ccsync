@@ -216,4 +216,43 @@ describe('useHotkeys', () => {
 
     removeEventListenerSpy.mockRestore();
   });
+
+  it('should call callback when enabled is true', () => {
+    renderHook(() => useHotkeys(['s'], callback, true));
+
+    const event = new KeyboardEvent('keydown', {
+      key: 's',
+      bubbles: true,
+    });
+
+    window.dispatchEvent(event);
+
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not call callback when enabled is false', () => {
+    renderHook(() => useHotkeys(['s'], callback, false));
+
+    const event = new KeyboardEvent('keydown', {
+      key: 's',
+      bubbles: true,
+    });
+
+    window.dispatchEvent(event);
+
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  it('should default enabled to true when not provided', () => {
+    renderHook(() => useHotkeys(['s'], callback));
+
+    const event = new KeyboardEvent('keydown', {
+      key: 's',
+      bubbles: true,
+    });
+
+    window.dispatchEvent(event);
+
+    expect(callback).toHaveBeenCalledTimes(1);
+  });
 });

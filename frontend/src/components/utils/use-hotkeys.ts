@@ -1,7 +1,13 @@
 import { useEffect } from 'react';
 
-export function useHotkeys(keys: string[], callback: () => void) {
+export function useHotkeys(
+  keys: string[],
+  callback: () => void,
+  enabled: boolean = true
+) {
   useEffect(() => {
+    if (!enabled) return;
+
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       if (
@@ -29,5 +35,5 @@ export function useHotkeys(keys: string[], callback: () => void) {
 
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [keys, callback]);
+  }, [keys, callback, enabled]);
 }
