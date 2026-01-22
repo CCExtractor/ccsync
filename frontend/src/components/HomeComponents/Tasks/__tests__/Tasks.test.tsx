@@ -58,10 +58,10 @@ jest.mock('@/components/ui/multi-select', () => ({
 
 jest.mock('@/components/ui/select', () => {
   return {
-    Select: ({ children, onValueChange, value }: any) => {
+    Select: ({ children, onValueChange, value, ...props }: any) => {
       return (
         <select
-          data-testid="project-select"
+          {...props}
           value={value}
           onChange={(e) => onValueChange?.(e.target.value)}
         >
@@ -181,6 +181,12 @@ jest.mock('../TaskSkeleton', () => {
 });
 
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
+
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 
 describe('Tasks Component', () => {
   const localStorageMock = (() => {
@@ -1229,7 +1235,7 @@ describe('Tasks Component', () => {
     const editButton = within(priorityRow).getByLabelText('edit');
     fireEvent.click(editButton);
 
-    const select = within(priorityRow).getByTestId('project-select');
+    const select = within(priorityRow).getByTestId('priority-select');
     fireEvent.change(select, { target: { value: 'H' } });
 
     const saveButton = screen.getByLabelText('save');
@@ -1339,7 +1345,7 @@ describe('Tasks Component', () => {
     const editButton = within(recurRow).getByLabelText('edit');
     fireEvent.click(editButton);
 
-    const select = within(recurRow).getByTestId('project-select');
+    const select = within(recurRow).getByTestId('recur-select');
     fireEvent.change(select, { target: { value: 'weekly' } });
 
     const saveButton = screen.getByLabelText('save');
@@ -1735,6 +1741,213 @@ describe('Tasks Component', () => {
 
       const task1Row = screen.getByText('Task 1').closest('tr');
       expect(task1Row).toBeInTheDocument();
+    });
+  });
+
+  describe('Recur Editing', () => {
+    test('does not save when recur is set to "none"', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await screen.findByText('Task 12');
+      fireEvent.click(screen.getByText('Task 12'));
+
+      expect(await screen.findByText('Recur:')).toBeInTheDocument();
+
+      const recurLabel = screen.getByText('Recur:');
+      const recurRow = recurLabel.closest('tr') as HTMLElement;
+      const editButton = within(recurRow).getByLabelText('edit');
+
+      fireEvent.click(editButton);
+
+      const select = within(recurRow).getByTestId('recur-select');
+      fireEvent.change(select, { target: { value: 'none' } });
+
+      const saveButton = screen.getByLabelText('save');
+      fireEvent.click(saveButton);
+
+      const hooks = require('../hooks');
+      expect(hooks.editTaskOnBackend).not.toHaveBeenCalled();
+    });
+
+    test('saves recur when a valid value is selected', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await screen.findByText('Task 12');
+      fireEvent.click(screen.getByText('Task 12'));
+
+      expect(await screen.findByText('Recur:')).toBeInTheDocument();
+
+      const recurLabel = screen.getByText('Recur:');
+      const recurRow = recurLabel.closest('tr') as HTMLElement;
+      const editButton = within(recurRow).getByLabelText('edit');
+
+      fireEvent.click(editButton);
+
+      const select = within(recurRow).getByTestId('recur-select');
+      fireEvent.change(select, { target: { value: 'daily' } });
+
+      const saveButton = screen.getByLabelText('save');
+      fireEvent.click(saveButton);
+
+      const hooks = require('../hooks');
+      expect(hooks.editTaskOnBackend).toHaveBeenCalledWith(
+        expect.objectContaining({ recur: 'daily' })
+      );
+    });
+
+    test('does not save when recur is empty string', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await screen.findByText('Task 12');
+      fireEvent.click(screen.getByText('Task 12'));
+
+      expect(await screen.findByText('Recur:')).toBeInTheDocument();
+
+      const recurLabel = screen.getByText('Recur:');
+      const recurRow = recurLabel.closest('tr') as HTMLElement;
+      const editButton = within(recurRow).getByLabelText('edit');
+      fireEvent.click(editButton);
+
+      const select = within(recurRow).getByTestId('recur-select');
+      fireEvent.change(select, { target: { value: '' } });
+      const saveButton = within(recurRow).getByLabelText('save');
+      fireEvent.click(saveButton);
+
+      const hooks = require('../hooks');
+      expect(hooks.editTaskOnBackend).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Priority Editing', () => {
+    test('saving priority calls modifyTaskOnBackend with correct value', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await screen.findByText('Task 12');
+      fireEvent.click(screen.getByText('Task 12'));
+
+      expect(await screen.findByText('Priority:')).toBeInTheDocument();
+
+      const priorityLabel = screen.getByText('Priority:');
+      const priorityRow = priorityLabel.closest('tr') as HTMLElement;
+      const editButton = within(priorityRow).getByLabelText('edit');
+      fireEvent.click(editButton);
+
+      const select = within(priorityRow).getByTestId('priority-select');
+      fireEvent.change(select, { target: { value: 'H' } });
+
+      const saveButton = screen.getByLabelText('save');
+      fireEvent.click(saveButton);
+
+      await waitFor(() => {
+        const hooks = require('../hooks');
+        expect(hooks.modifyTaskOnBackend).toHaveBeenCalledWith(
+          expect.objectContaining({ priority: 'H' })
+        );
+      });
+    });
+
+    test('saving "NONE" priority sends empty string to backend', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await screen.findByText('Task 12');
+      fireEvent.click(screen.getByText('Task 12'));
+
+      expect(await screen.findByText('Priority:')).toBeInTheDocument();
+
+      const priorityLabel = screen.getByText('Priority:');
+      const priorityRow = priorityLabel.closest('tr') as HTMLElement;
+      const editButton = within(priorityRow).getByLabelText('edit');
+      fireEvent.click(editButton);
+
+      const select = within(priorityRow).getByTestId('priority-select');
+      fireEvent.change(select, { target: { value: 'NONE' } });
+
+      const saveButton = screen.getByLabelText('save');
+      fireEvent.click(saveButton);
+
+      await waitFor(() => {
+        const hooks = require('../hooks');
+        expect(hooks.modifyTaskOnBackend).toHaveBeenCalledWith(
+          expect.objectContaining({
+            priority: '',
+          })
+        );
+      });
+    });
+
+    test('shows error toast when priority save fails', async () => {
+      const { toast } = require('react-toastify');
+      const hooks = require('../hooks');
+
+      hooks.modifyTaskOnBackend.mockRejectedValueOnce(
+        new Error('Network error')
+      );
+
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 12');
+
+      fireEvent.click(screen.getByText('Task 12'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Priority:')).toBeInTheDocument();
+      });
+
+      const priorityLabel = screen.getByText('Priority:');
+      const priorityRow = priorityLabel.closest('tr') as HTMLElement;
+
+      const editButton = within(priorityRow).getByLabelText('edit');
+      fireEvent.click(editButton);
+
+      const select = within(priorityRow).getByTestId('priority-select');
+      fireEvent.change(select, { target: { value: 'H' } });
+
+      const saveButton = within(priorityRow).getByLabelText('save');
+      fireEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.stringContaining('Failed to update priority')
+        );
+      });
+    });
+  });
+
+  describe('Reports Toggle', () => {
+    test('clicking "Show Reports" button switches view from tasks to reports', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await screen.findByText('Task 1');
+
+      expect(screen.getByText('Here are')).toBeInTheDocument();
+
+      const toggleBtn = screen.getByRole('button', { name: /show reports/i });
+      fireEvent.click(toggleBtn);
+
+      expect(
+        screen.getByRole('button', { name: /show tasks/i })
+      ).toBeInTheDocument();
+    });
+
+    test('clicking "Show Tasks" returns to task list view', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      fireEvent.click(screen.getByRole('button', { name: /show reports/i }));
+      fireEvent.click(screen.getByRole('button', { name: /show tasks/i }));
+
+      expect(screen.getByText('Task 1')).toBeInTheDocument();
+    });
+
+    test('hotkeys are disabled when reports view is shown', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      fireEvent.click(screen.getByRole('button', { name: /show reports/i }));
+      fireEvent.keyDown(window, { key: 'a' });
+
+      expect(
+        screen.queryByText(/fill in the details below/i)
+      ).not.toBeInTheDocument();
     });
   });
 });
