@@ -241,6 +241,7 @@ describe('markTaskAsCompleted', () => {
 
     expect(fetch).toHaveBeenCalledWith(backendURL, {
       method: 'POST',
+      credentials: 'include',
       body: JSON.stringify({
         email: email,
         encryptionSecret: encryptionSecret,
@@ -269,6 +270,7 @@ describe('markTaskAsDeleted', () => {
 
     expect(fetch).toHaveBeenCalledWith(backendURL, {
       method: 'POST',
+      credentials: 'include',
       body: JSON.stringify({
         email: email,
         encryptionSecret: encryptionSecret,
@@ -416,6 +418,7 @@ describe('bulkMarkTasksAsCompleted', () => {
       expect.stringContaining('complete-tasks'),
       {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -486,6 +489,7 @@ describe('bulkMarkTasksAsDeleted', () => {
 
     expect(fetch).toHaveBeenCalledWith(backendURL, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
