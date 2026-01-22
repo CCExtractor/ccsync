@@ -46,7 +46,6 @@ func EditTaskInTaskwarrior(
 		Annotations:      annotations,
 	}
 	
-
 	return editTaskInternal(req, email)
 }
 
