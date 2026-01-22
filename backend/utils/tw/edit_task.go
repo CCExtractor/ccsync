@@ -46,16 +46,16 @@ func EditTaskInTaskwarrior(
 		Annotations:      annotations,
 	}
 
-	return editTaskInternal(req)
+	return editTaskInternal(req, email)
 }
 
-func editTaskInternal(req models.EditTaskRequestBody) error {
+func editTaskInternal(req models.EditTaskRequestBody, email string) error {
 
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
 
-	tempDir, err := os.MkdirTemp("", "taskwarrior-"+req.Email)
+	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
 	}
