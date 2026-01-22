@@ -19,7 +19,7 @@ describe('exportConfigSetup', () => {
     );
 
     expect(result).toContain(
-      `task config sync.server.origin ${url.containerOrigin}`
+      `task config sync.server.url ${url.containerOrigin}`
     );
 
     expect(result).toContain(`task config sync.server.client_id ${props.uuid}`);

@@ -266,3 +266,102 @@ func Test_EditTaskHandler_WithDependencies(t *testing.T) {
 
 	assert.Equal(t, http.StatusAccepted, rr.Code)
 }
+
+func Test_AddTaskHandler_MalformedJSON(t *testing.T) {
+	malformedJSON := []byte(`{"email": "test@example.com", "description": `)
+
+	req, err := http.NewRequest("POST", "/add-task", bytes.NewBuffer(malformedJSON))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	AddTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+	assert.Contains(t, rr.Body.String(), "error decoding request body")
+}
+
+func Test_AddTaskHandler_NullDependencies(t *testing.T) {
+	GlobalJobQueue = NewJobQueue()
+
+	requestBody := map[string]interface{}{
+		"email":            "test@example.com",
+		"encryptionSecret": "secret",
+		"UUID":             "test-uuid",
+		"description":      "Task with null dependencies",
+		"project":          "TestProject",
+		"priority":         "M",
+		"depends":          nil,
+		"tags":             []string{"test"},
+	}
+
+	body, _ := json.Marshal(requestBody)
+	req, err := http.NewRequest("POST", "/add-task", bytes.NewBuffer(body))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	AddTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusAccepted, rr.Code)
+}
+
+func Test_AddTaskHandler_InvalidDueDateFormat(t *testing.T) {
+	GlobalJobQueue = NewJobQueue()
+
+	dueDate := "invalid-date"
+	requestBody := map[string]interface{}{
+		"email":            "test@example.com",
+		"encryptionSecret": "secret",
+		"UUID":             "test-uuid",
+		"description":      "Task with invalid due date",
+		"due":              &dueDate,
+	}
+
+	body, _ := json.Marshal(requestBody)
+	req, err := http.NewRequest("POST", "/add-task", bytes.NewBuffer(body))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	AddTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+	assert.Contains(t, rr.Body.String(), "Invalid due date format")
+}
+
+func Test_AddTaskHandler_WithAnnotations(t *testing.T) {
+	GlobalJobQueue = NewJobQueue()
+
+	requestBody := map[string]interface{}{
+		"email":            "test@example.com",
+		"encryptionSecret": "secret",
+		"UUID":             "test-uuid",
+		"description":      "Task with annotations",
+		"annotations": []map[string]interface{}{
+			{"description": "First annotation"},
+			{"description": "Second annotation"},
+		},
+	}
+
+	body, _ := json.Marshal(requestBody)
+	req, err := http.NewRequest("POST", "/add-task", bytes.NewBuffer(body))
+	assert.NoError(t, err)
+	req.Header.Set("Content-Type", "application/json")
+
+	rr := httptest.NewRecorder()
+	AddTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusAccepted, rr.Code)
+}
+
+func Test_AddTaskHandler_InvalidMethod(t *testing.T) {
+	req, err := http.NewRequest("GET", "/add-task", nil)
+	assert.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	AddTaskHandler(rr, req)
+
+	assert.Equal(t, http.StatusMethodNotAllowed, rr.Code)
+	assert.Contains(t, rr.Body.String(), "Invalid request method")
+}

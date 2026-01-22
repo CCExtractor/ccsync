@@ -43,7 +43,23 @@ func TestExportTasks(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarrior(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03T10:30:00", "2025-03-01", "2025-03-01", "2025-03-01", "2025-03-03", "daily", []string{}, []models.Annotation{{Description: "note"}}, []string{})
+	req := models.AddTaskRequestBody{
+		Email:            "email",
+		EncryptionSecret: "encryption_secret",
+		UUID:             "clientId",
+		Description:      "description",
+		Project:          "",
+		Priority:         "H",
+		Start:            "2025-03-01",
+		EntryDate:        "2025-03-01",
+		WaitDate:         "2025-03-01",
+		End:              "2025-03-03",
+		Recur:            "daily",
+		Tags:             []string{},
+		Annotations:      []models.Annotation{{Description: "note"}},
+		Depends:          []string{},
+	}
+	err := AddTaskToTaskwarrior(req, "2025-03-03T10:30:00")
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior failed: %v", err)
 	} else {
@@ -52,7 +68,23 @@ func TestAddTaskToTaskwarrior(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarriorWithWaitDate(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-03T14:00:00", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-04", "", []string{}, []models.Annotation{}, []string{})
+	req := models.AddTaskRequestBody{
+		Email:            "email",
+		EncryptionSecret: "encryption_secret",
+		UUID:             "clientId",
+		Description:      "description",
+		Project:          "project",
+		Priority:         "H",
+		Start:            "2025-03-04",
+		EntryDate:        "2025-03-04",
+		WaitDate:         "2025-03-04",
+		End:              "2025-03-04",
+		Recur:            "",
+		Tags:             []string{},
+		Annotations:      []models.Annotation{},
+		Depends:          []string{},
+	}
+	err := AddTaskToTaskwarrior(req, "2025-03-03T14:00:00")
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior with wait date failed: %v", err)
 	} else {
@@ -61,7 +93,23 @@ func TestAddTaskToTaskwarriorWithWaitDate(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarriorWithEntryDate(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-05T16:30:00", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-10", "", []string{}, []models.Annotation{}, []string{})
+	req := models.AddTaskRequestBody{
+		Email:            "email",
+		EncryptionSecret: "encryption_secret",
+		UUID:             "clientId",
+		Description:      "description",
+		Project:          "project",
+		Priority:         "H",
+		Start:            "2025-03-04",
+		EntryDate:        "2025-03-04",
+		WaitDate:         "2025-03-04",
+		End:              "2025-03-10",
+		Recur:            "",
+		Tags:             []string{},
+		Annotations:      []models.Annotation{},
+		Depends:          []string{},
+	}
+	err := AddTaskToTaskwarrior(req, "2025-03-05T16:30:00")
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior failed: %v", err)
 	} else {
@@ -79,7 +127,23 @@ func TestCompleteTaskInTaskwarrior(t *testing.T) {
 }
 
 func TestAddTaskWithTags(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "", "H", "2025-03-03T15:45:00", "2025-03-01", "2025-03-01", "2025-03-01", "2025-03-03", "daily", []string{"work", "important"}, []models.Annotation{{Description: "note"}}, []string{})
+	req := models.AddTaskRequestBody{
+		Email:            "email",
+		EncryptionSecret: "encryption_secret",
+		UUID:             "clientId",
+		Description:      "description",
+		Project:          "",
+		Priority:         "H",
+		Start:            "2025-03-01",
+		EntryDate:        "2025-03-01",
+		WaitDate:         "2025-03-01",
+		End:              "2025-03-03",
+		Recur:            "daily",
+		Tags:             []string{"work", "important"},
+		Annotations:      []models.Annotation{{Description: "note"}},
+		Depends:          []string{},
+	}
+	err := AddTaskToTaskwarrior(req, "2025-03-03T15:45:00")
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior with tags failed: %v", err)
 	} else {
@@ -88,7 +152,23 @@ func TestAddTaskWithTags(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarriorWithEntryDateAndTags(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-05T16:00:00", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-10", "", []string{"work", "important"}, []models.Annotation{}, []string{})
+	req := models.AddTaskRequestBody{
+		Email:            "email",
+		EncryptionSecret: "encryption_secret",
+		UUID:             "clientId",
+		Description:      "description",
+		Project:          "project",
+		Priority:         "H",
+		Start:            "2025-03-04",
+		EntryDate:        "2025-03-04",
+		WaitDate:         "2025-03-04",
+		End:              "2025-03-10",
+		Recur:            "",
+		Tags:             []string{"work", "important"},
+		Annotations:      []models.Annotation{},
+		Depends:          []string{},
+	}
+	err := AddTaskToTaskwarrior(req, "2025-03-05T16:00:00")
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior with entry date and tags failed: %v", err)
 	} else {
@@ -97,7 +177,23 @@ func TestAddTaskToTaskwarriorWithEntryDateAndTags(t *testing.T) {
 }
 
 func TestAddTaskToTaskwarriorWithWaitDateWithTags(t *testing.T) {
-	err := AddTaskToTaskwarrior("email", "encryption_secret", "clientId", "description", "project", "H", "2025-03-03T14:30:00", "2025-03-04", "2025-03-04", "2025-03-04", "2025-03-04", "", []string{"work", "important"}, []models.Annotation{}, []string{})
+	req := models.AddTaskRequestBody{
+		Email:            "email",
+		EncryptionSecret: "encryption_secret",
+		UUID:             "clientId",
+		Description:      "description",
+		Project:          "project",
+		Priority:         "H",
+		Start:            "2025-03-04",
+		EntryDate:        "2025-03-04",
+		WaitDate:         "2025-03-04",
+		End:              "2025-03-04",
+		Recur:            "",
+		Tags:             []string{"work", "important"},
+		Annotations:      []models.Annotation{},
+		Depends:          []string{},
+	}
+	err := AddTaskToTaskwarrior(req, "2025-03-03T14:30:00")
 	if err != nil {
 		t.Errorf("AddTaskToTaskwarrior with wait date failed: %v", err)
 	} else {

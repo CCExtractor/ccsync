@@ -149,7 +149,7 @@ exports[`Footer component using Snapshot renders correctly 1`] = `
       class="container pb-14 text-center"
     >
       <h3>
-        © 2025 
+        © 2026 
         <a
           class="text-red transition-all border-secondary hover:border-b-2"
           rel="noreferrer noopener"

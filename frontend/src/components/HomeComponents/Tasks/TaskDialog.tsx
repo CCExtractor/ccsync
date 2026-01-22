@@ -1,4 +1,4 @@
-import { EditTaskDialogProps } from '../../utils/types';
+import { EditTaskDialogProps, FieldKey } from '../../utils/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
@@ -28,12 +28,19 @@ import {
   CopyIcon,
   Folder,
   PencilIcon,
+  Pin,
+  PinOff,
   Tag,
   Trash2Icon,
   XIcon,
 } from 'lucide-react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { formattedDate, handleCopy } from './tasks-utils';
+import { useEffect, useRef, useState } from 'react';
+import { useTaskDialogKeyboard } from './UseTaskDialogKeyboard';
+import { EDITTASKDIALOG_FIELDS } from './constants';
+import { useTaskDialogFocusMap } from './UseTaskDialogFocusMap';
+import { MultiSelect } from './MultiSelect';
 
 export const TaskDialog = ({
   index,
@@ -50,6 +57,7 @@ export const TaskDialog = ({
   isCreatingNewProject,
   setIsCreatingNewProject,
   uniqueProjects,
+  uniqueTags,
   onSaveDescription,
   onSaveTags,
   onSavePriority,
@@ -66,7 +74,97 @@ export const TaskDialog = ({
   onMarkDeleted,
   isOverdue,
   isUnsynced,
+  isPinned,
+  onTogglePin,
 }: EditTaskDialogProps) => {
+  const editButtonRef = useRef<
+    Partial<Record<FieldKey, HTMLButtonElement | null>>
+  >({});
+  const inputRefs = useRef<
+    Partial<Record<FieldKey, HTMLInputElement | HTMLButtonElement | null>>
+  >({});
+  const [focusedFieldIndex, setFocusedFieldIndex] = useState(0);
+
+  const isEditingAny =
+    editState.isEditing ||
+    editState.isEditingDueDate ||
+    editState.isEditingStartDate ||
+    editState.isEditingEndDate ||
+    editState.isEditingWaitDate ||
+    editState.isEditingEntryDate ||
+    editState.isEditingPriority ||
+    editState.isEditingProject ||
+    editState.isEditingTags ||
+    editState.isEditingDepends ||
+    editState.isEditingRecur ||
+    editState.isEditingAnnotations;
+
+  const focusedField = EDITTASKDIALOG_FIELDS[focusedFieldIndex];
+
+  const stopEditing = () => {
+    onUpdateState({
+      isEditing: false,
+      isEditingDueDate: false,
+      isEditingStartDate: false,
+      isEditingEndDate: false,
+      isEditingWaitDate: false,
+      isEditingEntryDate: false,
+      isEditingPriority: false,
+      isEditingProject: false,
+      isEditingTags: false,
+      isEditingDepends: false,
+      isEditingRecur: false,
+      isEditingAnnotations: false,
+    });
+  };
+
+  const triggerEditForField = (field: FieldKey) => {
+    editButtonRef.current[field]?.click();
+  };
+
+  useEffect(() => {
+    const element = editButtonRef.current[focusedField];
+    if (!element) return;
+
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  }, [focusedField]);
+
+  useEffect(() => {
+    focusMap(focusedField);
+  }, [
+    focusedField,
+    editState.isEditing,
+    editState.isEditingDueDate,
+    editState.isEditingStartDate,
+    editState.isEditingEndDate,
+    editState.isEditingWaitDate,
+    editState.isEditingEntryDate,
+    editState.isEditingTags,
+    editState.isEditingAnnotations,
+  ]);
+
+  const focusMap = useTaskDialogFocusMap({
+    fields: EDITTASKDIALOG_FIELDS,
+    inputRefs: inputRefs,
+  });
+
+  const handleDialogKeyDown = useTaskDialogKeyboard({
+    fields: EDITTASKDIALOG_FIELDS,
+    focusedFieldIndex: focusedFieldIndex,
+    setFocusedFieldIndex: setFocusedFieldIndex,
+    isEditingAny: isEditingAny,
+    stopEditing: stopEditing,
+    triggerEditForField: triggerEditForField,
+  });
+
+  const saveAndExit = (onSave: () => void) => {
+    onSave();
+    stopEditing();
+  };
+
   const handleDialogOpenChange = (open: boolean) => {
     if (open) {
       onSelectTask(task, index);
@@ -107,7 +205,10 @@ export const TaskDialog = ({
             onSelectTask(task, index);
           }}
         >
-          <TableCell className="py-2" onClick={(e) => e.stopPropagation()}>
+          <TableCell
+            className="py-3 md:py-2 align-top"
+            onClick={(e) => e.stopPropagation()}
+          >
             <input
               type="checkbox"
               checked={selectedTaskUUIDs.includes(task.uuid)}
@@ -119,63 +220,92 @@ export const TaskDialog = ({
             />
           </TableCell>
 
-          {/* Display task details */}
-          <TableCell className="py-2">
-            <span
-              className={`px-3 py-1 rounded-md font-semibold ${
-                task.status === 'pending' && isOverdue(task.due)
-                  ? 'bg-red-600/80 text-white'
-                  : 'dark:text-white text-black'
-              }`}
-            >
-              {task.id}
-            </span>
-          </TableCell>
-          <TableCell className="flex items-center space-x-2 py-2">
-            {task.priority === 'H' && (
-              <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3"></div>
-            )}
-            {task.priority === 'M' && (
-              <div className="flex items-center justify-center w-3 h-3 bg-yellow-500 rounded-full border-0 min-w-3"></div>
-            )}
-            {task.priority != 'H' && task.priority != 'M' && (
-              <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
-            )}
-            <span className="text-s text-foreground">{task.description}</span>
-            {task.project != '' && (
-              <Badge variant={'secondary'}>
-                <Folder className="pr-2" />
-                {task.project === '' ? '' : task.project}
-              </Badge>
-            )}
-          </TableCell>
-          <TableCell className="py-2">
-            <Badge
-              className={
-                task.status === 'pending' && isOverdue(task.due)
-                  ? 'bg-orange-500 text-white'
-                  : ''
-              }
-              variant={
-                task.status === 'deleted'
-                  ? 'destructive'
-                  : task.status === 'completed'
-                    ? 'default'
-                    : 'secondary'
-              }
-            >
-              {task.status === 'pending' && isOverdue(task.due)
-                ? 'O'
-                : task.status === 'completed'
-                  ? 'C'
-                  : task.status === 'deleted'
-                    ? 'D'
-                    : 'P'}
-            </Badge>
+          {/* Desktop: single row layout, Mobile: 2-row layout */}
+          <TableCell className="py-2" colSpan={3}>
+            <div className="flex items-center gap-4">
+              <span
+                className={`px-3 py-1 rounded-md font-semibold ${
+                  task.status === 'pending' && isOverdue(task.due)
+                    ? 'bg-red-600/80 text-white'
+                    : 'dark:text-white text-black'
+                }`}
+              >
+                {task.id}
+              </span>
+              <div className="flex items-center space-x-2 flex-1 min-w-0">
+                {task.priority === 'H' && (
+                  <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3"></div>
+                )}
+                {task.priority === 'M' && (
+                  <div className="flex items-center justify-center w-3 h-3 bg-yellow-500 rounded-full border-0 min-w-3"></div>
+                )}
+                {task.priority != 'H' && task.priority != 'M' && (
+                  <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
+                )}
+                <span className="text-s text-foreground">
+                  {task.description}
+                </span>
+                {task.project != '' && (
+                  <Badge variant={'secondary'}>
+                    <Folder className="pr-2" />
+                    {task.project === '' ? '' : task.project}
+                  </Badge>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge
+                  className={
+                    task.status === 'pending' && isOverdue(task.due)
+                      ? 'bg-orange-500 text-white'
+                      : ''
+                  }
+                  variant={
+                    task.status === 'deleted'
+                      ? 'destructive'
+                      : task.status === 'completed'
+                        ? 'default'
+                        : 'secondary'
+                  }
+                >
+                  {task.status === 'pending' && isOverdue(task.due)
+                    ? 'O'
+                    : task.status === 'completed'
+                      ? 'C'
+                      : task.status === 'deleted'
+                        ? 'D'
+                        : 'P'}
+                </Badge>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onTogglePin(task.uuid);
+                  }}
+                  className="p-1 hover:bg-muted rounded transition-colors"
+                  aria-label={isPinned ? 'Unpin task' : 'Pin task'}
+                >
+                  {isPinned ? (
+                    <Pin className="h-4 w-4 text-amber-500 fill-amber-500" />
+                  ) : (
+                    <Pin className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+              </div>
+            </div>
           </TableCell>
         </TableRow>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[625px] max-h-[90vh] flex flex-col">
+      <DialogContent
+        onEscapeKeyDown={(e) => {
+          if (isEditingAny) {
+            e.preventDefault();
+            stopEditing();
+            return;
+          }
+        }}
+        tabIndex={0}
+        onKeyDown={handleDialogKeyDown}
+        className="sm:max-w-[625px] max-h-[90vh] flex flex-col"
+      >
         <DialogHeader>
           <DialogTitle>
             <span className="ml-0 mb-0 mr-0 text-2xl mt-0 md:text-2xl font-bold">
@@ -203,13 +333,30 @@ export const TaskDialog = ({
                     )}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'description' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Description:</TableCell>
                   <TableCell>
                     {editState.isEditing ? (
                       <>
                         <div className="flex items-center">
                           <Input
+                            aria-label="description"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                saveAndExit(() => {
+                                  onSaveDescription(
+                                    task,
+                                    editState.editedDescription
+                                  );
+                                });
+                              }
+                            }}
+                            ref={(element) =>
+                              (inputRefs.current.description = element)
+                            }
                             id={`description-${task.id}`}
                             name={`description-${task.id}`}
                             type="text"
@@ -249,6 +396,9 @@ export const TaskDialog = ({
                       <>
                         <span>{task.description}</span>
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.description = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -260,12 +410,15 @@ export const TaskDialog = ({
                     )}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'due' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Due:</TableCell>
                   <TableCell>
                     {editState.isEditingDueDate ? (
                       <div className="flex items-center gap-2">
                         <DateTimePicker
+                          ref={(element) => (inputRefs.current.due = element)}
                           date={
                             editState.editedDueDate &&
                             editState.editedDueDate !== ''
@@ -325,6 +478,9 @@ export const TaskDialog = ({
                       <>
                         <span>{formattedDate(task.due)}</span>
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.due = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -341,12 +497,17 @@ export const TaskDialog = ({
                     )}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'start' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Start:</TableCell>
                   <TableCell>
                     {editState.isEditingStartDate ? (
                       <div className="flex items-center gap-2">
                         <DateTimePicker
+                          ref={(element: HTMLButtonElement | null) =>
+                            (inputRefs.current.start = element)
+                          }
                           date={
                             editState.editedStartDate &&
                             editState.editedStartDate !== ''
@@ -410,6 +571,9 @@ export const TaskDialog = ({
                       <>
                         <span>{formattedDate(task.start)}</span>
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.start = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -426,12 +590,15 @@ export const TaskDialog = ({
                     )}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'end' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>End:</TableCell>
                   <TableCell>
                     {editState.isEditingEndDate ? (
                       <div className="flex items-center gap-2">
                         <DateTimePicker
+                          ref={(element) => (inputRefs.current.end = element)}
                           date={
                             editState.editedEndDate &&
                             editState.editedEndDate !== ''
@@ -491,6 +658,9 @@ export const TaskDialog = ({
                       <div className="flex items-center">
                         <span>{formattedDate(task.end)}</span>
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.end = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -507,12 +677,15 @@ export const TaskDialog = ({
                     )}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'wait' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Wait:</TableCell>
                   <TableCell>
                     {editState.isEditingWaitDate ? (
                       <div className="flex items-center gap-2">
                         <DateTimePicker
+                          ref={(element) => (inputRefs.current.wait = element)}
                           date={
                             editState.editedWaitDate &&
                             editState.editedWaitDate !== ''
@@ -575,6 +748,9 @@ export const TaskDialog = ({
                       <>
                         <span>{formattedDate(task.wait)}</span>
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.wait = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -591,7 +767,9 @@ export const TaskDialog = ({
                     )}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'depends' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Depends:</TableCell>
                   <TableCell>
                     {!editState.isEditingDepends ? (
@@ -623,6 +801,9 @@ export const TaskDialog = ({
                           );
                         })}
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.depends = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -630,6 +811,14 @@ export const TaskDialog = ({
                             onUpdateState({
                               isEditingDepends: true,
                               editedDepends: task.depends || [],
+                            });
+
+                            setTimeout(() => {
+                              onUpdateState({ dependsDropdownOpen: true });
+                            }, 0);
+
+                            requestAnimationFrame(() => {
+                              inputRefs.current.depends?.focus();
                             });
                           }}
                         >
@@ -670,12 +859,14 @@ export const TaskDialog = ({
                         <div className="flex items-center gap-2">
                           <div className="relative flex-1">
                             <Button
+                              ref={(element) => {
+                                editButtonRef.current.depends = element;
+                              }}
                               variant="outline"
                               size="sm"
                               onClick={() =>
                                 onUpdateState({
-                                  dependsDropdownOpen:
-                                    !editState.dependsDropdownOpen,
+                                  dependsDropdownOpen: true,
                                 })
                               }
                               className="w-full justify-start"
@@ -689,6 +880,9 @@ export const TaskDialog = ({
                                 className="absolute left-0 top-full mt-1 z-50 w-full bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto"
                               >
                                 <Input
+                                  ref={(element) =>
+                                    (inputRefs.current.depends = element)
+                                  }
                                   type="text"
                                   placeholder="Search tasks..."
                                   value={editState.dependsSearchTerm}
@@ -725,6 +919,24 @@ export const TaskDialog = ({
                                           ],
                                           dependsSearchTerm: '',
                                         });
+                                      }}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                          e.preventDefault();
+                                          onUpdateState({
+                                            editedDepends:
+                                              editState.editedDepends.includes(
+                                                t.uuid
+                                              )
+                                                ? editState.editedDepends.filter(
+                                                    (id) => id !== t.uuid
+                                                  )
+                                                : [
+                                                    ...editState.editedDepends,
+                                                    t.uuid,
+                                                  ],
+                                          });
+                                        }
                                       }}
                                     >
                                       <input
@@ -775,7 +987,9 @@ export const TaskDialog = ({
                     )}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'priority' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Priority:</TableCell>
                   <TableCell>
                     {editState.isEditingPriority ? (
@@ -837,15 +1051,18 @@ export const TaskDialog = ({
                             : 'None'}
                         </span>
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.priority = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
-                          onClick={() =>
+                          onClick={() => {
                             onUpdateState({
                               editedPriority: task.priority || 'NONE',
                               isEditingPriority: true,
-                            })
-                          }
+                            });
+                          }}
                         >
                           <PencilIcon className="h-4 w-4 text-gray-500" />
                         </Button>
@@ -853,7 +1070,9 @@ export const TaskDialog = ({
                     )}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'project' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Project:</TableCell>
                   <TableCell>
                     {editState.isEditingProject ? (
@@ -917,6 +1136,9 @@ export const TaskDialog = ({
                           {isCreatingNewProject && (
                             <div className="flex gap-4 justify-center items-center">
                               <Input
+                                ref={(element) => {
+                                  inputRefs.current.project = element;
+                                }}
                                 id="project-name"
                                 placeholder="New project name"
                                 value={editState.editedProject}
@@ -964,6 +1186,9 @@ export const TaskDialog = ({
                       <>
                         <span>{task.project}</span>
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.project = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -984,106 +1209,31 @@ export const TaskDialog = ({
                   <TableCell>Status:</TableCell>
                   <TableCell>{task.status}</TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'tags' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Tags:</TableCell>
                   <TableCell>
                     {editState.isEditingTags ? (
-                      <div>
-                        <div className="flex items-center w-full">
-                          <Input
-                            type="text"
-                            value={editState.editTagInput}
-                            onChange={(e) => {
-                              // For allowing only alphanumeric characters
-                              if (e.target.value.length > 1) {
-                                /^[a-zA-Z0-9]*$/.test(e.target.value.trim())
-                                  ? onUpdateState({
-                                      editTagInput: e.target.value.trim(),
-                                    })
-                                  : '';
-                              } else {
-                                /^[a-zA-Z]*$/.test(e.target.value.trim())
-                                  ? onUpdateState({
-                                      editTagInput: e.target.value.trim(),
-                                    })
-                                  : '';
-                              }
-                            }}
-                            placeholder="Add a tag (press enter to add)"
-                            className="flex-grow mr-2"
-                            onKeyDown={(e) => {
-                              if (
-                                e.key === 'Enter' &&
-                                editState.editTagInput.trim()
-                              ) {
-                                onUpdateState({
-                                  editedTags: [
-                                    ...editState.editedTags,
-                                    editState.editTagInput.trim(),
-                                  ],
-                                  editTagInput: '',
-                                });
-                              }
-                            }}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="Save tags"
-                            onClick={() => {
-                              onSaveTags(task, editState.editedTags);
-                              onUpdateState({
-                                isEditingTags: false,
-                                editTagInput: '',
-                              });
-                            }}
-                          >
-                            <CheckIcon className="h-4 w-4 text-green-500" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="Cancel editing tags"
-                            onClick={() => {
-                              onUpdateState({
-                                isEditingTags: false,
-                                editedTags: task.tags || [],
-                                editTagInput: '',
-                              });
-                            }}
-                          >
-                            <XIcon className="h-4 w-4 text-red-500" />
-                          </Button>
-                        </div>
-                        <div className="mt-2">
-                          {editState.editedTags != null &&
-                            editState.editedTags.length > 0 && (
-                              <div>
-                                <div className="flex flex-wrap gap-2 col-span-3">
-                                  {editState.editedTags.map((tag, index) => (
-                                    <Badge key={index}>
-                                      <span>{tag}</span>
-                                      <button
-                                        type="button"
-                                        className="ml-2 text-red-500"
-                                        onClick={() =>
-                                          onUpdateState({
-                                            editedTags:
-                                              editState.editedTags.filter(
-                                                (t) => t !== tag
-                                              ),
-                                          })
-                                        }
-                                      >
-                                        ✖
-                                      </button>
-                                    </Badge>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                        </div>
-                      </div>
+                      <MultiSelect
+                        availableItems={uniqueTags}
+                        selectedItems={editState.editedTags}
+                        onItemsChange={(tags) =>
+                          onUpdateState({ editedTags: tags })
+                        }
+                        placeholder="Select or create tags"
+                        showActions={true}
+                        onSave={() => {
+                          onSaveTags(task, editState.editedTags);
+                          onUpdateState({ isEditingTags: false });
+                        }}
+                        onCancel={() =>
+                          onUpdateState({
+                            isEditingTags: false,
+                            editedTags: task.tags || [],
+                          })
+                        }
+                      />
                     ) : (
                       <div className="flex items-center flex-wrap">
                         {task.tags !== null && task.tags.length >= 1 ? (
@@ -1101,6 +1251,9 @@ export const TaskDialog = ({
                           <span>No Tags</span>
                         )}
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.tags = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -1118,12 +1271,15 @@ export const TaskDialog = ({
                     )}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'entry' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Entry:</TableCell>
                   <TableCell>
                     {editState.isEditingEntryDate ? (
                       <div className="flex items-center gap-2">
                         <DateTimePicker
+                          ref={(element) => (inputRefs.current.entry = element)}
                           date={
                             editState.editedEntryDate &&
                             editState.editedEntryDate !== ''
@@ -1187,6 +1343,9 @@ export const TaskDialog = ({
                       <>
                         <span>{formattedDate(task.entry)}</span>
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.entry = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -1203,7 +1362,9 @@ export const TaskDialog = ({
                     )}
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'recur' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Recur:</TableCell>
                   <TableCell>
                     {editState.isEditingRecur ? (
@@ -1280,6 +1441,9 @@ export const TaskDialog = ({
                       <div className="flex items-center">
                         <span>{task.recur || 'None'}</span>
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.recur = element)
+                          }
                           variant="ghost"
                           size="icon"
                           aria-label="edit"
@@ -1326,13 +1490,18 @@ export const TaskDialog = ({
                     </CopyToClipboard>
                   </TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow
+                  className={`${focusedField === 'annotations' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
+                >
                   <TableCell>Annotations:</TableCell>
                   <TableCell>
                     {editState.isEditingAnnotations ? (
                       <div>
                         <div className="flex items-center w-full">
                           <Input
+                            ref={(element) =>
+                              (inputRefs.current.annotations = element)
+                            }
                             type="text"
                             value={editState.annotationInput}
                             onChange={(e) => {
@@ -1440,8 +1609,12 @@ export const TaskDialog = ({
                           <span>No Annotations</span>
                         )}
                         <Button
+                          ref={(element) =>
+                            (editButtonRef.current.annotations = element)
+                          }
                           variant="ghost"
                           size="icon"
+                          aria-label="edit"
                           onClick={() =>
                             onUpdateState({
                               isEditingAnnotations: true,
@@ -1462,6 +1635,24 @@ export const TaskDialog = ({
         </div>
 
         <DialogFooter className="flex flex-row justify-end pt-4">
+          <Button
+            variant="outline"
+            onClick={() => onTogglePin(task.uuid)}
+            className="mr-auto"
+            aria-label={isPinned ? 'Unpin task' : 'Pin task'}
+          >
+            {isPinned ? (
+              <>
+                <PinOff className="h-4 w-4 mr-1" />
+                Unpin
+              </>
+            ) : (
+              <>
+                <Pin className="h-4 w-4 mr-1" />
+                Pin
+              </>
+            )}
+          </Button>
           {task.status == 'pending' ? (
             <Dialog>
               <DialogTrigger asChild className="mr-5">
@@ -1469,7 +1660,7 @@ export const TaskDialog = ({
                   id={`mark-task-complete-${task.id}`}
                   aria-label="complete task"
                 >
-                  Mark As Completed <Key lable="c" />
+                  Mark As Completed <Key label="c" />
                 </Button>
               </DialogTrigger>
               <DialogContent>
@@ -1511,7 +1702,7 @@ export const TaskDialog = ({
                   aria-label="delete task"
                 >
                   <Trash2Icon />
-                  <Key lable="d" />
+                  <Key label="d" />
                 </Button>
               </DialogTrigger>
               <DialogContent>

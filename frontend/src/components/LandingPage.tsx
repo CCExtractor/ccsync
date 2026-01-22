@@ -10,7 +10,7 @@ import '../App.css';
 
 export const LandingPage = () => {
   return (
-    <>
+    <div className="overflow-x-hidden">
       <Navbar />
       <Hero />
       <About />
@@ -19,6 +19,6 @@ export const LandingPage = () => {
       <FAQ />
       <Footer />
       <ScrollToTop />
-    </>
+    </div>
   );
 };

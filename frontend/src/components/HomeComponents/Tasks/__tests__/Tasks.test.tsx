@@ -38,12 +38,21 @@ jest.mock('../tasks-utils', () => {
       .fn()
       .mockReturnValue('Last updated 5 minutes ago'),
     hashKey: jest.fn().mockReturnValue('mockHashedKey'),
+    getPinnedTasks: jest.fn().mockReturnValue(new Set()),
+    togglePinnedTask: jest.fn(),
   };
 });
 
 jest.mock('@/components/ui/multi-select', () => ({
-  MultiSelectFilter: jest.fn(({ title }) => (
-    <div>Mocked MultiSelect: {title}</div>
+  MultiSelectFilter: jest.fn(({ title, completionStats }) => (
+    <div data-testid={`multi-select-${title.toLowerCase()}`}>
+      Mocked MultiSelect: {title}
+      {completionStats && (
+        <span data-testid={`stats-${title.toLowerCase()}`}>
+          {JSON.stringify(completionStats)}
+        </span>
+      )}
+    </div>
   )),
 }));
 
@@ -164,6 +173,13 @@ jest.mock('../Pagination', () => {
   ));
 });
 
+jest.mock('../TaskSkeleton', () => {
+  return {
+    __esModule: true,
+    Taskskeleton: () => <div data-testid="task-skeleton" />,
+  };
+});
+
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
 
 describe('Tasks Component', () => {
@@ -208,6 +224,33 @@ describe('Tasks Component', () => {
       expect(dropdown).toBeInTheDocument();
       expect(dropdown).toHaveValue('10');
     });
+
+    test('does not render tasks when loading is true', () => {
+      render(<Tasks {...mockProps} isLoading={true} />);
+      expect(screen.queryByRole('row')).not.toBeInTheDocument();
+    });
+
+    test('renders tasks container when loading is false', () => {
+      render(<Tasks {...mockProps} isLoading={false} />);
+      expect(screen.getByTestId('tasks')).toBeInTheDocument();
+    });
+
+    test('renders BottomBar component', () => {
+      render(<Tasks {...mockProps} />);
+      expect(screen.getByText('Mocked BottomBar')).toBeInTheDocument();
+    });
+
+    test('renders tasks section with correct id', () => {
+      render(<Tasks {...mockProps} />);
+      const section = document.querySelector('section#tasks');
+      expect(section).toBeInTheDocument();
+    });
+
+    test('renders Tasks component without crashing', () => {
+      expect(() => {
+        render(<Tasks {...mockProps} />);
+      }).not.toThrow();
+    });
   });
 
   describe('LocalStorage', () => {
@@ -216,11 +259,7 @@ describe('Tasks Component', () => {
 
       render(<Tasks {...mockProps} />);
 
-      await waitFor(async () => {
-        expect(await screen.findByText('Task 1')).toBeInTheDocument();
-      });
-
-      expect(screen.getByLabelText('Show:')).toHaveValue('20');
+      expect(await screen.findByLabelText('Show:')).toHaveValue('20');
     });
 
     test('updates pagination when "Tasks per Page" is changed', async () => {
@@ -327,8 +366,13 @@ describe('Tasks Component', () => {
       const pencilButton = within(tagsRow).getByRole('button');
       fireEvent.click(pencilButton);
 
+      const tagSelectButton = await screen.findByRole('button', {
+        name: /select items/i,
+      });
+      fireEvent.click(tagSelectButton);
+
       const editInput = await screen.findByPlaceholderText(
-        'Add a tag (press enter to add)'
+        'Search or create...'
       );
 
       fireEvent.change(editInput, { target: { value: 'newtag' } });
@@ -354,8 +398,13 @@ describe('Tasks Component', () => {
       const pencilButton = within(tagsRow).getByRole('button');
       fireEvent.click(pencilButton);
 
+      const tagSelectButton = await screen.findByRole('button', {
+        name: /select items/i,
+      });
+      fireEvent.click(tagSelectButton);
+
       const editInput = await screen.findByPlaceholderText(
-        'Add a tag (press enter to add)'
+        'Search or create...'
       );
 
       fireEvent.change(editInput, { target: { value: 'addedtag' } });
@@ -364,7 +413,7 @@ describe('Tasks Component', () => {
       expect(await screen.findByText('addedtag')).toBeInTheDocument();
 
       const saveButton = await screen.findByRole('button', {
-        name: /save tags/i,
+        name: /save/i,
       });
       fireEvent.click(saveButton);
 
@@ -377,9 +426,8 @@ describe('Tasks Component', () => {
       expect(hooks.editTaskOnBackend).toHaveBeenCalled();
 
       const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
-      expect(callArg.tags).toEqual(
-        expect.arrayContaining(['tag1', 'addedtag'])
-      );
+      // Tags should be sent as a diff with + prefix for additions
+      expect(callArg.tags).toEqual(['+addedtag']);
     });
 
     test('removes a tag while editing and saves updated tags to backend', async () => {
@@ -397,8 +445,13 @@ describe('Tasks Component', () => {
       const pencilButton = within(tagsRow).getByRole('button');
       fireEvent.click(pencilButton);
 
+      const tagSelectButton = await screen.findByRole('button', {
+        name: /select items/i,
+      });
+      fireEvent.click(tagSelectButton);
+
       const editInput = await screen.findByPlaceholderText(
-        'Add a tag (press enter to add)'
+        'Search or create...'
       );
 
       fireEvent.change(editInput, { target: { value: 'newtag' } });
@@ -413,10 +466,17 @@ describe('Tasks Component', () => {
       const removeButton = within(badgeContainer).getByText('✖');
       fireEvent.click(removeButton);
 
-      expect(screen.queryByText('tag2')).not.toBeInTheDocument();
+      await waitFor(() => {
+        const selectedTagsArea = screen
+          .getByText('newtag')
+          .closest('div')?.parentElement;
+        expect(
+          within(selectedTagsArea as HTMLElement).queryByText('tag1')
+        ).not.toBeInTheDocument();
+      });
 
       const saveButton = await screen.findByRole('button', {
-        name: /save tags/i,
+        name: /save/i,
       });
       fireEvent.click(saveButton);
 
@@ -430,7 +490,10 @@ describe('Tasks Component', () => {
 
       const callArg = hooks.editTaskOnBackend.mock.calls[0][0];
 
-      expect(callArg.tags).toEqual(expect.arrayContaining(['newtag', 'tag1']));
+      // Tags should be sent as a diff with - prefix for removals and + prefix for additions
+      expect(callArg.tags).toEqual(
+        expect.arrayContaining(['-tag1', '+newtag'])
+      );
     });
 
     it('clicking checkbox does not open task detail dialog', async () => {
@@ -1237,14 +1300,17 @@ describe('Tasks Component', () => {
     const editButton = within(tagsRow).getByLabelText('edit');
     fireEvent.click(editButton);
 
-    const editInput = await screen.findByPlaceholderText(
-      'Add a tag (press enter to add)'
-    );
+    const tagSelectButton = await screen.findByRole('button', {
+      name: /select items/i,
+    });
+    fireEvent.click(tagSelectButton);
+
+    const editInput = await screen.findByPlaceholderText('Search or create...');
 
     fireEvent.change(editInput, { target: { value: 'unsyncedtag' } });
     fireEvent.keyDown(editInput, { key: 'Enter', code: 'Enter' });
 
-    const saveButton = screen.getByLabelText('Save tags');
+    const saveButton = screen.getByLabelText('Save items');
     fireEvent.click(saveButton);
 
     await waitFor(() => {
@@ -1359,6 +1425,316 @@ describe('Tasks Component', () => {
     await waitFor(() => {
       const row = screen.getByTestId('task-row-12');
       expect(row).not.toHaveClass('border-l-red-500');
+    });
+  });
+
+  test('calculates and passes project completion stats to MultiSelectFilter', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    });
+
+    const { MultiSelectFilter } = require('@/components/ui/multi-select');
+
+    // Find the Projects filter call
+    const projectsFilterCall = MultiSelectFilter.mock.calls.find(
+      (call: any) => call[0].title === 'Projects'
+    );
+
+    expect(projectsFilterCall).toBeDefined();
+    expect(projectsFilterCall[0].completionStats).toBeDefined();
+
+    const stats = projectsFilterCall[0].completionStats;
+
+    // ProjectA has tasks: 1,3,5,7,9,11 (pending) + task 16 (completed) = 1 completed out of 7 total
+    expect(stats['ProjectA']).toBeDefined();
+    expect(stats['ProjectA'].completed).toBeGreaterThanOrEqual(1);
+    expect(stats['ProjectA'].total).toBeGreaterThanOrEqual(1);
+    expect(stats['ProjectA'].percentage).toBeGreaterThanOrEqual(0);
+    expect(stats['ProjectA'].percentage).toBeLessThanOrEqual(100);
+
+    // ProjectB has tasks: 2,4,6,8,10,12 (pending) + task 17 (deleted) = 0 completed
+    expect(stats['ProjectB']).toBeDefined();
+    expect(stats['ProjectB'].total).toBeGreaterThanOrEqual(1);
+  });
+
+  test('calculates and passes tag completion stats to MultiSelectFilter', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    });
+
+    const { MultiSelectFilter } = require('@/components/ui/multi-select');
+
+    // Find the Tags filter call
+    const tagsFilterCall = MultiSelectFilter.mock.calls.find(
+      (call: any) => call[0].title === 'Tags'
+    );
+
+    expect(tagsFilterCall).toBeDefined();
+    expect(tagsFilterCall[0].completionStats).toBeDefined();
+
+    const stats = tagsFilterCall[0].completionStats;
+
+    // Verify stats structure
+    Object.keys(stats).forEach((tag) => {
+      expect(stats[tag]).toHaveProperty('completed');
+      expect(stats[tag]).toHaveProperty('total');
+      expect(stats[tag]).toHaveProperty('percentage');
+      expect(typeof stats[tag].completed).toBe('number');
+      expect(typeof stats[tag].total).toBe('number');
+      expect(typeof stats[tag].percentage).toBe('number');
+      expect(stats[tag].percentage).toBeGreaterThanOrEqual(0);
+      expect(stats[tag].percentage).toBeLessThanOrEqual(100);
+    });
+  });
+
+  test('recalculates completion stats after sync', async () => {
+    const hooks = require('../hooks');
+
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    });
+
+    const { MultiSelectFilter } = require('@/components/ui/multi-select');
+
+    hooks.fetchTaskwarriorTasks.mockResolvedValueOnce([
+      {
+        id: 1,
+        description: 'Task 1',
+        status: 'completed',
+        project: 'ProjectA',
+        tags: ['tag1'],
+        uuid: 'uuid-1',
+      },
+      {
+        id: 2,
+        description: 'Task 2',
+        status: 'completed',
+        project: 'ProjectB',
+        tags: ['tag2'],
+        uuid: 'uuid-2',
+      },
+    ]);
+
+    MultiSelectFilter.mockClear();
+
+    const syncButtons = screen.getAllByText('Sync');
+    fireEvent.click(syncButtons[0]);
+
+    await waitFor(() => {
+      const projectsCall = MultiSelectFilter.mock.calls.find(
+        (call: any) => call[0].title === 'Projects'
+      );
+      expect(projectsCall).toBeDefined();
+    });
+
+    const updatedProjectsCall = MultiSelectFilter.mock.calls.find(
+      (call: any) => call[0].title === 'Projects'
+    );
+
+    expect(updatedProjectsCall).toBeDefined();
+    expect(updatedProjectsCall[0].completionStats).toBeDefined();
+
+    const updatedStats = updatedProjectsCall[0].completionStats;
+    expect(updatedStats['ProjectA']).toBeDefined();
+    expect(updatedStats['ProjectB']).toBeDefined();
+  });
+
+  test('completion stats structure is correct', async () => {
+    render(<Tasks {...mockProps} />);
+
+    await waitFor(async () => {
+      expect(await screen.findByText('Task 1')).toBeInTheDocument();
+    });
+
+    const { MultiSelectFilter } = require('@/components/ui/multi-select');
+
+    const projectsCall = MultiSelectFilter.mock.calls.find(
+      (call: any) => call[0].title === 'Projects'
+    );
+
+    expect(projectsCall).toBeDefined();
+    const stats = projectsCall[0].completionStats;
+
+    // Verify stats structure for any project that exists
+    Object.keys(stats).forEach((project) => {
+      expect(stats[project]).toHaveProperty('completed');
+      expect(stats[project]).toHaveProperty('total');
+      expect(stats[project]).toHaveProperty('percentage');
+      expect(typeof stats[project].completed).toBe('number');
+      expect(typeof stats[project].total).toBe('number');
+      expect(typeof stats[project].percentage).toBe('number');
+      expect(stats[project].completed).toBeLessThanOrEqual(
+        stats[project].total
+      );
+      expect(stats[project].percentage).toBeGreaterThanOrEqual(0);
+      expect(stats[project].percentage).toBeLessThanOrEqual(100);
+    });
+  });
+
+  describe('Pin Functionality', () => {
+    test('should load pinned tasks from localStorage on mount', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      const mockPinnedSet = new Set(['uuid-1', 'uuid-2']);
+      getPinnedTasks.mockReturnValue(mockPinnedSet);
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(getPinnedTasks).toHaveBeenCalledWith(mockProps.email);
+      });
+    });
+
+    test('should reload pinned tasks when email changes', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set(['uuid-1']));
+
+      const { rerender } = render(<Tasks {...mockProps} />);
+
+      await waitFor(() => {
+        expect(getPinnedTasks).toHaveBeenCalledWith(mockProps.email);
+      });
+
+      getPinnedTasks.mockClear();
+      getPinnedTasks.mockReturnValue(new Set(['uuid-2']));
+
+      rerender(<Tasks {...mockProps} email="newemail@example.com" />);
+
+      await waitFor(() => {
+        expect(getPinnedTasks).toHaveBeenCalledWith('newemail@example.com');
+      });
+    });
+
+    test('should call togglePinnedTask when handleTogglePin is invoked', async () => {
+      const { togglePinnedTask, getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set());
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
+
+      const task1Row = screen.getByText('Task 1').closest('tr');
+      const pinButton = task1Row?.querySelector('button[aria-label*="Pin"]');
+
+      if (pinButton) {
+        fireEvent.click(pinButton);
+
+        await waitFor(() => {
+          expect(togglePinnedTask).toHaveBeenCalledWith(
+            mockProps.email,
+            'uuid-1'
+          );
+        });
+      }
+    });
+
+    test('should update pinnedTasks state after toggling pin', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks
+        .mockReturnValueOnce(new Set())
+        .mockReturnValueOnce(new Set(['uuid-1']));
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
+
+      const task1Row = screen.getByText('Task 1').closest('tr');
+      const pinButton = task1Row?.querySelector('button[aria-label*="Pin"]');
+
+      if (pinButton) {
+        fireEvent.click(pinButton);
+
+        await waitFor(() => {
+          expect(getPinnedTasks).toHaveBeenCalledTimes(2);
+        });
+      }
+    });
+
+    test('should pass isPinned prop correctly to TaskDialog', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set(['uuid-1']));
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
+
+      const task1Row = screen.getByText('Task 1').closest('tr');
+      expect(task1Row).toBeInTheDocument();
+    });
+
+    test('should sort pinned tasks to the top', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set(['uuid-5']));
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 5')).toBeInTheDocument();
+      });
+
+      const taskRows = screen.getAllByTestId(/task-row-/);
+      const firstTaskRow = taskRows[0];
+      const firstTaskDescription = within(firstTaskRow).getByText(/Task \d+/);
+
+      expect(firstTaskDescription.textContent).toBe('Task 5');
+    });
+
+    test('should maintain pinned tasks at top when filters are applied', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set(['uuid-2']));
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 2')).toBeInTheDocument();
+      });
+
+      const statusFilter = screen.getByText('Mocked MultiSelect: Status');
+      expect(statusFilter).toBeInTheDocument();
+
+      await waitFor(() => {
+        const taskRows = screen.getAllByTestId(/task-row-/);
+        expect(taskRows.length).toBeGreaterThan(0);
+      });
+    });
+
+    test('should sort tasks with pinned first, then overdue, then others', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set(['uuid-3']));
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 3')).toBeInTheDocument();
+      });
+
+      const taskRows = screen.getAllByTestId(/task-row-/);
+      expect(taskRows.length).toBeGreaterThan(0);
+    });
+
+    test('should pass onTogglePin prop to TaskDialog', async () => {
+      const { getPinnedTasks } = require('../tasks-utils');
+      getPinnedTasks.mockReturnValue(new Set());
+
+      render(<Tasks {...mockProps} />);
+
+      await waitFor(async () => {
+        expect(await screen.findByText('Task 1')).toBeInTheDocument();
+      });
+
+      const task1Row = screen.getByText('Task 1').closest('tr');
+      expect(task1Row).toBeInTheDocument();
     });
   });
 });

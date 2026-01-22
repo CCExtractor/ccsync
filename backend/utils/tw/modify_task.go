@@ -11,7 +11,7 @@ func ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, 
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
-	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	tempDir, err := os.MkdirTemp("", utils.SafeTempDirPrefix("taskwarrior-", email))
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
 	}

@@ -19,12 +19,13 @@ interface DateTimePickerProps {
   className?: string;
 }
 
-export function DateTimePicker({
-  date,
-  onDateTimeChange,
-  placeholder = 'Pick a date',
-  className,
-}: DateTimePickerProps) {
+export const DateTimePicker = React.forwardRef<
+  HTMLButtonElement,
+  DateTimePickerProps
+>(function DatePicker(
+  { date, onDateTimeChange, placeholder = 'Pick a date', className },
+  ref
+) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [internalDate, setInternalDate] = React.useState<Date | undefined>(
     date
@@ -125,6 +126,8 @@ export function DateTimePicker({
     <Popover open={isOpen} onOpenChange={setIsOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
+          aria-label="calender-button"
+          ref={ref}
           variant="outline"
           className={cn(
             'w-full justify-start text-left font-normal',
@@ -223,4 +226,4 @@ export function DateTimePicker({
       </PopoverContent>
     </Popover>
   );
-}
+});

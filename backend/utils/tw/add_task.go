@@ -3,26 +3,24 @@ package tw
 import (
 	"ccsync_backend/models"
 	"ccsync_backend/utils"
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 )
 
-// add task to the user's tw client
-func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, priority, dueDate, start, entryDate string, waitDate string, end, recur string, tags []string, annotations []models.Annotation, depends []string) error {
+func AddTaskToTaskwarrior(req models.AddTaskRequestBody, dueDate string) error {
 	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
 		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
 	}
 
-	tempDir, err := os.MkdirTemp("", "taskwarrior-"+email)
+	tempDir, err := os.MkdirTemp("", utils.SafeTempDirPrefix("taskwarrior-", req.Email))
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
 	}
 	defer os.RemoveAll(tempDir)
 
 	origin := os.Getenv("CONTAINER_ORIGIN")
-	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
+	if err := SetTaskwarriorConfig(tempDir, req.EncryptionSecret, origin, req.UUID); err != nil {
 		return err
 	}
 
@@ -30,43 +28,47 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 		return err
 	}
 
-	cmdArgs := []string{"add", description}
-	if project != "" {
-		cmdArgs = append(cmdArgs, "project:"+project)
+	cmdArgs := []string{"add", req.Description}
+	if req.Project != "" {
+		cmdArgs = append(cmdArgs, "project:"+req.Project)
 	}
-	if priority != "" {
-		cmdArgs = append(cmdArgs, "priority:"+priority)
+	if req.Priority != "" {
+		cmdArgs = append(cmdArgs, "priority:"+req.Priority)
 	}
 	if dueDate != "" {
 		cmdArgs = append(cmdArgs, "due:"+dueDate)
 	}
-	if start != "" {
+	if req.Start != "" {
+		start, err := utils.ConvertISOToTaskwarriorFormat(req.Start)
+		if err != nil {
+			return fmt.Errorf("unexpected date format error: %v", err)
+		}
 		cmdArgs = append(cmdArgs, "start:"+start)
 	}
-	// Add dependencies to the task
-	if len(depends) > 0 {
-		dependsStr := strings.Join(depends, ",")
+	if len(req.Depends) > 0 {
+		dependsStr := strings.Join(req.Depends, ",")
 		cmdArgs = append(cmdArgs, "depends:"+dependsStr)
 	}
-	if entryDate != "" {
-		cmdArgs = append(cmdArgs, "entry:"+entryDate)
+	if req.EntryDate != "" {
+		entry, err := utils.ConvertISOToTaskwarriorFormat(req.EntryDate)
+		if err != nil {
+			return fmt.Errorf("unexpected date format error: %v", err)
+		}
+		cmdArgs = append(cmdArgs, "entry:"+entry)
 	}
-	if waitDate != "" {
-		cmdArgs = append(cmdArgs, "wait:"+waitDate)
+	if req.WaitDate != "" {
+		wait, err := utils.ConvertISOToTaskwarriorFormat(req.WaitDate)
+		if err != nil {
+			return fmt.Errorf("unexpected date format error: %v", err)
+		}
+		cmdArgs = append(cmdArgs, "wait:"+wait)
 	}
-	if end != "" {
-		cmdArgs = append(cmdArgs, "end:"+end)
+	if req.Recur != "" && dueDate != "" {
+		cmdArgs = append(cmdArgs, "recur:"+req.Recur)
 	}
-	// Note: Taskwarrior requires a due date to be set before recur can be set
-	// Only add recur if dueDate is also provided
-	if recur != "" && dueDate != "" {
-		cmdArgs = append(cmdArgs, "recur:"+recur)
-	}
-	// Add tags to the task
-	if len(tags) > 0 {
-		for _, tag := range tags {
+	if len(req.Tags) > 0 {
+		for _, tag := range req.Tags {
 			if tag != "" {
-				// Ensure tag doesn't contain spaces
 				cleanTag := strings.ReplaceAll(tag, " ", "_")
 				cmdArgs = append(cmdArgs, "+"+cleanTag)
 			}
@@ -77,25 +79,29 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 		return fmt.Errorf("failed to add task: %v\n %v", err, cmdArgs)
 	}
 
-	if len(annotations) > 0 {
-		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", "export")
+	var taskID string
+	if req.End != "" || len(req.Annotations) > 0 {
+		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", "+LATEST", "_ids")
 		if err != nil {
-			return fmt.Errorf("failed to export tasks: %v", err)
+			return fmt.Errorf("failed to get latest task Id: %v", err)
 		}
 
-		var tasks []models.Task
-		if err := json.Unmarshal(output, &tasks); err != nil {
-			return fmt.Errorf("failed to parse exported tasks: %v", err)
+		taskID = strings.TrimSpace(string(output))
+	}
+
+	if req.End != "" {
+		end, err := utils.ConvertISOToTaskwarriorFormat(req.End)
+		if err != nil {
+			return fmt.Errorf("unexpected end date format error: %v", err)
 		}
-
-		if len(tasks) == 0 {
-			return fmt.Errorf("no tasks found after creation")
+		doneArgs := []string{"rc.confirmation=off", taskID, "done", "end:" + end}
+		if err := utils.ExecCommandInDir(tempDir, "task", doneArgs...); err != nil {
+			return fmt.Errorf("failed to complete task with end date: %v", err)
 		}
+	}
 
-		lastTask := tasks[len(tasks)-1]
-		taskID := fmt.Sprintf("%d", lastTask.ID)
-
-		for _, annotation := range annotations {
+	if len(req.Annotations) > 0 {
+		for _, annotation := range req.Annotations {
 			if annotation.Description != "" {
 				annotateArgs := []string{"rc.confirmation=off", taskID, "annotate", annotation.Description}
 				if err := utils.ExecCommandInDir(tempDir, "task", annotateArgs...); err != nil {
@@ -105,7 +111,6 @@ func AddTaskToTaskwarrior(email, encryptionSecret, uuid, description, project, p
 		}
 	}
 
-	// Sync Taskwarrior again
 	if err := SyncTaskwarrior(tempDir); err != nil {
 		return err
 	}

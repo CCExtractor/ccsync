@@ -74,8 +74,8 @@ export const SetupGuide = (props: Props) => {
                     commands one block at a time
                   </div>
                   <CopyableCode
-                    text={`task config sync.server.origin ${url.containerOrigin}`}
-                    copyText={`task config sync.server.origin ${url.containerOrigin}`}
+                    text={`task config sync.server.url ${url.containerOrigin}`}
+                    copyText={`task config sync.server.url ${url.containerOrigin}`}
                   />
                   <CopyableCode
                     text={`task config sync.server.client_id ${props.uuid}`}

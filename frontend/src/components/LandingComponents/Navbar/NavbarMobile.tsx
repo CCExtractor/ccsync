@@ -20,11 +20,12 @@ export const NavbarMobile = () => {
       <ModeToggle />
 
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger className="px-2">
-          <Menu
-            className="flex md:hidden h-5 w-5"
-            onClick={() => setIsOpen(true)}
-          >
+        <SheetTrigger
+          data-testid="menu-icon"
+          className="px-2"
+          onClick={() => setIsOpen(true)}
+        >
+          <Menu className="flex md:hidden h-5 w-5">
             <span className="sr-only">Menu Icon</span>
           </Menu>
         </SheetTrigger>
@@ -33,7 +34,10 @@ export const NavbarMobile = () => {
           <SheetHeader>
             <SheetTitle className="font-bold text-xl">CCSync</SheetTitle>
           </SheetHeader>
-          <nav className="flex flex-col justify-center items-center gap-2 mt-4">
+          <nav
+            data-testid="route-list"
+            className="flex flex-col justify-center items-center gap-2 mt-4"
+          >
             {routeList.map(({ href, label }) => (
               <a
                 rel="noreferrer noopener"

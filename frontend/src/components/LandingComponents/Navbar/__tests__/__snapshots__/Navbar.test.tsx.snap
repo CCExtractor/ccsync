@@ -259,6 +259,7 @@ exports[`Navbar component using snapshot renders correctly 1`] = `
               aria-haspopup="dialog"
               class="px-2"
               data-state="closed"
+              data-testid="menu-icon"
               type="button"
             >
               <svg

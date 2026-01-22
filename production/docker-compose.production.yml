@@ -1,0 +1,21 @@
+# Production override for docker-compose.yml
+# Use with: docker compose -f docker-compose.yml -f production/docker-compose.production.yml up -d
+#
+# This binds all ports to localhost only, so nginx handles external traffic.
+# Do NOT use this file for local development - use docker-compose.yml directly.
+#
+# Note: !override replaces the port arrays instead of merging them.
+# Requires Docker Compose v2.24.0+ (Compose Spec 2.1)
+
+services:
+  frontend:
+    ports: !override
+      - "127.0.0.1:3000:80"
+
+  backend:
+    ports: !override
+      - "127.0.0.1:8000:8000"
+
+  syncserver:
+    ports: !override
+      - "127.0.0.1:8081:8080"

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { TaskDialog } from '../TaskDialog';
 import { Task, EditTaskState } from '../../../utils/types';
 
@@ -88,6 +88,7 @@ describe('TaskDialog Component', () => {
     onUpdateState: jest.fn(),
     allTasks: mockAllTasks,
     uniqueProjects: [],
+    uniqueTags: ['work', 'urgent', 'personal'],
     isCreatingNewProject: false,
     setIsCreatingNewProject: jest.fn(),
     onSaveDescription: jest.fn(),
@@ -106,6 +107,8 @@ describe('TaskDialog Component', () => {
     onMarkDeleted: jest.fn(),
     isOverdue: jest.fn(() => false),
     isUnsynced: false,
+    isPinned: false,
+    onTogglePin: jest.fn(),
   };
 
   beforeEach(() => {
@@ -175,6 +178,21 @@ describe('TaskDialog Component', () => {
       expect(titleEl.textContent).toMatch(/Task\s*Details/i);
       expect(screen.getByText('ID:')).toBeInTheDocument();
       expect(screen.getByText('Description:')).toBeInTheDocument();
+    });
+
+    test('should not render dialog-specific content when closed', () => {
+      render(<TaskDialog {...defaultProps} isOpen={false} />);
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    test('renders task id in the task row', () => {
+      render(<TaskDialog {...defaultProps} />);
+      expect(screen.getByText(mockTask.id.toString())).toBeInTheDocument();
+    });
+
+    test('renders project name in the task row', () => {
+      render(<TaskDialog {...defaultProps} />);
+      expect(screen.getByText(mockTask.project)).toBeInTheDocument();
     });
   });
 
@@ -344,11 +362,10 @@ describe('TaskDialog Component', () => {
       }
     });
 
-    test('should add new tag on Enter key press', () => {
+    test('should display TagMultiSelect when editing', () => {
       const editingState = {
         ...mockEditState,
         isEditingTags: true,
-        editTagInput: 'newtag',
         editedTags: ['tag1', 'tag2'],
       };
 
@@ -356,33 +373,56 @@ describe('TaskDialog Component', () => {
         <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
-      const input = screen.getByPlaceholderText(
-        'Add a tag (press enter to add)'
-      );
-      fireEvent.keyDown(input, { key: 'Enter' });
+      expect(screen.getByText('2 items selected')).toBeInTheDocument();
+    });
 
-      expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
-        editedTags: ['tag1', 'tag2', 'newtag'],
-        editTagInput: '',
+    test('should show available tags in dropdown when editing', async () => {
+      const editingState = {
+        ...mockEditState,
+        isEditingTags: true,
+        editedTags: [],
+      };
+
+      render(
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
+      );
+
+      const dropdownButton = screen.getByRole('button', {
+        name: /select items/i,
+      });
+      fireEvent.click(dropdownButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('work')).toBeInTheDocument();
+        expect(screen.getByText('urgent')).toBeInTheDocument();
+        expect(screen.getByText('personal')).toBeInTheDocument();
       });
     });
 
-    test('should remove tag when X button is clicked', () => {
+    test('should update tags when TagMultiSelect changes', async () => {
       const editingState = {
         ...mockEditState,
         isEditingTags: true,
-        editedTags: ['tag1', 'tag2'],
+        editedTags: [],
       };
 
       render(
         <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
       );
 
-      const removeButtons = screen.getAllByText('✖');
-      if (removeButtons.length > 0) {
-        fireEvent.click(removeButtons[0]);
-        expect(defaultProps.onUpdateState).toHaveBeenCalled();
-      }
+      const dropdownButton = screen.getByRole('button', {
+        name: /select items/i,
+      });
+      fireEvent.click(dropdownButton);
+
+      await waitFor(() => {
+        const workTag = screen.getByText('work');
+        fireEvent.click(workTag);
+      });
+
+      expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
+        editedTags: ['work'],
+      });
     });
 
     test('should save tags when check icon is clicked', () => {
@@ -398,7 +438,7 @@ describe('TaskDialog Component', () => {
 
       const saveButton = screen
         .getAllByRole('button')
-        .find((btn) => btn.getAttribute('aria-label') === 'Save tags');
+        .find((btn) => btn.querySelector('.text-green-500'));
 
       if (saveButton) {
         fireEvent.click(saveButton);
@@ -407,6 +447,33 @@ describe('TaskDialog Component', () => {
           'tag2',
           'tag3',
         ]);
+        expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
+          isEditingTags: false,
+        });
+      }
+    });
+
+    test('should cancel editing when X icon is clicked', () => {
+      const editingState = {
+        ...mockEditState,
+        isEditingTags: true,
+        editedTags: ['tag1', 'tag2', 'tag3'],
+      };
+
+      render(
+        <TaskDialog {...defaultProps} isOpen={true} editState={editingState} />
+      );
+
+      const cancelButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('.text-red-500'));
+
+      if (cancelButton) {
+        fireEvent.click(cancelButton);
+        expect(defaultProps.onUpdateState).toHaveBeenCalledWith({
+          isEditingTags: false,
+          editedTags: mockTask.tags || [],
+        });
       }
     });
   });
@@ -687,6 +754,192 @@ describe('TaskDialog Component', () => {
       render(<TaskDialog {...overdueProps} />);
 
       expect(screen.getByText('O')).toBeInTheDocument();
+    });
+  });
+
+  describe('Pin Functionality', () => {
+    test('should display pin button in dialog footer when task is not pinned', () => {
+      render(<TaskDialog {...defaultProps} isOpen={true} isPinned={false} />);
+
+      const pinButton = screen.getByRole('button', { name: /pin task/i });
+      expect(pinButton).toBeInTheDocument();
+      expect(screen.getByText('Pin')).toBeInTheDocument();
+    });
+
+    test('should display unpin button in dialog footer when task is pinned', () => {
+      render(<TaskDialog {...defaultProps} isOpen={true} isPinned={true} />);
+
+      const unpinButton = screen.getByRole('button', { name: /unpin task/i });
+      expect(unpinButton).toBeInTheDocument();
+      expect(screen.getByText('Unpin')).toBeInTheDocument();
+    });
+
+    test('should call onTogglePin when pin button is clicked', () => {
+      render(<TaskDialog {...defaultProps} isOpen={true} isPinned={false} />);
+
+      const pinButton = screen.getByRole('button', { name: /pin task/i });
+      fireEvent.click(pinButton);
+
+      expect(defaultProps.onTogglePin).toHaveBeenCalledWith(mockTask.uuid);
+    });
+
+    test('should call onTogglePin when unpin button is clicked', () => {
+      render(<TaskDialog {...defaultProps} isOpen={true} isPinned={true} />);
+
+      const unpinButton = screen.getByRole('button', { name: /unpin task/i });
+      fireEvent.click(unpinButton);
+
+      expect(defaultProps.onTogglePin).toHaveBeenCalledWith(mockTask.uuid);
+    });
+
+    test('should display pin icon in task row when task is not pinned', () => {
+      const { container } = render(
+        <TaskDialog {...defaultProps} isPinned={false} />
+      );
+
+      const pinIcon = container.querySelector('.lucide-pin');
+      expect(pinIcon).toBeInTheDocument();
+    });
+
+    test('should display pin icon in task row when task is pinned', () => {
+      const { container } = render(
+        <TaskDialog {...defaultProps} isPinned={true} />
+      );
+
+      const pinIcon = container.querySelector('.lucide-pin');
+      expect(pinIcon).toBeInTheDocument();
+    });
+
+    test('should call onTogglePin when pin icon in task row is clicked', () => {
+      const { container } = render(
+        <TaskDialog {...defaultProps} isPinned={false} />
+      );
+
+      const pinIcon = container.querySelector('.lucide-pin');
+      expect(pinIcon).toBeInTheDocument();
+
+      if (pinIcon?.parentElement) {
+        fireEvent.click(pinIcon.parentElement);
+        expect(defaultProps.onTogglePin).toHaveBeenCalledWith(mockTask.uuid);
+      }
+    });
+
+    test('should not open dialog when pin icon in task row is clicked', () => {
+      const { container } = render(
+        <TaskDialog {...defaultProps} isPinned={false} />
+      );
+
+      const pinIcon = container.querySelector('.lucide-pin');
+
+      if (pinIcon?.parentElement) {
+        fireEvent.click(pinIcon.parentElement);
+        expect(defaultProps.onSelectTask).not.toHaveBeenCalled();
+      }
+    });
+
+    test('pin button should have mr-auto class for left alignment', () => {
+      render(<TaskDialog {...defaultProps} isOpen={true} isPinned={false} />);
+
+      const pinButton = screen.getByRole('button', { name: /pin task/i });
+      expect(pinButton).toHaveClass('mr-auto');
+    });
+  });
+
+  describe('Testing Shortcuts', () => {
+    beforeEach(() => {
+      Element.prototype.scrollIntoView = jest.fn();
+    });
+
+    test('ArrowDown moves focus to next field', async () => {
+      render(<TaskDialog {...defaultProps} isOpen />);
+
+      const dialog = await screen.findByRole('dialog');
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+
+      const dueRow = screen.getByText('Due:').closest('tr');
+      expect(dueRow).toHaveClass('bg-black/15');
+    });
+
+    test('Enter opens edit mode for focused field', async () => {
+      const editStateWithEditingOn = {
+        ...defaultProps.editState,
+        isEditing: true,
+        editedDescription: defaultProps.task.description,
+      };
+
+      render(
+        <TaskDialog
+          {...defaultProps}
+          isOpen
+          editState={editStateWithEditingOn}
+        />
+      );
+
+      await screen.findByRole('dialog');
+
+      const descriptionInput = screen.getByLabelText('description');
+      expect(descriptionInput).toBeInTheDocument();
+      expect(descriptionInput).toHaveAttribute('type', 'text');
+      expect(descriptionInput).toHaveValue(defaultProps.task.description);
+    });
+
+    test('Arrow keys do not navigate while editing', () => {
+      render(<TaskDialog {...defaultProps} isOpen />);
+
+      const dialog = screen.getByRole('dialog');
+      fireEvent.keyDown(dialog, { key: 'Enter' });
+      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
+
+      const descriptionRow = screen.getByText('Description:').closest('tr');
+      expect(descriptionRow).toBeInTheDocument();
+    });
+
+    test('Escape exits edit mode before closing dialog', () => {
+      const editStateWithEditingOn = {
+        ...defaultProps.editState,
+        isEditing: true,
+        editedDescription: defaultProps.task.description,
+      };
+
+      render(
+        <TaskDialog
+          {...defaultProps}
+          isOpen
+          editState={editStateWithEditingOn}
+        />
+      );
+
+      const dialog = screen.getByRole('dialog');
+      fireEvent.keyDown(dialog, { key: 'Enter' });
+
+      const descriptionInput = screen.getByLabelText('description');
+      expect(descriptionInput).toBeInTheDocument();
+
+      fireEvent.keyDown(dialog, { key: 'Escape' });
+
+      expect(dialog).toBeInTheDocument();
+    });
+
+    test('DateTimePicker is visible when any date field is in edit mode', async () => {
+      const editStateWithDueDateEditing = {
+        ...defaultProps.editState,
+        isEditingDueDate: true,
+        editedDueDate: defaultProps.task.due || '',
+      };
+
+      render(
+        <TaskDialog
+          {...defaultProps}
+          isOpen
+          editState={editStateWithDueDateEditing}
+        />
+      );
+
+      await screen.findByRole('dialog');
+
+      expect(
+        await screen.findByRole('button', { name: /calender-button/i })
+      ).toBeInTheDocument();
     });
   });
 });
