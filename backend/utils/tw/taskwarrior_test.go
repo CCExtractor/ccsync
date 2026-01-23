@@ -236,3 +236,74 @@ func TestModifyTaskWithTags(t *testing.T) {
 		fmt.Println("Modify task with tags passed")
 	}
 }
+
+func TestRemoveDependencyFromMultipleDependencies(t *testing.T) {
+	taskID := "taskuuid"
+	email := "email"
+	secret := "encryptionSecret"
+	uuid := "uuid"
+	initialDeps := []string{"uuid-1", "uuid-2", "uuid-3"}
+	updatedDeps := []string{"uuid-1", "uuid-3"}
+
+	err := ModifyTaskInTaskwarrior(
+		uuid,
+		"Test Task",
+		"project",
+		"H",
+		"pending",
+		"2025-03-03",
+		email,
+		secret,
+		taskID,
+		[]string{},
+		initialDeps,
+	)
+	if err != nil {
+		t.Fatalf("failed to set initial dependencies: %v", err)
+	}
+
+	err = ModifyTaskInTaskwarrior(
+		uuid,
+		"Test Task",
+		"project",
+		"H",
+		"pending",
+		"2025-03-03",
+		email,
+		secret,
+		taskID,
+		[]string{},
+		updatedDeps,
+	)
+	if err != nil {
+		t.Fatalf("failed to update dependencies: %v", err)
+	}
+	tasks, err := ExportTasks("./")
+	if err != nil {
+		t.Fatalf("failed to export tasks: %v", err)
+	}
+	var found bool
+	expected := map[string]bool{
+		"uuid-1": true,
+		"uuid-3": true,
+	}
+
+	for _, task := range tasks {
+		if task.UUID == taskID {
+			found = true
+
+			if len(task.Depends) != len(updatedDeps) {
+				t.Fatalf("expected %d dependencies, got %d", len(updatedDeps), len(task.Depends))
+			}
+
+			for _, d := range task.Depends {
+				if !expected[d] {
+					t.Fatalf("unexpected dependency found: %s", d)
+				}
+			}
+		}
+	}
+	if !found {
+		t.Fatalf("task %s not found in export", taskID)
+	}
+}

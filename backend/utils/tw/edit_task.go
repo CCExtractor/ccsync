@@ -96,9 +96,14 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 	}
 
 	// Handle depends - always set to ensure clearing works
-	dependsStr := strings.Join(depends, ",")
-	if err := utils.ExecCommand("task", taskID, "modify", "depends:"+dependsStr); err != nil {
-		return fmt.Errorf("failed to set depends %s: %v", dependsStr, err)
+	if err := utils.ExecCommand("task", taskID, "modify", "depends:"); err != nil {
+		return fmt.Errorf("failed to clear dependencies: %v", err)
+	}
+	if len(depends) > 0 {
+		dependsStr := strings.Join(depends, ",")
+		if err := utils.ExecCommand("task", taskID, "modify", "depends:"+dependsStr); err != nil {
+			return fmt.Errorf("failed to set dependencies %s: %v", dependsStr, err)
+		}
 	}
 
 	// Handle due date
