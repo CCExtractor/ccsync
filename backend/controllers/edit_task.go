@@ -122,7 +122,6 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Editing task UUID: %s", taskUUID), uuid, "Edit Task")
 
-				// Construct parameters struct for batched command execution
 				params := models.EditTaskParams{
 					UUID:             uuid,
 					TaskUUID:         taskUUID,
