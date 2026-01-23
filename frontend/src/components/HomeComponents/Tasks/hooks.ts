@@ -16,6 +16,7 @@ export const fetchTaskwarriorTasks = async ({
 
   const response = await fetch(fullURL, {
     method: 'GET',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       'X-User-Email': email,
@@ -105,6 +106,7 @@ export const addTaskToBackend = async ({
 
   const response = await fetch(`${backendURL}add-task`, {
     method: 'POST',
+    credentials: 'include',
     body: JSON.stringify(requestBody),
     headers: {
       'Content-Type': 'application/json',
@@ -156,6 +158,7 @@ export const editTaskOnBackend = async ({
 }) => {
   const response = await fetch(`${backendURL}edit-task`, {
     method: 'POST',
+    credentials: 'include',
     body: JSON.stringify({
       email,
       encryptionSecret,
@@ -213,6 +216,7 @@ export const modifyTaskOnBackend = async ({
 }) => {
   const response = await fetch(`${backendURL}modify-task`, {
     method: 'POST',
+    credentials: 'include',
     body: JSON.stringify({
       email,
       encryptionSecret,

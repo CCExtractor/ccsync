@@ -29,6 +29,7 @@ export const markTaskAsCompleted = async (
 
     const response = await fetch(backendURL, {
       method: 'POST',
+      credentials: 'include',
       body: JSON.stringify({
         email: email,
         encryptionSecret: encryptionSecret,
@@ -56,6 +57,7 @@ export const bulkMarkTasksAsCompleted = async (
 
     const response = await fetch(backendURL, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -97,6 +99,7 @@ export const bulkMarkTasksAsDeleted = async (
 
     const response = await fetch(backendURL, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -138,6 +141,7 @@ export const markTaskAsDeleted = async (
 
     const response = await fetch(backendURL, {
       method: 'POST',
+      credentials: 'include',
       body: JSON.stringify({
         email: email,
         encryptionSecret: encryptionSecret,
