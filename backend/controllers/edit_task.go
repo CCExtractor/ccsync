@@ -122,25 +122,23 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Editing task UUID: %s", taskUUID), uuid, "Edit Task")
 
-				params := models.EditTaskParams{
-					UUID:             uuid,
-					TaskUUID:         taskUUID,
-					Email:            email,
-					EncryptionSecret: encryptionSecret,
-					Description:      description,
-					Tags:             tags,
-					Project:          project,
-					Start:            start,
-					Entry:            entry,
-					Wait:             wait,
-					End:              end,
-					Depends:          depends,
-					Due:              due,
-					Recur:            recur,
-					Annotations:      annotations,
-				}
-
-				err := tw.EditTaskInTaskwarrior(params)
+				err := tw.EditTaskInTaskwarrior(
+					uuid,
+					taskUUID,
+					email,
+					encryptionSecret,
+					description,
+					project,
+					start,
+					entry,
+					wait,
+					end,
+					due,
+					recur,
+					tags,
+					depends,
+					annotations,
+				)
 				if err != nil {
 					logStore.AddLog("ERROR", fmt.Sprintf("Failed to edit task UUID %s: %v", taskUUID, err), uuid, "Edit Task")
 					return err

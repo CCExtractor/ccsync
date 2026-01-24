@@ -9,15 +9,19 @@ import (
 	"strings"
 )
 
-func EditTaskInTaskwarrior(params models.EditTaskParams) error {
-	tempDir, err := os.MkdirTemp("", utils.SafeTempDirPrefix("taskwarrior-", params.Email))
+func EditTaskInTaskwarrior(
+	uuid, taskUUID, email, encryptionSecret, description, project, start, entry, wait, end, due, recur string,
+	tags, depends []string,
+	annotations []models.Annotation,
+) error {
+	tempDir, err := os.MkdirTemp("", utils.SafeTempDirPrefix("taskwarrior-", email))
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
 	}
 	defer os.RemoveAll(tempDir)
 
 	origin := os.Getenv("CONTAINER_ORIGIN")
-	if err := SetTaskwarriorConfig(tempDir, params.EncryptionSecret, origin, params.UUID); err != nil {
+	if err := SetTaskwarriorConfig(tempDir, encryptionSecret, origin, uuid); err != nil {
 		return err
 	}
 
@@ -25,46 +29,46 @@ func EditTaskInTaskwarrior(params models.EditTaskParams) error {
 		return err
 	}
 
-	modifyArgs := []string{params.TaskUUID, "modify"}
+	modifyArgs := []string{taskUUID, "modify"}
 
-	if params.Description != "" {
-		modifyArgs = append(modifyArgs, params.Description)
+	if description != "" {
+		modifyArgs = append(modifyArgs, description)
 	}
 
-	if params.Project != "" {
-		modifyArgs = append(modifyArgs, "project:"+params.Project)
+	if project != "" {
+		modifyArgs = append(modifyArgs, "project:"+project)
 	}
 
-	if params.Wait != "" {
-		formattedWait := params.Wait + "T00:00:00"
+	if wait != "" {
+		formattedWait := wait + "T00:00:00"
 		modifyArgs = append(modifyArgs, "wait:"+formattedWait)
 	}
 
-	if params.Start != "" {
-		modifyArgs = append(modifyArgs, "start:"+params.Start)
+	if start != "" {
+		modifyArgs = append(modifyArgs, "start:"+start)
 	}
 
-	if params.Entry != "" {
-		modifyArgs = append(modifyArgs, "entry:"+params.Entry)
+	if entry != "" {
+		modifyArgs = append(modifyArgs, "entry:"+entry)
 	}
 
-	if params.End != "" {
-		modifyArgs = append(modifyArgs, "end:"+params.End)
+	if end != "" {
+		modifyArgs = append(modifyArgs, "end:"+end)
 	}
 
-	dependsStr := strings.Join(params.Depends, ",")
+	dependsStr := strings.Join(depends, ",")
 	modifyArgs = append(modifyArgs, "depends:"+dependsStr)
 
-	if params.Due != "" {
-		formattedDue := params.Due + "T00:00:00"
+	if due != "" {
+		formattedDue := due + "T00:00:00"
 		modifyArgs = append(modifyArgs, "due:"+formattedDue)
 	}
 
-	if params.Recur != "" {
-		modifyArgs = append(modifyArgs, "recur:"+params.Recur)
+	if recur != "" {
+		modifyArgs = append(modifyArgs, "recur:"+recur)
 	}
 
-	for _, tag := range params.Tags {
+	for _, tag := range tags {
 		if strings.HasPrefix(tag, "+") {
 			modifyArgs = append(modifyArgs, tag)
 		} else if strings.HasPrefix(tag, "-") {
@@ -78,8 +82,8 @@ func EditTaskInTaskwarrior(params models.EditTaskParams) error {
 		return fmt.Errorf("failed to edit task: %v", err)
 	}
 
-	if len(params.Annotations) >= 0 {
-		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", params.TaskUUID, "export")
+	if len(annotations) >= 0 {
+		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", taskUUID, "export")
 		if err == nil {
 			var tasks []map[string]interface{}
 			if err := json.Unmarshal(output, &tasks); err == nil && len(tasks) > 0 {
@@ -87,7 +91,7 @@ func EditTaskInTaskwarrior(params models.EditTaskParams) error {
 					for _, ann := range existingAnnotations {
 						if annMap, ok := ann.(map[string]interface{}); ok {
 							if desc, ok := annMap["description"].(string); ok {
-								utils.ExecCommand("task", params.TaskUUID, "denotate", desc)
+								utils.ExecCommand("task", taskUUID, "denotate", desc)
 							}
 						}
 					}
@@ -95,9 +99,9 @@ func EditTaskInTaskwarrior(params models.EditTaskParams) error {
 			}
 		}
 
-		for _, annotation := range params.Annotations {
+		for _, annotation := range annotations {
 			if annotation.Description != "" {
-				if err := utils.ExecCommand("task", params.TaskUUID, "annotate", annotation.Description); err != nil {
+				if err := utils.ExecCommand("task", taskUUID, "annotate", annotation.Description); err != nil {
 					return fmt.Errorf("failed to add annotation %s: %v", annotation.Description, err)
 				}
 			}

@@ -49,23 +49,6 @@ type EditTaskRequestBody struct {
 	Annotations      []Annotation `json:"annotations"`
 }
 
-type EditTaskParams struct {
-	UUID             string
-	TaskUUID         string
-	Email            string
-	EncryptionSecret string
-	Description      string
-	Tags             []string
-	Project          string
-	Start            string
-	Entry            string
-	Wait             string
-	End              string
-	Depends          []string
-	Due              string
-	Recur            string
-	Annotations      []Annotation
-}
 type CompleteTaskRequestBody struct {
 	Email            string `json:"email"`
 	EncryptionSecret string `json:"encryptionSecret"`
