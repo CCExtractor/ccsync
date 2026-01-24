@@ -45,6 +45,7 @@ describe('fetchTaskwarriorTasks', () => {
 
     expect(fetch).toHaveBeenCalledWith('http://localhost:8080/tasks', {
       method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         'X-User-Email': 'user@test.com',
@@ -110,6 +111,7 @@ describe('addTaskToBackend', () => {
 
     expect(fetch).toHaveBeenCalledWith('http://backend/add-task', {
       method: 'POST',
+      credentials: 'include',
       body: expect.any(String),
       headers: {
         'Content-Type': 'application/json',
@@ -436,6 +438,7 @@ describe('editTaskOnBackend', () => {
 
     expect(fetch).toHaveBeenCalledWith('http://backend/edit-task', {
       method: 'POST',
+      credentials: 'include',
       body: expect.any(String),
       headers: {
         'Content-Type': 'application/json',
@@ -551,6 +554,7 @@ describe('modifyTaskOnBackend', () => {
 
     expect(fetch).toHaveBeenCalledWith('http://backend/modify-task', {
       method: 'POST',
+      credentials: 'include',
       body: expect.any(String),
       headers: {
         'Content-Type': 'application/json',

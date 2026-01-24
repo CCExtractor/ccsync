@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gorilla/sessions"
 	"golang.org/x/oauth2"
@@ -155,13 +156,51 @@ func (a *App) UserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(userInfo)
 }
 
+// isOriginAllowed checks if the request origin is allowed
+func isOriginAllowed(origin, allowedOrigin string) bool {
+	if origin == "" {
+		// No origin header - could be same-origin or non-browser client
+		return true
+	}
+	if allowedOrigin != "" && origin == allowedOrigin {
+		return true
+	}
+	// In development, allow localhost origins
+	if os.Getenv("ENV") != "production" {
+		if strings.HasPrefix(origin, "http://localhost") ||
+			strings.HasPrefix(origin, "http://127.0.0.1") {
+			return true
+		}
+	}
+	return false
+}
+
 func (a *App) EnableCORS(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		allowedOrigin := os.Getenv("FRONTEND_ORIGIN_DEV") // frontend origin
-		w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+		requestOrigin := r.Header.Get("Origin")
+
+		// For state-changing requests (POST, PUT, DELETE), validate Origin header
+		// This provides additional CSRF protection beyond SameSite cookies
+		if r.Method == http.MethodPost || r.Method == http.MethodPut || r.Method == http.MethodDelete {
+			if !isOriginAllowed(requestOrigin, allowedOrigin) {
+				utils.Logger.Warnf("CSRF protection: rejected request from origin: %s", requestOrigin)
+				http.Error(w, "Forbidden", http.StatusForbidden)
+				return
+			}
+		}
+
+		// Set CORS headers
+		if requestOrigin != "" && isOriginAllowed(requestOrigin, allowedOrigin) {
+			w.Header().Set("Access-Control-Allow-Origin", requestOrigin)
+		} else if allowedOrigin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", allowedOrigin)
+		}
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-User-Email, X-Encryption-Secret, X-User-UUID")
 		w.Header().Set("Access-Control-Allow-Credentials", "true") // to allow credentials
+		w.Header().Add("Vary", "Origin")                           // prevent caching issues with different origins
+
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
