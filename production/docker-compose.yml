@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: ghcr.io/ccextractor/frontend:latest
+    image: ghcr.io/ccextractor/frontend:${IMAGE_TAG}
     ports:
       - "80:80"
     networks:
@@ -14,7 +14,7 @@ services:
       retries: 3
 
   backend:
-    image: ghcr.io/ccextractor/backend:latest
+    image: ghcr.io/ccextractor/backend:${IMAGE_TAG}
     ports:
       - "8000:8000"
     networks:

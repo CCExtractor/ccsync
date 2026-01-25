@@ -5,6 +5,15 @@ on:
     branches:
       - main
 
+# Trigger only after backend and frontend tests workflows complete successfully
+on:
+  workflow_run:
+    workflows:
+      - Go Backend Test
+      - frontend-tests-and-coverage
+    types:
+      - completed
+
 jobs:
   build-and-push-frontend:
     runs-on: ubuntu-latest
