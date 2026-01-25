@@ -59,8 +59,8 @@ jobs:
               test -f production/docker-compose.yml || { echo "Error: docker-compose.yml missing"; exit 1; }
 
               echo "--- 3. Backing up current environment ---"
-              if [ -f production/.env ]; then
-                cp production/.env production/.env.bak
+              if [ -f production/.production.env ]; then
+                cp production/.production.env production/.production.env.bak
               fi
 
               echo "--- 4. Syncing Repository ---"
@@ -70,13 +70,12 @@ jobs:
 
               echo "--- 5. Pulling New Images ---"
               cd production
-              echo "IMAGE_TAG=$IMAGE_TAG" > .env
-              # Append secrets if needed: cat ../.env.production.secrets >> .env 
+              echo "IMAGE_TAG=$IMAGE_TAG" > .production.env
 
               if ! docker compose pull -q; then
                 echo "Error: Docker image pull failed. Rolling back..."
-                if [ -f .env.bak ]; then
-                  mv .env.bak .env
+                if [ -f .production.env.bak ]; then
+                  mv .production.env.bak .production.env
                   docker compose up -d
                 fi
                 exit 1
@@ -85,8 +84,8 @@ jobs:
               echo "--- 6. Starting Services ---"
               if ! docker compose up -d --remove-orphans; then
                 echo "Deployment failed. Rolling back..."
-                if [ -f .env.bak ]; then
-                  mv .env.bak .env
+                if [ -f .production.env.bak ]; then
+                  mv .production.env.bak .production.env
                   docker compose up -d
                 fi
                 exit 1
@@ -106,12 +105,12 @@ jobs:
 
               if [ "$SUCCESS" = false ]; then
                 echo "FATAL: Health check timed out. Initiating Rollback..."
-                if [ -f .env.bak ]; then
-                  mv .env.bak .env
+                if [ -f .production.env.bak ]; then
+                  mv .production.env.bak .production.env
                   docker compose up -d
                   echo "Rollback complete. Inspect logs for the failed SHA: $IMAGE_TAG"
                 else
-                  echo "No backup .env found. Manual intervention required!"
+                  echo "No backup .production.env found. Manual intervention required!"
                 fi
                 exit 1
               fi
