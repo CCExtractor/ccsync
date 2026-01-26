@@ -48,6 +48,7 @@ type EditTaskRequestBody struct {
 	Recur            string       `json:"recur"`
 	Annotations      []Annotation `json:"annotations"`
 }
+
 type CompleteTaskRequestBody struct {
 	Email            string `json:"email"`
 	EncryptionSecret string `json:"encryptionSecret"`
