@@ -272,6 +272,7 @@ export const AddTaskdialog = ({
                       setNewTask({ ...newTask, project: value });
                     }
                   }}
+                  data-testid="project-select"
                 >
                   <SelectTrigger
                     onKeyDown={(e) => {
@@ -284,7 +285,6 @@ export const AddTaskdialog = ({
                     }}
                     ref={(element) => (inputRefs.current.project = element)}
                     id="project"
-                    data-testid="project-select"
                   >
                     <SelectValue
                       placeholder={

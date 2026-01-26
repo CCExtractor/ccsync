@@ -1001,6 +1001,7 @@ export const TaskDialog = ({
                               editedPriority: value,
                             })
                           }
+                          data-testid="priority-select"
                         >
                           <SelectTrigger className="flex-grow mr-2">
                             <SelectValue placeholder="Select priority" />
@@ -1096,11 +1097,9 @@ export const TaskDialog = ({
                                 onSaveProject(task, project);
                               }
                             }}
+                            data-testid="project-select"
                           >
-                            <SelectTrigger
-                              id="project"
-                              data-testid="project-select"
-                            >
+                            <SelectTrigger id="project">
                               <SelectValue
                                 placeholder={
                                   uniqueProjects.length
@@ -1374,6 +1373,7 @@ export const TaskDialog = ({
                           onValueChange={(value) =>
                             onUpdateState({ editedRecur: value })
                           }
+                          data-testid="recur-select"
                         >
                           <SelectTrigger className="flex-grow">
                             <SelectValue placeholder="Select recurrence" />
