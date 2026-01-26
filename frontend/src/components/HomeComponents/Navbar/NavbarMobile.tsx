@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -45,6 +45,7 @@ import { useTaskAutoSync } from '@/components/utils/TaskAutoSync';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
+import { hashKey } from '../Tasks/tasks-utils';
 
 export const NavbarMobile = (
   props: Props & { setIsOpen: (isOpen: boolean) => void; isOpen: boolean } & {
@@ -58,12 +59,34 @@ export const NavbarMobile = (
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [autoSyncEnable, setAutoSyncEnable] = useState(false);
   const [syncInterval, setSyncInterval] = useState(1);
+  const [autoSyncOnEdit, setAutoSyncOnEdit] = useState(true);
+
   useTaskAutoSync({
     isLoading: props.isLoading,
     setIsLoading: props.setIsLoading,
     isAutoSyncEnabled: autoSyncEnable,
     syncInterval: syncInterval * 60000,
   });
+
+  // Load setting from localStorage
+  useEffect(() => {
+    const hashedKey = hashKey('autoSyncOnEdit', props.email);
+    const stored = localStorage.getItem(hashedKey);
+    if (stored !== null) {
+      setAutoSyncOnEdit(stored === 'true');
+    } else {
+      localStorage.setItem(hashedKey, 'true');
+      setAutoSyncOnEdit(true);
+    }
+  }, [props.email]);
+
+  // Save setting and notify Tasks component
+  const handleAutoSyncOnEditChange = (checked: boolean) => {
+    setAutoSyncOnEdit(checked);
+    const hashedKey = hashKey('autoSyncOnEdit', props.email);
+    localStorage.setItem(hashedKey, checked.toString());
+    window.dispatchEvent(new Event('autoSyncOnEditChanged'));
+  };
 
   const handleExportJSON = () => {
     exportTasksAsJSON(props.tasks || []);
@@ -215,6 +238,20 @@ export const NavbarMobile = (
                       />
                     </div>
                   )}
+
+                  <div className="flex mt-2 items-center justify-between space-x-2">
+                    <Label
+                      htmlFor="autosync-on-edit-switch"
+                      className="text-base"
+                    >
+                      Auto Sync on Edit
+                    </Label>
+                    <Switch
+                      id="autosync-on-edit-switch"
+                      checked={autoSyncOnEdit}
+                      onCheckedChange={handleAutoSyncOnEditChange}
+                    />
+                  </div>
                 </div>
               </DialogContent>
             </Dialog>
