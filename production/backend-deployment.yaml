@@ -40,6 +40,11 @@ spec:
                 configMapKeyRef:
                   key: CONTAINER_ORIGIN
                   name: backend-env
+            - name: ENV
+              valueFrom:
+                configMapKeyRef:
+                  key: ENV
+                  name: backend-env
             - name: FRONTEND_ORIGIN_DEV
               valueFrom:
                 configMapKeyRef:
