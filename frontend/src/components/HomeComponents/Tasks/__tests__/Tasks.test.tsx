@@ -1739,4 +1739,88 @@ describe('Tasks Component', () => {
       expect(task1Row).toBeInTheDocument();
     });
   });
+
+  describe('Hotkeys Enable/Disable on Hover and Active Context', () => {
+    test('hotkeys are disabled by default (mouse not over task table)', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      fireEvent.keyDown(window, { key: 'f' });
+
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
+      expect(document.activeElement).not.toBe(searchInput);
+    });
+
+    test('hotkeys are enabled when mouse enters task table', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      const taskContainer = screen.getByTestId('tasks-table-container');
+      fireEvent.mouseEnter(taskContainer);
+
+      fireEvent.keyDown(window, { key: 'f' });
+
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
+      expect(document.activeElement).toBe(searchInput);
+    });
+
+    test('hotkeys are disabled when mouse leaves task table', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      const taskContainer = screen.getByTestId('tasks-table-container');
+
+      fireEvent.mouseEnter(taskContainer);
+      fireEvent.mouseLeave(taskContainer);
+
+      fireEvent.keyDown(window, { key: 'f' });
+
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
+      expect(document.activeElement).not.toBe(searchInput);
+    });
+
+    test('hotkeys are enabled when user clicks/taps on task table', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      const taskContainer = screen.getByTestId('tasks-table-container');
+
+      fireEvent.pointerDown(taskContainer);
+      fireEvent.keyDown(window, { key: 'f' });
+
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
+
+      expect(document.activeElement).toBe(searchInput);
+    });
+
+    test('hotkeys remain enabled after mouse leaves if user clicked on task table', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      const taskContainer = screen.getByTestId('tasks-table-container');
+
+      fireEvent.pointerDown(taskContainer);
+      fireEvent.mouseLeave(taskContainer);
+      fireEvent.keyDown(window, { key: 'f' });
+
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
+
+      expect(document.activeElement).toBe(searchInput);
+    });
+
+    test('hotkeys are disabled when user clicks outside task table', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      const taskContainer = screen.getByTestId('tasks-table-container');
+
+      fireEvent.pointerDown(taskContainer);
+      fireEvent.pointerDown(document.body);
+      fireEvent.keyDown(window, { key: 'f' });
+
+      const searchInput = screen.getByPlaceholderText('Search tasks...');
+
+      expect(document.activeElement).not.toBe(searchInput);
+    });
+  });
 });
