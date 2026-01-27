@@ -5,7 +5,7 @@ import { Footer } from './HomeComponents/Footer/Footer';
 import { SetupGuide } from './HomeComponents/SetupGuide/SetupGuide';
 import { FAQ } from './HomeComponents/FAQ/FAQ';
 import { Tasks } from './HomeComponents/Tasks/Tasks';
-import { url } from '@/components/utils/URLs';
+import { url, getWebSocketURL } from '@/components/utils/URLs';
 import { useNavigate } from 'react-router';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
@@ -60,9 +60,7 @@ export const HomePage: React.FC = () => {
       getTasks(userInfo.email, userInfo.encryption_secret, userInfo.uuid);
     }
 
-    const socketURL = `${url.backendURL.replace(/^http/, 'ws')}ws?clientID=${
-      userInfo.uuid
-    }`;
+    const socketURL = getWebSocketURL(`ws?clientID=${userInfo.uuid}`);
     const socket = new WebSocket(socketURL);
 
     // socket.onopen = () => console.log('WebSocket connected!');
