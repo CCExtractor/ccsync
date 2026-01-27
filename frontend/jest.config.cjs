@@ -26,11 +26,7 @@ module.exports = {
               options: {
                 metaObjectReplacement: {
                   url: 'https://www.url.com',
-                  env: {
-                    VITE_BACKEND_URL: 'http://localhost:8000/',
-                    VITE_FRONTEND_URL: 'http://localhost:80',
-                    VITE_CONTAINER_ORIGIN: 'http://localhost:8080/',
-                  },
+                  env: {},
                 },
               },
             },
