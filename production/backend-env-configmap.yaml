@@ -7,6 +7,9 @@ data:
   PORT: "8000"
   REDIRECT_URL_DEV: http://localhost:8000/auth/callback
   SESSION_KEY: u2IBgLagrov1Q2fi0b9o/UNpYsJMDYP5dOLWQyDZRas= # Can also generate your own and replace, using 'openssl rand -hex 32'
+  CLEANUP_CRON_SCHEDULE: "0 0 * * *"
+  CLEANUP_RETENTION_DAYS: "7"
+  QUEUE_DB_PATH: "/app/data/queue.db"
 kind: ConfigMap
 metadata:
   labels:
