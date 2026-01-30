@@ -25,7 +25,7 @@ func TestSyncTaskwarrior(t *testing.T) {
 }
 
 func TestEditTaskInATaskwarrior(t *testing.T) {
-	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", nil, "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-30T18:30:00.000Z", nil, "2025-12-01T18:30:00.000Z", "weekly", []models.Annotation{{Description: "test annotation"}})
+	err := EditTaskInTaskwarrior("uuid", "taskuuid", "email", "encryptionSecret", "description", "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-30T18:30:00.000Z", "2025-12-01T18:30:00.000Z", "weekly", []string{}, []string{}, []models.Annotation{{Description: "test annotation"}})
 	if err != nil {
 		t.Errorf("EditTaskInTaskwarrior() failed: %v", err)
 	} else {
@@ -202,7 +202,7 @@ func TestAddTaskToTaskwarriorWithWaitDateWithTags(t *testing.T) {
 }
 
 func TestEditTaskWithTagAddition(t *testing.T) {
-	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", []string{"+urgent", "+important"}, "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-30T18:30:00.000Z", nil, "2025-12-01T18:30:00.000Z", "daily", []models.Annotation{})
+	err := EditTaskInTaskwarrior("uuid", "taskuuid", "email", "encryptionSecret", "description", "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-30T18:30:00.000Z", "2025-12-01T18:30:00.000Z", "daily", []string{"+urgent", "+important"}, []string{}, []models.Annotation{})
 	if err != nil {
 		t.Errorf("EditTaskInTaskwarrior with tag addition failed: %v", err)
 	} else {
@@ -211,7 +211,7 @@ func TestEditTaskWithTagAddition(t *testing.T) {
 }
 
 func TestEditTaskWithTagRemoval(t *testing.T) {
-	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", []string{"-work", "-lowpriority"}, "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-30T18:30:00.000Z", nil, "2025-12-01T18:30:00.000Z", "monthly", []models.Annotation{})
+	err := EditTaskInTaskwarrior("uuid", "taskuuid", "email", "encryptionSecret", "description", "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-30T18:30:00.000Z", "2025-12-01T18:30:00.000Z", "monthly", []string{"-work", "-lowpriority"}, []string{}, []models.Annotation{})
 	if err != nil {
 		t.Errorf("EditTaskInTaskwarrior with tag removal failed: %v", err)
 	} else {
@@ -220,7 +220,7 @@ func TestEditTaskWithTagRemoval(t *testing.T) {
 }
 
 func TestEditTaskWithMixedTagOperations(t *testing.T) {
-	err := EditTaskInTaskwarrior("uuid", "description", "email", "encryptionSecret", "taskuuid", []string{"+urgent", "-work", "normal"}, "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-30T18:30:00.000Z", nil, "2025-12-01T18:30:00.000Z", "yearly", []models.Annotation{})
+	err := EditTaskInTaskwarrior("uuid", "taskuuid", "email", "encryptionSecret", "description", "project", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-29T18:30:00.000Z", "2025-11-30T18:30:00.000Z", "2025-12-01T18:30:00.000Z", "yearly", []string{"+urgent", "-work", "normal"}, []string{}, []models.Annotation{})
 	if err != nil {
 		t.Errorf("EditTaskInTaskwarrior with mixed tag operations failed: %v", err)
 	} else {

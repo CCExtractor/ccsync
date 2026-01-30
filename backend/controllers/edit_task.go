@@ -120,13 +120,30 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 		job := Job{
 			Name: "Edit Task",
 			Execute: func() error {
-				logStore.AddLog("INFO", fmt.Sprintf("Editing task ID: %s", taskUUID), uuid, "Edit Task")
-				err := tw.EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskUUID, tags, project, start, entry, wait, end, depends, due, recur, annotations)
+				logStore.AddLog("INFO", fmt.Sprintf("Editing task UUID: %s", taskUUID), uuid, "Edit Task")
+
+				err := tw.EditTaskInTaskwarrior(
+					uuid,
+					taskUUID,
+					email,
+					encryptionSecret,
+					description,
+					project,
+					start,
+					entry,
+					wait,
+					end,
+					due,
+					recur,
+					tags,
+					depends,
+					annotations,
+				)
 				if err != nil {
-					logStore.AddLog("ERROR", fmt.Sprintf("Failed to edit task ID %s: %v", taskUUID, err), uuid, "Edit Task")
+					logStore.AddLog("ERROR", fmt.Sprintf("Failed to edit task UUID %s: %v", taskUUID, err), uuid, "Edit Task")
 					return err
 				}
-				logStore.AddLog("INFO", fmt.Sprintf("Successfully edited task ID: %s", taskUUID), uuid, "Edit Task")
+				logStore.AddLog("INFO", fmt.Sprintf("Successfully edited task UUID: %s", taskUUID), uuid, "Edit Task")
 				return nil
 			},
 		}

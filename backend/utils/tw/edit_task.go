@@ -9,10 +9,11 @@ import (
 	"strings"
 )
 
-func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID string, tags []string, project string, start string, entry string, wait string, end string, depends []string, due string, recur string, annotations []models.Annotation) error {
-	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
-		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
-	}
+func EditTaskInTaskwarrior(
+	uuid, taskUUID, email, encryptionSecret, description, project, start, entry, wait, end, due, recur string,
+	tags, depends []string,
+	annotations []models.Annotation,
+) error {
 	tempDir, err := os.MkdirTemp("", utils.SafeTempDirPrefix("taskwarrior-", email))
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
@@ -28,104 +29,61 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 		return err
 	}
 
-	// Escape the double quotes in the description and format it
-	if err := utils.ExecCommand("task", taskID, "modify", description); err != nil {
+	modifyArgs := []string{taskUUID, "modify"}
+
+	if description != "" {
+		modifyArgs = append(modifyArgs, description)
+	}
+
+	if project != "" {
+		modifyArgs = append(modifyArgs, "project:"+project)
+	}
+
+	if wait != "" {
+		formattedWait := wait + "T00:00:00"
+		modifyArgs = append(modifyArgs, "wait:"+formattedWait)
+	}
+
+	if start != "" {
+		modifyArgs = append(modifyArgs, "start:"+start)
+	}
+
+	if entry != "" {
+		modifyArgs = append(modifyArgs, "entry:"+entry)
+	}
+
+	if end != "" {
+		modifyArgs = append(modifyArgs, "end:"+end)
+	}
+
+	dependsStr := strings.Join(depends, ",")
+	modifyArgs = append(modifyArgs, "depends:"+dependsStr)
+
+	if due != "" {
+		formattedDue := due + "T00:00:00"
+		modifyArgs = append(modifyArgs, "due:"+formattedDue)
+	}
+
+	if recur != "" {
+		modifyArgs = append(modifyArgs, "recur:"+recur)
+	}
+
+	for _, tag := range tags {
+		if strings.HasPrefix(tag, "+") {
+			modifyArgs = append(modifyArgs, tag)
+		} else if strings.HasPrefix(tag, "-") {
+			modifyArgs = append(modifyArgs, tag)
+		} else {
+			modifyArgs = append(modifyArgs, "+"+tag)
+		}
+	}
+
+	if err := utils.ExecCommand("task", modifyArgs...); err != nil {
 		return fmt.Errorf("failed to edit task: %v", err)
 	}
 
-	// Handle project
-	if project != "" {
-		if err := utils.ExecCommand("task", taskID, "modify", "project:"+project); err != nil {
-			return fmt.Errorf("failed to set project %s: %v", project, err)
-		}
-	}
-
-	// Handle wait date
-	if wait != "" {
-		// Convert `2025-11-29` -> `2025-11-29T00:00:00`
-		formattedWait := wait + "T00:00:00"
-
-		if err := utils.ExecCommand("task", taskID, "modify", "wait:"+formattedWait); err != nil {
-			return fmt.Errorf("failed to set wait date %s: %v", formattedWait, err)
-		}
-	}
-
-	// Handle tags
-	if len(tags) > 0 {
-		for _, tag := range tags {
-			if strings.HasPrefix(tag, "+") {
-				// Add tag
-				tagValue := strings.TrimPrefix(tag, "+")
-				if err := utils.ExecCommand("task", taskID, "modify", "+"+tagValue); err != nil {
-					return fmt.Errorf("failed to add tag %s: %v", tagValue, err)
-				}
-			} else if strings.HasPrefix(tag, "-") {
-				// Remove tag
-				tagValue := strings.TrimPrefix(tag, "-")
-				if err := utils.ExecCommand("task", taskID, "modify", "-"+tagValue); err != nil {
-					return fmt.Errorf("failed to remove tag %s: %v", tagValue, err)
-				}
-			} else {
-				// Add tag without prefix
-				if err := utils.ExecCommand("task", taskID, "modify", "+"+tag); err != nil {
-					return fmt.Errorf("failed to add tag %s: %v", tag, err)
-				}
-			}
-		}
-	}
-
-	// Handle start date
-	if start != "" {
-		if err := utils.ExecCommand("task", taskID, "modify", "start:"+start); err != nil {
-			return fmt.Errorf("failed to set start date %s: %v", start, err)
-		}
-	}
-
-	// Handle entry date
-	if entry != "" {
-		if err := utils.ExecCommand("task", taskID, "modify", "entry:"+entry); err != nil {
-			return fmt.Errorf("failed to set entry date %s: %v", entry, err)
-		}
-	}
-
-	// Handle end date
-	if end != "" {
-		if err := utils.ExecCommand("task", taskID, "modify", "end:"+end); err != nil {
-			return fmt.Errorf("failed to set end date %s: %v", end, err)
-		}
-	}
-
-	// Handle depends - always set to ensure clearing works
-	if err := utils.ExecCommand("task", taskID, "modify", "depends:"); err != nil {
-		return fmt.Errorf("failed to clear dependencies: %v", err)
-	}
-	if len(depends) > 0 {
-		dependsStr := strings.Join(depends, ",")
-		if err := utils.ExecCommand("task", taskID, "modify", "depends:"+dependsStr); err != nil {
-			return fmt.Errorf("failed to set dependencies %s: %v", dependsStr, err)
-		}
-	}
-
-	// Handle due date
-	if due != "" {
-		// Convert `2025-11-29` -> `2025-11-29T00:00:00`
-		formattedDue := due + "T00:00:00"
-
-		if err := utils.ExecCommand("task", taskID, "modify", "due:"+formattedDue); err != nil {
-			return fmt.Errorf("failed to set due date %s: %v", formattedDue, err)
-		}
-	}
-
-	// Handle recur - this will automatically set rtype field
-	if recur != "" {
-		if err := utils.ExecCommand("task", taskID, "modify", "recur:"+recur); err != nil {
-			return fmt.Errorf("failed to set recur %s: %v", recur, err)
-		}
-	}
-
-	// Handle annotations
 	if len(annotations) >= 0 {
-		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", taskID, "export")
+		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", taskUUID, "export")
 		if err == nil {
 			var tasks []map[string]interface{}
 			if err := json.Unmarshal(output, &tasks); err == nil && len(tasks) > 0 {
@@ -133,7 +91,7 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 					for _, ann := range existingAnnotations {
 						if annMap, ok := ann.(map[string]interface{}); ok {
 							if desc, ok := annMap["description"].(string); ok {
-								utils.ExecCommand("task", taskID, "denotate", desc)
+								utils.ExecCommand("task", taskUUID, "denotate", desc)
 							}
 						}
 					}
@@ -143,16 +101,16 @@ func EditTaskInTaskwarrior(uuid, description, email, encryptionSecret, taskID st
 
 		for _, annotation := range annotations {
 			if annotation.Description != "" {
-				if err := utils.ExecCommand("task", taskID, "annotate", annotation.Description); err != nil {
+				if err := utils.ExecCommand("task", taskUUID, "annotate", annotation.Description); err != nil {
 					return fmt.Errorf("failed to add annotation %s: %v", annotation.Description, err)
 				}
 			}
 		}
 	}
 
-	// Sync Taskwarrior again
 	if err := SyncTaskwarrior(tempDir); err != nil {
 		return err
 	}
+
 	return nil
 }

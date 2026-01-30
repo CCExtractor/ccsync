@@ -154,7 +154,10 @@ describe('NavbarDesktop', () => {
     render(<NavbarDesktop {...props} />);
 
     await userEvent.click(screen.getByText('CN'));
-    await userEvent.click(screen.getByText('toggle'));
+
+    // Click the first toggle (Auto sync tasks)
+    const toggleButtons = screen.getAllByText('toggle');
+    await userEvent.click(toggleButtons[0]);
 
     expect(screen.getByTestId('sync-slider')).toBeInTheDocument();
   });

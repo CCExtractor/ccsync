@@ -42,10 +42,11 @@ import {
   exportTasksAsJSON,
   exportTasksAsTXT,
 } from '@/components/utils/ExportTasks';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DevLogs } from '@/components/HomeComponents/DevLogs/DevLogs';
 import { useTaskAutoSync } from '@/components/utils/TaskAutoSync';
 import { Label } from '@/components/ui/label';
+import { hashKey } from '../Tasks/tasks-utils';
 
 export const NavbarDesktop = (
   props: Props & {
@@ -58,12 +59,34 @@ export const NavbarDesktop = (
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [autoSyncEnable, setAutoSyncEnable] = useState(false);
   const [syncInterval, setSyncInterval] = useState(1);
+  const [autoSyncOnEdit, setAutoSyncOnEdit] = useState(true);
+
   useTaskAutoSync({
     isLoading: props.isLoading,
     setIsLoading: props.setIsLoading,
     isAutoSyncEnabled: autoSyncEnable,
     syncInterval: syncInterval * 60000,
   });
+
+  // Load setting from localStorage
+  useEffect(() => {
+    const hashedKey = hashKey('autoSyncOnEdit', props.email);
+    const stored = localStorage.getItem(hashedKey);
+    if (stored !== null) {
+      setAutoSyncOnEdit(stored === 'true');
+    } else {
+      localStorage.setItem(hashedKey, 'true');
+      setAutoSyncOnEdit(true);
+    }
+  }, [props.email]);
+
+  // Save setting and notify Tasks component
+  const handleAutoSyncOnEditChange = (checked: boolean) => {
+    setAutoSyncOnEdit(checked);
+    const hashedKey = hashKey('autoSyncOnEdit', props.email);
+    localStorage.setItem(hashedKey, checked.toString());
+    window.dispatchEvent(new Event('autoSyncOnEditChanged'));
+  };
 
   const handleExportJSON = () => {
     exportTasksAsJSON(props.tasks || []);
@@ -232,6 +255,18 @@ export const NavbarDesktop = (
                       />
                     </div>
                   )}
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                <div className="flex items-center justify-between space-x-2 w-full p-1">
+                  <Label htmlFor="autosync-on-edit-switch">
+                    Auto sync on edit
+                  </Label>
+                  <Switch
+                    id="autosync-on-edit-switch"
+                    checked={autoSyncOnEdit}
+                    onCheckedChange={handleAutoSyncOnEditChange}
+                  />
                 </div>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={handleLogout}>
