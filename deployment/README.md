@@ -108,7 +108,7 @@ In GitHub repo settings → Environments → Create "production":
 
 | Name | Value |
 |------|-------|
-| `SSH_HOST` | `152.228.128.92` |
+| `SSH_HOST` | `<your-server-ip>` |
 | `SSH_USER` | `deploy` |
 | `SSH_PORT` | `22` |
 
@@ -132,7 +132,7 @@ In GitHub repo settings → Environments → Create "production":
 
 ```bash
 # SSH to VPS
-ssh deploy@152.228.128.92
+ssh deploy@<your-server-ip>
 
 # Deploy specific tag
 /opt/ccsync/scripts/deploy.sh abc1234
