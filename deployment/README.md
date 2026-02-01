@@ -6,7 +6,7 @@ This directory contains the production deployment configuration for CCSync.
 
 The deployment system uses:
 - **GitHub Actions** to build and push Docker images to GHCR
-- **SSH-based deployment** triggered manually via GitHub Actions
+- **Automatic deployment** to production on every push to `main`
 - **Automatic rollback** if health checks fail
 
 ## VPS Directory Structure
@@ -120,15 +120,16 @@ In GitHub repo settings → Environments → Create "production":
 
 ## Deployment
 
-### Automatic (after merge to main)
+### Automatic (on every push to main)
 
 1. Push/merge to `main` branch
-2. GitHub Actions builds and pushes images to GHCR
-3. Go to Actions → "Deploy to Production" → Run workflow
-4. Enter the image tag (commit SHA) or "latest"
-5. If environment protection is enabled, approve the deployment
+2. GitHub Actions builds frontend and backend images in parallel
+3. Images are pushed to GHCR with commit SHA tag
+4. Deploy job SSHs to VPS and runs `deploy.sh` with the commit SHA
+5. Health check verifies deployment succeeded
+6. Automatic rollback if health check fails
 
-### Manual deployment on VPS
+### Manual deployment (for rollbacks or hotfixes)
 
 ```bash
 # SSH to VPS
@@ -165,9 +166,7 @@ cat /opt/ccsync/deployments/<deployment-dir>/info.txt
 
 ## Monitoring
 
-The existing health check script at `/opt/ccsync-monitor/health-check.sh` monitors:
+The health check script at `/opt/ccsync-monitor/health-check.sh` monitors:
 - Docker container health status
 - Backend `/health` endpoint
 - Alerts to Zulip on failures
-
-After migration, update the script to use `/opt/ccsync` instead of `~/ccsync`.
