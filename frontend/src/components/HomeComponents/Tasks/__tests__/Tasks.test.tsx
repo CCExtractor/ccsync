@@ -45,14 +45,19 @@ jest.mock('../tasks-utils', () => {
 
 jest.mock('@/components/ui/multi-select', () => ({
   MultiSelectFilter: jest.fn(({ title, completionStats }) => (
-    <div data-testid={`multi-select-${title.toLowerCase()}`}>
+    <button
+      id={title.toLowerCase()}
+      data-testid={`multi-select-${title.toLowerCase()}`}
+      aria-expanded="false"
+      onClick={(e) => e.currentTarget.setAttribute('aria-expanded', 'true')}
+    >
       Mocked MultiSelect: {title}
       {completionStats && (
         <span data-testid={`stats-${title.toLowerCase()}`}>
           {JSON.stringify(completionStats)}
         </span>
       )}
-    </div>
+    </button>
   )),
 }));
 
@@ -864,10 +869,6 @@ describe('Tasks Component', () => {
   test('filters tasks to show only overdue tasks when status "overdue" is selected', async () => {
     const MultiSelectFilter =
       require('@/components/ui/multi-select').MultiSelectFilter;
-
-    MultiSelectFilter.mockImplementation(({ title }: { title: string }) => {
-      return <div data-testid={`ms-${title}`}>Mocked MultiSelect: {title}</div>;
-    });
 
     render(<Tasks {...mockProps} />);
 
@@ -1737,6 +1738,199 @@ describe('Tasks Component', () => {
 
       const task1Row = screen.getByText('Task 1').closest('tr');
       expect(task1Row).toBeInTheDocument();
+    });
+  });
+
+  describe('Keyboard Navigation', () => {
+    describe('Arrow Key Navigation', () => {
+      test('ArrowDown key moves selection to next task', async () => {
+        render(<Tasks {...mockProps} />);
+        await screen.findByText('Task 1');
+        const taskRows = screen.getAllByTestId(/task-row-/);
+
+        expect(taskRows[0]).toHaveAttribute('data-selected', 'true');
+        expect(taskRows[1]).toHaveAttribute('data-selected', 'false');
+
+        fireEvent.keyDown(window, { key: 'ArrowDown' });
+
+        expect(taskRows[0]).toHaveAttribute('data-selected', 'false');
+        expect(taskRows[1]).toHaveAttribute('data-selected', 'true');
+      });
+
+      test('ArrowUp moves selection back to previous task', async () => {
+        render(<Tasks {...mockProps} />);
+        await screen.findByText('Task 1');
+        const taskRows = screen.getAllByTestId(/task-row-/);
+
+        fireEvent.keyDown(window, { key: 'ArrowDown' });
+        fireEvent.keyDown(window, { key: 'ArrowDown' });
+
+        expect(taskRows[1]).toHaveAttribute('data-selected', 'false');
+        expect(taskRows[2]).toHaveAttribute('data-selected', 'true');
+
+        fireEvent.keyDown(window, { key: 'ArrowUp' });
+
+        expect(taskRows[1]).toHaveAttribute('data-selected', 'true');
+        expect(taskRows[2]).toHaveAttribute('data-selected', 'false');
+      });
+
+      test('ArrowDown stops at last task on page', async () => {
+        render(<Tasks {...mockProps} />);
+        await screen.findByText('Task 1');
+
+        const taskRows = screen.getAllByTestId(/task-row-/);
+
+        for (let i = 0; i < taskRows.length + 2; i++) {
+          fireEvent.keyDown(window, { key: 'ArrowDown' });
+        }
+
+        expect(taskRows[taskRows.length - 1]).toHaveAttribute(
+          'data-selected',
+          'true'
+        );
+      });
+
+      test('ArrowUp stops at first task', async () => {
+        render(<Tasks {...mockProps} />);
+        await screen.findByText('Task 1');
+        const taskRows = screen.getAllByTestId(/task-row-/);
+        const middleIndex = Math.floor(taskRows.length / 2);
+
+        for (let i = 0; i < middleIndex; i++) {
+          fireEvent.keyDown(window, { key: 'ArrowDown' });
+        }
+        for (let i = 0; i < middleIndex + 5; i++) {
+          fireEvent.keyDown(window, { key: 'ArrowUp' });
+        }
+
+        expect(taskRows[0]).toHaveAttribute('data-selected', 'true');
+      });
+    });
+
+    describe('Hotkey Shortcuts', () => {
+      test('pressing "a" opens the Add Task dialog', async () => {
+        render(<Tasks {...mockProps} />);
+        await screen.findByText('Task 1');
+
+        fireEvent.keyDown(window, { key: 'a' });
+
+        const dialog = await screen.findByRole('dialog');
+        expect(within(dialog).getByText(/add a new task/i)).toBeInTheDocument();
+      });
+
+      test.each([
+        ['c', 'complete', 'markTaskAsCompleted'],
+        ['d', 'delete', 'markTaskAsDeleted'],
+      ])(
+        'pressing %s attempts to open task dialog and trigger %s action',
+        async (key, _action, fn) => {
+          render(<Tasks {...mockProps} />);
+          await screen.findByText('Task 1');
+
+          fireEvent.keyDown(window, { key });
+
+          const yesButton = await screen.findByRole('button', {
+            name: /^yes$/i,
+          });
+          fireEvent.click(yesButton);
+
+          expect(jest.requireMock('../tasks-utils')[fn]).toHaveBeenCalled();
+        }
+      );
+
+      test('pressing "Enter" key opens the selected task dialog', async () => {
+        render(<Tasks {...mockProps} />);
+        await screen.findByText('Task 1');
+
+        const taskRows = screen.getAllByTestId(/task-row-/);
+        const selectedRow = taskRows.find(
+          (row) => row.getAttribute('data-selected') === 'true'
+        );
+        const selectedTaskId = selectedRow
+          ?.getAttribute('data-testid')
+          ?.replace('task-row-', '');
+
+        fireEvent.keyDown(window, { key: 'Enter' });
+
+        const dialog = await screen.findByRole('dialog');
+        const idCell = within(dialog).getByText('ID:').closest('tr');
+        expect(within(idCell!).getByText(selectedTaskId!)).toBeInTheDocument();
+      });
+
+      test('pressing "f" focuses the search input', async () => {
+        render(<Tasks {...mockProps} />);
+        await screen.findByText('Task 1');
+
+        fireEvent.keyDown(window, { key: 'f' });
+
+        const searchInput = screen.getByPlaceholderText('Search tasks...');
+        expect(document.activeElement).toBe(searchInput);
+      });
+
+      test('pressing "r" triggers sync', async () => {
+        render(<Tasks {...mockProps} />);
+        await screen.findByText('Task 1');
+
+        fireEvent.keyDown(window, { key: 'r' });
+
+        expect(mockProps.setIsLoading).toHaveBeenCalledWith(true);
+        expect(
+          jest.requireMock('../hooks').fetchTaskwarriorTasks
+        ).toHaveBeenCalled();
+      });
+
+      test.each([
+        ['p', 'projects'],
+        ['s', 'status'],
+        ['t', 'tags'],
+      ])('pressing "%s" opens the %s filter', async (key, filterName) => {
+        render(<Tasks {...mockProps} />);
+        await screen.findByText('Task 1');
+
+        const filterButton = screen.getByTestId(`multi-select-${filterName}`);
+        expect(filterButton).toHaveAttribute('aria-expanded', 'false');
+
+        fireEvent.keyDown(window, { key });
+
+        expect(filterButton).toHaveAttribute('aria-expanded', 'true');
+      });
+
+      test('hotkeys are disabled when input is focused', async () => {
+        render(<Tasks {...mockProps} />);
+        await screen.findByText('Task 1');
+
+        const searchInput = screen.getByPlaceholderText('Search tasks...');
+        searchInput.focus();
+
+        fireEvent.keyDown(searchInput, { key: 'r' });
+
+        expect(mockProps.setIsLoading).not.toHaveBeenCalledWith(true);
+      });
+    });
+
+    describe('Complete/Delete Hotkeys When Dialog Open', () => {
+      test.each([
+        ['c', 'complete', 'markTaskAsCompleted'],
+        ['d', 'delete', 'markTaskAsDeleted'],
+      ])(
+        'pressing "%s" with dialog open triggers %s action on confirmation',
+        async (key, _action, fn) => {
+          render(<Tasks {...mockProps} />);
+          await screen.findByText('Task 1');
+
+          fireEvent.click(screen.getByText('Task 1'));
+          await screen.findByRole('dialog');
+
+          fireEvent.keyDown(window, { key });
+
+          const yesButton = await screen.findByRole('button', {
+            name: /^yes$/i,
+          });
+          fireEvent.click(yesButton);
+
+          expect(jest.requireMock('../tasks-utils')[fn]).toHaveBeenCalled();
+        }
+      );
     });
   });
 });

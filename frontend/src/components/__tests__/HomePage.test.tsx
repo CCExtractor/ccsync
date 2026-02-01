@@ -88,6 +88,7 @@ jest.mock('@/components/utils/URLs', () => ({
     containerOrigin: 'http://mocked-origin/',
     frontendURL: 'http://mocked-frontend-url/',
   },
+  getWebSocketURL: (path: string) => `ws://mocked-backend-url/${path}`,
 }));
 
 // Mock fetch

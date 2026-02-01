@@ -1,0 +1,70 @@
+# Production Docker Compose for CCSync
+# Location on VPS: /opt/ccsync/docker-compose.yml
+#
+# Usage:
+#   IMAGE_TAG=abc1234 docker compose up -d
+#
+# The IMAGE_TAG is set by the deployment script (deploy.sh)
+
+services:
+  frontend:
+    image: ghcr.io/ccextractor/frontend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    networks:
+      - ccsync
+    ports:
+      - "127.0.0.1:3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  backend:
+    image: ghcr.io/ccextractor/backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    networks:
+      - ccsync
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      syncserver:
+        condition: service_healthy
+    env_file:
+      - ./secrets/backend.env
+    volumes:
+      - ./data/backend:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  syncserver:
+    image: ghcr.io/gothenburgbitfactory/taskchampion-sync-server:0.7.1
+    restart: unless-stopped
+    networks:
+      - ccsync
+    ports:
+      - "127.0.0.1:8081:8080"
+    environment:
+      - RUST_LOG=info
+      - DATA_DIR=/data
+      - LISTEN=0.0.0.0:8080
+    volumes:
+      - ./data/syncserver:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  ccsync:
+    driver: bridge

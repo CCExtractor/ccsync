@@ -42,7 +42,7 @@ exports[`Hero component using snapshot renders correctly 1`] = `
         class="space-y-4 md:space-y-0 md:space-x-4"
       >
         <a
-          href="http://localhost:8000/auth/oauth"
+          href="/auth/oauth"
         >
           <button
             class="w-full md:w-1/3 bg-blue-400 hover:bg-blue-500"
