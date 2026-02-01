@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"os/exec"
 )
 
 func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
@@ -11,10 +12,20 @@ func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	status := "healthy"
+	statusCode := http.StatusOK
+
+	// Check if taskwarrior is reachable
+	_, err := exec.LookPath("task")
+	if err != nil {
+		status = "unhealthy: taskwarrior binary not found"
+		statusCode = http.StatusServiceUnavailable
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(map[string]string{
-		"status":  "healthy",
+		"status":  status,
 		"service": "ccsync-backend",
 	})
 }
