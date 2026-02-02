@@ -368,7 +368,10 @@ export const TaskDialog = ({
                         className="w-full"
                       />
                     ) : (
-                      <span className="truncate block" title={task.description}>
+                      <span
+                        className="break-words whitespace-normal"
+                        title={task.description}
+                      >
                         {task.description}
                       </span>
                     )}
@@ -453,7 +456,7 @@ export const TaskDialog = ({
                         placeholder="Select due date and time"
                       />
                     ) : (
-                      <span className="truncate block">
+                      <span className="break-words whitespace-normal">
                         {formattedDate(task.due)}
                       </span>
                     )}
@@ -545,7 +548,7 @@ export const TaskDialog = ({
                         placeholder="Select start date and time"
                       />
                     ) : (
-                      <span className="truncate block">
+                      <span className="break-words whitespace-normal">
                         {formattedDate(task.start)}
                       </span>
                     )}
@@ -637,7 +640,7 @@ export const TaskDialog = ({
                         placeholder="Select end date and time"
                       />
                     ) : (
-                      <span className="truncate block">
+                      <span className="break-words whitespace-normal">
                         {formattedDate(task.end)}
                       </span>
                     )}
@@ -727,7 +730,7 @@ export const TaskDialog = ({
                         placeholder="Select wait date and time"
                       />
                     ) : (
-                      <span className="truncate block">
+                      <span className="break-words whitespace-normal">
                         {formattedDate(task.wait)}
                       </span>
                     )}
@@ -1199,7 +1202,10 @@ export const TaskDialog = ({
                         </div>
                       </>
                     ) : (
-                      <span className="truncate block" title={task.project}>
+                      <span
+                        className="break-words whitespace-normal"
+                        title={task.project}
+                      >
                         {task.project}
                       </span>
                     )}
@@ -1228,7 +1234,10 @@ export const TaskDialog = ({
                 <TableRow>
                   <TableCell>Status:</TableCell>
                   <TableCell className="pr-2 max-w-0 w-full">
-                    <span className="truncate block" title={task.status}>
+                    <span
+                      className="break-words whitespace-normal"
+                      title={task.status}
+                    >
                       {task.status}
                     </span>
                   </TableCell>
@@ -1340,7 +1349,7 @@ export const TaskDialog = ({
                         placeholder="Select entry date and time"
                       />
                     ) : (
-                      <span className="truncate block">
+                      <span className="break-words whitespace-normal">
                         {formattedDate(task.entry)}
                       </span>
                     )}
@@ -1444,7 +1453,7 @@ export const TaskDialog = ({
                         </SelectContent>
                       </Select>
                     ) : (
-                      <span className="truncate block">
+                      <span className="break-words whitespace-normal">
                         {task.recur || 'None'}
                       </span>
                     )}
@@ -1500,7 +1509,7 @@ export const TaskDialog = ({
                 <TableRow>
                   <TableCell>RType:</TableCell>
                   <TableCell className="pr-2 max-w-0 w-full">
-                    <span className="truncate block">
+                    <span className="break-words whitespace-normal">
                       {task.rtype || 'None'}
                     </span>
                     {!task.rtype && (
@@ -1514,14 +1523,19 @@ export const TaskDialog = ({
                 <TableRow>
                   <TableCell>Urgency:</TableCell>
                   <TableCell className="pr-2 max-w-0 w-full">
-                    <span className="truncate block">{task.urgency}</span>
+                    <span className="break-words whitespace-normal">
+                      {task.urgency}
+                    </span>
                   </TableCell>
                   <TableCell className="w-32 text-right align-top"></TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>UUID:</TableCell>
                   <TableCell className="pr-2 max-w-0 w-full">
-                    <span className="truncate block" title={task.uuid}>
+                    <span
+                      className="break-words whitespace-normal"
+                      title={task.uuid}
+                    >
                       {task.uuid}
                     </span>
                   </TableCell>
@@ -1609,13 +1623,13 @@ export const TaskDialog = ({
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center flex-wrap">
+                      <div className="flex flex-wrap gap-2">
                         {task.annotations && task.annotations.length >= 1 ? (
                           task.annotations.map((annotation, index) => (
                             <Badge
                               key={index}
                               variant="secondary"
-                              className="mr-2 mt-1"
+                              className="break-words whitespace-normal"
                             >
                               {annotation.description}
                             </Badge>
