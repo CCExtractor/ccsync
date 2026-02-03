@@ -242,10 +242,7 @@ export const TaskDialog = ({
                 {task.priority != 'H' && task.priority != 'M' && (
                   <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
                 )}
-                <span
-                  title={task.description}
-                  className="text-s text-foreground truncate"
-                >
+                <span className="text-s text-foreground truncate">
                   {task.description}
                 </span>
                 {task.project != '' && (
@@ -368,10 +365,7 @@ export const TaskDialog = ({
                         className="w-full"
                       />
                     ) : (
-                      <span
-                        className="break-words whitespace-normal"
-                        title={task.description}
-                      >
+                      <span className="break-words whitespace-normal">
                         {task.description}
                       </span>
                     )}
@@ -1202,10 +1196,7 @@ export const TaskDialog = ({
                         </div>
                       </>
                     ) : (
-                      <span
-                        className="break-words whitespace-normal"
-                        title={task.project}
-                      >
+                      <span className="break-words whitespace-normal">
                         {task.project}
                       </span>
                     )}
@@ -1234,10 +1225,7 @@ export const TaskDialog = ({
                 <TableRow>
                   <TableCell>Status:</TableCell>
                   <TableCell className="pr-2 max-w-0 w-full">
-                    <span
-                      className="break-words whitespace-normal"
-                      title={task.status}
-                    >
+                    <span className="break-words whitespace-normal">
                       {task.status}
                     </span>
                   </TableCell>
@@ -1532,10 +1520,7 @@ export const TaskDialog = ({
                 <TableRow>
                   <TableCell>UUID:</TableCell>
                   <TableCell className="pr-2 max-w-0 w-full">
-                    <span
-                      className="break-words whitespace-normal"
-                      title={task.uuid}
-                    >
+                    <span className="break-words whitespace-normal">
                       {task.uuid}
                     </span>
                   </TableCell>
