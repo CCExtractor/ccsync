@@ -141,6 +141,8 @@ export interface MultiSelectProps {
   showActions?: boolean;
   onSave?: () => void;
   onCancel?: () => void;
+  /** When true, selected items are not shown inside the MultiSelect (e.g. when rendered elsewhere). */
+  hideSelectedDisplay?: boolean;
 }
 
 export interface EditTaskDialogProps {

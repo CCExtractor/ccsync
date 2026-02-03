@@ -385,8 +385,36 @@ export const AddTaskdialog = ({
                         setNewTask({ ...newTask, tags })
                       }
                       placeholder="Select or create tags..."
+                      hideSelectedDisplay
                     />
                   </div>
+                  {newTask.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-3 bg-background rounded-lg border min-h-[60px]">
+                      {newTask.tags.map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="h-auto py-2 px-3 text-sm bg-blue-500/10 text-blue-700 dark:text-blue-300 hover:bg-blue-500/20"
+                        >
+                          <TagIcon className="h-3 w-3 mr-1 flex-shrink-0" />
+                          <span className="max-w-[200px] truncate">{tag}</span>
+                          <button
+                            type="button"
+                            className="ml-2 text-red-500 hover:text-red-700 flex-shrink-0"
+                            aria-label={`Remove tag ${tag}`}
+                            onClick={() =>
+                              setNewTask({
+                                ...newTask,
+                                tags: newTask.tags.filter((t) => t !== tag),
+                              })
+                            }
+                          >
+                            ✖
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </section>
 
@@ -422,32 +450,27 @@ export const AddTaskdialog = ({
                     />
                   </div>
                   {newTask.annotations.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                        Added annotations:
-                      </p>
-                      <div className="flex flex-wrap gap-2 p-3 bg-background rounded-lg border min-h-[60px]">
-                        {newTask.annotations.map((annotation, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className="h-auto py-2 px-3 text-sm bg-green-500/10 text-green-700 dark:text-green-300 hover:bg-green-500/20"
+                    <div className="flex flex-wrap gap-2 p-3 bg-background rounded-lg border min-h-[60px]">
+                      {newTask.annotations.map((annotation, index) => (
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="h-auto py-2 px-3 text-sm bg-green-500/10 text-green-700 dark:text-green-300 hover:bg-green-500/20"
+                        >
+                          <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
+                          <span className="max-w-[200px] truncate">
+                            {annotation.description}
+                          </span>
+                          <button
+                            type="button"
+                            className="ml-2 text-red-500 hover:text-red-700 flex-shrink-0"
+                            aria-label="remove annotation"
+                            onClick={() => handleRemoveAnnotation(annotation)}
                           >
-                            <FileText className="h-3 w-3 mr-1 flex-shrink-0" />
-                            <span className="max-w-[200px] truncate">
-                              {annotation.description}
-                            </span>
-                            <button
-                              type="button"
-                              className="ml-2 text-red-500 hover:text-red-700 flex-shrink-0"
-                              aria-label="remove annotation"
-                              onClick={() => handleRemoveAnnotation(annotation)}
-                            >
-                              ✖
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
+                            ✖
+                          </button>
+                        </Badge>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -535,48 +558,43 @@ export const AddTaskdialog = ({
 
                   {/* Display selected dependencies */}
                   {newTask.depends.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-sm text-muted-foreground">
-                        Selected dependencies:
-                      </p>
-                      <div className="flex flex-wrap gap-2 p-3 bg-background rounded-lg border min-h-[60px]">
-                        {newTask.depends.map((taskUuid) => {
-                          const dependentTask = allTasks.find(
-                            (t) => t.uuid === taskUuid
-                          );
-                          return (
-                            <Badge
-                              key={taskUuid}
-                              variant="secondary"
-                              className="h-auto py-2 px-3 text-sm bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-500/20"
+                    <div className="flex flex-wrap gap-2 p-3 bg-background rounded-lg border min-h-[60px]">
+                      {newTask.depends.map((taskUuid) => {
+                        const dependentTask = allTasks.find(
+                          (t) => t.uuid === taskUuid
+                        );
+                        return (
+                          <Badge
+                            key={taskUuid}
+                            variant="secondary"
+                            className="h-auto py-2 px-3 text-sm bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-500/20"
+                          >
+                            <Link2 className="h-3 w-3 mr-1 flex-shrink-0" />
+                            <span className="max-w-[200px] truncate">
+                              #{dependentTask?.id || '?'}{' '}
+                              {dependentTask?.description?.substring(0, 20) ||
+                                taskUuid.substring(0, 8)}
+                              {dependentTask?.description &&
+                                dependentTask.description.length > 20 &&
+                                '...'}
+                            </span>
+                            <button
+                              type="button"
+                              className="ml-2 text-red-500 hover:text-red-700 flex-shrink-0"
+                              onClick={() => {
+                                setNewTask({
+                                  ...newTask,
+                                  depends: newTask.depends.filter(
+                                    (d) => d !== taskUuid
+                                  ),
+                                });
+                              }}
                             >
-                              <Link2 className="h-3 w-3 mr-1 flex-shrink-0" />
-                              <span className="max-w-[200px] truncate">
-                                #{dependentTask?.id || '?'}{' '}
-                                {dependentTask?.description?.substring(0, 20) ||
-                                  taskUuid.substring(0, 8)}
-                                {dependentTask?.description &&
-                                  dependentTask.description.length > 20 &&
-                                  '...'}
-                              </span>
-                              <button
-                                type="button"
-                                className="ml-2 text-red-500 hover:text-red-700 flex-shrink-0"
-                                onClick={() => {
-                                  setNewTask({
-                                    ...newTask,
-                                    depends: newTask.depends.filter(
-                                      (d) => d !== taskUuid
-                                    ),
-                                  });
-                                }}
-                              >
-                                ✖
-                              </button>
-                            </Badge>
-                          );
-                        })}
-                      </div>
+                              ✖
+                            </button>
+                          </Badge>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
