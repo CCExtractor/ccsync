@@ -18,6 +18,11 @@ export const Navbar = (
 ) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    window.location.reload();
+  };
+
   return (
     <header className="sticky border-b-[1px] top-0 z-40 w-full bg-white dark:border-b-slate-700 dark:bg-background">
       <NavigationMenu className="mx-auto">
@@ -25,7 +30,8 @@ export const Navbar = (
           <NavigationMenuItem className="font-bold flex">
             <a
               rel="noreferrer noopener"
-              href="/"
+              href="#"
+              onClick={handleLogoClick}
               className="ml-2 font-bold text-xl flex items-center dark:hidden"
             >
               <img
@@ -36,7 +42,8 @@ export const Navbar = (
             </a>
             <a
               rel="noreferrer noopener"
-              href="/"
+              href="#"
+              onClick={handleLogoClick}
               className="ml-2 font-bold text-xl hidden dark:flex items-center"
             >
               <img
