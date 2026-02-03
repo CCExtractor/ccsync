@@ -4,6 +4,11 @@ import logoLight from '../../../assets/logo_light.png';
 import { url } from '@/components/utils/URLs';
 
 export const Footer = () => {
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    window.location.reload();
+  };
+
   return (
     <footer id="footer">
       <hr className="w-11/12 mx-auto" />
@@ -12,7 +17,8 @@ export const Footer = () => {
         <div className="col-span-full xl:col-span-2">
           <a
             rel="noreferrer noopener"
-            href="/"
+            href="#"
+            onClick={handleLogoClick}
             className="ml-2 font-bold text-xl flex items-center dark:hidden"
           >
             <img
@@ -23,7 +29,8 @@ export const Footer = () => {
           </a>
           <a
             rel="noreferrer noopener"
-            href="/"
+            href="#"
+            onClick={handleLogoClick}
             className="ml-2 font-bold text-xl hidden dark:flex items-center"
           >
             <img
