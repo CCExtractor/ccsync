@@ -1,6 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { DateTimePicker } from '../ui/date-time-picker';
+import { DateTimePicker } from '../date-time-picker';
 import '@testing-library/jest-dom';
 
 describe('DateTimePicker', () => {
@@ -38,7 +38,9 @@ describe('DateTimePicker', () => {
 
     // Close popover using Escape key
     fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.queryByText(/February 2026/)).not.toBeInTheDocument(); // Check for absence of specific content
+    await waitFor(() => {
+        expect(screen.queryByText(/February 2026/)).not.toBeInTheDocument(); // Check for absence of specific content
+    });
   });
 
   it('allows selecting a date from the calendar', async () => {
@@ -58,7 +60,9 @@ describe('DateTimePicker', () => {
     await user.click(dateToSelect);
 
     // Expect the popover to close after selecting a date
-    expect(screen.queryByText(/February 2026/)).not.toBeInTheDocument();
+    await waitFor(() => {
+        expect(screen.queryByText(/February 2026/)).not.toBeInTheDocument();
+    });
 
     // Check if onDateTimeChange was called with the correct date (year, month, and day)
     expect(mockOnDateTimeChange).toHaveBeenCalledTimes(1);

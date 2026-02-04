@@ -58,13 +58,11 @@ export const DateTimePicker = React.forwardRef<
 
       isInternalUpdate.current = true;
       onDateTimeChange(newDate, false);
-      setIsOpen(false);
     } else {
       setInternalDate(undefined);
       setHasTime(false);
       isInternalUpdate.current = true;
       onDateTimeChange(undefined, false);
-      setIsOpen(false);
     }
   };
 
