@@ -232,7 +232,7 @@ export const TaskDialog = ({
               >
                 {task.id}
               </span>
-              <div className="flex items-center space-x-2 flex-1 min-w-0">
+              <div className="flex items-center space-x-2 flex-1 min-w-0 overflow-hidden">
                 {task.priority === 'H' && (
                   <div className="flex items-center justify-center w-3 h-3 bg-red-500 rounded-full border-0 min-w-3"></div>
                 )}
@@ -242,7 +242,7 @@ export const TaskDialog = ({
                 {task.priority != 'H' && task.priority != 'M' && (
                   <div className="flex items-center justify-center w-3 h-3 bg-green-500 rounded-full border-0 min-w-3"></div>
                 )}
-                <span className="text-s text-foreground">
+                <span className="text-s text-foreground truncate">
                   {task.description}
                 </span>
                 {task.project != '' && (
@@ -252,7 +252,7 @@ export const TaskDialog = ({
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-32 justify-end flex-shrink-0">
                 <Badge
                   className={
                     task.status === 'pending' && isOverdue(task.due)
@@ -337,76 +337,77 @@ export const TaskDialog = ({
                   className={`${focusedField === 'description' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Description:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditing ? (
-                      <>
-                        <div className="flex items-center">
-                          <Input
-                            aria-label="description"
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                saveAndExit(() => {
-                                  onSaveDescription(
-                                    task,
-                                    editState.editedDescription
-                                  );
-                                });
-                              }
-                            }}
-                            ref={(element) =>
-                              (inputRefs.current.description = element)
-                            }
-                            id={`description-${task.id}`}
-                            name={`description-${task.id}`}
-                            type="text"
-                            value={editState.editedDescription}
-                            onChange={(e) =>
-                              onUpdateState({
-                                editedDescription: e.target.value,
-                              })
-                            }
-                            className="flex-grow mr-2"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="save"
-                            onClick={() => {
+                      <Input
+                        aria-label="description"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            saveAndExit(() => {
                               onSaveDescription(
                                 task,
                                 editState.editedDescription
                               );
-                              onUpdateState({ isEditing: false });
-                            }}
-                          >
-                            <CheckIcon className="h-4 w-4 text-green-500" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="cancel"
-                            onClick={handleCancelClick}
-                          >
-                            <XIcon className="h-4 w-4 text-red-500" />
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <span>{task.description}</span>
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.description = element)
+                            });
                           }
+                        }}
+                        ref={(element) =>
+                          (inputRefs.current.description = element)
+                        }
+                        id={`description-${task.id}`}
+                        name={`description-${task.id}`}
+                        type="text"
+                        value={editState.editedDescription}
+                        onChange={(e) =>
+                          onUpdateState({ editedDescription: e.target.value })
+                        }
+                        className="w-full"
+                      />
+                    ) : (
+                      <span className="break-words whitespace-normal">
+                        {task.description}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {editState.isEditing ? (
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
                           variant="ghost"
                           size="icon"
-                          aria-label="edit"
-                          onClick={() => handleEditClick(task.description)}
+                          aria-label="save"
+                          onClick={() => {
+                            onSaveDescription(
+                              task,
+                              editState.editedDescription
+                            );
+                            onUpdateState({ isEditing: false });
+                          }}
                         >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
+                          <CheckIcon className="h-4 w-4 text-green-500" />
                         </Button>
-                      </>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="cancel"
+                          onClick={handleCancelClick}
+                        >
+                          <XIcon className="h-4 w-4 text-red-500" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        ref={(element) =>
+                          (editButtonRef.current.description = element)
+                        }
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() => handleEditClick(task.description)}
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -414,41 +415,49 @@ export const TaskDialog = ({
                   className={`${focusedField === 'due' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Due:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditingDueDate ? (
-                      <div className="flex items-center gap-2">
-                        <DateTimePicker
-                          ref={(element) => (inputRefs.current.due = element)}
-                          date={
-                            editState.editedDueDate &&
-                            editState.editedDueDate !== ''
-                              ? (() => {
-                                  try {
-                                    const dateStr =
-                                      editState.editedDueDate.includes('T')
-                                        ? editState.editedDueDate
-                                        : editState.editedDueDate + 'T00:00:00';
-                                    const parsed = new Date(dateStr);
-                                    return isNaN(parsed.getTime())
-                                      ? undefined
-                                      : parsed;
-                                  } catch {
-                                    return undefined;
-                                  }
-                                })()
-                              : undefined
-                          }
-                          onDateTimeChange={(date, hasTime) =>
-                            onUpdateState({
-                              editedDueDate: date
-                                ? hasTime
-                                  ? date.toISOString()
-                                  : format(date, 'yyyy-MM-dd')
-                                : '',
-                            })
-                          }
-                          placeholder="Select due date and time"
-                        />
+                      <DateTimePicker
+                        ref={(element) => (inputRefs.current.due = element)}
+                        date={
+                          editState.editedDueDate &&
+                          editState.editedDueDate !== ''
+                            ? (() => {
+                                try {
+                                  const dateStr =
+                                    editState.editedDueDate.includes('T')
+                                      ? editState.editedDueDate
+                                      : editState.editedDueDate + 'T00:00:00';
+                                  const parsed = new Date(dateStr);
+                                  return isNaN(parsed.getTime())
+                                    ? undefined
+                                    : parsed;
+                                } catch {
+                                  return undefined;
+                                }
+                              })()
+                            : undefined
+                        }
+                        onDateTimeChange={(date, hasTime) =>
+                          onUpdateState({
+                            editedDueDate: date
+                              ? hasTime
+                                ? date.toISOString()
+                                : format(date, 'yyyy-MM-dd')
+                              : '',
+                          })
+                        }
+                        placeholder="Select due date and time"
+                      />
+                    ) : (
+                      <span className="break-words whitespace-normal">
+                        {formattedDate(task.due)}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {editState.isEditingDueDate ? (
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -475,25 +484,20 @@ export const TaskDialog = ({
                         </Button>
                       </div>
                     ) : (
-                      <>
-                        <span>{formattedDate(task.due)}</span>
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.due = element)
-                          }
-                          variant="ghost"
-                          size="icon"
-                          aria-label="edit"
-                          onClick={() => {
-                            onUpdateState({
-                              isEditingDueDate: true,
-                              editedDueDate: task.due || '',
-                            });
-                          }}
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
-                      </>
+                      <Button
+                        ref={(element) => (editButtonRef.current.due = element)}
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() =>
+                          onUpdateState({
+                            isEditingDueDate: true,
+                            editedDueDate: task.due || '',
+                          })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -501,46 +505,51 @@ export const TaskDialog = ({
                   className={`${focusedField === 'start' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Start:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditingStartDate ? (
-                      <div className="flex items-center gap-2">
-                        <DateTimePicker
-                          ref={(element: HTMLButtonElement | null) =>
-                            (inputRefs.current.start = element)
-                          }
-                          date={
-                            editState.editedStartDate &&
-                            editState.editedStartDate !== ''
-                              ? (() => {
-                                  try {
-                                    // Handle YYYY-MM-DD format
-                                    const dateStr =
-                                      editState.editedStartDate.includes('T')
-                                        ? editState.editedStartDate
-                                        : editState.editedStartDate +
-                                          'T00:00:00';
-                                    const parsed = new Date(dateStr);
-                                    return isNaN(parsed.getTime())
-                                      ? undefined
-                                      : parsed;
-                                  } catch {
-                                    return undefined;
-                                  }
-                                })()
-                              : undefined
-                          }
-                          onDateTimeChange={(date, hasTime) =>
-                            onUpdateState({
-                              editedStartDate: date
-                                ? hasTime
-                                  ? date.toISOString()
-                                  : format(date, 'yyyy-MM-dd')
-                                : '',
-                            })
-                          }
-                          placeholder="Select start date and time"
-                        />
-
+                      <DateTimePicker
+                        ref={(element: HTMLButtonElement | null) =>
+                          (inputRefs.current.start = element)
+                        }
+                        date={
+                          editState.editedStartDate &&
+                          editState.editedStartDate !== ''
+                            ? (() => {
+                                try {
+                                  const dateStr =
+                                    editState.editedStartDate.includes('T')
+                                      ? editState.editedStartDate
+                                      : editState.editedStartDate + 'T00:00:00';
+                                  const parsed = new Date(dateStr);
+                                  return isNaN(parsed.getTime())
+                                    ? undefined
+                                    : parsed;
+                                } catch {
+                                  return undefined;
+                                }
+                              })()
+                            : undefined
+                        }
+                        onDateTimeChange={(date, hasTime) =>
+                          onUpdateState({
+                            editedStartDate: date
+                              ? hasTime
+                                ? date.toISOString()
+                                : format(date, 'yyyy-MM-dd')
+                              : '',
+                          })
+                        }
+                        placeholder="Select start date and time"
+                      />
+                    ) : (
+                      <span className="break-words whitespace-normal">
+                        {formattedDate(task.start)}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {editState.isEditingStartDate ? (
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -552,7 +561,6 @@ export const TaskDialog = ({
                         >
                           <CheckIcon className="h-4 w-4 text-green-500" />
                         </Button>
-
                         <Button
                           variant="ghost"
                           size="icon"
@@ -568,25 +576,22 @@ export const TaskDialog = ({
                         </Button>
                       </div>
                     ) : (
-                      <>
-                        <span>{formattedDate(task.start)}</span>
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.start = element)
-                          }
-                          variant="ghost"
-                          size="icon"
-                          aria-label="edit"
-                          onClick={() => {
-                            onUpdateState({
-                              isEditingStartDate: true,
-                              editedStartDate: task.start || '',
-                            });
-                          }}
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
-                      </>
+                      <Button
+                        ref={(element) =>
+                          (editButtonRef.current.start = element)
+                        }
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() =>
+                          onUpdateState({
+                            isEditingStartDate: true,
+                            editedStartDate: task.start || '',
+                          })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -594,41 +599,49 @@ export const TaskDialog = ({
                   className={`${focusedField === 'end' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>End:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditingEndDate ? (
-                      <div className="flex items-center gap-2">
-                        <DateTimePicker
-                          ref={(element) => (inputRefs.current.end = element)}
-                          date={
-                            editState.editedEndDate &&
-                            editState.editedEndDate !== ''
-                              ? (() => {
-                                  try {
-                                    const dateStr =
-                                      editState.editedEndDate.includes('T')
-                                        ? editState.editedEndDate
-                                        : editState.editedEndDate + 'T00:00:00';
-                                    const parsed = new Date(dateStr);
-                                    return isNaN(parsed.getTime())
-                                      ? undefined
-                                      : parsed;
-                                  } catch {
-                                    return undefined;
-                                  }
-                                })()
-                              : undefined
-                          }
-                          onDateTimeChange={(date, hasTime) =>
-                            onUpdateState({
-                              editedEndDate: date
-                                ? hasTime
-                                  ? date.toISOString()
-                                  : format(date, 'yyyy-MM-dd')
-                                : '',
-                            })
-                          }
-                          placeholder="Select end date and time"
-                        />
+                      <DateTimePicker
+                        ref={(element) => (inputRefs.current.end = element)}
+                        date={
+                          editState.editedEndDate &&
+                          editState.editedEndDate !== ''
+                            ? (() => {
+                                try {
+                                  const dateStr =
+                                    editState.editedEndDate.includes('T')
+                                      ? editState.editedEndDate
+                                      : editState.editedEndDate + 'T00:00:00';
+                                  const parsed = new Date(dateStr);
+                                  return isNaN(parsed.getTime())
+                                    ? undefined
+                                    : parsed;
+                                } catch {
+                                  return undefined;
+                                }
+                              })()
+                            : undefined
+                        }
+                        onDateTimeChange={(date, hasTime) =>
+                          onUpdateState({
+                            editedEndDate: date
+                              ? hasTime
+                                ? date.toISOString()
+                                : format(date, 'yyyy-MM-dd')
+                              : '',
+                          })
+                        }
+                        placeholder="Select end date and time"
+                      />
+                    ) : (
+                      <span className="break-words whitespace-normal">
+                        {formattedDate(task.end)}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {editState.isEditingEndDate ? (
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -655,25 +668,20 @@ export const TaskDialog = ({
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center">
-                        <span>{formattedDate(task.end)}</span>
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.end = element)
-                          }
-                          variant="ghost"
-                          size="icon"
-                          aria-label="edit"
-                          onClick={() => {
-                            onUpdateState({
-                              isEditingEndDate: true,
-                              editedEndDate: task.end || '',
-                            });
-                          }}
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
-                      </div>
+                      <Button
+                        ref={(element) => (editButtonRef.current.end = element)}
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() =>
+                          onUpdateState({
+                            isEditingEndDate: true,
+                            editedEndDate: task.end || '',
+                          })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -681,43 +689,49 @@ export const TaskDialog = ({
                   className={`${focusedField === 'wait' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Wait:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditingWaitDate ? (
-                      <div className="flex items-center gap-2">
-                        <DateTimePicker
-                          ref={(element) => (inputRefs.current.wait = element)}
-                          date={
-                            editState.editedWaitDate &&
-                            editState.editedWaitDate !== ''
-                              ? (() => {
-                                  try {
-                                    const dateStr =
-                                      editState.editedWaitDate.includes('T')
-                                        ? editState.editedWaitDate
-                                        : editState.editedWaitDate +
-                                          'T00:00:00';
-                                    const parsed = new Date(dateStr);
-                                    return isNaN(parsed.getTime())
-                                      ? undefined
-                                      : parsed;
-                                  } catch {
-                                    return undefined;
-                                  }
-                                })()
-                              : undefined
-                          }
-                          onDateTimeChange={(date, hasTime) =>
-                            onUpdateState({
-                              editedWaitDate: date
-                                ? hasTime
-                                  ? date.toISOString()
-                                  : format(date, 'yyyy-MM-dd')
-                                : '',
-                            })
-                          }
-                          placeholder="Select wait date and time"
-                        />
-
+                      <DateTimePicker
+                        ref={(element) => (inputRefs.current.wait = element)}
+                        date={
+                          editState.editedWaitDate &&
+                          editState.editedWaitDate !== ''
+                            ? (() => {
+                                try {
+                                  const dateStr =
+                                    editState.editedWaitDate.includes('T')
+                                      ? editState.editedWaitDate
+                                      : editState.editedWaitDate + 'T00:00:00';
+                                  const parsed = new Date(dateStr);
+                                  return isNaN(parsed.getTime())
+                                    ? undefined
+                                    : parsed;
+                                } catch {
+                                  return undefined;
+                                }
+                              })()
+                            : undefined
+                        }
+                        onDateTimeChange={(date, hasTime) =>
+                          onUpdateState({
+                            editedWaitDate: date
+                              ? hasTime
+                                ? date.toISOString()
+                                : format(date, 'yyyy-MM-dd')
+                              : '',
+                          })
+                        }
+                        placeholder="Select wait date and time"
+                      />
+                    ) : (
+                      <span className="break-words whitespace-normal">
+                        {formattedDate(task.wait)}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {editState.isEditingWaitDate ? (
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -729,7 +743,6 @@ export const TaskDialog = ({
                         >
                           <CheckIcon className="h-4 w-4 text-green-500" />
                         </Button>
-
                         <Button
                           variant="ghost"
                           size="icon"
@@ -745,25 +758,22 @@ export const TaskDialog = ({
                         </Button>
                       </div>
                     ) : (
-                      <>
-                        <span>{formattedDate(task.wait)}</span>
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.wait = element)
-                          }
-                          variant="ghost"
-                          size="icon"
-                          aria-label="edit"
-                          onClick={() => {
-                            onUpdateState({
-                              isEditingWaitDate: true,
-                              editedWaitDate: task?.wait ?? '',
-                            });
-                          }}
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
-                      </>
+                      <Button
+                        ref={(element) =>
+                          (editButtonRef.current.wait = element)
+                        }
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() =>
+                          onUpdateState({
+                            isEditingWaitDate: true,
+                            editedWaitDate: task?.wait ?? '',
+                          })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -771,7 +781,7 @@ export const TaskDialog = ({
                   className={`${focusedField === 'depends' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Depends:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {!editState.isEditingDepends ? (
                       <div className="flex flex-wrap items-center gap-2">
                         {(task.depends || []).map((depUuid) => {
@@ -800,30 +810,6 @@ export const TaskDialog = ({
                             </Badge>
                           );
                         })}
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.depends = element)
-                          }
-                          variant="ghost"
-                          size="icon"
-                          aria-label="edit"
-                          onClick={() => {
-                            onUpdateState({
-                              isEditingDepends: true,
-                              editedDepends: task.depends || [],
-                            });
-
-                            setTimeout(() => {
-                              onUpdateState({ dependsDropdownOpen: true });
-                            }, 0);
-
-                            requestAnimationFrame(() => {
-                              inputRefs.current.depends?.focus();
-                            });
-                          }}
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -865,9 +851,7 @@ export const TaskDialog = ({
                               variant="outline"
                               size="sm"
                               onClick={() =>
-                                onUpdateState({
-                                  dependsDropdownOpen: true,
-                                })
+                                onUpdateState({ dependsDropdownOpen: true })
                               }
                               className="w-full justify-start"
                             >
@@ -911,15 +895,15 @@ export const TaskDialog = ({
                                     <div
                                       key={t.uuid}
                                       className="flex items-center gap-2 p-2 hover:bg-accent cursor-pointer"
-                                      onClick={() => {
+                                      onClick={() =>
                                         onUpdateState({
                                           editedDepends: [
                                             ...editState.editedDepends,
                                             t.uuid,
                                           ],
                                           dependsSearchTerm: '',
-                                        });
-                                      }}
+                                        })
+                                      }
                                       onKeyDown={(e) => {
                                         if (e.key === 'Enter') {
                                           e.preventDefault();
@@ -954,35 +938,63 @@ export const TaskDialog = ({
                               </div>
                             )}
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="save"
-                            onClick={() => {
-                              onSaveDepends(task, editState.editedDepends);
-                              onUpdateState({
-                                isEditingDepends: false,
-                                dependsDropdownOpen: false,
-                              });
-                            }}
-                          >
-                            <CheckIcon className="h-4 w-4 text-green-500" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            aria-label="cancel"
-                            onClick={() => {
-                              onUpdateState({
-                                isEditingDepends: false,
-                                dependsDropdownOpen: false,
-                                editedDepends: task.depends || [],
-                              });
-                            }}
-                          >
-                            <XIcon className="h-4 w-4 text-red-500" />
-                          </Button>
                         </div>
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {!editState.isEditingDepends ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() => {
+                          onUpdateState({
+                            isEditingDepends: true,
+                            editedDepends: task.depends || [],
+                          });
+                          setTimeout(
+                            () => onUpdateState({ dependsDropdownOpen: true }),
+                            0
+                          );
+                          requestAnimationFrame(() =>
+                            inputRefs.current.depends?.focus()
+                          );
+                        }}
+                        ref={(el) => (editButtonRef.current.depends = el)}
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
+                    ) : (
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="save"
+                          onClick={() => {
+                            onSaveDepends(task, editState.editedDepends);
+                            onUpdateState({
+                              isEditingDepends: false,
+                              dependsDropdownOpen: false,
+                            });
+                          }}
+                        >
+                          <CheckIcon className="h-4 w-4 text-green-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="cancel"
+                          onClick={() =>
+                            onUpdateState({
+                              isEditingDepends: false,
+                              dependsDropdownOpen: false,
+                              editedDepends: task.depends || [],
+                            })
+                          }
+                        >
+                          <XIcon className="h-4 w-4 text-red-500" />
+                        </Button>
                       </div>
                     )}
                   </TableCell>
@@ -991,27 +1003,41 @@ export const TaskDialog = ({
                   className={`${focusedField === 'priority' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Priority:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditingPriority ? (
-                      <div className="flex items-center">
-                        <Select
-                          value={editState.editedPriority}
-                          onValueChange={(value) =>
-                            onUpdateState({
-                              editedPriority: value,
-                            })
-                          }
-                        >
-                          <SelectTrigger className="flex-grow mr-2">
-                            <SelectValue placeholder="Select priority" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="NONE">None</SelectItem>
-                            <SelectItem value="H">High (H)</SelectItem>
-                            <SelectItem value="M">Medium (M)</SelectItem>
-                            <SelectItem value="L">Low (L)</SelectItem>
-                          </SelectContent>
-                        </Select>
+                      <Select
+                        value={editState.editedPriority}
+                        onValueChange={(value) =>
+                          onUpdateState({ editedPriority: value })
+                        }
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="NONE">None</SelectItem>
+                          <SelectItem value="H">High (H)</SelectItem>
+                          <SelectItem value="M">Medium (M)</SelectItem>
+                          <SelectItem value="L">Low (L)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <span>
+                        {task.priority
+                          ? task.priority === 'H'
+                            ? 'High (H)'
+                            : task.priority === 'M'
+                              ? 'Medium (M)'
+                              : task.priority === 'L'
+                                ? 'Low (L)'
+                                : task.priority
+                          : 'None'}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {editState.isEditingPriority ? (
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -1027,46 +1053,33 @@ export const TaskDialog = ({
                           variant="ghost"
                           size="icon"
                           aria-label="cancel"
-                          onClick={() => {
+                          onClick={() =>
                             onUpdateState({
                               editedPriority: task.priority || 'NONE',
                               isEditingPriority: false,
-                            });
-                          }}
+                            })
+                          }
                         >
                           <XIcon className="h-4 w-4 text-red-500" />
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center">
-                        <span>
-                          {task.priority
-                            ? task.priority === 'H'
-                              ? 'High (H)'
-                              : task.priority === 'M'
-                                ? 'Medium (M)'
-                                : task.priority === 'L'
-                                  ? 'Low (L)'
-                                  : task.priority
-                            : 'None'}
-                        </span>
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.priority = element)
-                          }
-                          variant="ghost"
-                          size="icon"
-                          aria-label="edit"
-                          onClick={() => {
-                            onUpdateState({
-                              editedPriority: task.priority || 'NONE',
-                              isEditingPriority: true,
-                            });
-                          }}
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
-                      </div>
+                      <Button
+                        ref={(element) =>
+                          (editButtonRef.current.priority = element)
+                        }
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() =>
+                          onUpdateState({
+                            editedPriority: task.priority || 'NONE',
+                            isEditingPriority: true,
+                          })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -1074,7 +1087,7 @@ export const TaskDialog = ({
                   className={`${focusedField === 'project' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Project:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditingProject ? (
                       <>
                         <div className="col-span-3 space-y-2 w-[300px]">
@@ -1183,37 +1196,46 @@ export const TaskDialog = ({
                         </div>
                       </>
                     ) : (
-                      <>
-                        <span>{task.project}</span>
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.project = element)
-                          }
-                          variant="ghost"
-                          size="icon"
-                          aria-label="edit"
-                          onClick={() => {
-                            onUpdateState({
-                              editedProject: task.project,
-                              isEditingProject: true,
-                            });
-                          }}
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
-                      </>
+                      <span className="break-words whitespace-normal">
+                        {task.project}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {!editState.isEditingProject && (
+                      <Button
+                        ref={(element) =>
+                          (editButtonRef.current.project = element)
+                        }
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() =>
+                          onUpdateState({
+                            editedProject: task.project,
+                            isEditingProject: true,
+                          })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Status:</TableCell>
-                  <TableCell>{task.status}</TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
+                    <span className="break-words whitespace-normal">
+                      {task.status}
+                    </span>
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top"></TableCell>
                 </TableRow>
                 <TableRow
                   className={`${focusedField === 'tags' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Tags:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditingTags ? (
                       <MultiSelect
                         availableItems={uniqueTags}
@@ -1250,24 +1272,28 @@ export const TaskDialog = ({
                         ) : (
                           <span>No Tags</span>
                         )}
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.tags = element)
-                          }
-                          variant="ghost"
-                          size="icon"
-                          aria-label="edit"
-                          onClick={() =>
-                            onUpdateState({
-                              isEditingTags: true,
-                              editedTags: task.tags || [],
-                              editTagInput: '',
-                            })
-                          }
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
                       </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {!editState.isEditingTags && (
+                      <Button
+                        ref={(element) =>
+                          (editButtonRef.current.tags = element)
+                        }
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() =>
+                          onUpdateState({
+                            isEditingTags: true,
+                            editedTags: task.tags || [],
+                            editTagInput: '',
+                          })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -1275,44 +1301,50 @@ export const TaskDialog = ({
                   className={`${focusedField === 'entry' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Entry:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditingEntryDate ? (
-                      <div className="flex items-center gap-2">
-                        <DateTimePicker
-                          ref={(element) => (inputRefs.current.entry = element)}
-                          date={
-                            editState.editedEntryDate &&
-                            editState.editedEntryDate !== ''
-                              ? (() => {
-                                  try {
-                                    // Handle YYYY-MM-DD format
-                                    const dateStr =
-                                      editState.editedEntryDate.includes('T')
-                                        ? editState.editedEntryDate
-                                        : editState.editedEntryDate +
-                                          'T00:00:00';
-                                    const parsed = new Date(dateStr);
-                                    return isNaN(parsed.getTime())
-                                      ? undefined
-                                      : parsed;
-                                  } catch {
-                                    return undefined;
-                                  }
-                                })()
-                              : undefined
-                          }
-                          onDateTimeChange={(date, hasTime) =>
-                            onUpdateState({
-                              editedEntryDate: date
-                                ? hasTime
-                                  ? date.toISOString()
-                                  : format(date, 'yyyy-MM-dd')
-                                : '',
-                            })
-                          }
-                          placeholder="Select entry date and time"
-                        />
-
+                      <DateTimePicker
+                        ref={(element) => (inputRefs.current.entry = element)}
+                        date={
+                          editState.editedEntryDate &&
+                          editState.editedEntryDate !== ''
+                            ? (() => {
+                                try {
+                                  // Handle YYYY-MM-DD format
+                                  const dateStr =
+                                    editState.editedEntryDate.includes('T')
+                                      ? editState.editedEntryDate
+                                      : editState.editedEntryDate + 'T00:00:00';
+                                  const parsed = new Date(dateStr);
+                                  return isNaN(parsed.getTime())
+                                    ? undefined
+                                    : parsed;
+                                } catch {
+                                  return undefined;
+                                }
+                              })()
+                            : undefined
+                        }
+                        onDateTimeChange={(date, hasTime) =>
+                          onUpdateState({
+                            editedEntryDate: date
+                              ? hasTime
+                                ? date.toISOString()
+                                : format(date, 'yyyy-MM-dd')
+                              : '',
+                          })
+                        }
+                        placeholder="Select entry date and time"
+                      />
+                    ) : (
+                      <span className="break-words whitespace-normal">
+                        {formattedDate(task.entry)}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {editState.isEditingEntryDate ? (
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -1324,7 +1356,6 @@ export const TaskDialog = ({
                         >
                           <CheckIcon className="h-4 w-4 text-green-500" />
                         </Button>
-
                         <Button
                           variant="ghost"
                           size="icon"
@@ -1340,25 +1371,22 @@ export const TaskDialog = ({
                         </Button>
                       </div>
                     ) : (
-                      <>
-                        <span>{formattedDate(task.entry)}</span>
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.entry = element)
-                          }
-                          variant="ghost"
-                          size="icon"
-                          aria-label="edit"
-                          onClick={() => {
-                            onUpdateState({
-                              isEditingEntryDate: true,
-                              editedEntryDate: task.entry || '',
-                            });
-                          }}
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
-                      </>
+                      <Button
+                        ref={(element) =>
+                          (editButtonRef.current.entry = element)
+                        }
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() =>
+                          onUpdateState({
+                            isEditingEntryDate: true,
+                            editedEntryDate: task.entry || '',
+                          })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
@@ -1366,53 +1394,61 @@ export const TaskDialog = ({
                   className={`${focusedField === 'recur' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Recur:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditingRecur ? (
-                      <div className="flex items-center gap-2">
-                        <Select
-                          value={editState.editedRecur || 'none'}
-                          onValueChange={(value) =>
-                            onUpdateState({ editedRecur: value })
-                          }
-                        >
-                          <SelectTrigger className="flex-grow">
-                            <SelectValue placeholder="Select recurrence" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {!editState.originalRecur && (
-                              <SelectItem
-                                value="none"
-                                className="cursor-pointer hover:bg-accent"
-                              >
-                                None
-                              </SelectItem>
-                            )}
+                      <Select
+                        value={editState.editedRecur || 'none'}
+                        onValueChange={(value) =>
+                          onUpdateState({ editedRecur: value })
+                        }
+                      >
+                        <SelectTrigger className="flex-grow">
+                          <SelectValue placeholder="Select recurrence" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {!editState.originalRecur && (
                             <SelectItem
-                              value="daily"
+                              value="none"
                               className="cursor-pointer hover:bg-accent"
                             >
-                              Daily
+                              None
                             </SelectItem>
-                            <SelectItem
-                              value="weekly"
-                              className="cursor-pointer hover:bg-accent"
-                            >
-                              Weekly
-                            </SelectItem>
-                            <SelectItem
-                              value="monthly"
-                              className="cursor-pointer hover:bg-accent"
-                            >
-                              Monthly
-                            </SelectItem>
-                            <SelectItem
-                              value="yearly"
-                              className="cursor-pointer hover:bg-accent"
-                            >
-                              Yearly
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                          )}
+                          <SelectItem
+                            value="daily"
+                            className="cursor-pointer hover:bg-accent"
+                          >
+                            Daily
+                          </SelectItem>
+                          <SelectItem
+                            value="weekly"
+                            className="cursor-pointer hover:bg-accent"
+                          >
+                            Weekly
+                          </SelectItem>
+                          <SelectItem
+                            value="monthly"
+                            className="cursor-pointer hover:bg-accent"
+                          >
+                            Monthly
+                          </SelectItem>
+                          <SelectItem
+                            value="yearly"
+                            className="cursor-pointer hover:bg-accent"
+                          >
+                            Yearly
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <span className="break-words whitespace-normal">
+                        {task.recur || 'None'}
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {editState.isEditingRecur ? (
+                      <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="icon"
@@ -1438,53 +1474,62 @@ export const TaskDialog = ({
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center">
-                        <span>{task.recur || 'None'}</span>
-                        <Button
-                          ref={(element) =>
-                            (editButtonRef.current.recur = element)
-                          }
-                          variant="ghost"
-                          size="icon"
-                          aria-label="edit"
-                          onClick={() => {
-                            onUpdateState({
-                              isEditingRecur: true,
-                              editedRecur: task.recur || 'none',
-                              originalRecur: task.recur || '',
-                            });
-                          }}
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
-                        </Button>
-                      </div>
+                      <Button
+                        ref={(element) =>
+                          (editButtonRef.current.recur = element)
+                        }
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() =>
+                          onUpdateState({
+                            isEditingRecur: true,
+                            editedRecur: task.recur || 'none',
+                            originalRecur: task.recur || '',
+                          })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>RType:</TableCell>
-                  <TableCell>
-                    <span>{task.rtype || 'None'}</span>
+                  <TableCell className="pr-2 max-w-0 w-full">
+                    <span className="break-words whitespace-normal">
+                      {task.rtype || 'None'}
+                    </span>
                     {!task.rtype && (
                       <span className="text-xs text-gray-500 ml-2">
                         (Auto-set by recur)
                       </span>
                     )}
                   </TableCell>
+                  <TableCell className="w-32 text-right align-top"></TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Urgency:</TableCell>
-                  <TableCell>{task.urgency}</TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
+                    <span className="break-words whitespace-normal">
+                      {task.urgency}
+                    </span>
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top"></TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>UUID:</TableCell>
-                  <TableCell className="flex items-center">
-                    <span>{task.uuid}</span>
+                  <TableCell className="pr-2 max-w-0 w-full">
+                    <span className="break-words whitespace-normal">
+                      {task.uuid}
+                    </span>
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
                     <CopyToClipboard
                       text={task.uuid}
                       onCopy={() => handleCopy('Task UUID')}
                     >
-                      <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-2 px-2 rounded ml-2">
+                      <button className="bg-blue-500 hover:bg-gray-900 text-white font-bold py-2 px-2 rounded">
                         <CopyIcon />
                       </button>
                     </CopyToClipboard>
@@ -1494,7 +1539,7 @@ export const TaskDialog = ({
                   className={`${focusedField === 'annotations' ? 'dark:bg-muted/50 bg-black/15' : ''}`}
                 >
                   <TableCell>Annotations:</TableCell>
-                  <TableCell>
+                  <TableCell className="pr-2 max-w-0 w-full">
                     {editState.isEditingAnnotations ? (
                       <div>
                         <div className="flex items-center w-full">
@@ -1530,37 +1575,6 @@ export const TaskDialog = ({
                               }
                             }}
                           />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              onSaveAnnotations(
-                                task,
-                                editState.editedAnnotations
-                              );
-                              onUpdateState({
-                                isEditingAnnotations: false,
-                                annotationInput: '',
-                              });
-                            }}
-                            aria-label="Save annotations"
-                          >
-                            <CheckIcon className="h-4 w-4 text-green-500" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              onUpdateState({
-                                isEditingAnnotations: false,
-                                editedAnnotations: task.annotations || [],
-                                annotationInput: '',
-                              });
-                            }}
-                            aria-label="Cancel editing annotations"
-                          >
-                            <XIcon className="h-4 w-4 text-red-500" />
-                          </Button>
                         </div>
                         <div className="mt-2">
                           {editState.editedAnnotations != null &&
@@ -1594,13 +1608,13 @@ export const TaskDialog = ({
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center flex-wrap">
+                      <div className="flex flex-wrap gap-2">
                         {task.annotations && task.annotations.length >= 1 ? (
                           task.annotations.map((annotation, index) => (
                             <Badge
                               key={index}
                               variant="secondary"
-                              className="mr-2 mt-1"
+                              className="break-words whitespace-normal"
                             >
                               {annotation.description}
                             </Badge>
@@ -1608,24 +1622,62 @@ export const TaskDialog = ({
                         ) : (
                           <span>No Annotations</span>
                         )}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="w-32 text-right align-top">
+                    {editState.isEditingAnnotations ? (
+                      <div className="flex items-center justify-end gap-2">
                         <Button
-                          ref={(element) =>
-                            (editButtonRef.current.annotations = element)
-                          }
                           variant="ghost"
                           size="icon"
-                          aria-label="edit"
+                          onClick={() => {
+                            onSaveAnnotations(
+                              task,
+                              editState.editedAnnotations
+                            );
+                            onUpdateState({
+                              isEditingAnnotations: false,
+                              annotationInput: '',
+                            });
+                          }}
+                          aria-label="Save annotations"
+                        >
+                          <CheckIcon className="h-4 w-4 text-green-500" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() =>
                             onUpdateState({
-                              isEditingAnnotations: true,
+                              isEditingAnnotations: false,
                               editedAnnotations: task.annotations || [],
                               annotationInput: '',
                             })
                           }
+                          aria-label="Cancel editing annotations"
                         >
-                          <PencilIcon className="h-4 w-4 text-gray-500" />
+                          <XIcon className="h-4 w-4 text-red-500" />
                         </Button>
                       </div>
+                    ) : (
+                      <Button
+                        ref={(element) =>
+                          (editButtonRef.current.annotations = element)
+                        }
+                        variant="ghost"
+                        size="icon"
+                        aria-label="edit"
+                        onClick={() =>
+                          onUpdateState({
+                            isEditingAnnotations: true,
+                            editedAnnotations: task.annotations || [],
+                            annotationInput: '',
+                          })
+                        }
+                      >
+                        <PencilIcon className="h-4 w-4 text-gray-500" />
+                      </Button>
                     )}
                   </TableCell>
                 </TableRow>
