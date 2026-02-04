@@ -16,7 +16,7 @@ exports[`Footer component using Snapshot renders correctly 1`] = `
       >
         <a
           class="ml-2 font-bold text-xl flex items-center dark:hidden"
-          href="/"
+          href="#"
           rel="noreferrer noopener"
         >
           <img
@@ -27,7 +27,7 @@ exports[`Footer component using Snapshot renders correctly 1`] = `
         </a>
         <a
           class="ml-2 font-bold text-xl hidden dark:flex items-center"
-          href="/"
+          href="#"
           rel="noreferrer noopener"
         >
           <img
