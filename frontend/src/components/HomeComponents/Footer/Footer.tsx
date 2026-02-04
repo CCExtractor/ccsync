@@ -2,13 +2,9 @@ import { HighlightLink } from '@/components/ui/link-highlight';
 import logo from '../../../assets/logo.png';
 import logoLight from '../../../assets/logo_light.png';
 import { url } from '@/components/utils/URLs';
+import { handleLogoClick } from '@/components/utils/utils';
 
 export const Footer = () => {
-  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    window.location.reload();
-  };
-
   return (
     <footer id="footer">
       <hr className="w-11/12 mx-auto" />
