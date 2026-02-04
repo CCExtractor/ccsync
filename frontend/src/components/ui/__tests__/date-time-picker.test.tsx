@@ -39,7 +39,7 @@ describe('DateTimePicker', () => {
     // Close popover using Escape key
     fireEvent.keyDown(document, { key: 'Escape' });
     await waitFor(() => {
-        expect(screen.queryByText(/February 2026/)).not.toBeInTheDocument(); // Check for absence of specific content
+      expect(screen.queryByText(/February 2026/)).not.toBeInTheDocument(); // Check for absence of specific content
     });
   });
 
@@ -61,7 +61,7 @@ describe('DateTimePicker', () => {
 
     // Expect the popover to close after selecting a date
     await waitFor(() => {
-        expect(screen.queryByText(/February 2026/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/February 2026/)).not.toBeInTheDocument();
     });
 
     // Check if onDateTimeChange was called with the correct date (year, month, and day)
