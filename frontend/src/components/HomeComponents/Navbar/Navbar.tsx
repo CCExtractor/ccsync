@@ -9,6 +9,7 @@ import logoLight from '../../../assets/logo_light.png';
 import { NavbarMobile } from './NavbarMobile';
 import { NavbarDesktop } from './NavbarDesktop';
 import { Props } from './navbar-utils';
+import { handleLogoClick } from '@/components/utils/utils';
 
 export const Navbar = (
   props: Props & {
@@ -25,7 +26,8 @@ export const Navbar = (
           <NavigationMenuItem className="font-bold flex">
             <a
               rel="noreferrer noopener"
-              href="/"
+              href="#"
+              onClick={handleLogoClick}
               className="ml-2 font-bold text-xl flex items-center dark:hidden"
             >
               <img
@@ -36,7 +38,8 @@ export const Navbar = (
             </a>
             <a
               rel="noreferrer noopener"
-              href="/"
+              href="#"
+              onClick={handleLogoClick}
               className="ml-2 font-bold text-xl hidden dark:flex items-center"
             >
               <img
