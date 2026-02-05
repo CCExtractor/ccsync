@@ -1,6 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Navbar } from '../Navbar';
 import { Props } from '../navbar-utils';
+import * as utils from '@/components/utils/utils';
 
 // Mocking the NavbarMobile and NavbarDesktop components
 jest.mock('../NavbarMobile', () => ({
@@ -63,5 +64,23 @@ describe('Navbar component using snapshot', () => {
   test('renders correctly', () => {
     const { asFragment } = render(<Navbar {...props} />);
     expect(asFragment()).toMatchSnapshot();
+  });
+});
+
+describe('Navbar logo click handler', () => {
+  test('should call handleLogoClick when logo link is clicked', () => {
+    const handleLogoClickSpy = jest.spyOn(utils, 'handleLogoClick');
+    render(<Navbar {...props} />);
+
+    const logoLinks = screen.getAllByRole('link');
+    const logoLink = logoLinks.find(
+      (link) => link.getAttribute('href') === '#'
+    );
+
+    expect(logoLink).toBeDefined();
+    fireEvent.click(logoLink!);
+    expect(handleLogoClickSpy).toHaveBeenCalledTimes(1);
+
+    handleLogoClickSpy.mockRestore();
   });
 });
