@@ -106,6 +106,23 @@ export const NavbarMobile = (
     props.setIsOpen(false);
   };
 
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    e.preventDefault();
+    props.setIsOpen(false);
+
+    // Wait for sheet to close, then scroll
+    setTimeout(() => {
+      const targetId = href.replace('#', '');
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 300);
+  };
+
   return (
     <span className="flex md:hidden">
       <ModeToggle />
@@ -132,7 +149,7 @@ export const NavbarMobile = (
                 rel="noreferrer noopener"
                 key={label}
                 href={href}
-                onClick={() => props.setIsOpen(false)}
+                onClick={(e) => handleNavClick(e, href)}
                 className={buttonVariants({ variant: 'ghost' })}
               >
                 {label}
