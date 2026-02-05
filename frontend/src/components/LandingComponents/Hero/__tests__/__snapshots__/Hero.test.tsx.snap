@@ -84,7 +84,8 @@ exports[`Hero component using snapshot renders correctly 1`] = `
       </div>
     </div>
     <div
-      class="shadow"
+      class="absolute top-[200px] w-[300px] h-[400px] lg:w-[400px] lg:h-[400px] md:top-[150px] md:w-[200px] md:h-[300px]"
+      style="filter: blur(150px);"
     />
   </section>
 </DocumentFragment>
