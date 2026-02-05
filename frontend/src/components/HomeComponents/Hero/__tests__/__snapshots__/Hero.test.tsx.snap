@@ -167,7 +167,8 @@ exports[`Hero component using snapshot renders correctly 1`] = `
       </div>
     </div>
     <div
-      class="shadow"
+      class="absolute top-[200px] w-[260px] h-[400px] lg:top-[200px] lg:w-[260px] lg:h-[400px] md:top-[70px] md:w-[100px] md:h-[350px]"
+      style="filter: blur(150px); border-radius: 24px; transform: rotate(35deg);"
     />
     <div
       data-testid="toast-notification"
