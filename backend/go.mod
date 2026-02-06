@@ -5,8 +5,10 @@ go 1.19
 require (
 	github.com/charmbracelet/log v0.4.2
 	github.com/gorilla/sessions v1.2.2
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.3
+	go.etcd.io/bbolt v1.3.7
 	golang.org/x/oauth2 v0.20.0
 )
 
