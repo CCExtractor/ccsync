@@ -24,7 +24,7 @@ export const About = () => {
       ref={ref}
       id="about"
       data-testid="about-section"
-      className="container py-24 sm:py-32"
+      className="container py-24 sm:py-32 scroll-mt-16"
       initial="hidden"
       animate={controls}
       variants={animateUp}

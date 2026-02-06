@@ -7,7 +7,7 @@ import { HighlightLink } from '@/components/ui/link-highlight';
 
 export const FAQ = () => {
   return (
-    <section id="faq" className="container py-24 sm:py-32">
+    <section id="faq" className="container py-24 sm:py-32 scroll-mt-16">
       <BlueHeading prefix="Frequently Asked" suffix="Questions" />
 
       <Accordion type="single" collapsible className="w-full AccordionRoot">

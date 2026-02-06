@@ -60,7 +60,7 @@ export const HowItWorks = () => {
     <section
       id="howItWorks"
       data-testid="#howItWorks"
-      className="container text-center py-24 sm:py-32"
+      className="container text-center py-24 sm:py-32 scroll-mt-16"
     >
       <h2 className="text-3xl md:text-4xl font-bold ">
         How It{' '}
