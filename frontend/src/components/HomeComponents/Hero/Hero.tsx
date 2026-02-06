@@ -99,13 +99,17 @@ export const Hero = (props: Props) => {
         aria-hidden="true"
         className="pointer-events-none absolute top-[70px] lg:top-[200px] h-[350px] w-[100px] md:h-[400px] md:w-[260px] rounded-[24px] rotate-[35deg] blur-[60px] md:blur-[150px]"
         style={{ right: '160px' }}
-        animate={{
-          backgroundColor: [
-            'hsla(330, 100%, 50%, 0.2)',
-            'hsla(240, 100%, 50%, 0.8)',
-          ],
-          x: [300, 0],
-        }}
+        animate={
+          process.env.NODE_ENV === 'test'
+            ? {}
+            : {
+                backgroundColor: [
+                  'hsla(330, 100%, 50%, 0.2)',
+                  'hsla(240, 100%, 50%, 0.8)',
+                ],
+                x: [300, 0],
+              }
+        }
         transition={{
           duration: 4,
           repeat: Infinity,
