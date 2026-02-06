@@ -3,6 +3,7 @@ import { Button } from '../../ui/button';
 import { buttonVariants } from '../../ui/button';
 import { HeroCards } from './HeroCards';
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
+import { motion } from 'framer-motion';
 
 export const Hero = () => {
   return (
@@ -51,7 +52,25 @@ export const Hero = () => {
         <HeroCards />
       </div>
 
-      <div className="shadow"></div>
+      <motion.div
+        className="absolute top-[200px] w-[300px] h-[400px] lg:w-[400px] lg:h-[400px] md:top-[150px] md:w-[200px] md:h-[300px]"
+        style={{
+          filter: 'blur(150px)',
+        }}
+        animate={{
+          background: [
+            'hsla(330, 100%, 50%, 20%)',
+            'hsla(240, 100%, 50%, 80%)',
+            'hsla(330, 100%, 50%, 20%)',
+          ],
+          right: ['460px', '160px', '460px'],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: 'linear',
+        }}
+      />
     </section>
   );
 };
