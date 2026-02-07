@@ -3,6 +3,7 @@ import { CopyButton } from './CopyButton';
 import { ToastNotification } from './ToastNotification';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { AnimatedHeroGlow } from '@/components/utils/AnimatedHeroGlow';
 
 export const Hero = (props: Props) => {
   const [showUuid, setShowUuid] = useState(true);
@@ -94,7 +95,7 @@ export const Hero = (props: Props) => {
         </div>
       </div>
 
-      <div className="shadow"></div>
+      <AnimatedHeroGlow />
 
       <ToastNotification />
     </section>
