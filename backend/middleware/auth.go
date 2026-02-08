@@ -51,6 +51,11 @@ func AuthMiddleware(store *sessions.CookieStore) func(http.Handler) http.Handler
 				return
 			}
 
+			// Inject session credentials into headers for GET requests
+			r.Header.Set("X-User-Email", sessionEmail)
+			r.Header.Set("X-User-UUID", sessionUUID)
+			r.Header.Set("X-Encryption-Secret", sessionSecret)
+
 			// For POST requests with JSON body, inject session credentials
 			if r.Method == http.MethodPost && r.Body != nil {
 				// Read the body
