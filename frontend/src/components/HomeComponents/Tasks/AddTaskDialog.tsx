@@ -136,13 +136,11 @@ export const AddTaskdialog = ({
           </DialogDescription>
         </DialogHeader>
         <div className="overflow-y-auto space-y-6 py-4 px-2 flex-1 min-h-0">
-          {/* Essential Fields Card */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Essential Fields</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Description - Full Width */}
               <div className="space-y-2">
                 <Label htmlFor="description">Description *</Label>
                 <Input
@@ -161,7 +159,6 @@ export const AddTaskdialog = ({
                 />
               </div>
 
-              {/* Priority and Project - Two Column */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="priority">Priority</Label>
@@ -191,16 +188,14 @@ export const AddTaskdialog = ({
                       isCreatingNewProject ? '__CREATE_NEW__' : newTask.project
                     }
                     onValueChange={(value) => {
-                      if (value === '__CREATE_NEW__') {
-                        setIsCreatingNewProject(true);
-                        setNewTask({ ...newTask, project: '' });
-                      } else if (value === '__NONE__') {
-                        setIsCreatingNewProject(false);
-                        setNewTask({ ...newTask, project: '' });
-                      } else {
-                        setIsCreatingNewProject(false);
-                        setNewTask({ ...newTask, project: value });
-                      }
+                      setIsCreatingNewProject(value === '__CREATE_NEW__');
+                      setNewTask({
+                        ...newTask,
+                        project:
+                          value === '__CREATE_NEW__' || value === '__NONE__'
+                            ? ''
+                            : value,
+                      });
                     }}
                   >
                     <SelectTrigger id="project" data-testid="project-select">
@@ -248,7 +243,6 @@ export const AddTaskdialog = ({
                 </div>
               </div>
 
-              {/* Due Date - Full Width */}
               <div className="space-y-2">
                 <Label
                   htmlFor="due"
@@ -286,14 +280,12 @@ export const AddTaskdialog = ({
             </CardContent>
           </Card>
 
-          {/* Dates Card */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Dates</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Start Date */}
                 <div className="space-y-2">
                   <Label htmlFor="start">Start Date</Label>
                   <DatePicker
@@ -308,7 +300,6 @@ export const AddTaskdialog = ({
                   />
                 </div>
 
-                {/* End Date */}
                 <div className="space-y-2">
                   <Label htmlFor="end">End Date</Label>
                   <DatePicker
@@ -323,7 +314,6 @@ export const AddTaskdialog = ({
                   />
                 </div>
 
-                {/* Entry Date */}
                 <div className="space-y-2">
                   <Label htmlFor="entry">Entry Date</Label>
                   <DatePicker
@@ -338,7 +328,6 @@ export const AddTaskdialog = ({
                   />
                 </div>
 
-                {/* Wait Date */}
                 <div className="space-y-2">
                   <Label htmlFor="wait">Wait Date</Label>
                   <DatePicker
@@ -356,13 +345,11 @@ export const AddTaskdialog = ({
             </CardContent>
           </Card>
 
-          {/* Advanced Fields */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Advanced Fields</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Tags */}
               <section className="space-y-3">
                 <div className="flex items-center gap-2">
                   <TagIcon className="h-4 w-4 text-blue-500" />
@@ -418,7 +405,6 @@ export const AddTaskdialog = ({
                 </div>
               </section>
 
-              {/* Annotations */}
               <section className="space-y-3">
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-green-500" />
@@ -476,7 +462,6 @@ export const AddTaskdialog = ({
                 </div>
               </section>
 
-              {/* Dependencies */}
               <section className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Link2 className="h-4 w-4 text-purple-500" />
@@ -506,7 +491,6 @@ export const AddTaskdialog = ({
                     />
                   </div>
 
-                  {/* Search results dropdown */}
                   {showDependencyResults && (
                     <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
                       {(() => {
@@ -556,7 +540,6 @@ export const AddTaskdialog = ({
                     </div>
                   )}
 
-                  {/* Display selected dependencies */}
                   {newTask.depends.length > 0 && (
                     <div className="flex flex-wrap gap-2 p-3 bg-background rounded-lg border min-h-[60px]">
                       {newTask.depends.map((taskUuid) => {
@@ -600,7 +583,6 @@ export const AddTaskdialog = ({
                 </div>
               </section>
 
-              {/* Recurrence */}
               <section className="space-y-3">
                 <div className="flex items-center gap-2">
                   <Repeat className="h-4 w-4 text-orange-500" />
