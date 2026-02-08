@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import { LandingPage } from '../LandingPage';
 
 // Mock dependencies
@@ -27,9 +28,25 @@ jest.mock('../../components/utils/ScrollToTop', () => ({
   ScrollToTop: () => <div>Mocked ScrollToTop</div>,
 }));
 
+// Mock fetch for auth check
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    ok: false,
+    status: 401,
+  } as Response)
+);
+
 describe('LandingPage', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders all components correctly', () => {
-    render(<LandingPage />);
+    render(
+      <BrowserRouter>
+        <LandingPage />
+      </BrowserRouter>
+    );
 
     expect(screen.getByText('Mocked Navbar')).toBeInTheDocument();
     expect(screen.getByText('Mocked Hero')).toBeInTheDocument();
@@ -44,7 +61,11 @@ describe('LandingPage', () => {
 
 describe('LandingPage Component using Snapshot', () => {
   it('renders landing page correctly', () => {
-    const { asFragment } = render(<LandingPage />);
+    const { asFragment } = render(
+      <BrowserRouter>
+        <LandingPage />
+      </BrowserRouter>
+    );
     expect(asFragment()).toMatchSnapshot('landing-page');
   });
 });
