@@ -141,6 +141,7 @@ export interface MultiSelectProps {
   showActions?: boolean;
   onSave?: () => void;
   onCancel?: () => void;
+  hideSelectedDisplay?: boolean;
 }
 
 export interface EditTaskDialogProps {

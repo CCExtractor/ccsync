@@ -987,7 +987,7 @@ describe('Tasks Component', () => {
         screen.getByText(/fill in the details below/i)
       ).toBeInTheDocument();
 
-      expect(screen.getByText('Depends On')).toBeInTheDocument();
+      expect(screen.getByText('Dependencies')).toBeInTheDocument();
     });
 
     test('dependency dropdown is available in add task dialog', async () => {
@@ -1000,7 +1000,11 @@ describe('Tasks Component', () => {
       const addTaskButton = screen.getByRole('button', { name: /add task/i });
       fireEvent.click(addTaskButton);
 
-      expect(screen.getByText('Depends On')).toBeInTheDocument();
+      // Ensure the Dependencies section and its search input are present
+      const dependenciesSection = screen
+        .getByText('Dependencies')
+        .closest('section') as HTMLElement;
+      expect(dependenciesSection).toBeInTheDocument();
       expect(
         screen.getByPlaceholderText(
           'Search and select tasks this depends on...'
