@@ -3,6 +3,7 @@ data:
   CLIENT_ID: "YOUR_GOOGLE_CLOUD_AUTH_CLIENT_ID" # Replace this in order to access the frontend
   CLIENT_SEC: "YOUR_GOOGLE_CLOUD_AUTH_CLIENT_SECRET" # Replace this in order to access the frontend
   CONTAINER_ORIGIN: http://syncserver:8080/
+  ENV: "production" # Required for secure HTTPS-only cookies
   FRONTEND_ORIGIN_DEV: http://localhost
   PORT: "8000"
   REDIRECT_URL_DEV: http://localhost:8000/auth/callback
