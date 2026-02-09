@@ -3,6 +3,7 @@ import { Button } from '../../ui/button';
 import { buttonVariants } from '../../ui/button';
 import { HeroCards } from './HeroCards';
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
+import { AnimatedGlow } from '@/components/utils/AnimatedGlow';
 
 export const Hero = () => {
   return (
@@ -51,7 +52,7 @@ export const Hero = () => {
         <HeroCards />
       </div>
 
-      <div className="shadow"></div>
+      <AnimatedGlow className="absolute top-[200px] w-[300px] h-[400px] lg:w-[400px] lg:h-[400px] md:top-[150px] md:w-[200px] md:h-[300px]" />
     </section>
   );
 };

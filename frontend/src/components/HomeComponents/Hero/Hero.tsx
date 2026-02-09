@@ -3,6 +3,7 @@ import { CopyButton } from './CopyButton';
 import { ToastNotification } from './ToastNotification';
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { AnimatedGlow } from '@/components/utils/AnimatedGlow';
 
 export const Hero = (props: Props) => {
   const [showUuid, setShowUuid] = useState(true);
@@ -94,7 +95,13 @@ export const Hero = (props: Props) => {
         </div>
       </div>
 
-      <div className="shadow"></div>
+      <AnimatedGlow
+        className="absolute top-[200px] w-[260px] h-[400px] lg:top-[200px] lg:w-[260px] lg:h-[400px] md:top-[70px] md:w-[100px] md:h-[350px]"
+        style={{
+          rotate: '35deg',
+          borderRadius: '24px',
+        }}
+      />
 
       <ToastNotification />
     </section>
