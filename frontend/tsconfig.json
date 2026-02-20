@@ -27,6 +27,9 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "../../extra/multi-select-filter.test.tsx"],
+  "include": [
+    "src",
+    "src/components/ui/__tests__/multi-select-filter.test.tsx"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
