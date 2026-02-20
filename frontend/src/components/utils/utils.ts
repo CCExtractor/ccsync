@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from 'clsx';
+import type { MouseEvent } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -18,4 +19,9 @@ export function debounce<T extends (...args: any[]) => void>(
 
 export const getStartOfDay = (date: Date) => {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+};
+
+export const handleLogoClick = (e: MouseEvent<HTMLAnchorElement>) => {
+  e.preventDefault();
+  window.location.reload();
 };

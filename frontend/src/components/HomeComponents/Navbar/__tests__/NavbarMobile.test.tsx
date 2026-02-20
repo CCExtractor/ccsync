@@ -151,6 +151,117 @@ describe('NavbarMobile', () => {
 
     expect(screen.getByText(/Enable Auto-Sync/i)).toBeInTheDocument();
   });
+
+  describe('Navigation link click behavior', () => {
+    beforeEach(() => {
+      // Mock scrollIntoView
+      Element.prototype.scrollIntoView = jest.fn();
+      // Mock setTimeout
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+    });
+
+    it('should close the sheet immediately when clicking a nav link', () => {
+      render(<NavbarMobile {...openProps} />);
+
+      const tasksLink = screen.getByText('Tasks');
+      fireEvent.click(tasksLink);
+
+      expect(mockSetIsOpen).toHaveBeenCalledWith(false);
+    });
+
+    it('should scroll to target element after 300ms delay', () => {
+      // Create a mock element
+      const mockElement = document.createElement('div');
+      mockElement.id = 'tasks';
+      document.body.appendChild(mockElement);
+      mockElement.scrollIntoView = jest.fn();
+
+      render(<NavbarMobile {...openProps} />);
+
+      const tasksLink = screen.getByText('Tasks');
+      fireEvent.click(tasksLink);
+
+      // scrollIntoView should not be called immediately
+      expect(mockElement.scrollIntoView).not.toHaveBeenCalled();
+
+      // Fast-forward time by 300ms
+      jest.advanceTimersByTime(300);
+
+      // Now scrollIntoView should have been called
+      expect(mockElement.scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'start',
+      });
+
+      // Cleanup
+      document.body.removeChild(mockElement);
+    });
+
+    it('should extract the correct target ID from href', () => {
+      const mockElement = document.createElement('div');
+      mockElement.id = 'setup-guide';
+      document.body.appendChild(mockElement);
+      mockElement.scrollIntoView = jest.fn();
+
+      render(<NavbarMobile {...openProps} />);
+
+      const setupGuideLink = screen.getByText('Setup Guide');
+      fireEvent.click(setupGuideLink);
+
+      jest.advanceTimersByTime(300);
+
+      expect(mockElement.scrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'start',
+      });
+
+      document.body.removeChild(mockElement);
+    });
+
+    it('should handle case when target element does not exist', () => {
+      render(<NavbarMobile {...openProps} />);
+
+      const homeLink = screen.getByText('Home');
+      fireEvent.click(homeLink);
+
+      // Should not throw an error even if element doesn't exist
+      expect(() => {
+        jest.advanceTimersByTime(300);
+      }).not.toThrow();
+    });
+
+    it('should handle multiple rapid clicks correctly', () => {
+      const mockElement = document.createElement('div');
+      mockElement.id = 'tasks';
+      document.body.appendChild(mockElement);
+      mockElement.scrollIntoView = jest.fn();
+
+      render(<NavbarMobile {...openProps} />);
+
+      const tasksLink = screen.getByText('Tasks');
+
+      // Click multiple times
+      fireEvent.click(tasksLink);
+      fireEvent.click(tasksLink);
+      fireEvent.click(tasksLink);
+
+      // Sheet should be closed on each click
+      expect(mockSetIsOpen).toHaveBeenCalledTimes(3);
+      expect(mockSetIsOpen).toHaveBeenCalledWith(false);
+
+      jest.advanceTimersByTime(300);
+
+      // scrollIntoView should be called for each click
+      expect(mockElement.scrollIntoView).toHaveBeenCalledTimes(3);
+
+      document.body.removeChild(mockElement);
+    });
+  });
 });
 
 describe('NavbarMobile component using snapshot', () => {

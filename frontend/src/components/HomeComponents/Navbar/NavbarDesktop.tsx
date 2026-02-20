@@ -121,7 +121,7 @@ export const NavbarDesktop = (
         <div className="hidden md:flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar>
+              <Avatar className="cursor-pointer hover:scale-105 transition-transform duration-200">
                 <AvatarImage src={props.imgurl} />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>

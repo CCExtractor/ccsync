@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { AiOutlineDiscord } from 'react-icons/ai';
-import { GithubIcon, MailIcon } from 'lucide-react';
+import { GithubIcon } from 'lucide-react';
 import { TbBrandZulip } from 'react-icons/tb';
 import { url } from '@/components/utils/URLs';
 
@@ -36,12 +36,6 @@ const contactList: ContactProps[] = [
     icon: <AiOutlineDiscord size={45} />,
     name: 'Discord',
     position: 'Join us at Discord for discussions',
-    url: '',
-  },
-  {
-    icon: <MailIcon size={45} />,
-    name: 'Email',
-    position: 'Email us for any queries',
     url: '',
   },
 ];
@@ -75,7 +69,7 @@ export const Contact = () => {
       <div
         data-testid="contact"
         ref={ref}
-        className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 gap-y-10"
+        className="grid grid-cols-1 md:grid-cols-3 gap-8 gap-y-10"
       >
         {contactList.map(({ icon, name, position, url }: ContactProps) => (
           <motion.div

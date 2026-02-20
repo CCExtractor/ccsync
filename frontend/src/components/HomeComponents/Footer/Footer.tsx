@@ -2,6 +2,7 @@ import { HighlightLink } from '@/components/ui/link-highlight';
 import logo from '../../../assets/logo.png';
 import logoLight from '../../../assets/logo_light.png';
 import { url } from '@/components/utils/URLs';
+import { handleLogoClick } from '@/components/utils/utils';
 
 export const Footer = () => {
   return (
@@ -12,7 +13,8 @@ export const Footer = () => {
         <div className="col-span-full xl:col-span-2">
           <a
             rel="noreferrer noopener"
-            href="/"
+            href="#"
+            onClick={handleLogoClick}
             className="ml-2 font-bold text-xl flex items-center dark:hidden"
           >
             <img
@@ -23,7 +25,8 @@ export const Footer = () => {
           </a>
           <a
             rel="noreferrer noopener"
-            href="/"
+            href="#"
+            onClick={handleLogoClick}
             className="ml-2 font-bold text-xl hidden dark:flex items-center"
           >
             <img

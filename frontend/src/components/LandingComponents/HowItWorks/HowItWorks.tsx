@@ -2,7 +2,10 @@ import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
-import { MedalIcon, MapIcon, PlaneIcon, GiftIcon } from '../../utils/Icons';
+import { LiaMedalSolid } from 'react-icons/lia';
+import { TbMapPin2 } from 'react-icons/tb';
+import { GiAirplaneDeparture } from 'react-icons/gi';
+import { GrServer } from 'react-icons/gr';
 
 interface FeatureProps {
   icon: JSX.Element;
@@ -12,25 +15,25 @@ interface FeatureProps {
 
 const features: FeatureProps[] = [
   {
-    icon: <MedalIcon />,
+    icon: <LiaMedalSolid size={50} color="pink" className="m-0.5" />,
     title: 'Sign in',
     description:
       'Sign in with Google to generate secret UUIDs, or generate your own using a random key generator',
   },
   {
-    icon: <MapIcon />,
+    icon: <TbMapPin2 size={50} color="pink" className="m-0.5" />,
     title: 'Setup',
     description:
       'Setup the taskserver for your Taskwarrior clients by following the documentation',
   },
   {
-    icon: <PlaneIcon />,
+    icon: <GiAirplaneDeparture size={50} color="pink" className="m-0.5" />,
     title: 'Share',
     description:
       'Sign in on multiple devices and use the same UUIDs to sync tasks across all the clients or your team',
   },
   {
-    icon: <GiftIcon />,
+    icon: <GrServer size={50} color="pink" className="m-0.5" />,
     title: 'Deploy your own',
     description:
       'You can also deploy your own server instance by following this documentation',
