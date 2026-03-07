@@ -40,7 +40,10 @@ func EditTaskInTaskwarrior(
 	}
 
 	if wait != "" {
-		formattedWait := wait + "T00:00:00"
+		formattedWait := wait
+		if !strings.Contains(wait, "T") {
+			formattedWait = wait + "T00:00:00"
+		}
 		modifyArgs = append(modifyArgs, "wait:"+formattedWait)
 	}
 
@@ -60,7 +63,10 @@ func EditTaskInTaskwarrior(
 	modifyArgs = append(modifyArgs, "depends:"+dependsStr)
 
 	if due != "" {
-		formattedDue := due + "T00:00:00"
+		formattedDue := due
+		if !strings.Contains(due, "T") {
+			formattedDue = due + "T00:00:00"
+		}
 		modifyArgs = append(modifyArgs, "due:"+formattedDue)
 	}
 
@@ -82,7 +88,7 @@ func EditTaskInTaskwarrior(
 		return fmt.Errorf("failed to edit task: %v", err)
 	}
 
-	if len(annotations) >= 0 {
+	if len(annotations) > 0 {
 		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", taskUUID, "export")
 		if err == nil {
 			var tasks []map[string]interface{}
