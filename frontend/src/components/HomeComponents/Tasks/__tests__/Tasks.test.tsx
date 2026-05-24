@@ -185,6 +185,10 @@ jest.mock('../TaskSkeleton', () => {
   };
 });
 
+jest.mock('../ReportsView', () => ({
+  ReportsView: () => <div data-testid="reports-view">Mocked ReportsView</div>,
+}));
+
 global.fetch = jest.fn().mockResolvedValue({ ok: true });
 
 describe('Tasks Component', () => {
@@ -1931,6 +1935,57 @@ describe('Tasks Component', () => {
           expect(jest.requireMock('../tasks-utils')[fn]).toHaveBeenCalled();
         }
       );
+    });
+  });
+
+  describe('Reports Toggle', () => {
+    test('shows "Show Reports" button by default', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      expect(screen.getByText('Show Reports')).toBeInTheDocument();
+    });
+
+    test('switches button text to "Show Tasks" after clicking', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      const btn = screen.getByText('Show Reports');
+      await act(async () => {
+        fireEvent.click(btn);
+      });
+
+      expect(screen.getByText('Show Tasks')).toBeInTheDocument();
+    });
+
+    test('renders ReportsView when toggled on', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Show Reports'));
+      });
+
+      expect(screen.getByTestId('reports-view')).toBeInTheDocument();
+    });
+
+    test('hides ReportsView when toggled off again', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 1');
+
+      const btn = screen.getByText('Show Reports');
+      await act(async () => {
+        fireEvent.click(btn);
+      });
+
+      expect(screen.getByTestId('reports-view')).toBeInTheDocument();
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Show Tasks'));
+      });
+
+      expect(screen.queryByTestId('reports-view')).not.toBeInTheDocument();
+      expect(screen.getByText('Show Reports')).toBeInTheDocument();
     });
   });
 });
