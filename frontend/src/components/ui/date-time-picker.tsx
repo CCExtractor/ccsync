@@ -58,6 +58,10 @@ export const DateTimePicker = React.forwardRef<
 
       isInternalUpdate.current = true;
       onDateTimeChange(newDate, false);
+      setIsOpen((prev) => {
+        console.log('Closing popover, prev was:', prev);
+        return false;
+      });
     } else {
       setInternalDate(undefined);
       setHasTime(false);
