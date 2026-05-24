@@ -11,7 +11,10 @@ module.exports = {
   transformIgnorePatterns: ['/node_modules/(?!react-toastify)'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
-  testMatch: ['**/__tests__/**/*.{ts,tsx}', '**/?(*.)+(spec|test).{ts,tsx}'],
+  testMatch: [
+    '**/__tests__/**/*.+(test|spec).{ts,tsx}',
+    '**/?(*.)+(spec|test).{ts,tsx}',
+  ],
   transform: {
     '^.+\\.tsx?$': [
       'ts-jest',
