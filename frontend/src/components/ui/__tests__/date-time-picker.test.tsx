@@ -4,6 +4,15 @@ import { DateTimePicker } from '../date-time-picker';
 import '@testing-library/jest-dom';
 
 describe('DateTimePicker', () => {
+  beforeAll(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 1, 1));
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
   it('renders without crashing', () => {
     const mockOnDateTimeChange = jest.fn();
     render(
@@ -18,7 +27,9 @@ describe('DateTimePicker', () => {
   });
 
   it('opens and closes the popover when the trigger button is clicked', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({
+      advanceTimers: jest.advanceTimersByTime.bind(jest),
+    });
     const mockOnDateTimeChange = jest.fn();
     render(
       <DateTimePicker
@@ -44,7 +55,9 @@ describe('DateTimePicker', () => {
   });
 
   it('allows selecting a date from the calendar', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({
+      advanceTimers: jest.advanceTimersByTime.bind(jest),
+    });
     const mockOnDateTimeChange = jest.fn();
     render(
       <DateTimePicker
@@ -76,7 +89,9 @@ describe('DateTimePicker', () => {
   });
 
   it('allows selecting an hour, minute, and AM/PM', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({
+      advanceTimers: jest.advanceTimersByTime.bind(jest),
+    });
     const mockOnDateTimeChange = jest.fn();
     const initialDate = new Date(2024, 0, 15, 10, 30); // Jan 15, 2024, 10:30 AM
     render(
