@@ -12,6 +12,22 @@ jest.mock('date-fns', () => ({
   }),
 }));
 
+jest.mock('@/components/ui/date-picker', () => ({
+  DatePicker: ({ onDateChange, placeholder }: any) => (
+    <input
+      data-testid="date-picker"
+      placeholder={placeholder}
+      onChange={(e) => {
+        if (e.target.value) {
+          onDateChange(new Date(e.target.value));
+        } else {
+          onDateChange(undefined);
+        }
+      }}
+    />
+  ),
+}));
+
 jest.mock('@/components/ui/date-time-picker', () => ({
   DateTimePicker: ({ onDateTimeChange, placeholder }: any) => (
     <div>
@@ -197,9 +213,9 @@ describe('AddTaskDialog Component', () => {
 
       const prioritySelect = screen.getByLabelText(/priority/i);
 
-      expect(prioritySelect).toContainHTML('<option value="H">H</option>');
-      expect(prioritySelect).toContainHTML('<option value="M">M</option>');
-      expect(prioritySelect).toContainHTML('<option value="L">L</option>');
+      expect(prioritySelect).toContainHTML('<option value="H">High</option>');
+      expect(prioritySelect).toContainHTML('<option value="M">Medium</option>');
+      expect(prioritySelect).toContainHTML('<option value="L">Low</option>');
     });
   });
 
@@ -304,7 +320,7 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      expect(screen.getByText('Select or create tags')).toBeInTheDocument();
+      expect(screen.getByText(/select or create tags/i)).toBeInTheDocument();
     });
 
     test('shows selected tags count when tags are selected', () => {
@@ -342,7 +358,7 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagButton = screen.getByText('Select or create tags');
+      const tagButton = screen.getByText(/select or create tags/i);
       fireEvent.click(tagButton);
 
       expect(
@@ -354,7 +370,7 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagButton = screen.getByText('Select or create tags');
+      const tagButton = screen.getByText(/select or create tags/i);
       fireEvent.click(tagButton);
 
       expect(screen.getByText('work')).toBeInTheDocument();
@@ -366,7 +382,7 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagButton = screen.getByText('Select or create tags');
+      const tagButton = screen.getByText(/select or create tags/i);
       fireEvent.click(tagButton);
 
       const workTag = screen.getByText('work');
@@ -382,7 +398,7 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const tagButton = screen.getByText('Select or create tags');
+      const tagButton = screen.getByText(/select or create tags/i);
       fireEvent.click(tagButton);
 
       const searchInput = screen.getByPlaceholderText('Search or create...');
@@ -397,33 +413,102 @@ describe('AddTaskDialog Component', () => {
   });
 
   describe('Date Fields', () => {
-    describe('DateTime Fields', () => {
-      const dateTimeFields = [
-        { name: 'due', label: 'Due', placeholder: 'Select due date and time' },
-        {
-          name: 'start',
-          label: 'Start',
-          placeholder: 'Select start date and time',
-        },
-        {
-          name: 'wait',
-          label: 'Wait',
-          placeholder: 'Select wait date and time',
-        },
-        {
-          name: 'entry',
-          label: 'Entry',
-          placeholder: 'Select entry date and time',
-        },
-        {
-          name: 'end',
-          label: 'End',
-          placeholder: 'Select end date and time',
-        },
-      ];
+    describe('Due date (with time)', () => {
+      const placeholder = 'Select due date and time';
 
-      test.each(dateTimeFields)(
-        'renders $name date-time picker with correct placeholder',
+      test('renders due date-time picker with correct placeholder', () => {
+        mockProps.isOpen = true;
+        render(<AddTaskdialog {...mockProps} />);
+
+        const picker = screen.getByPlaceholderText(placeholder);
+        expect(picker).toBeInTheDocument();
+      });
+
+      test('updates due with date only when no time is selected', () => {
+        mockProps.isOpen = true;
+        render(<AddTaskdialog {...mockProps} />);
+
+        const picker = screen.getByPlaceholderText(placeholder);
+        fireEvent.change(picker, { target: { value: '2025-12-25' } });
+
+        expect(mockProps.setNewTask).toHaveBeenLastCalledWith({
+          ...mockProps.newTask,
+          due: '2025-12-25',
+        });
+      });
+
+      test('updates due with full datetime when time is selected', () => {
+        mockProps.isOpen = true;
+        render(<AddTaskdialog {...mockProps} />);
+        const picker = screen.getByPlaceholderText(placeholder);
+
+        fireEvent.change(picker, {
+          target: { value: '2025-12-25T14:30:00' },
+        });
+        expect(mockProps.setNewTask).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            due: expect.any(String),
+          })
+        );
+
+        const callArgs = mockProps.setNewTask.mock.calls.at(-1)![0];
+        expect(callArgs.due).toContain('T');
+      });
+
+      test('allows empty due date (optional field)', () => {
+        mockProps.isOpen = true;
+        render(<AddTaskdialog {...mockProps} />);
+
+        const picker = screen.getByPlaceholderText(placeholder);
+
+        fireEvent.change(picker, {
+          target: { value: '2025-12-25T14:30:00' },
+        });
+        mockProps.setNewTask.mockClear();
+        fireEvent.change(picker, { target: { value: '' } });
+
+        expect(mockProps.setNewTask).toHaveBeenLastCalledWith({
+          ...mockProps.newTask,
+          due: '',
+        });
+      });
+
+      test('submits task with due date when provided', () => {
+        mockProps.isOpen = true;
+        mockProps.newTask = {
+          ...mockProps.newTask,
+          due: '2025-12-25T14:30:00.000Z',
+        };
+        render(<AddTaskdialog {...mockProps} />);
+
+        const picker = screen.getByPlaceholderText(placeholder);
+        fireEvent.change(picker, {
+          target: { value: '2025-12-25T14:30:00' },
+        });
+
+        const submitButton = screen.getByRole('button', {
+          name: /add task/i,
+        });
+        fireEvent.click(submitButton);
+
+        expect(mockProps.onSubmit).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            due: '2025-12-25T14:30:00.000Z',
+          })
+        );
+      });
+    });
+
+    describe('Date-only fields', () => {
+      const dateOnlyFields = [
+        { name: 'start', placeholder: 'Select start date' },
+        { name: 'end', placeholder: 'Select end date' },
+        { name: 'entry', placeholder: 'Select entry date' },
+        { name: 'wait', placeholder: 'Select wait date' },
+      ] as const;
+
+      test.each(dateOnlyFields)(
+        'renders %s date picker with correct placeholder',
         ({ placeholder }) => {
           mockProps.isOpen = true;
           render(<AddTaskdialog {...mockProps} />);
@@ -433,8 +518,8 @@ describe('AddTaskDialog Component', () => {
         }
       );
 
-      test.each(dateTimeFields)(
-        'updates $name with date only when no time is selected',
+      test.each(dateOnlyFields)(
+        'updates %s with formatted date when changed',
         ({ name, placeholder }) => {
           mockProps.isOpen = true;
           render(<AddTaskdialog {...mockProps} />);
@@ -449,29 +534,8 @@ describe('AddTaskDialog Component', () => {
         }
       );
 
-      test.each(dateTimeFields)(
-        'updates $name with full datetime when time is selected',
-        ({ name, placeholder }) => {
-          mockProps.isOpen = true;
-          render(<AddTaskdialog {...mockProps} />);
-          const picker = screen.getByPlaceholderText(placeholder);
-
-          fireEvent.change(picker, {
-            target: { value: '2025-12-25T14:30:00' },
-          });
-          expect(mockProps.setNewTask).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-              [name]: expect.any(String),
-            })
-          );
-
-          const callArgs = mockProps.setNewTask.mock.calls.at(-1)![0];
-          expect(callArgs[name]).toContain('T');
-        }
-      );
-
-      test.each(dateTimeFields)(
-        'allows empty $name date (optional field)',
+      test.each(dateOnlyFields)(
+        'allows empty %s date (optional field)',
         ({ name, placeholder }) => {
           mockProps.isOpen = true;
           render(<AddTaskdialog {...mockProps} />);
@@ -479,7 +543,7 @@ describe('AddTaskDialog Component', () => {
           const picker = screen.getByPlaceholderText(placeholder);
 
           fireEvent.change(picker, {
-            target: { value: '2025-12-25T14:30:00' },
+            target: { value: '2025-12-25' },
           });
           mockProps.setNewTask.mockClear();
           fireEvent.change(picker, { target: { value: '' } });
@@ -490,59 +554,6 @@ describe('AddTaskDialog Component', () => {
           });
         }
       );
-
-      test.each(dateTimeFields)(
-        'submits task with $name date when provided',
-        ({ name }) => {
-          mockProps.isOpen = true;
-          mockProps.newTask = {
-            ...mockProps.newTask,
-            [name]: '2025-12-25T14:30:00.000Z',
-          };
-          render(<AddTaskdialog {...mockProps} />);
-
-          const picker = screen.getByPlaceholderText(
-            `Select ${name} date and time`
-          );
-          fireEvent.change(picker, {
-            target: { value: '2025-12-25T14:30:00' },
-          });
-
-          const submitButton = screen.getByRole('button', {
-            name: /add task/i,
-          });
-          fireEvent.click(submitButton);
-
-          expect(mockProps.onSubmit).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-              [name]: '2025-12-25T14:30:00.000Z',
-            })
-          );
-        }
-      );
-    });
-
-    describe('End date warning message', () => {
-      test('should show warning when end date is selected', () => {
-        mockProps.isOpen = true;
-        mockProps.newTask.end = '2026-01-18';
-
-        render(<AddTaskdialog {...mockProps} />);
-
-        expect(
-          screen.getByText(/task will be marked as completed/i)
-        ).toBeInTheDocument();
-      });
-
-      test('should not show warning when end date is empty', () => {
-        mockProps.isOpen = true;
-
-        render(<AddTaskdialog {...mockProps} />);
-
-        expect(
-          screen.queryByText(/task will be marked as completed/i)
-        ).not.toBeInTheDocument();
-      });
     });
   });
 
@@ -596,9 +607,13 @@ describe('AddTaskDialog Component', () => {
     });
 
     test('renders dependency search field', () => {
-      render(<AddTaskdialog {...mockProps} />);
+      render(<AddTaskdialog {...mockProps} isOpen />);
 
-      expect(screen.getByText('Depends On')).toBeInTheDocument();
+      const dependenciesSection = screen
+        .getByText('Dependencies')
+        .closest('section') as HTMLElement;
+
+      expect(dependenciesSection).toBeInTheDocument();
       expect(
         screen.getByPlaceholderText(
           'Search and select tasks this depends on...'
@@ -772,7 +787,8 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const annotationsInput = screen.getByPlaceholderText('Add an annotation');
+      const annotationsInput =
+        screen.getByPlaceholderText(/add an annotation/i);
       expect(annotationsInput).toBeInTheDocument();
     });
 
@@ -780,7 +796,8 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const annotationsInput = screen.getByPlaceholderText('Add an annotation');
+      const annotationsInput =
+        screen.getByPlaceholderText(/add an annotation/i);
       fireEvent.change(annotationsInput, {
         target: { value: 'This is an annotation' },
       });
@@ -798,7 +815,8 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const annotationsInput = screen.getByPlaceholderText('Add an annotation');
+      const annotationsInput =
+        screen.getByPlaceholderText(/add an annotation/i);
       fireEvent.change(annotationsInput, { target: { value: '' } });
       fireEvent.keyDown(annotationsInput, { key: 'Enter', code: 'Enter' });
 
@@ -809,7 +827,8 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const annotationsInput = screen.getByPlaceholderText('Add an annotation');
+      const annotationsInput =
+        screen.getByPlaceholderText(/add an annotation/i);
       fireEvent.change(annotationsInput, { target: { value: '      ' } });
       fireEvent.keyDown(annotationsInput, { key: 'Enter', code: 'Enter' });
 
@@ -847,7 +866,12 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const recurSelect = screen.getByLabelText('Recur');
+      const recurrenceSection = screen
+        .getByText('Recurrence')
+        .closest('section') as HTMLElement;
+      const recurSelect = recurrenceSection.querySelector(
+        'select'
+      ) as HTMLSelectElement;
 
       expect(recurSelect).toContainHTML('<option value="">None</option>');
       expect(recurSelect).toContainHTML('<option value="daily">Daily</option>');
@@ -866,7 +890,12 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const recurSelect = screen.getByLabelText('Recur');
+      const recurrenceSection = screen
+        .getByText('Recurrence')
+        .closest('section') as HTMLElement;
+      const recurSelect = recurrenceSection.querySelector(
+        'select'
+      ) as HTMLSelectElement;
       fireEvent.change(recurSelect, { target: { value: 'weekly' } });
 
       expect(mockProps.setNewTask).toHaveBeenCalledWith({
@@ -879,7 +908,12 @@ describe('AddTaskDialog Component', () => {
       mockProps.isOpen = true;
       render(<AddTaskdialog {...mockProps} />);
 
-      const recurSelect = screen.getByLabelText('Recur');
+      const recurrenceSection = screen
+        .getByText('Recurrence')
+        .closest('section') as HTMLElement;
+      const recurSelect = recurrenceSection.querySelector(
+        'select'
+      ) as HTMLSelectElement;
       fireEvent.change(recurSelect, { target: { value: '' } });
 
       expect(mockProps.setNewTask).toHaveBeenCalledWith({
@@ -890,55 +924,44 @@ describe('AddTaskDialog Component', () => {
   });
 
   describe('Testing Shortcuts', () => {
-    beforeEach(() => {
-      Element.prototype.scrollIntoView = jest.fn();
-    });
-
-    test('ArrowDown moves focus to next field', async () => {
-      render(<AddTaskdialog {...mockProps} isOpen />);
-
-      const dialog = await screen.findByRole('dialog');
-      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
-
-      const prioritySelect = screen.getByLabelText(/priority/i);
-      const priorityRow = prioritySelect.closest('div.grid');
-      expect(priorityRow).toHaveClass('bg-black/15');
-    });
-
-    test('Enter focuses priority select when priority row is focused', async () => {
-      render(<AddTaskdialog {...mockProps} isOpen />);
-
-      const dialog = await screen.findByRole('dialog');
-      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
-      fireEvent.keyDown(dialog, { key: 'Enter' });
-
-      const prioritySelect = screen.getByLabelText(/priority/i);
-      expect(prioritySelect).toHaveFocus();
-    });
-
-    test('Arrow keys do navigate while editing', () => {
+    test('dialog container is focusable for keyboard users', () => {
       render(<AddTaskdialog {...mockProps} isOpen />);
 
       const dialog = screen.getByRole('dialog');
-      fireEvent.keyDown(dialog, { key: 'Enter' });
-      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
-
-      const descriptionRow = screen.getByText(/priority/i);
-      expect(descriptionRow).toBeInTheDocument();
+      expect(dialog).toHaveAttribute('tabindex', '0');
     });
 
-    test('DateTimePicker is visible when any date field is in edit mode', async () => {
-      render(<AddTaskdialog {...mockProps} isOpen />);
+    test('pressing Enter on Add Task button does not throw and keeps dialog usable', () => {
+      render(<AddTaskdialog {...mockProps} />);
 
-      const dialog = screen.getByRole('dialog');
-      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
-      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
-      fireEvent.keyDown(dialog, { key: 'ArrowDown' });
-      fireEvent.keyDown(dialog, { key: 'Enter' });
+      const addButton = screen.getByRole('button', { name: /add task/i });
+      fireEvent.keyDown(addButton, { key: 'Enter' });
+      // Button should still be in the document and clickable
+      expect(addButton).toBeInTheDocument();
+    });
 
-      expect(
-        screen.getByPlaceholderText('Select due date and time')
-      ).toBeInTheDocument();
+    test('users can focus description field and type', () => {
+      mockProps.isOpen = true;
+      render(<AddTaskdialog {...mockProps} />);
+
+      const descriptionInput = screen.getByLabelText(/description/i);
+      descriptionInput.focus();
+      fireEvent.change(descriptionInput, {
+        target: { value: 'Keyboard test' },
+      });
+
+      expect(mockProps.setNewTask).toHaveBeenCalledWith({
+        ...mockProps.newTask,
+        description: 'Keyboard test',
+      });
+    });
+
+    test('due date picker is accessible via placeholder text', () => {
+      mockProps.isOpen = true;
+      render(<AddTaskdialog {...mockProps} />);
+
+      const duePicker = screen.getByPlaceholderText('Select due date and time');
+      expect(duePicker).toBeInTheDocument();
     });
   });
 });

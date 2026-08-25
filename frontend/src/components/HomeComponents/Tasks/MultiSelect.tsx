@@ -21,6 +21,7 @@ export const MultiSelect = React.forwardRef<
       showActions = false,
       onSave,
       onCancel,
+      hideSelectedDisplay = false,
     },
     ref
   ) => {
@@ -115,7 +116,7 @@ export const MultiSelect = React.forwardRef<
           <ChevronDown className="h-4 w-4 opacity-50" />
         </Button>
 
-        {selectedItems.length > 0 && (
+        {selectedItems.length > 0 && !hideSelectedDisplay && (
           <div className="flex flex-wrap items-center gap-2 mt-2">
             {selectedItems.map((item) => (
               <Badge key={item} className="flex items-center gap-1">
