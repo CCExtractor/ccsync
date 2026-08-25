@@ -52,7 +52,7 @@ func (a *App) OAuthHandler(w http.ResponseWriter, r *http.Request) {
 	// Store state in session for validation in callback
 	session, _ := a.SessionStore.Get(r, "session-name")
 	session.Values["oauth_state"] = state
-	if err := session.Save(r, w); err != nil {
+	if err := utils.SaveSessionWithSecureCookie(session, r, w); err != nil {
 		utils.Logger.Errorf("Failed to save OAuth state to session: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
@@ -125,7 +125,7 @@ func (a *App) OAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	userInfo["uuid"] = uuidStr
 	userInfo["encryption_secret"] = encryptionSecret
 	session.Values["user"] = userInfo
-	if err := session.Save(r, w); err != nil {
+	if err := utils.SaveSessionWithSecureCookie(session, r, w); err != nil {
 		utils.Logger.Errorf("Failed to save session: %v", err)
 		http.Error(w, "Session error", http.StatusInternalServerError)
 		return
@@ -221,7 +221,7 @@ func (a *App) EnableCORS(handler http.Handler) http.Handler {
 func (a *App) LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := a.SessionStore.Get(r, "session-name")
 	session.Options.MaxAge = -1
-	if err := session.Save(r, w); err != nil {
+	if err := utils.SaveSessionWithSecureCookie(session, r, w); err != nil {
 		utils.Logger.Errorf("Failed to clear session on logout: %v", err)
 		http.Error(w, "Logout failed", http.StatusInternalServerError)
 		return
