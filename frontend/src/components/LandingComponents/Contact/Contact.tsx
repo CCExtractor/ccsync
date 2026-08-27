@@ -56,7 +56,7 @@ export const Contact = () => {
     <section
       id="contact"
       data-testid="#contact"
-      className="container py-24 sm:py-32 mt-0"
+      className="container py-24 sm:py-32 mt-0 scroll-mt-16"
     >
       <h2 className="text-3xl md:text-4xl font-bold text-center">
         <span className="inline bg-gradient-to-r from-[#F596D3] to-[#D247BF] text-transparent bg-clip-text">
