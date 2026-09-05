@@ -1,3 +1,6 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { url } from '@/components/utils/URLs';
 import { About } from './LandingComponents/About/About';
 import { FAQ } from './LandingComponents/FAQ/FAQ';
 import { Footer } from './LandingComponents/Footer/Footer';
@@ -9,6 +12,26 @@ import { Contact } from './LandingComponents/Contact/Contact';
 import '../App.css';
 
 export const LandingPage = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const redirectIfLoggedIn = async () => {
+      try {
+        const response = await fetch(url.backendURL + 'api/user', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (response.ok) {
+          navigate('/home');
+        }
+      } catch (error) {
+        console.error('Error checking login status:', error);
+      }
+    };
+
+    redirectIfLoggedIn();
+  }, [navigate]);
+
   return (
     <div className="overflow-x-hidden">
       <Navbar />
