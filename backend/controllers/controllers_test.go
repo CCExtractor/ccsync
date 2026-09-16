@@ -17,6 +17,7 @@ import (
 )
 
 func setup() *App {
+	os.Setenv("GO_ENV", "test")
 	godotenv.Load("../.env")
 
 	clientID := os.Getenv("CLIENT_ID")
