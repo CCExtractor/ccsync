@@ -9,7 +9,7 @@ import (
 
 // export the tasks so as to add them to DB
 func ExportTasks(tempDir string) ([]models.Task, error) {
-	output, err := utils.ExecCommandForOutputInDir(tempDir, "task", "export")
+	output, err := utils.ExecTaskOutputInDir(tempDir, "export")
 	if err != nil {
 		return nil, fmt.Errorf("error executing Taskwarrior export command: %v", err)
 	}

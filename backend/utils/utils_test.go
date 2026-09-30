@@ -4,6 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -83,6 +85,33 @@ func Test_ExecCommandForOutputInDir(t *testing.T) {
 	if string(output) == "" {
 		t.Errorf("Expected output but got empty result")
 	}
+}
+
+func Test_TaskwarriorEnv(t *testing.T) {
+	t.Setenv("TASKDATA", "/root/.task")
+	t.Setenv("TASKRC", "/root/.taskrc")
+
+	tempDir := t.TempDir()
+	env := TaskwarriorEnv(tempDir)
+
+	var data, rc string
+	for _, e := range env {
+		switch {
+		case strings.HasPrefix(e, "TASKDATA="):
+			if data != "" {
+				t.Fatal("duplicate TASKDATA")
+			}
+			data = strings.TrimPrefix(e, "TASKDATA=")
+		case strings.HasPrefix(e, "TASKRC="):
+			if rc != "" {
+				t.Fatal("duplicate TASKRC")
+			}
+			rc = strings.TrimPrefix(e, "TASKRC=")
+		}
+	}
+
+	assert.Equal(t, tempDir, data)
+	assert.Equal(t, filepath.Join(tempDir, "taskrc"), rc)
 }
 
 func Test_ValidateDependencies_EmptyList(t *testing.T) {

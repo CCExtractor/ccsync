@@ -9,9 +9,8 @@ import (
 )
 
 func AddTaskToTaskwarrior(req models.AddTaskRequestBody, dueDate string) error {
-	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
-		return fmt.Errorf("error deleting Taskwarrior data: %v", err)
-	}
+	taskwarriorMu.Lock()
+	defer taskwarriorMu.Unlock()
 
 	tempDir, err := os.MkdirTemp("", utils.SafeTempDirPrefix("taskwarrior-", req.Email))
 	if err != nil {
@@ -75,13 +74,13 @@ func AddTaskToTaskwarrior(req models.AddTaskRequestBody, dueDate string) error {
 		}
 	}
 
-	if err := utils.ExecCommandInDir(tempDir, "task", cmdArgs...); err != nil {
+	if err := utils.ExecTaskInDir(tempDir, cmdArgs...); err != nil {
 		return fmt.Errorf("failed to add task: %v\n %v", err, cmdArgs)
 	}
 
 	var taskID string
 	if req.End != "" || len(req.Annotations) > 0 {
-		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", "+LATEST", "_ids")
+		output, err := utils.ExecTaskOutputInDir(tempDir, "+LATEST", "_ids")
 		if err != nil {
 			return fmt.Errorf("failed to get latest task Id: %v", err)
 		}
@@ -95,7 +94,7 @@ func AddTaskToTaskwarrior(req models.AddTaskRequestBody, dueDate string) error {
 			return fmt.Errorf("unexpected end date format error: %v", err)
 		}
 		doneArgs := []string{"rc.confirmation=off", taskID, "done", "end:" + end}
-		if err := utils.ExecCommandInDir(tempDir, "task", doneArgs...); err != nil {
+		if err := utils.ExecTaskInDir(tempDir, doneArgs...); err != nil {
 			return fmt.Errorf("failed to complete task with end date: %v", err)
 		}
 	}
@@ -104,7 +103,7 @@ func AddTaskToTaskwarrior(req models.AddTaskRequestBody, dueDate string) error {
 		for _, annotation := range req.Annotations {
 			if annotation.Description != "" {
 				annotateArgs := []string{"rc.confirmation=off", taskID, "annotate", annotation.Description}
-				if err := utils.ExecCommandInDir(tempDir, "task", annotateArgs...); err != nil {
+				if err := utils.ExecTaskInDir(tempDir, annotateArgs...); err != nil {
 					return fmt.Errorf("failed to add annotation to task %s: %v", taskID, err)
 				}
 			}
