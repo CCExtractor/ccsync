@@ -14,6 +14,9 @@ func EditTaskInTaskwarrior(
 	tags, depends []string,
 	annotations []models.Annotation,
 ) error {
+	taskwarriorMu.Lock()
+	defer taskwarriorMu.Unlock()
+
 	tempDir, err := os.MkdirTemp("", utils.SafeTempDirPrefix("taskwarrior-", email))
 	if err != nil {
 		return fmt.Errorf("failed to create temporary directory: %v", err)
@@ -84,12 +87,12 @@ func EditTaskInTaskwarrior(
 		}
 	}
 
-	if err := utils.ExecCommand("task", modifyArgs...); err != nil {
+	if err := utils.ExecTaskInDir(tempDir, modifyArgs...); err != nil {
 		return fmt.Errorf("failed to edit task: %v", err)
 	}
 
 	if len(annotations) > 0 {
-		output, err := utils.ExecCommandForOutputInDir(tempDir, "task", taskUUID, "export")
+		output, err := utils.ExecTaskOutputInDir(tempDir, taskUUID, "export")
 		if err == nil {
 			var tasks []map[string]interface{}
 			if err := json.Unmarshal(output, &tasks); err == nil && len(tasks) > 0 {
@@ -97,7 +100,7 @@ func EditTaskInTaskwarrior(
 					for _, ann := range existingAnnotations {
 						if annMap, ok := ann.(map[string]interface{}); ok {
 							if desc, ok := annMap["description"].(string); ok {
-								utils.ExecCommand("task", taskUUID, "denotate", desc)
+								utils.ExecTaskInDir(tempDir, taskUUID, "denotate", desc)
 							}
 						}
 					}
@@ -107,7 +110,7 @@ func EditTaskInTaskwarrior(
 
 		for _, annotation := range annotations {
 			if annotation.Description != "" {
-				if err := utils.ExecCommand("task", taskUUID, "annotate", annotation.Description); err != nil {
+				if err := utils.ExecTaskInDir(tempDir, taskUUID, "annotate", annotation.Description); err != nil {
 					return fmt.Errorf("failed to add annotation %s: %v", annotation.Description, err)
 				}
 			}

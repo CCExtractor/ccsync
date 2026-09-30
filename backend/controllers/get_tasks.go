@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"ccsync_backend/models"
+	"ccsync_backend/utils"
 	"ccsync_backend/utils/tw"
 	"encoding/json"
 	"net/http"
@@ -35,9 +37,13 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodGet {
 		tasks, err := tw.FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
-		if err != nil || tasks == nil {
+		if err != nil {
+			utils.Logger.Errorf("Failed to fetch tasks: %v", err)
 			http.Error(w, "Failed to fetch tasks at backend", http.StatusInternalServerError)
 			return
+		}
+		if tasks == nil {
+			tasks = []models.Task{}
 		}
 
 		w.Header().Set("Content-Type", "application/json")
