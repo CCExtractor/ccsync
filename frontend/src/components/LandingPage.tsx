@@ -35,13 +35,15 @@ export const LandingPage = () => {
   return (
     <div className="overflow-x-hidden">
       <Navbar />
-      <Hero />
-      <About />
-      <HowItWorks />
-      <Contact />
-      <FAQ />
-      <Footer />
-      <ScrollToTop />
+      <div className="pt-16">
+        <Hero />
+        <About />
+        <HowItWorks />
+        <Contact />
+        <FAQ />
+        <Footer />
+        <ScrollToTop />
+      </div>
     </div>
   );
 };

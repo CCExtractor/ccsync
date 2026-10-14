@@ -302,39 +302,42 @@ export const HomePage: React.FC = () => {
               setIsLoading={setIsLoading}
             />
           </div>
-          <motion.div
-            id="home-hero"
-            initial={{ x: -1000 }}
-            animate={{ x: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-          >
-            <Hero
-              name={userInfo.name}
-              uuid={userInfo.uuid}
-              encryption_secret={userInfo.encryption_secret}
-            />
-          </motion.div>
-          <section id="home-tasks">
-            <Tasks
-              email={userInfo.email}
-              encryptionSecret={userInfo.encryption_secret}
-              origin={url.containerOrigin}
-              UUID={userInfo.uuid}
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
-            />
-          </section>
-          <section id="home-setup-guide">
-            <SetupGuide
-              name={userInfo.name}
-              uuid={userInfo.uuid}
-              encryption_secret={userInfo.encryption_secret}
-            />
-          </section>
-          <section id="home-faq">
-            <FAQ />
-          </section>
-          <Footer />
+          <div className="pt-16">
+            <motion.div
+              id="home-hero"
+              className="scroll-mt-16"
+              initial={{ x: -1000 }}
+              animate={{ x: 0 }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
+              <Hero
+                name={userInfo.name}
+                uuid={userInfo.uuid}
+                encryption_secret={userInfo.encryption_secret}
+              />
+            </motion.div>
+            <section id="home-tasks" className="scroll-mt-16">
+              <Tasks
+                email={userInfo.email}
+                encryptionSecret={userInfo.encryption_secret}
+                origin={url.containerOrigin}
+                UUID={userInfo.uuid}
+                isLoading={isLoading}
+                setIsLoading={setIsLoading}
+              />
+            </section>
+            <section id="home-setup-guide" className="scroll-mt-16">
+              <SetupGuide
+                name={userInfo.name}
+                uuid={userInfo.uuid}
+                encryption_secret={userInfo.encryption_secret}
+              />
+            </section>
+            <section id="home-faq" className="scroll-mt-16">
+              <FAQ />
+            </section>
+            <Footer />
+          </div>
         </div>
       ) : (
         <div>
