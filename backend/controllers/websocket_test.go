@@ -30,9 +30,10 @@ func resetWebSocketClients(t *testing.T) {
 	})
 }
 
-func Test_deliverJobStatus_OnlyMatchingClientReceivesEvent(t *testing.T) {
-	resetWebSocketClients(t)
-
+// startIDTaggedWSServer upgrades connections and registers them in `clients`
+// using the `id` query parameter (same map deliverJobStatus reads).
+func startIDTaggedWSServer(t *testing.T) *httptest.Server {
+	t.Helper()
 	up := websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ws, err := up.Upgrade(w, r, nil)
@@ -53,23 +54,48 @@ func Test_deliverJobStatus_OnlyMatchingClientReceivesEvent(t *testing.T) {
 			}
 		}
 	}))
-	defer server.Close()
+	t.Cleanup(server.Close)
+	return server
+}
 
+func dialWS(t *testing.T, server *httptest.Server, id string) *websocket.Conn {
+	t.Helper()
 	wsURL := "ws" + strings.TrimPrefix(server.URL, "http")
-	connA, _, err := websocket.DefaultDialer.Dial(wsURL+"?id=user-a", nil)
+	conn, _, err := websocket.DefaultDialer.Dial(wsURL+"?id="+id, nil)
 	require.NoError(t, err)
-	defer connA.Close()
+	t.Cleanup(func() { _ = conn.Close() })
+	return conn
+}
 
-	connB, _, err := websocket.DefaultDialer.Dial(wsURL+"?id=user-b", nil)
-	require.NoError(t, err)
-	defer connB.Close()
-
-	// Give the server goroutines time to register both clients.
+func waitForClientCount(t *testing.T, n int) {
+	t.Helper()
 	require.Eventually(t, func() bool {
 		clientsMu.RLock()
 		defer clientsMu.RUnlock()
-		return len(clients) == 2
+		return len(clients) == n
 	}, time.Second, 10*time.Millisecond)
+}
+
+func readJobStatus(t *testing.T, conn *websocket.Conn, timeout time.Duration) (JobStatus, error) {
+	t.Helper()
+	_ = conn.SetReadDeadline(time.Now().Add(timeout))
+	var got JobStatus
+	err := conn.ReadJSON(&got)
+	return got, err
+}
+
+func assertNoJobStatus(t *testing.T, conn *websocket.Conn, msg string) {
+	t.Helper()
+	_, err := readJobStatus(t, conn, 200*time.Millisecond)
+	assert.Error(t, err, msg)
+}
+
+func Test_deliverJobStatus_OnlyMatchingClientReceivesEvent(t *testing.T) {
+	resetWebSocketClients(t)
+	server := startIDTaggedWSServer(t)
+	connA := dialWS(t, server, "user-a")
+	connB := dialWS(t, server, "user-b")
+	waitForClientCount(t, 2)
 
 	deliverJobStatus(JobStatus{
 		Job:      "Add Task",
@@ -77,16 +103,88 @@ func Test_deliverJobStatus_OnlyMatchingClientReceivesEvent(t *testing.T) {
 		ClientID: "user-a",
 	})
 
-	_ = connA.SetReadDeadline(time.Now().Add(2 * time.Second))
-	var got JobStatus
-	require.NoError(t, connA.ReadJSON(&got))
+	got, err := readJobStatus(t, connA, 2*time.Second)
+	require.NoError(t, err)
 	assert.Equal(t, "Add Task", got.Job)
 	assert.Equal(t, "success", got.Status)
 	assert.Equal(t, "user-a", got.ClientID)
 
-	_ = connB.SetReadDeadline(time.Now().Add(200 * time.Millisecond))
-	err = connB.ReadJSON(&got)
-	assert.Error(t, err, "user-b must not receive user-a's job status")
+	// Reverse direction: B's event must not appear on A's socket.
+	// Do not timeout-read connB first: gorilla treats that error as permanent.
+	deliverJobStatus(JobStatus{
+		Job:      "Delete Task",
+		Status:   "success",
+		ClientID: "user-b",
+	})
+
+	got, err = readJobStatus(t, connB, 2*time.Second)
+	require.NoError(t, err)
+	assert.Equal(t, "Delete Task", got.Job)
+	assert.Equal(t, "success", got.Status)
+	assert.Equal(t, "user-b", got.ClientID)
+	assertNoJobStatus(t, connA, "user-a must not receive user-b's job status")
+}
+
+func Test_deliverJobStatus_EmptyClientIDDeliversToNoSocket(t *testing.T) {
+	resetWebSocketClients(t)
+	server := startIDTaggedWSServer(t)
+	connA := dialWS(t, server, "user-a")
+	connB := dialWS(t, server, "user-b")
+	waitForClientCount(t, 2)
+
+	deliverJobStatus(JobStatus{
+		Job:      "Get Tasks",
+		Status:   "success",
+		ClientID: "",
+	})
+
+	assertNoJobStatus(t, connA, "empty ClientID must not be delivered to user-a")
+	assertNoJobStatus(t, connB, "empty ClientID must not be delivered to user-b")
+}
+
+func Test_deliverJobStatus_SameUserMultipleConnectionsBothReceive(t *testing.T) {
+	resetWebSocketClients(t)
+	server := startIDTaggedWSServer(t)
+	tab1 := dialWS(t, server, "user-a")
+	tab2 := dialWS(t, server, "user-a")
+	waitForClientCount(t, 2)
+
+	deliverJobStatus(JobStatus{
+		Job:      "Edit Task",
+		Status:   "success",
+		ClientID: "user-a",
+	})
+
+	got1, err := readJobStatus(t, tab1, 2*time.Second)
+	require.NoError(t, err)
+	got2, err := readJobStatus(t, tab2, 2*time.Second)
+	require.NoError(t, err)
+
+	assert.Equal(t, "Edit Task", got1.Job)
+	assert.Equal(t, "success", got1.Status)
+	assert.Equal(t, "user-a", got1.ClientID)
+	assert.Equal(t, got1, got2)
+}
+
+func Test_deliverJobStatus_FailureOnlyReachesOwningUser(t *testing.T) {
+	resetWebSocketClients(t)
+	server := startIDTaggedWSServer(t)
+	connA := dialWS(t, server, "user-a")
+	connB := dialWS(t, server, "user-b")
+	waitForClientCount(t, 2)
+
+	deliverJobStatus(JobStatus{
+		Job:      "Add Task",
+		Status:   "failure",
+		ClientID: "user-a",
+	})
+
+	got, err := readJobStatus(t, connA, 2*time.Second)
+	require.NoError(t, err)
+	assert.Equal(t, "Add Task", got.Job)
+	assert.Equal(t, "failure", got.Status)
+	assert.Equal(t, "user-a", got.ClientID)
+	assertNoJobStatus(t, connB, "user-b must not receive user-a's failure event")
 }
 
 func Test_AuthenticatedWebSocketHandler_UsesSessionUUIDNotQueryClientID(t *testing.T) {
