@@ -975,6 +975,94 @@ describe('Tasks Component', () => {
     expect(newProjectInput).toHaveValue('My Fresh Project');
   });
 
+  describe('Add Task Submission', () => {
+    const hooks = require('../hooks');
+
+    test('submits the form to the backend and resets the dialog on success', async () => {
+      render(<Tasks {...mockProps} />);
+
+      await screen.findByText('Task 1');
+      fireEvent.click(screen.getByRole('button', { name: /add task/i }));
+
+      fireEvent.change(screen.getByLabelText('Description *'), {
+        target: { value: 'Plan release notes' },
+      });
+      fireEvent.change(screen.getByLabelText('Priority'), {
+        target: { value: 'H' },
+      });
+
+      const dialog = screen.getByRole('dialog');
+      fireEvent.click(
+        within(dialog).getByRole('button', { name: /add task/i })
+      );
+
+      await waitFor(() => {
+        expect(hooks.addTaskToBackend).toHaveBeenCalledWith(
+          expect.objectContaining({
+            email: mockProps.email,
+            encryptionSecret: mockProps.encryptionSecret,
+            UUID: mockProps.UUID,
+            description: 'Plan release notes',
+            priority: 'H',
+            project: '',
+            due: undefined,
+            start: '',
+            entry: '',
+            wait: '',
+            end: '',
+            recur: '',
+            tags: [],
+            annotations: [],
+            depends: [],
+          })
+        );
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /add task/i }));
+      expect(screen.getByLabelText('Description *')).toHaveValue('');
+    });
+
+    test('keeps the dialog open when submission fails', async () => {
+      const submissionError = new Error('Backend unavailable');
+      hooks.addTaskToBackend.mockRejectedValueOnce(submissionError);
+      const consoleError = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      try {
+        render(<Tasks {...mockProps} />);
+
+        await screen.findByText('Task 1');
+        fireEvent.click(screen.getByRole('button', { name: /add task/i }));
+        fireEvent.change(screen.getByLabelText('Description *'), {
+          target: { value: 'Keep this draft' },
+        });
+
+        const dialog = screen.getByRole('dialog');
+        fireEvent.click(
+          within(dialog).getByRole('button', { name: /add task/i })
+        );
+
+        await waitFor(() => {
+          expect(consoleError).toHaveBeenCalledWith(
+            'Failed to add task:',
+            submissionError
+          );
+        });
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+        expect(screen.getByLabelText('Description *')).toHaveValue(
+          'Keep this draft'
+        );
+      } finally {
+        consoleError.mockRestore();
+      }
+    });
+  });
+
   // Task Dependencies Tests
   describe('Task Dependencies', () => {
     test('passes allTasks prop to AddTaskDialog for dependency selection', async () => {
