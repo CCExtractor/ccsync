@@ -1992,4 +1992,193 @@ describe('Tasks Component', () => {
       expect(screen.getByText('Show Reports')).toBeInTheDocument();
     });
   });
+
+  describe('Project, status, and tag filters', () => {
+    const getFilterChange = (title: string) => {
+      const { MultiSelectFilter } = require('@/components/ui/multi-select');
+      const call = MultiSelectFilter.mock.calls.find(
+        (entry: any[]) => entry[0].title === title
+      );
+      return call[0].onSelectionChange as (values: string[]) => void;
+    };
+
+    test('filters the list to the selected project', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 12');
+
+      // Mock data: even indices (Task 1,3,5,...) are ProjectA; Task 12 is ProjectB.
+      act(() => {
+        getFilterChange('Projects')(['ProjectA']);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Task 11')).toBeInTheDocument();
+        expect(screen.getByText('Task 9')).toBeInTheDocument();
+        expect(screen.queryByText('Task 12')).not.toBeInTheDocument();
+        expect(screen.queryByText('Task 10')).not.toBeInTheDocument();
+      });
+    });
+
+    test('filters the list to the selected tag', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 12');
+
+      // Mock data: tag1 is on Task 1,4,7,10 (i % 3 === 0); Task 12 has tag2.
+      act(() => {
+        getFilterChange('Tags')(['tag1']);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Task 10')).toBeInTheDocument();
+        expect(screen.getByText('Task 7')).toBeInTheDocument();
+        expect(screen.queryByText('Task 12')).not.toBeInTheDocument();
+        expect(screen.queryByText('Task 11')).not.toBeInTheDocument();
+      });
+    });
+
+    test('filters the list to completed status', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 12');
+
+      const show = await screen.findByLabelText('Show:');
+      fireEvent.change(show, { target: { value: '20' } });
+
+      act(() => {
+        getFilterChange('Status')(['completed']);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Completed Task 1')).toBeInTheDocument();
+        expect(screen.queryByText('Task 12')).not.toBeInTheDocument();
+        expect(screen.queryByText('Deleted Task 1')).not.toBeInTheDocument();
+      });
+    });
+
+    test('clears a project filter when selection becomes empty', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 12');
+
+      act(() => {
+        getFilterChange('Projects')(['ProjectA']);
+      });
+      await waitFor(() => {
+        expect(screen.queryByText('Task 12')).not.toBeInTheDocument();
+      });
+
+      act(() => {
+        getFilterChange('Projects')([]);
+      });
+      await waitFor(() => {
+        expect(screen.getByText('Task 11')).toBeInTheDocument();
+        expect(screen.getByText('Task 12')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Column sorting', () => {
+    test('clicking the ID header toggles ID sort order', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 12');
+
+      const idHeader = screen.getByText('ID').closest('th') as HTMLElement;
+      // State starts as 'asc' while the loaded list is already desc, so the first
+      // click re-applies desc. The second click sorts ascending and reverses rows.
+      await act(async () => {
+        fireEvent.click(idHeader);
+      });
+      const afterFirst = screen
+        .getAllByTestId(/task-row-/)
+        .map((row) => row.getAttribute('data-testid'));
+
+      await act(async () => {
+        fireEvent.click(idHeader);
+      });
+
+      await waitFor(() => {
+        const afterSecond = screen
+          .getAllByTestId(/task-row-/)
+          .map((row) => row.getAttribute('data-testid'));
+        expect(afterSecond).not.toEqual(afterFirst);
+      });
+    });
+
+    test('clicking the Status header reorders tasks by status', async () => {
+      render(<Tasks {...mockProps} />);
+      const show = await screen.findByLabelText('Show:');
+      fireEvent.change(show, { target: { value: '20' } });
+      await screen.findByText('Completed Task 1');
+
+      const statusHeader = screen
+        .getByText('Status')
+        .closest('th') as HTMLElement;
+      const before = screen
+        .getAllByTestId(/task-row-/)
+        .map((row) => row.getAttribute('data-testid'));
+
+      await act(async () => {
+        fireEvent.click(statusHeader);
+      });
+
+      await waitFor(() => {
+        const after = screen
+          .getAllByTestId(/task-row-/)
+          .map((row) => row.getAttribute('data-testid'));
+        expect(after).not.toEqual(before);
+      });
+    });
+  });
+
+  describe('Empty search results', () => {
+    test('hides matching rows when search finds nothing', async () => {
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 12');
+
+      const search = screen.getByTestId('task-search-bar');
+      await act(async () => {
+        fireEvent.change(search, {
+          target: { value: 'zzzz-no-such-task-xyz' },
+        });
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('Task 12')).not.toBeInTheDocument();
+        expect(screen.queryByText('Task 1')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Annotation edits from Tasks', () => {
+    test('persists annotations through the Tasks save handler', async () => {
+      const { editTaskOnBackend } = require('../hooks');
+      render(<Tasks {...mockProps} />);
+      await screen.findByText('Task 12');
+
+      fireEvent.click(screen.getByText('Task 12'));
+      await waitFor(() => {
+        expect(screen.getByText('Annotations:')).toBeInTheDocument();
+      });
+
+      const annotationsRow = screen
+        .getByText('Annotations:')
+        .closest('tr') as HTMLElement;
+      fireEvent.click(within(annotationsRow).getByLabelText('edit'));
+
+      const input = await screen.findByPlaceholderText(
+        'Add an annotation (press enter to add)'
+      );
+      fireEvent.change(input, { target: { value: 'note from list test' } });
+      fireEvent.keyDown(input, { key: 'Enter' });
+      fireEvent.click(screen.getByLabelText('Save annotations'));
+
+      await waitFor(() => {
+        expect(editTaskOnBackend).toHaveBeenCalledWith(
+          expect.objectContaining({
+            annotations: [
+              expect.objectContaining({ description: 'note from list test' }),
+            ],
+          })
+        );
+      });
+    });
+  });
 });
