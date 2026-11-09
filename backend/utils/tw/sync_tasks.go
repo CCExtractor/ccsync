@@ -7,7 +7,7 @@ import (
 
 // sync the user's tasks to all of their TW clients
 func SyncTaskwarrior(tempDir string) error {
-	if err := utils.ExecCommandInDir(tempDir, "task", "sync"); err != nil {
+	if err := utils.ExecTaskInDir(tempDir, "sync"); err != nil {
 		return fmt.Errorf("error syncing Taskwarrior: %v", err)
 	}
 	return nil

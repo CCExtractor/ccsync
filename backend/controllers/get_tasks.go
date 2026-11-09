@@ -1,11 +1,18 @@
 package controllers
 
 import (
+	"ccsync_backend/models"
+	"ccsync_backend/utils"
 	"ccsync_backend/utils/tw"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 )
+
+// fetchTasksFromTaskwarrior is the Taskwarrior fetch used by TasksHandler.
+// Tests override it to avoid requiring a live Taskwarrior installation.
+var fetchTasksFromTaskwarrior = tw.FetchTasksFromTaskwarrior
 
 // TasksHandler godoc
 // @Summary Get all tasks
@@ -34,15 +41,50 @@ func TasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodGet {
-		tasks, err := tw.FetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
-		if err != nil || tasks == nil {
-			http.Error(w, "Failed to fetch tasks at backend", http.StatusInternalServerError)
+		type fetchResult struct {
+			tasks []models.Task
+			err   error
+		}
+		// Buffer of 1 so the queue worker never blocks if the client disconnects
+		// before the handler receives the result.
+		resultCh := make(chan fetchResult, 1)
+
+		job := Job{
+			Name: "Get Tasks",
+			Execute: func() (err error) {
+				var tasks []models.Task
+				defer func() {
+					if rec := recover(); rec != nil {
+						utils.Logger.Errorf("Get Tasks job panicked: %v", rec)
+						err = fmt.Errorf("panic while fetching tasks: %v", rec)
+					}
+					resultCh <- fetchResult{tasks: tasks, err: err}
+				}()
+				tasks, err = fetchTasksFromTaskwarrior(email, encryptionSecret, origin, UUID)
+				return err
+			},
+		}
+		GlobalJobQueue.AddJob(job)
+
+		select {
+		case res := <-resultCh:
+			if res.err != nil {
+				utils.Logger.Errorf("Failed to fetch tasks: %v", res.err)
+				http.Error(w, "Failed to fetch tasks at backend", http.StatusInternalServerError)
+				return
+			}
+			tasks := res.tasks
+			if tasks == nil {
+				tasks = []models.Task{}
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(tasks)
+			return
+		case <-r.Context().Done():
+			// Client disconnected; the job may still finish and send into resultCh.
 			return
 		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tasks)
-		return
 	}
 
 	http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)

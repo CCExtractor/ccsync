@@ -9,10 +9,6 @@ import (
 func DeleteTasksInTaskwarrior(email, encryptionSecret, uuid string, taskUUIDs []string) (map[string]string, error) {
 	failedTasks := make(map[string]string)
 
-	if err := utils.ExecCommand("rm", "-rf", "/root/.task"); err != nil {
-		return nil, fmt.Errorf("error deleting Taskwarrior data: %v", err)
-	}
-
 	tempDir, err := os.MkdirTemp("", utils.SafeTempDirPrefix("taskwarrior-", email))
 
 	if err != nil {
@@ -30,7 +26,7 @@ func DeleteTasksInTaskwarrior(email, encryptionSecret, uuid string, taskUUIDs []
 	}
 
 	for _, taskuuid := range taskUUIDs {
-		if err := utils.ExecCommandInDir(tempDir, "task", taskuuid, "delete", "rc.confirmation=off"); err != nil {
+		if err := utils.ExecTaskInDir(tempDir, taskuuid, "delete", "rc.confirmation=off"); err != nil {
 			failedTasks[taskuuid] = err.Error()
 			continue
 		}
