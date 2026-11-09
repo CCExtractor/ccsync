@@ -1195,6 +1195,7 @@ export const Tasks = (
       ) : (
         <div
           ref={tableRef}
+          data-testid="tasks-table-container"
           onMouseEnter={() => setHotkeysEnabled(true)}
           onMouseLeave={() => setHotkeysEnabled(false)}
         >
