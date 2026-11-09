@@ -153,6 +153,10 @@ export const Tasks = (
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (!hotkeysEnabled) {
+        return;
+      }
+
       const target = e.target as HTMLElement;
       if (
         target instanceof HTMLInputElement ||
@@ -1022,83 +1026,115 @@ export const Tasks = (
     }
   };
 
-  useHotkeys(['f'], () => {
-    if (!showReports) {
-      document.getElementById('search')?.focus();
-    }
-  });
-  useHotkeys(['a'], () => {
-    if (!showReports) {
-      document.getElementById('add-new-task')?.click();
-    }
-  });
-  useHotkeys(['r'], () => {
-    if (!showReports) {
-      document.getElementById('sync-task')?.click();
-    }
-  });
-  useHotkeys(['p'], () => {
-    if (!showReports) {
-      document.getElementById('projects')?.click();
-    }
-  });
-  useHotkeys(['s'], () => {
-    if (!showReports) {
-      document.getElementById('status')?.click();
-    }
-  });
-  useHotkeys(['t'], () => {
-    if (!showReports) {
-      document.getElementById('tags')?.click();
-    }
-  });
-  useHotkeys(['c'], () => {
-    if (!showReports && !_isDialogOpen) {
-      const task = currentTasks[selectedIndex];
-      if (!task) return;
-      const openBtn = document.getElementById(`task-row-${task.id}`);
-      openBtn?.click();
-      setTimeout(() => {
-        const confirmBtn = document.getElementById(
-          `mark-task-complete-${task.id}`
-        );
-        confirmBtn?.click();
-      }, 200);
-    } else {
-      if (_isDialogOpen) {
+  useHotkeys(
+    ['f'],
+    () => {
+      if (!showReports) {
+        document.getElementById('search')?.focus();
+      }
+    },
+    hotkeysEnabled
+  );
+  useHotkeys(
+    ['a'],
+    () => {
+      if (!showReports) {
+        document.getElementById('add-new-task')?.click();
+      }
+    },
+    hotkeysEnabled
+  );
+  useHotkeys(
+    ['r'],
+    () => {
+      if (!showReports) {
+        document.getElementById('sync-task')?.click();
+      }
+    },
+    hotkeysEnabled
+  );
+  useHotkeys(
+    ['p'],
+    () => {
+      if (!showReports) {
+        document.getElementById('projects')?.click();
+      }
+    },
+    hotkeysEnabled
+  );
+  useHotkeys(
+    ['s'],
+    () => {
+      if (!showReports) {
+        document.getElementById('status')?.click();
+      }
+    },
+    hotkeysEnabled
+  );
+  useHotkeys(
+    ['t'],
+    () => {
+      if (!showReports) {
+        document.getElementById('tags')?.click();
+      }
+    },
+    hotkeysEnabled
+  );
+  useHotkeys(
+    ['c'],
+    () => {
+      if (!showReports && !_isDialogOpen) {
         const task = currentTasks[selectedIndex];
         if (!task) return;
-        const confirmBtn = document.getElementById(
-          `mark-task-complete-${task.id}`
-        );
-        confirmBtn?.click();
+        const openBtn = document.getElementById(`task-row-${task.id}`);
+        openBtn?.click();
+        setTimeout(() => {
+          const confirmBtn = document.getElementById(
+            `mark-task-complete-${task.id}`
+          );
+          confirmBtn?.click();
+        }, 200);
+      } else {
+        if (_isDialogOpen) {
+          const task = currentTasks[selectedIndex];
+          if (!task) return;
+          const confirmBtn = document.getElementById(
+            `mark-task-complete-${task.id}`
+          );
+          confirmBtn?.click();
+        }
       }
-    }
-  });
+    },
+    hotkeysEnabled
+  );
 
-  useHotkeys(['d'], () => {
-    if (!showReports && !_isDialogOpen) {
-      const task = currentTasks[selectedIndex];
-      if (!task) return;
-      const openBtn = document.getElementById(`task-row-${task.id}`);
-      openBtn?.click();
-      setTimeout(() => {
-        const confirmBtn = document.getElementById(
-          `mark-task-as-deleted-${task.id}`
-        );
-        confirmBtn?.click();
-      }, 200);
-    } else {
-      if (_isDialogOpen) {
+  useHotkeys(
+    ['d'],
+    () => {
+      if (!showReports && !_isDialogOpen) {
         const task = currentTasks[selectedIndex];
         if (!task) return;
-        const confirmBtn = document.getElementById(
-          `mark-task-as-deleted-${task.id}`
-        );
-        confirmBtn?.click();
+        const openBtn = document.getElementById(`task-row-${task.id}`);
+        openBtn?.click();
+        setTimeout(() => {
+          const confirmBtn = document.getElementById(
+            `mark-task-as-deleted-${task.id}`
+          );
+          confirmBtn?.click();
+        }, 200);
+      } else {
+        if (_isDialogOpen) {
+          const task = currentTasks[selectedIndex];
+          if (!task) return;
+          const confirmBtn = document.getElementById(
+            `mark-task-as-deleted-${task.id}`
+          );
+          confirmBtn?.click();
+        }
       }
-    }
-  });
+    },
+    hotkeysEnabled
+  );
 
   return (
     <section
@@ -1159,6 +1195,7 @@ export const Tasks = (
       ) : (
         <div
           ref={tableRef}
+          data-testid="tasks-table-container"
           onMouseEnter={() => setHotkeysEnabled(true)}
           onMouseLeave={() => setHotkeysEnabled(false)}
         >

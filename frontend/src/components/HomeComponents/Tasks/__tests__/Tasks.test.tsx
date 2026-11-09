@@ -1750,10 +1750,15 @@ describe('Tasks Component', () => {
   });
 
   describe('Keyboard Navigation', () => {
+    const hoverTasksTable = () => {
+      fireEvent.mouseEnter(screen.getByTestId('tasks-table-container'));
+    };
+
     describe('Arrow Key Navigation', () => {
       test('ArrowDown key moves selection to next task', async () => {
         render(<Tasks {...mockProps} />);
         await screen.findByText('Task 1');
+        hoverTasksTable();
         const taskRows = screen.getAllByTestId(/task-row-/);
 
         expect(taskRows[0]).toHaveAttribute('data-selected', 'true');
@@ -1768,6 +1773,7 @@ describe('Tasks Component', () => {
       test('ArrowUp moves selection back to previous task', async () => {
         render(<Tasks {...mockProps} />);
         await screen.findByText('Task 1');
+        hoverTasksTable();
         const taskRows = screen.getAllByTestId(/task-row-/);
 
         fireEvent.keyDown(window, { key: 'ArrowDown' });
@@ -1785,6 +1791,7 @@ describe('Tasks Component', () => {
       test('ArrowDown stops at last task on page', async () => {
         render(<Tasks {...mockProps} />);
         await screen.findByText('Task 1');
+        hoverTasksTable();
 
         const taskRows = screen.getAllByTestId(/task-row-/);
 
@@ -1801,6 +1808,7 @@ describe('Tasks Component', () => {
       test('ArrowUp stops at first task', async () => {
         render(<Tasks {...mockProps} />);
         await screen.findByText('Task 1');
+        hoverTasksTable();
         const taskRows = screen.getAllByTestId(/task-row-/);
         const middleIndex = Math.floor(taskRows.length / 2);
 
@@ -1819,6 +1827,7 @@ describe('Tasks Component', () => {
       test('pressing "a" opens the Add Task dialog', async () => {
         render(<Tasks {...mockProps} />);
         await screen.findByText('Task 1');
+        hoverTasksTable();
 
         fireEvent.keyDown(window, { key: 'a' });
 
@@ -1834,6 +1843,7 @@ describe('Tasks Component', () => {
         async (key, _action, fn) => {
           render(<Tasks {...mockProps} />);
           await screen.findByText('Task 1');
+          hoverTasksTable();
 
           fireEvent.keyDown(window, { key });
 
@@ -1849,6 +1859,7 @@ describe('Tasks Component', () => {
       test('pressing "Enter" key opens the selected task dialog', async () => {
         render(<Tasks {...mockProps} />);
         await screen.findByText('Task 1');
+        hoverTasksTable();
 
         const taskRows = screen.getAllByTestId(/task-row-/);
         const selectedRow = taskRows.find(
@@ -1868,6 +1879,7 @@ describe('Tasks Component', () => {
       test('pressing "f" focuses the search input', async () => {
         render(<Tasks {...mockProps} />);
         await screen.findByText('Task 1');
+        hoverTasksTable();
 
         fireEvent.keyDown(window, { key: 'f' });
 
@@ -1878,6 +1890,7 @@ describe('Tasks Component', () => {
       test('pressing "r" triggers sync', async () => {
         render(<Tasks {...mockProps} />);
         await screen.findByText('Task 1');
+        hoverTasksTable();
 
         fireEvent.keyDown(window, { key: 'r' });
 
@@ -1894,6 +1907,7 @@ describe('Tasks Component', () => {
       ])('pressing "%s" opens the %s filter', async (key, filterName) => {
         render(<Tasks {...mockProps} />);
         await screen.findByText('Task 1');
+        hoverTasksTable();
 
         const filterButton = screen.getByTestId(`multi-select-${filterName}`);
         expect(filterButton).toHaveAttribute('aria-expanded', 'false');
@@ -1925,6 +1939,7 @@ describe('Tasks Component', () => {
         async (key, _action, fn) => {
           render(<Tasks {...mockProps} />);
           await screen.findByText('Task 1');
+          hoverTasksTable();
 
           fireEvent.click(screen.getByText('Task 1'));
           await screen.findByRole('dialog');

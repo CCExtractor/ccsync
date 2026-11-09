@@ -26,6 +26,18 @@ describe('useHotkeys', () => {
     expect(callback).toHaveBeenCalledTimes(1);
   });
 
+  it('should not call callback when hotkeys are disabled', () => {
+    renderHook(() => useHotkeys(['s'], callback, false));
+
+    const event = new KeyboardEvent('keydown', {
+      key: 's',
+      bubbles: true,
+    });
+    window.dispatchEvent(event);
+
+    expect(callback).not.toHaveBeenCalled();
+  });
+
   it('should handle multiple modifier keys', () => {
     renderHook(() => useHotkeys(['ctrl', 'shift', 'a'], callback));
 
