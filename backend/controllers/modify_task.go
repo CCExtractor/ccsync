@@ -92,7 +92,8 @@ func ModifyTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 		logStore := models.GetLogStore()
 		job := Job{
-			Name: "Modify Task",
+			Name:     "Modify Task",
+			ClientID: uuid,
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Modifying task UUID: %s", taskUUID), uuid, "Modify Task")
 				err := tw.ModifyTaskInTaskwarrior(uuid, description, project, priority, status, due, email, encryptionSecret, taskUUID, tags, depends)

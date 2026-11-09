@@ -55,7 +55,8 @@ func CompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		// }
 		logStore := models.GetLogStore()
 		job := Job{
-			Name: "Complete Task",
+			Name:     "Complete Task",
+			ClientID: uuid,
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Completing task UUID: %s", taskuuid), uuid, "Complete Task")
 				err := tw.CompleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid)

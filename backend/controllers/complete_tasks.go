@@ -53,7 +53,8 @@ func BulkCompleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	logStore := models.GetLogStore()
 
 	job := Job{
-		Name: "Bulk Complete Tasks",
+		Name:     "Bulk Complete Tasks",
+		ClientID: uuid,
 		Execute: func() error {
 			logStore.AddLog("INFO", fmt.Sprintf("[Bulk Complete] Starting %d tasks", len(taskUUIDs)), uuid, "Bulk Complete Task")
 

@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 
 	"ccsync_backend/utils"
 
@@ -22,8 +23,9 @@ func getEnv() string {
 }
 
 type JobStatus struct {
-	Job    string `json:"job"`
-	Status string `json:"status"`
+	Job      string `json:"job"`
+	Status   string `json:"status"`
+	ClientID string `json:"clientID,omitempty"`
 }
 
 // checkWebSocketOrigin validates the Origin header against allowed origins
@@ -80,7 +82,9 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: checkWebSocketOrigin,
 }
 
-var clients = make(map[*websocket.Conn]bool)
+// clients maps each WebSocket to the authenticated user's UUID.
+var clients = make(map[*websocket.Conn]string)
+var clientsMu sync.RWMutex
 var broadcast = make(chan JobStatus)
 
 // AuthenticatedWebSocketHandler creates a WebSocket handler that requires authentication
@@ -101,6 +105,15 @@ func AuthenticatedWebSocketHandler(store *sessions.CookieStore) http.HandlerFunc
 			return
 		}
 
+		// Prefer the session UUID over the clientID query param so a client
+		// cannot subscribe to another user's job-status events.
+		userUUID, _ := userInfo["uuid"].(string)
+		if userUUID == "" {
+			utils.Logger.Warnf("WebSocket auth failed: session user missing uuid")
+			http.Error(w, "Authentication required", http.StatusUnauthorized)
+			return
+		}
+
 		// User is authenticated, proceed with WebSocket upgrade
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -109,11 +122,18 @@ func AuthenticatedWebSocketHandler(store *sessions.CookieStore) http.HandlerFunc
 		}
 		defer ws.Close()
 
-		clients[ws] = true
+		clientsMu.Lock()
+		clients[ws] = userUUID
+		clientsMu.Unlock()
+		defer func() {
+			clientsMu.Lock()
+			delete(clients, ws)
+			clientsMu.Unlock()
+		}()
+
 		for {
 			_, _, err := ws.ReadMessage()
 			if err != nil {
-				delete(clients, ws)
 				break
 			}
 		}
@@ -130,11 +150,20 @@ func WebSocketHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer ws.Close()
 
-	clients[ws] = true
+	// Unauthenticated legacy handler: register with an empty id so scoped
+	// job-status events (which always carry a ClientID) are not delivered here.
+	clientsMu.Lock()
+	clients[ws] = ""
+	clientsMu.Unlock()
+	defer func() {
+		clientsMu.Lock()
+		delete(clients, ws)
+		clientsMu.Unlock()
+	}()
+
 	for {
 		_, _, err := ws.ReadMessage()
 		if err != nil {
-			delete(clients, ws)
 			break
 		}
 	}
@@ -144,15 +173,26 @@ func BroadcastJobStatus(jobStatus JobStatus) {
 	broadcast <- jobStatus
 }
 
+// deliverJobStatus sends a job-status event only to WebSockets registered
+// for the same ClientID as the job owner.
+func deliverJobStatus(jobStatus JobStatus) {
+	clientsMu.Lock()
+	defer clientsMu.Unlock()
+
+	for client, clientID := range clients {
+		if jobStatus.ClientID == "" || clientID != jobStatus.ClientID {
+			continue
+		}
+		if err := client.WriteJSON(jobStatus); err != nil {
+			client.Close()
+			delete(clients, client)
+		}
+	}
+}
+
 func JobStatusManager() {
 	for {
 		jobStatus := <-broadcast
-		for client := range clients {
-			err := client.WriteJSON(jobStatus)
-			if err != nil {
-				client.Close()
-				delete(clients, client)
-			}
-		}
+		deliverJobStatus(jobStatus)
 	}
 }

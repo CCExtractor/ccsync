@@ -71,7 +71,8 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 		logStore := models.GetLogStore()
 		job := Job{
-			Name: "Add Task",
+			Name:     "Add Task",
+			ClientID: requestBody.UUID,
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Adding task: %s", requestBody.Description), requestBody.UUID, "Add Task")
 				err := tw.AddTaskToTaskwarrior(requestBody, dueDateStr)

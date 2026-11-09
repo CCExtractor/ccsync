@@ -49,7 +49,8 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 		logStore := models.GetLogStore()
 		job := Job{
-			Name: "Delete Task",
+			Name:     "Delete Task",
+			ClientID: uuid,
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Deleting task UUID: %s", taskuuid), uuid, "Delete Task")
 				err := tw.DeleteTaskInTaskwarrior(email, encryptionSecret, uuid, taskuuid)

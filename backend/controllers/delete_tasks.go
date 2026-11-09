@@ -53,7 +53,8 @@ func BulkDeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	logStore := models.GetLogStore()
 
 	job := Job{
-		Name: "Bulk Delete Tasks",
+		Name:     "Bulk Delete Tasks",
+		ClientID: uuid,
 		Execute: func() error {
 			logStore.AddLog("INFO", fmt.Sprintf("[Bulk Delete] Starting %d tasks", len(taskUUIDs)), uuid, "Bulk Delete Task")
 

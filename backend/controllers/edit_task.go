@@ -118,7 +118,8 @@ func EditTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 		logStore := models.GetLogStore()
 		job := Job{
-			Name: "Edit Task",
+			Name:     "Edit Task",
+			ClientID: uuid,
 			Execute: func() error {
 				logStore.AddLog("INFO", fmt.Sprintf("Editing task UUID: %s", taskUUID), uuid, "Edit Task")
 
