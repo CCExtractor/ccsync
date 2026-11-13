@@ -24,6 +24,10 @@ The deployment system uses:
 │   └── deploy.sh           # Copy from this directory
 └── deployments/            # Deployment history
     └── current -> ...      # Symlink to current deployment
+
+/opt/ccsync-monitor/
+├── health-check.sh         # Copy from this directory
+└── health-check.env        # Zulip + monitor config
 ```
 
 ## Initial VPS Setup
@@ -53,6 +57,11 @@ sudo -u deploy cp deployment/docker-compose.yml /opt/ccsync/
 # Copy and make deploy script executable
 sudo -u deploy cp deployment/deploy.sh /opt/ccsync/scripts/
 sudo chmod +x /opt/ccsync/scripts/deploy.sh
+
+# Copy and make health monitor script executable
+sudo mkdir -p /opt/ccsync-monitor
+sudo cp deployment/health-check.sh /opt/ccsync-monitor/
+sudo chmod +x /opt/ccsync-monitor/health-check.sh
 ```
 
 ### 4. Create secrets file
@@ -170,3 +179,32 @@ The health check script at `/opt/ccsync-monitor/health-check.sh` monitors:
 - Docker container health status
 - Backend `/health` endpoint
 - Alerts to Zulip on failures
+
+### Suggested monitor configuration
+
+Create `/opt/ccsync-monitor/health-check.env`:
+
+```bash
+ZULIP_SITE="https://your-org.zulipchat.com"
+ZULIP_BOT_EMAIL="ccsync-bot@your-org.zulipchat.com"
+ZULIP_BOT_API_KEY="your-zulip-api-key"
+ZULIP_STREAM="ops"
+ZULIP_TOPIC="CCSync health"
+
+COMPOSE_DIR="/opt/ccsync"
+COMPOSE_FILE="/opt/ccsync/docker-compose.yml"
+HEALTH_URL="http://127.0.0.1:8000/health"
+MAX_CONSECUTIVE_FAILURES="3"
+ALERT_COOLDOWN_SECONDS="3600"
+```
+
+The script sources that env file automatically. Run it from cron every 5 minutes:
+
+```bash
+*/5 * * * * /opt/ccsync-monitor/health-check.sh >> /var/log/ccsync-health-check.log 2>&1
+```
+
+With the settings above:
+- one failed check no longer pages immediately
+- the script waits for 3 consecutive failed runs before alerting
+- after sending an alert, it suppresses repeat alerts for 1 hour
